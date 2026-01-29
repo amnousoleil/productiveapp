@@ -6,9 +6,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(145deg, #2d2a4a 0%, #1f1d36 50%, #1a1825 100%);
+    background: linear-gradient(165deg, #1a1410 0%, #2d2117 40%, #3d2e1f 100%);
     min-height: 100vh;
-    color: #e8e6f0;
+    color: #f5e6d3;
     padding: 20px;
 }
 
@@ -26,10 +26,11 @@ header h1 {
     font-size: 2.5rem;
     font-weight: 300;
     margin-bottom: 5px;
+    color: #f5e6d3;
 }
 
 .subtitle {
-    color: #888;
+    color: #a89078;
     font-size: 0.95rem;
 }
 
@@ -43,19 +44,19 @@ header h1 {
     font-size: 1.1rem;
     border: none;
     border-radius: 50px;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: rgba(245, 230, 211, 0.1);
+    color: #f5e6d3;
     outline: none;
     transition: all 0.3s ease;
 }
 
 #bubble-input::placeholder, #journal-input::placeholder {
-    color: #666;
+    color: #8a7a6a;
 }
 
 #bubble-input:focus, #journal-input:focus {
-    background: rgba(255, 255, 255, 0.15);
-    box-shadow: 0 0 20px rgba(100, 200, 255, 0.2);
+    background: rgba(245, 230, 211, 0.15);
+    box-shadow: 0 0 20px rgba(210, 160, 110, 0.2);
 }
 
 .bubbles-container {
@@ -70,7 +71,7 @@ header h1 {
     font-weight: 400;
     margin-bottom: 15px;
     padding-left: 10px;
-    color: #aaa;
+    color: #c4a882;
 }
 
 .bubble-list {
@@ -95,17 +96,19 @@ header h1 {
 }
 
 .bubble.todo {
-    background: linear-gradient(135deg, #8b7ec8 0%, #a78bba 100%);
+    background: linear-gradient(135deg, #c17f59 0%, #d4a574 100%);
+    color: #1a1410;
 }
 
 .bubble.todo:hover {
     transform: translateX(5px);
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 20px rgba(193, 127, 89, 0.4);
 }
 
 .bubble.done {
-    background: linear-gradient(135deg, #7eb8a6 0%, #9dc5b0 100%);
-    opacity: 0.85;
+    background: linear-gradient(135deg, #7d8471 0%, #a3aa8f 100%);
+    color: #1a1410;
+    opacity: 0.9;
 }
 
 .bubble .text {
@@ -115,7 +118,7 @@ header h1 {
 .bubble .delete-btn {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(26, 20, 16, 0.5);
     font-size: 1.2rem;
     cursor: pointer;
     padding: 0 5px;
@@ -123,19 +126,19 @@ header h1 {
 }
 
 .bubble .delete-btn:hover {
-    color: #ff6b6b;
+    color: #8b3a3a;
 }
 
 .bubble .priority {
     font-size: 0.75rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(26, 20, 16, 0.2);
     padding: 2px 8px;
     border-radius: 10px;
     margin-left: 10px;
 }
 
 .journal-section {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(245, 230, 211, 0.05);
     border-radius: 20px;
     padding: 25px;
 }
@@ -144,6 +147,7 @@ header h1 {
     font-size: 1.2rem;
     font-weight: 400;
     margin-bottom: 15px;
+    color: #c4a882;
 }
 
 .journal-input-row {
@@ -161,7 +165,7 @@ header h1 {
 
 .journal-entry {
     padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(245, 230, 211, 0.05);
     border-radius: 10px;
     margin-bottom: 8px;
     display: flex;
@@ -176,7 +180,7 @@ header h1 {
 }
 
 .journal-entry .time {
-    color: #888;
+    color: #a89078;
     font-size: 0.85rem;
     margin-right: 15px;
 }
@@ -188,15 +192,15 @@ header h1 {
 .summary-section {
     margin-top: 25px;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(245, 230, 211, 0.1);
 }
 
 #generate-summary {
-    background: linear-gradient(135deg, #c9a7c7 0%, #b8a0c4 100%);
+    background: linear-gradient(135deg, #c17f59 0%, #d4a574 100%);
     border: none;
     padding: 12px 25px;
     border-radius: 25px;
-    color: #fff;
+    color: #1a1410;
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -204,13 +208,13 @@ header h1 {
 
 #generate-summary:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(201, 167, 199, 0.3);
+    box-shadow: 0 5px 20px rgba(193, 127, 89, 0.4);
 }
 
 .summary-box {
     margin-top: 20px;
     padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(245, 230, 211, 0.05);
     border-radius: 15px;
     display: none;
     line-height: 1.6;
@@ -229,15 +233,15 @@ header h1 {
 .summary-box h3 {
     font-size: 1rem;
     margin-bottom: 10px;
-    color: #c9a7c7;
+    color: #d4a574;
 }
 
 .summary-box p {
-    color: #ccc;
+    color: #c4b49a;
 }
 
 .empty-state {
-    color: #555;
+    color: #6a5a4a;
     text-align: center;
     padding: 30px;
     font-style: italic;
