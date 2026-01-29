@@ -6,9 +6,9 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    background: linear-gradient(145deg, #2d2a4a 0%, #1f1d36 50%, #1a1825 100%);
     min-height: 100vh;
-    color: #fff;
+    color: #e8e6f0;
     padding: 20px;
 }
 
@@ -95,7 +95,7 @@ header h1 {
 }
 
 .bubble.todo {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #8b7ec8 0%, #a78bba 100%);
 }
 
 .bubble.todo:hover {
@@ -104,8 +104,8 @@ header h1 {
 }
 
 .bubble.done {
-    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-    opacity: 0.8;
+    background: linear-gradient(135deg, #7eb8a6 0%, #9dc5b0 100%);
+    opacity: 0.85;
 }
 
 .bubble .text {
@@ -192,7 +192,7 @@ header h1 {
 }
 
 #generate-summary {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #c9a7c7 0%, #b8a0c4 100%);
     border: none;
     padding: 12px 25px;
     border-radius: 25px;
@@ -204,7 +204,7 @@ header h1 {
 
 #generate-summary:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(240, 147, 251, 0.4);
+    box-shadow: 0 5px 20px rgba(201, 167, 199, 0.3);
 }
 
 .summary-box {
@@ -229,7 +229,7 @@ header h1 {
 .summary-box h3 {
     font-size: 1rem;
     margin-bottom: 10px;
-    color: #f093fb;
+    color: #c9a7c7;
 }
 
 .summary-box p {
