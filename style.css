@@ -42,21 +42,22 @@ header h1 {
     width: 100%;
     padding: 15px 20px;
     font-size: 1.1rem;
-    border: none;
+    border: 1px solid rgba(245, 230, 211, 0.15);
     border-radius: 50px;
-    background: rgba(245, 230, 211, 0.1);
+    background: rgba(245, 230, 211, 0.08);
     color: #f5e6d3;
     outline: none;
     transition: all 0.3s ease;
 }
 
 #bubble-input::placeholder, #journal-input::placeholder {
-    color: #8a7a6a;
+    color: #a89078;
 }
 
 #bubble-input:focus, #journal-input:focus {
-    background: rgba(245, 230, 211, 0.15);
-    box-shadow: 0 0 20px rgba(210, 160, 110, 0.2);
+    background: rgba(245, 230, 211, 0.12);
+    border-color: rgba(244, 162, 97, 0.4);
+    box-shadow: 0 0 20px rgba(244, 162, 97, 0.15);
 }
 
 .bubbles-container {
@@ -96,8 +97,9 @@ header h1 {
 }
 
 .bubble.todo {
-    background: linear-gradient(135deg, #c17f59 0%, #d4a574 100%);
+    background: linear-gradient(135deg, #e07840 0%, #f4a261 100%);
     color: #1a1410;
+    box-shadow: 0 2px 10px rgba(224, 120, 64, 0.25);
 }
 
 .bubble.todo:hover {
@@ -109,6 +111,11 @@ header h1 {
     background: linear-gradient(135deg, #2d8a4e 0%, #4ade80 100%);
     color: #0a1f12;
     box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+}
+
+.bubble.done:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 25px rgba(74, 222, 128, 0.45);
 }
 
 .bubble .text {
@@ -130,11 +137,15 @@ header h1 {
 }
 
 .bubble .priority {
-    font-size: 0.75rem;
-    background: rgba(26, 20, 16, 0.2);
-    padding: 2px 8px;
-    border-radius: 10px;
+    font-size: 0.7rem;
+    background: rgba(26, 20, 16, 0.25);
+    color: rgba(26, 20, 16, 0.7);
+    padding: 3px 10px;
+    border-radius: 12px;
     margin-left: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .journal-section {
@@ -196,19 +207,20 @@ header h1 {
 }
 
 #generate-summary {
-    background: linear-gradient(135deg, #c17f59 0%, #d4a574 100%);
+    background: linear-gradient(135deg, #e07840 0%, #f4a261 100%);
     border: none;
     padding: 12px 25px;
     border-radius: 25px;
     color: #1a1410;
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 #generate-summary:hover {
     transform: scale(1.05);
-    box-shadow: 0 5px 20px rgba(193, 127, 89, 0.4);
+    box-shadow: 0 5px 25px rgba(224, 120, 64, 0.4);
 }
 
 .summary-box {
