@@ -106,9 +106,9 @@ header h1 {
 }
 
 .bubble.done {
-    background: linear-gradient(135deg, #7d8471 0%, #a3aa8f 100%);
-    color: #1a1410;
-    opacity: 0.9;
+    background: linear-gradient(135deg, #2d8a4e 0%, #4ade80 100%);
+    color: #0a1f12;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
 }
 
 .bubble .text {
