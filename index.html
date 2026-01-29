@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductiveApp - Mes Bulles</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🫧 Mes Bulles</h1>
+            <p class="subtitle">Tape ta tâche et appuie sur Entrée</p>
+        </header>
+
+        <div class="input-section">
+            <input 
+                type="text" 
+                id="bubble-input" 
+                placeholder="Nouvelle bulle... (ex: Appeler le comptable)"
+                autofocus
+            >
+        </div>
+
+        <div class="bubbles-container">
+            <div class="column">
+                <h2>À faire</h2>
+                <div id="todo-bubbles" class="bubble-list"></div>
+            </div>
+            <div class="column">
+                <h2>Terminé ✓</h2>
+                <div id="done-bubbles" class="bubble-list"></div>
+            </div>
+        </div>
+
+        <div class="journal-section">
+            <h2>📝 Journal du jour</h2>
+            <div class="journal-input-row">
+                <input 
+                    type="text" 
+                    id="journal-input" 
+                    placeholder="Note ce que tu viens de faire..."
+                >
+            </div>
+            <div id="journal-entries" class="journal-list"></div>
+            
+            <div class="summary-section">
+                <button id="generate-summary">Générer le résumé du jour</button>
+                <div id="daily-summary" class="summary-box"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
