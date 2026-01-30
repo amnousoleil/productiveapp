@@ -68,12 +68,12 @@ function animateCanvas() {
     requestAnimationFrame(animateCanvas);
 }
 
-// === HACKER - Méga lent, méditatif ===
+// === HACKER - Lent et reposant ===
 function animateHacker() {
     matrixCtx.font = '12px monospace';
     
     const chars = '01';
-    const columns = Math.floor(matrixCanvas.width / 100); // Très espacé
+    const columns = Math.floor(matrixCanvas.width / 100);
     
     for (let i = 0; i < columns; i++) {
         if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
@@ -90,14 +90,14 @@ function animateHacker() {
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
         
-        if (y > matrixCanvas.height && Math.random() > 0.999) {
+        if (y > matrixCanvas.height && Math.random() > 0.99) {
             matrixDrops[i] = 0;
         }
-        matrixDrops[i] += 0.005; // MEGA lent
+        matrixDrops[i] += 0.05; // Lent mais visible
     }
 }
 
-// === MATRIX - Code vert méga lent ===
+// === MATRIX - Code vert lent et reposant ===
 function animateMatrix() {
     matrixCtx.font = '12px monospace';
     
@@ -119,10 +119,10 @@ function animateMatrix() {
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
         
-        if (y > matrixCanvas.height && Math.random() > 0.999) {
+        if (y > matrixCanvas.height && Math.random() > 0.99) {
             matrixDrops[i] = 0;
         }
-        matrixDrops[i] += 0.008; // MEGA lent
+        matrixDrops[i] += 0.06; // Lent mais visible
     }
 }
 
