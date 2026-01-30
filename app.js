@@ -87,6 +87,11 @@ function loadTheme() {
         themeSlider.value = index;
         themeName.textContent = THEMES[index].name;
     }
+    
+    // Démarrer Matrix si c'est le thème actif
+    if (savedTheme === 'matrix') {
+        setTimeout(startMatrix, 100);
+    }
 }
 
 // === VIDER TOUTES LES BULLES ===
@@ -402,6 +407,91 @@ window.exportData = function() {
         journal: journal,
         history: history
     };
+};
+
+// === MATRIX RAIN EFFECT ===
+const matrixCanvas = document.getElementById('matrix-bg');
+const matrixCtx = matrixCanvas.getContext('2d');
+
+let matrixColumns = [];
+let matrixAnimationId = null;
+
+function initMatrix() {
+    matrixCanvas.width = window.innerWidth;
+    matrixCanvas.height = window.innerHeight;
+    
+    const fontSize = 14;
+    const columns = Math.floor(matrixCanvas.width / fontSize);
+    
+    matrixColumns = [];
+    for (let i = 0; i < columns; i++) {
+        matrixColumns[i] = Math.random() * matrixCanvas.height;
+    }
+}
+
+function drawMatrix() {
+    matrixCtx.fillStyle = 'rgba(13, 17, 23, 0.05)';
+    matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    
+    matrixCtx.fillStyle = '#238636';
+    matrixCtx.font = '14px monospace';
+    
+    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF';
+    
+    for (let i = 0; i < matrixColumns.length; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * 14;
+        const y = matrixColumns[i];
+        
+        matrixCtx.fillText(char, x, y);
+        
+        if (y > matrixCanvas.height && Math.random() > 0.975) {
+            matrixColumns[i] = 0;
+        }
+        matrixColumns[i] += 14;
+    }
+    
+    matrixAnimationId = requestAnimationFrame(drawMatrix);
+}
+
+function startMatrix() {
+    if (!matrixAnimationId) {
+        initMatrix();
+        drawMatrix();
+    }
+}
+
+function stopMatrix() {
+    if (matrixAnimationId) {
+        cancelAnimationFrame(matrixAnimationId);
+        matrixAnimationId = null;
+        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    }
+}
+
+// Gérer le resize
+window.addEventListener('resize', () => {
+    if (document.documentElement.getAttribute('data-theme') === 'matrix') {
+        initMatrix();
+    }
+});
+
+// Modifier setTheme pour gérer l'effet Matrix
+const originalSetTheme = setTheme;
+setTheme = function(theme) {
+    if (theme === 'desert') {
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('theme', theme);
+    
+    // Gérer l'effet Matrix
+    if (theme === 'matrix') {
+        startMatrix();
+    } else {
+        stopMatrix();
+    }
 };
 
 // === CHATBOT IA ===
