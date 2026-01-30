@@ -345,6 +345,8 @@ window.exportData = function() {
 };
 
 // === CHATBOT IA ===
+const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400-91f2-48ea-b115-26a330247dcc';
+
 const chatbotToggle = document.getElementById('chatbot-toggle');
 const chatbotWindow = document.getElementById('chatbot-window');
 const chatbotClose = document.getElementById('chatbot-close');
@@ -382,10 +384,61 @@ async function sendChatMessage() {
     const loadingDiv = addChatMessage('En train de réfléchir...', 'assistant loading');
     
     try {
-        const response = await getChatbotResponse(message);
+        // Préparer le contexte des tâches
+        const todoBubbles = bubbles.filter(b => !b.done);
+        const doneBubbles = bubbles.filter(b => b.done);
+        
+        const context = `
+UTILISATEUR: ${CURRENT_USER}
+TÂCHES À FAIRE (${todoBubbles.length}):
+${todoBubbles.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n') || 'Aucune'}
+
+TÂCHES TERMINÉES (${doneBubbles.length}):
+${doneBubbles.slice(0, 10).map(b => `- "${b.text}" | Projet: ${b.project}`).join('\n') || 'Aucune'}
+        `.trim();
+        
+        // Appel au webhook n8n
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: message,
+                context: context,
+                user: CURRENT_USER
+            })
+        });
+        
+        const data = await response.text();
         loadingDiv.remove();
-        addChatMessage(response, 'assistant');
+        
+        // Parser la réponse
+        let aiResponse = data;
+        try {
+            const jsonData = JSON.parse(data);
+            aiResponse = jsonData.response || jsonData.text || data;
+        } catch (e) {
+            // Si ce n'est pas du JSON, utiliser la réponse brute
+        }
+        
+        // Vérifier si l'IA demande une action
+        if (aiResponse.includes('ACTION:CREATE')) {
+            const actionMatch = aiResponse.match(/ACTION:CREATE\s*(\{.*\})/);
+            if (actionMatch) {
+                try {
+                    const taskData = JSON.parse(actionMatch[1]);
+                    createBubbleFromAI(taskData);
+                    aiResponse = aiResponse.replace(/ACTION:CREATE\s*\{.*\}/, '').trim();
+                    aiResponse += '\n\n✅ Tâche créée !';
+                } catch (e) {
+                    console.error('Erreur création tâche:', e);
+                }
+            }
+        }
+        
+        addChatMessage(aiResponse || 'Réponse reçue !', 'assistant');
+        
     } catch (error) {
+        console.error('Erreur chatbot:', error);
         loadingDiv.remove();
         addChatMessage('Oups, une erreur est survenue. Réessaie !', 'assistant');
     }
@@ -400,88 +453,22 @@ function addChatMessage(text, className) {
     return div;
 }
 
-async function getChatbotResponse(userMessage) {
-    // Contexte des tâches actuelles
-    const todoBubbles = bubbles.filter(b => !b.done);
-    const doneBubbles = bubbles.filter(b => b.done);
-    const urgentBubbles = todoBubbles.filter(b => b.priority.level === 1);
+// Créer une bulle depuis l'IA
+function createBubbleFromAI(taskData) {
+    const bubble = {
+        id: Date.now(),
+        text: taskData.text,
+        done: false,
+        priority: {
+            level: taskData.priority_level || 2,
+            label: taskData.priority_label || 'Normal'
+        },
+        project: taskData.project || detectProject(taskData.text),
+        createdAt: new Date().toISOString()
+    };
     
-    const context = `
-Contexte de l'utilisateur (${CURRENT_USER}) :
-- ${todoBubbles.length} tâche(s) à faire
-- ${doneBubbles.length} tâche(s) terminée(s)
-- ${urgentBubbles.length} tâche(s) urgente(s)
-
-Tâches à faire :
-${todoBubbles.map(b => `- ${b.text} (${b.priority.label}, projet: ${b.project})`).join('\n') || 'Aucune'}
-
-Tâches urgentes :
-${urgentBubbles.map(b => `- ${b.text}`).join('\n') || 'Aucune'}
-    `.trim();
-    
-    // Appel à l'API OpenAI via n8n ou directement
-    // Pour l'instant, réponses intelligentes locales basées sur le contexte
-    return getSmartResponse(userMessage, todoBubbles, urgentBubbles, doneBubbles);
-}
-
-function getSmartResponse(message, todo, urgent, done) {
-    const msgLower = message.toLowerCase();
-    
-    // Questions sur les tâches
-    if (msgLower.includes('combien') && (msgLower.includes('tâche') || msgLower.includes('bulle'))) {
-        return `Tu as ${todo.length} tâche(s) à faire et ${done.length} terminée(s). ${urgent.length > 0 ? `⚠️ Dont ${urgent.length} urgente(s) !` : 'Aucune urgence pour le moment 👍'}`;
-    }
-    
-    if (msgLower.includes('urgent') || msgLower.includes('priorit')) {
-        if (urgent.length === 0) {
-            return `Bonne nouvelle ! Tu n'as aucune tâche urgente. Tu peux avancer sereinement sur tes ${todo.length} tâches en cours.`;
-        }
-        return `Tu as ${urgent.length} tâche(s) urgente(s) :\n${urgent.map(b => `• ${b.text}`).join('\n')}\n\nJe te conseille de t'en occuper en priorité ! 💪`;
-    }
-    
-    if (msgLower.includes('quoi faire') || msgLower.includes('par quoi commencer') || msgLower.includes('conseil')) {
-        if (urgent.length > 0) {
-            return `Commence par tes urgences :\n• ${urgent[0].text}\n\nUne fois ça fait, tu pourras passer aux autres tâches plus sereinement.`;
-        }
-        if (todo.length > 0) {
-            const firstTask = todo[0];
-            return `Je te suggère de commencer par : "${firstTask.text}" (${firstTask.project}). C'est ta priorité du moment !`;
-        }
-        return `Tu n'as aucune tâche en cours ! C'est le moment de planifier ta journée ou de te reposer 😊`;
-    }
-    
-    if (msgLower.includes('projet') || msgLower.includes('catégorie')) {
-        const projects = {};
-        todo.forEach(b => {
-            projects[b.project] = (projects[b.project] || 0) + 1;
-        });
-        const projectList = Object.entries(projects).map(([p, c]) => `• ${p}: ${c} tâche(s)`).join('\n');
-        return `Répartition de tes tâches par projet :\n${projectList || 'Aucune tâche en cours'}`;
-    }
-    
-    if (msgLower.includes('résumé') || msgLower.includes('recap') || msgLower.includes('overview')) {
-        return `📊 Résumé rapide :\n\n• ${todo.length} tâche(s) à faire\n• ${done.length} terminée(s)\n• ${urgent.length} urgente(s)\n\n${urgent.length > 0 ? '⚠️ Pense à traiter tes urgences !' : '✨ Tout roule, continue comme ça !'}`;
-    }
-    
-    if (msgLower.includes('motivation') || msgLower.includes('encourage') || msgLower.includes('boost')) {
-        const motivations = [
-            `Tu gères ! ${done.length} tâches déjà terminées, continue sur ta lancée 💪`,
-            `Chaque petite action compte. Tu avances, c'est l'essentiel ! ✨`,
-            `Rome ne s'est pas construite en un jour. Tu fais du super boulot ! 🏆`,
-            `${todo.length} tâches ? Tu vas les pulvériser une par une ! 🔥`,
-            `La clé c'est la régularité. Et tu es là, donc tu assures ! 💫`
-        ];
-        return motivations[Math.floor(Math.random() * motivations.length)];
-    }
-    
-    if (msgLower.includes('merci')) {
-        return `Avec plaisir ! Je suis là pour t'aider à rester organisée. N'hésite pas si tu as d'autres questions 💫`;
-    }
-    
-    if (msgLower.includes('bonjour') || msgLower.includes('salut') || msgLower.includes('hello') || msgLower.includes('coucou')) {
-        return `Hey ${CURRENT_USER} ! 👋 Comment puis-je t'aider ? Tu peux me demander un résumé de tes tâches, des conseils de priorité, ou juste discuter !`;
-    }
-    
-    // Réponse par défaut
-    return `Je suis ton assistant de productivité ! Tu peux me demander :\n• "Combien de tâches j'ai ?"\n• "Quoi faire en premier ?"\n• "Montre mes urgences"\n• "Résumé de mes tâches"\n• "Donne-moi de la motivation"\n\nOu pose-moi n'importe quelle question sur ton organisation !`;
+    bubbles.push(bubble);
+    saveBubbles();
+    renderBubbles();
+    sendToN8N('bubble', bubble);
 }
