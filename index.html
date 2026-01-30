@@ -14,12 +14,15 @@
         </header>
 
         <div class="input-section">
-            <input 
-                type="text" 
-                id="bubble-input" 
-                placeholder="Nouvelle bulle..."
-                autofocus
-            >
+            <div class="input-row">
+                <input 
+                    type="text" 
+                    id="bubble-input" 
+                    placeholder="Nouvelle bulle..."
+                    autofocus
+                >
+                <button id="add-bubble-btn" class="send-btn">+</button>
+            </div>
         </div>
 
         <div class="bubbles-container">
@@ -41,6 +44,7 @@
                     id="journal-input" 
                     placeholder="Note ce que tu viens de faire..."
                 >
+                <button id="add-journal-btn" class="send-btn">+</button>
             </div>
             <div id="journal-entries" class="journal-list"></div>
             
