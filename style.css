@@ -21,18 +21,18 @@
 
 /* Theme: Matrix */
 [data-theme="matrix"] {
-    --bg-primary: #0d1117;
-    --bg-secondary: #161b22;
-    --bg-tertiary: #21262d;
-    --text: #c9d1d9;
-    --text-muted: #8b949e;
-    --accent: #238636;
-    --accent-light: #2ea043;
-    --success: #238636;
-    --success-light: #2ea043;
-    --danger: #f85149;
-    --card-bg: rgba(35, 134, 54, 0.1);
-    --border: rgba(48, 54, 61, 0.8);
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-tertiary: #1a1a1a;
+    --text: #e0e0e0;
+    --text-muted: #888888;
+    --accent: #00d26a;
+    --accent-light: #00ff88;
+    --success: #1a8f4a;
+    --success-light: #25a55a;
+    --danger: #ff4444;
+    --card-bg: rgba(0, 210, 106, 0.08);
+    --border: rgba(0, 210, 106, 0.15);
 }
 
 /* Theme: Bubblegum */
@@ -53,18 +53,18 @@
 
 /* Theme: Midnight */
 [data-theme="midnight"] {
-    --bg-primary: #0f0f1a;
-    --bg-secondary: #1a1a2e;
-    --bg-tertiary: #25253d;
-    --text: #eef0ff;
-    --text-muted: #8888aa;
-    --accent: #3498db;
-    --accent-light: #5dade2;
-    --success: #2ecc71;
-    --success-light: #58d68d;
-    --danger: #e74c3c;
-    --card-bg: rgba(52, 152, 219, 0.1);
-    --border: rgba(52, 152, 219, 0.2);
+    --bg-primary: #0a0a12;
+    --bg-secondary: #12121f;
+    --bg-tertiary: #1a1a2e;
+    --text: #e8eaff;
+    --text-muted: #8888bb;
+    --accent: #6c8fff;
+    --accent-light: #8cacff;
+    --success: #4a6fff;
+    --success-light: #6c8fff;
+    --danger: #ff6b8a;
+    --card-bg: rgba(108, 143, 255, 0.1);
+    --border: rgba(108, 143, 255, 0.15);
 }
 
 /* Theme: Ocean */
@@ -85,18 +85,18 @@
 
 /* Theme: Fantasy */
 [data-theme="fantasy"] {
-    --bg-primary: #120a18;
-    --bg-secondary: #1f1028;
-    --bg-tertiary: #2d1840;
+    --bg-primary: #0d0a12;
+    --bg-secondary: #15101f;
+    --bg-tertiary: #201830;
     --text: #f0e6ff;
     --text-muted: #b8a0d0;
-    --accent: #a855f7;
-    --accent-light: #c084fc;
-    --success: #d946ef;
-    --success-light: #e879f9;
-    --danger: #f43f5e;
-    --card-bg: rgba(168, 85, 247, 0.12);
-    --border: rgba(168, 85, 247, 0.25);
+    --accent: #bf6bff;
+    --accent-light: #d08fff;
+    --success: #ff6bda;
+    --success-light: #ff8ce6;
+    --danger: #ff5555;
+    --card-bg: rgba(191, 107, 255, 0.1);
+    --border: rgba(191, 107, 255, 0.2);
 }
 
 /* Theme: Sunset */
@@ -117,18 +117,34 @@
 
 /* Theme: Forest */
 [data-theme="forest"] {
-    --bg-primary: #0a0f0a;
-    --bg-secondary: #142014;
-    --bg-tertiary: #1e301e;
+    --bg-primary: #080c08;
+    --bg-secondary: #101810;
+    --bg-tertiary: #182518;
     --text: #e8f5e9;
     --text-muted: #90b090;
-    --accent: #4a7c59;
-    --accent-light: #6b9b7a;
-    --success: #2e7d32;
-    --success-light: #4caf50;
-    --danger: #c75050;
-    --card-bg: rgba(74, 124, 89, 0.12);
-    --border: rgba(74, 124, 89, 0.2);
+    --accent: #4ade80;
+    --accent-light: #6ee7a0;
+    --success: #22c55e;
+    --success-light: #4ade80;
+    --danger: #ef4444;
+    --card-bg: rgba(74, 222, 128, 0.1);
+    --border: rgba(74, 222, 128, 0.15);
+}
+
+/* Theme: Hacker - Noir profond style formation */
+[data-theme="hacker"] {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #111111;
+    --text: #ffffff;
+    --text-muted: #888888;
+    --accent: #ffd700;
+    --accent-light: #ffe44d;
+    --success: #00ff88;
+    --success-light: #4dffa8;
+    --danger: #ff3333;
+    --card-bg: rgba(255, 215, 0, 0.08);
+    --border: rgba(255, 215, 0, 0.15);
 }
 
 body {
@@ -142,7 +158,6 @@ body {
 
 /* Matrix Rain Effect */
 #matrix-bg {
-    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -150,11 +165,6 @@ body {
     height: 100%;
     z-index: 0;
     pointer-events: none;
-    opacity: 0.15;
-}
-
-[data-theme="matrix"] #matrix-bg {
-    display: block;
 }
 
 .container {
@@ -232,14 +242,15 @@ header {
     height: 20px;
     border-radius: 25px;
     background: linear-gradient(to right, 
-        #e07840 0% 12.5%, 
-        #238636 12.5% 25%, 
-        #ff6b9d 25% 37.5%, 
-        #3498db 37.5% 50%, 
-        #00b4d8 50% 62.5%, 
-        #a855f7 62.5% 75%, 
-        #f97316 75% 87.5%, 
-        #4a7c59 87.5% 100%
+        #e07840 0% 11.1%, 
+        #00d26a 11.1% 22.2%, 
+        #ff6b9d 22.2% 33.3%, 
+        #6c8fff 33.3% 44.4%, 
+        #00b4d8 44.4% 55.5%, 
+        #bf6bff 55.5% 66.6%, 
+        #f97316 66.6% 77.7%, 
+        #4ade80 77.7% 88.8%,
+        #ffd700 88.8% 100%
     );
     outline: none;
     -webkit-appearance: none;
