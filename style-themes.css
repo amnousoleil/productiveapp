@@ -4,43 +4,43 @@
    ============================================= */
 
 /* =============================================
-   THEME: ACADEMIE 📚 (NOUVEAU)
-   Sobre, crème, professionnel, reposant
+   THEME: ACADEMIE 📚 
+   Sombre, chaleureux, brun/crème foncé, reposant
    ============================================= */
 [data-theme="academie"] {
-    --bg-primary: #faf8f5;
-    --bg-secondary: #f5f2ed;
-    --bg-tertiary: #ebe7e0;
-    --bg-card: rgba(139, 119, 101, 0.08);
+    --bg-primary: #1a1612;
+    --bg-secondary: #231e18;
+    --bg-tertiary: #2d2620;
+    --bg-card: rgba(205, 185, 160, 0.08);
     
-    --text: #3d3530;
-    --text-muted: #8b7765;
+    --text: #e8e0d5;
+    --text-muted: #a89880;
     
-    --accent: #6b8f71;
-    --accent-light: #8bab91;
-    --accent-glow: rgba(107, 143, 113, 0.2);
+    --accent: #c9a86c;
+    --accent-light: #dfc08a;
+    --accent-glow: rgba(201, 168, 108, 0.2);
     
-    --success: #7a9f7a;
-    --success-glow: rgba(122, 159, 122, 0.2);
+    --success: #8faa7a;
+    --success-glow: rgba(143, 170, 122, 0.2);
     
-    --warning: #c9a86c;
-    --danger: #b56b6b;
+    --warning: #d4a855;
+    --danger: #c47a6a;
     
-    --border: rgba(139, 119, 101, 0.2);
-    --border-strong: rgba(139, 119, 101, 0.4);
+    --border: rgba(205, 185, 160, 0.15);
+    --border-strong: rgba(205, 185, 160, 0.3);
     
-    --bubble-bg: linear-gradient(135deg, rgba(235, 231, 224, 0.8) 0%, rgba(245, 242, 237, 0.9) 100%);
-    --bubble-border: rgba(139, 119, 101, 0.3);
-    --bubble-glow: 0 4px 12px rgba(139, 119, 101, 0.1);
+    --bubble-bg: linear-gradient(135deg, rgba(45, 38, 32, 0.9) 0%, rgba(35, 30, 24, 0.95) 100%);
+    --bubble-border: rgba(201, 168, 108, 0.25);
+    --bubble-glow: 0 4px 12px rgba(0, 0, 0, 0.3);
     
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(201, 168, 108, 0.2) 0%, rgba(245, 242, 237, 0.8) 100%);
-    --bubble-inprogress-border: rgba(201, 168, 108, 0.5);
-    --bubble-inprogress-glow: 0 4px 16px rgba(201, 168, 108, 0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(201, 168, 108, 0.15) 0%, rgba(45, 38, 32, 0.9) 100%);
+    --bubble-inprogress-border: rgba(201, 168, 108, 0.4);
+    --bubble-inprogress-glow: 0 4px 16px rgba(201, 168, 108, 0.15);
     
-    --bubble-done-bg: linear-gradient(135deg, rgba(122, 159, 122, 0.15) 0%, rgba(245, 242, 237, 0.8) 100%);
-    --bubble-done-border: rgba(122, 159, 122, 0.4);
-    --bubble-done-glow: 0 4px 12px rgba(122, 159, 122, 0.15);
-    --bubble-done-text: #5a7a5a;
+    --bubble-done-bg: linear-gradient(135deg, rgba(143, 170, 122, 0.12) 0%, rgba(45, 38, 32, 0.9) 100%);
+    --bubble-done-border: rgba(143, 170, 122, 0.35);
+    --bubble-done-glow: 0 4px 12px rgba(143, 170, 122, 0.1);
+    --bubble-done-text: #a8c090;
 }
 
 /* =============================================
