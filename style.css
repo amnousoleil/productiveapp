@@ -614,6 +614,24 @@ header h1 {
     box-shadow: 0 5px 25px rgba(224, 120, 64, 0.4);
 }
 
+.download-pdf-btn {
+    background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px;
+    color: var(--bg-primary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: 10px;
+}
+
+.download-pdf-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 25px rgba(74, 222, 128, 0.4);
+}
+
 .summary-box {
     margin-top: 20px;
     padding: 20px;
