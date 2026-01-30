@@ -87,72 +87,117 @@ function initCanvas() {
 function animate() {
     const theme = document.documentElement.getAttribute('data-theme');
     
+    // S'assurer que le canvas a la bonne taille
+    if (matrixCanvas.width !== window.innerWidth || matrixCanvas.height !== window.innerHeight) {
+        matrixCanvas.width = window.innerWidth;
+        matrixCanvas.height = window.innerHeight;
+        particles = [];
+        particles.columns = null;
+    }
+    
     matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
     
-    if (theme === 'matrix') {
-        drawMatrixRain();
-    } else if (theme === 'midnight') {
-        drawStars();
-    } else if (theme === 'ocean') {
-        drawBubbles();
-    } else if (theme === 'fantasy') {
-        drawMagicParticles();
-    } else if (theme === 'bubblegum') {
-        drawPinkBubbles();
-    } else if (theme === 'forest') {
-        drawLeaves();
-    } else if (theme === 'sunset') {
-        drawSunsetGlow();
-    } else if (theme === 'hacker') {
-        drawHackerGrid();
-    } else {
-        drawSandParticles();
+    try {
+        if (theme === 'matrix') {
+            drawMatrixRain();
+        } else if (theme === 'midnight') {
+            drawStars();
+        } else if (theme === 'ocean') {
+            drawBubbles();
+        } else if (theme === 'fantasy') {
+            drawMagicParticles();
+        } else if (theme === 'bubblegum') {
+            drawPinkBubbles();
+        } else if (theme === 'forest') {
+            drawLeaves();
+        } else if (theme === 'sunset') {
+            drawSunsetGlow();
+        } else if (theme === 'hacker') {
+            drawHackerGrid();
+        } else {
+            drawSandParticles();
+        }
+    } catch (e) {
+        console.error('Animation error:', e);
     }
     
     animationId = requestAnimationFrame(animate);
 }
 
-// Matrix - Vraie pluie de code verticale style Matrix
+// Matrix - Vraie pluie de code style Matrix avec MAITRE MAHA GIRI badass
 function drawMatrixRain() {
-    // Colonnes de texte qui tombent
-    if (particles.length < 25) {
-        const words = '真覇王MAITREMAHAGIRI導師マハギリ悟01';
-        particles.push({
-            x: Math.random() * matrixCanvas.width,
-            y: -100,
-            chars: [],
-            speed: Math.random() * 2 + 1,
-            length: Math.floor(Math.random() * 15) + 8
-        });
-        // Remplir la colonne avec des caractères
-        const lastP = particles[particles.length - 1];
-        for (let i = 0; i < lastP.length; i++) {
-            lastP.chars.push(words[Math.floor(Math.random() * words.length)]);
+    const chars = '真覇王導師悟アイウエオカキクケコ0123456789ABCDEF';
+    const columnWidth = 20;
+    const numColumns = Math.floor(matrixCanvas.width / columnWidth);
+    
+    // Initialiser les colonnes si pas fait
+    if (!particles.columns) {
+        particles.columns = [];
+        for (let i = 0; i < numColumns; i++) {
+            particles.columns.push({
+                x: i * columnWidth,
+                y: Math.random() * matrixCanvas.height * 2 - matrixCanvas.height,
+                speed: Math.random() * 2 + 2,
+                chars: [],
+                length: Math.floor(Math.random() * 15) + 10,
+                isMaha: false
+            });
+            // Remplir avec des caractères
+            for (let j = 0; j < particles.columns[i].length; j++) {
+                particles.columns[i].chars.push(chars[Math.floor(Math.random() * chars.length)]);
+            }
+        }
+        
+        // Choisir quelques colonnes pour MAITRE MAHA GIRI (doré badass)
+        const mahaText = 'MAITREMAHAGIRI';
+        const startCol = Math.floor(numColumns / 2) - 7;
+        for (let i = 0; i < mahaText.length && startCol + i < numColumns; i++) {
+            if (startCol + i >= 0) {
+                particles.columns[startCol + i].isMaha = true;
+                particles.columns[startCol + i].mahaChar = mahaText[i];
+                particles.columns[startCol + i].speed = 1.5;
+            }
         }
     }
     
-    particles = particles.filter(p => p.y - p.length * 20 < matrixCanvas.height + 100);
+    matrixCtx.font = '16px monospace';
     
-    matrixCtx.font = '18px monospace';
-    particles.forEach(p => {
-        p.y += p.speed;
+    particles.columns.forEach(col => {
+        col.y += col.speed;
+        
+        // Reset quand la colonne sort de l'écran
+        if (col.y - col.length * 18 > matrixCanvas.height) {
+            col.y = -col.length * 18;
+            // Regénérer les caractères
+            for (let j = 0; j < col.chars.length; j++) {
+                col.chars[j] = chars[Math.floor(Math.random() * chars.length)];
+            }
+        }
         
         // Dessiner chaque caractère de la colonne
-        p.chars.forEach((char, i) => {
-            const charY = p.y - i * 20;
-            if (charY > 0 && charY < matrixCanvas.height) {
-                // Premier caractère plus brillant
-                const opacity = i === 0 ? 0.9 : Math.max(0.1, 0.6 - i * 0.04);
-                matrixCtx.fillStyle = i === 0 ? '#50ff50' : `rgba(0, 210, 106, ${opacity})`;
-                matrixCtx.fillText(char, p.x, charY);
+        col.chars.forEach((char, i) => {
+            const charY = col.y - i * 18;
+            if (charY > -20 && charY < matrixCanvas.height + 20) {
+                if (col.isMaha && i === 0) {
+                    // MAITRE MAHA GIRI en doré brillant badass
+                    matrixCtx.fillStyle = '#ffd700';
+                    matrixCtx.shadowBlur = 15;
+                    matrixCtx.shadowColor = '#ffd700';
+                    matrixCtx.fillText(col.mahaChar, col.x, charY);
+                    matrixCtx.shadowBlur = 0;
+                } else {
+                    // Caractères normaux - dégradé d'opacité
+                    const opacity = i === 0 ? 1 : Math.max(0.1, 0.8 - i * 0.05);
+                    matrixCtx.fillStyle = i === 0 ? '#50ff50' : `rgba(0, 255, 100, ${opacity})`;
+                    matrixCtx.fillText(char, col.x, charY);
+                }
             }
         });
         
-        // Changer aléatoirement des caractères
-        if (Math.random() > 0.95) {
-            const idx = Math.floor(Math.random() * p.chars.length);
-            const words = '真覇王MAITREMAHAGIRI導師マハギリ悟01';
-            p.chars[idx] = words[Math.floor(Math.random() * words.length)];
+        // Changer aléatoirement des caractères pour l'effet "vivant"
+        if (Math.random() > 0.9) {
+            const idx = Math.floor(Math.random() * col.chars.length);
+            col.chars[idx] = chars[Math.floor(Math.random() * chars.length)];
         }
     });
 }
@@ -506,8 +551,9 @@ function setTheme(theme) {
     }
     localStorage.setItem('theme', theme);
     
-    // Reset particles pour le nouveau thème
+    // Reset complet des particles pour le nouveau thème
     particles = [];
+    particles.columns = null;
 }
 
 function loadTheme() {
