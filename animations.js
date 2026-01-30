@@ -1,11 +1,12 @@
 // === ANIMATIONS CANVAS ===
-// Effets visuels subtils en arrière-plan
+// Effets visuels en arrière-plan - TOUTES FONCTIONNELLES
 
 const matrixCanvas = document.getElementById('matrix-bg');
 const matrixCtx = matrixCanvas ? matrixCanvas.getContext('2d') : null;
 let particles = [];
 let matrixDrops = [];
 let animationRunning = false;
+let frameCount = 0;
 
 function initAnimation() {
     if (!matrixCanvas || !matrixCtx) {
@@ -23,6 +24,7 @@ function initAnimation() {
     }
     
     particles = [];
+    frameCount = 0;
     
     if (!animationRunning) {
         animationRunning = true;
@@ -35,21 +37,17 @@ function initAnimation() {
 function animateCanvas() {
     if (!matrixCtx) return;
     
+    frameCount++;
     const theme = document.documentElement.getAttribute('data-theme') || 'desert';
     
     if (matrixCanvas.width !== window.innerWidth || matrixCanvas.height !== window.innerHeight) {
         matrixCanvas.width = window.innerWidth;
         matrixCanvas.height = window.innerHeight;
-        const columns = Math.floor(matrixCanvas.width / 25);
-        matrixDrops = [];
-        for (let i = 0; i < columns; i++) {
-            matrixDrops[i] = Math.random() * -50;
-        }
     }
     
-    // Clear
+    // Clear - traînée pour hacker/matrix, clear complet pour les autres
     if (theme === 'hacker' || theme === 'matrix') {
-        matrixCtx.fillStyle = theme === 'hacker' ? 'rgba(0, 0, 0, 0.05)' : 'rgba(10, 15, 10, 0.05)';
+        matrixCtx.fillStyle = theme === 'hacker' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(10, 15, 10, 0.06)';
         matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
     } else {
         matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
@@ -70,54 +68,24 @@ function animateCanvas() {
     requestAnimationFrame(animateCanvas);
 }
 
-// === HACKER - Subtil, lent, élégant ===
+// === HACKER - Subtil, lent, doré ===
 function animateHacker() {
-    matrixCtx.font = '16px monospace';
-    
-    const chars = '01<>{}';
-    const columns = Math.floor(matrixCanvas.width / 40); // Moins de colonnes
-    
-    for (let i = 0; i < columns; i++) {
-        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
-        
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 40;
-        const y = matrixDrops[i] * 25;
-        
-        // Plus subtil
-        matrixCtx.globalAlpha = 0.4;
-        matrixCtx.shadowBlur = 8;
-        matrixCtx.shadowColor = '#ffd700';
-        matrixCtx.fillStyle = '#ffd700';
-        matrixCtx.fillText(char, x, y);
-        matrixCtx.shadowBlur = 0;
-        matrixCtx.globalAlpha = 1;
-        
-        if (y > matrixCanvas.height && Math.random() > 0.995) {
-            matrixDrops[i] = 0;
-        }
-        matrixDrops[i] += 0.15; // Plus lent
-    }
-}
-
-// === MATRIX - Code vert subtil ===
-function animateMatrix() {
     matrixCtx.font = '14px monospace';
     
-    const chars = 'アイウエオ01';
-    const columns = Math.floor(matrixCanvas.width / 30);
+    const chars = '01<>{}/\\';
+    const columns = Math.floor(matrixCanvas.width / 35);
     
     for (let i = 0; i < columns; i++) {
         if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
         
         const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 30;
-        const y = matrixDrops[i] * 22;
+        const x = i * 35;
+        const y = matrixDrops[i] * 20;
         
         matrixCtx.globalAlpha = 0.5;
         matrixCtx.shadowBlur = 10;
-        matrixCtx.shadowColor = '#00ff66';
-        matrixCtx.fillStyle = '#00ff66';
+        matrixCtx.shadowColor = '#ffd700';
+        matrixCtx.fillStyle = '#ffd700';
         matrixCtx.fillText(char, x, y);
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
@@ -129,14 +97,44 @@ function animateMatrix() {
     }
 }
 
-// === OCEAN - Bulles douces ===
+// === MATRIX - Code vert ===
+function animateMatrix() {
+    matrixCtx.font = '14px monospace';
+    
+    const chars = 'アイウエオカキク01';
+    const columns = Math.floor(matrixCanvas.width / 25);
+    
+    for (let i = 0; i < columns; i++) {
+        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
+        
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * 25;
+        const y = matrixDrops[i] * 18;
+        
+        matrixCtx.globalAlpha = 0.6;
+        matrixCtx.shadowBlur = 12;
+        matrixCtx.shadowColor = '#00ff66';
+        matrixCtx.fillStyle = '#00ff66';
+        matrixCtx.fillText(char, x, y);
+        matrixCtx.shadowBlur = 0;
+        matrixCtx.globalAlpha = 1;
+        
+        if (y > matrixCanvas.height && Math.random() > 0.98) {
+            matrixDrops[i] = 0;
+        }
+        matrixDrops[i] += 0.3;
+    }
+}
+
+// === OCEAN - Bulles qui montent ===
 function animateOcean() {
-    if (particles.length < 15 && Math.random() > 0.97) {
+    // Créer des bulles régulièrement
+    if (frameCount % 20 === 0 && particles.length < 30) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: matrixCanvas.height + 10,
-            size: Math.random() * 5 + 2,
-            speed: Math.random() * 0.5 + 0.3,
+            size: Math.random() * 8 + 3,
+            speed: Math.random() * 1 + 0.5,
             wobble: Math.random() * Math.PI * 2
         });
     }
@@ -145,51 +143,66 @@ function animateOcean() {
     
     particles.forEach(p => {
         p.y -= p.speed;
-        p.wobble += 0.02;
-        p.x += Math.sin(p.wobble) * 0.5;
+        p.wobble += 0.03;
+        p.x += Math.sin(p.wobble) * 0.8;
         
-        matrixCtx.globalAlpha = 0.4;
+        // Bulle
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        matrixCtx.arc(p.x, p.y, Math.max(1, p.size), 0, Math.PI * 2);
         matrixCtx.strokeStyle = 'rgba(0, 180, 216, 0.6)';
-        matrixCtx.lineWidth = 1;
+        matrixCtx.lineWidth = 2;
         matrixCtx.stroke();
         
         // Reflet
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x - p.size * 0.3, p.y - p.size * 0.3, Math.max(0.2, p.size * 0.2), 0, Math.PI * 2);
+        matrixCtx.arc(p.x - p.size * 0.3, p.y - p.size * 0.3, Math.max(0.5, p.size * 0.25), 0, Math.PI * 2);
         matrixCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
         matrixCtx.fill();
-        matrixCtx.globalAlpha = 1;
     });
 }
 
-// === FANTASY - Étoiles magiques ===
+// === FANTASY - Étoiles magiques scintillantes ===
 function animateFantasy() {
-    if (particles.length < 25 && Math.random() > 0.95) {
+    // Créer des étoiles
+    if (frameCount % 10 === 0 && particles.length < 50) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: Math.random() * matrixCanvas.height,
-            size: Math.random() * 2 + 1,
+            size: Math.random() * 3 + 2,
             life: 1,
+            twinkleSpeed: Math.random() * 0.1 + 0.05,
             twinkleOffset: Math.random() * Math.PI * 2,
-            color: Math.random() > 0.5 ? '#bf6bff' : '#ff6bda'
+            color: ['#bf6bff', '#ff6bda', '#6bffff', '#ffda6b'][Math.floor(Math.random() * 4)]
         });
     }
     
-    particles = particles.filter(p => p.life > 0.05);
+    particles = particles.filter(p => p.life > 0.02);
     
     particles.forEach(p => {
-        p.life -= 0.005;
-        const twinkle = (Math.sin(Date.now() * 0.003 + p.twinkleOffset) + 1) / 2;
+        p.life -= 0.003;
+        const twinkle = (Math.sin(frameCount * p.twinkleSpeed + p.twinkleOffset) + 1) / 2;
         
-        matrixCtx.globalAlpha = twinkle * p.life * 0.6;
-        matrixCtx.shadowBlur = 10;
+        matrixCtx.globalAlpha = twinkle * p.life;
+        matrixCtx.shadowBlur = 15;
         matrixCtx.shadowColor = p.color;
         matrixCtx.fillStyle = p.color;
         
+        // Étoile à 4 branches
+        const size = p.size * (0.5 + twinkle * 0.5);
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x, p.y, Math.max(0.5, p.size * twinkle), 0, Math.PI * 2);
+        matrixCtx.moveTo(p.x, p.y - size);
+        matrixCtx.lineTo(p.x + size * 0.3, p.y);
+        matrixCtx.lineTo(p.x, p.y + size);
+        matrixCtx.lineTo(p.x - size * 0.3, p.y);
+        matrixCtx.closePath();
+        matrixCtx.fill();
+        
+        matrixCtx.beginPath();
+        matrixCtx.moveTo(p.x - size, p.y);
+        matrixCtx.lineTo(p.x, p.y + size * 0.3);
+        matrixCtx.lineTo(p.x + size, p.y);
+        matrixCtx.lineTo(p.x, p.y - size * 0.3);
+        matrixCtx.closePath();
         matrixCtx.fill();
         
         matrixCtx.globalAlpha = 1;
@@ -197,197 +210,224 @@ function animateFantasy() {
     });
 }
 
-// === SUNSET - Particules chaudes ===
+// === SUNSET - Particules chaudes qui montent ===
 function animateSunset() {
-    if (particles.length < 20 && Math.random() > 0.96) {
+    // Créer des particules
+    if (frameCount % 15 === 0 && particles.length < 40) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: matrixCanvas.height + 5,
-            size: Math.random() * 3 + 1,
-            speed: Math.random() * 0.4 + 0.2,
+            size: Math.random() * 5 + 2,
+            speed: Math.random() * 1 + 0.5,
             life: 1,
-            drift: (Math.random() - 0.5) * 0.3,
-            color: ['#f97316', '#fbbf24', '#ef4444'][Math.floor(Math.random() * 3)]
+            drift: (Math.random() - 0.5) * 0.5,
+            color: ['#f97316', '#fbbf24', '#ef4444', '#fb7185'][Math.floor(Math.random() * 4)]
         });
     }
     
-    particles = particles.filter(p => p.life > 0.1 && p.y > -10);
+    particles = particles.filter(p => p.life > 0.05 && p.y > -20);
     
     particles.forEach(p => {
         p.y -= p.speed;
-        p.x += p.drift;
-        p.life -= 0.003;
+        p.x += p.drift + Math.sin(frameCount * 0.02 + p.x * 0.01) * 0.3;
+        p.life -= 0.004;
         
-        matrixCtx.globalAlpha = p.life * 0.5;
-        matrixCtx.beginPath();
-        matrixCtx.fillStyle = p.color;
-        matrixCtx.shadowBlur = 5;
+        matrixCtx.globalAlpha = p.life * 0.8;
+        matrixCtx.shadowBlur = 10;
         matrixCtx.shadowColor = p.color;
-        matrixCtx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        matrixCtx.fillStyle = p.color;
+        matrixCtx.beginPath();
+        matrixCtx.arc(p.x, p.y, Math.max(1, p.size * p.life), 0, Math.PI * 2);
         matrixCtx.fill();
         matrixCtx.globalAlpha = 1;
         matrixCtx.shadowBlur = 0;
     });
 }
 
-// === FOREST - Feuilles d'automne qui tombent ===
+// === FOREST - Feuilles d'automne multicolores ===
 function animateForest() {
-    if (particles.length < 15 && Math.random() > 0.98) {
-        // Couleurs d'automne : vert, jaune, orange, rouge
-        const autumnColors = ['#4ade80', '#86efac', '#fbbf24', '#f97316', '#ef4444', '#dc2626'];
+    // Créer des feuilles
+    if (frameCount % 30 === 0 && particles.length < 25) {
+        const autumnColors = ['#4ade80', '#86efac', '#fbbf24', '#f97316', '#ef4444', '#dc2626', '#a3e635'];
         particles.push({
             x: Math.random() * matrixCanvas.width,
-            y: -10,
-            size: Math.random() * 6 + 4,
-            speed: Math.random() * 0.5 + 0.3,
-            drift: Math.random() * 2 - 1,
+            y: -20,
+            size: Math.random() * 8 + 5,
+            speed: Math.random() * 1 + 0.5,
+            drift: Math.random() * 3 - 1.5,
             rotation: Math.random() * Math.PI * 2,
-            rotationSpeed: (Math.random() - 0.5) * 0.03,
+            rotationSpeed: (Math.random() - 0.5) * 0.05,
+            swayOffset: Math.random() * Math.PI * 2,
             color: autumnColors[Math.floor(Math.random() * autumnColors.length)]
         });
     }
     
-    particles = particles.filter(p => p.y < matrixCanvas.height + 20);
+    particles = particles.filter(p => p.y < matrixCanvas.height + 30);
     
     particles.forEach(p => {
         p.y += p.speed;
-        p.x += Math.sin(p.y * 0.015) * p.drift;
+        p.x += Math.sin(frameCount * 0.02 + p.swayOffset) * p.drift;
         p.rotation += p.rotationSpeed;
         
         matrixCtx.save();
         matrixCtx.translate(p.x, p.y);
         matrixCtx.rotate(p.rotation);
         
-        matrixCtx.globalAlpha = 0.7;
-        matrixCtx.beginPath();
-        // Forme de feuille
-        matrixCtx.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2);
+        matrixCtx.globalAlpha = 0.8;
         matrixCtx.fillStyle = p.color;
-        matrixCtx.fill();
-        matrixCtx.globalAlpha = 1;
         
+        // Forme de feuille
+        matrixCtx.beginPath();
+        matrixCtx.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2);
+        matrixCtx.fill();
+        
+        // Nervure
+        matrixCtx.strokeStyle = 'rgba(0,0,0,0.2)';
+        matrixCtx.lineWidth = 1;
+        matrixCtx.beginPath();
+        matrixCtx.moveTo(-p.size * 0.8, 0);
+        matrixCtx.lineTo(p.size * 0.8, 0);
+        matrixCtx.stroke();
+        
+        matrixCtx.globalAlpha = 1;
         matrixCtx.restore();
     });
 }
 
 // === BUBBLEGUM - Bulles roses ===
 function animateBubblegum() {
-    if (particles.length < 20 && Math.random() > 0.96) {
+    if (frameCount % 20 === 0 && particles.length < 30) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: matrixCanvas.height + 10,
-            size: Math.random() * 6 + 3,
-            speed: Math.random() * 0.5 + 0.2,
+            size: Math.random() * 10 + 5,
+            speed: Math.random() * 0.8 + 0.3,
             wobble: Math.random() * Math.PI * 2,
-            color: ['#ff6b9d', '#ff9ec4', '#ffc0d0'][Math.floor(Math.random() * 3)]
+            color: ['#ff6b9d', '#ff9ec4', '#ffc0d0', '#ffb3e6'][Math.floor(Math.random() * 4)]
         });
     }
     
-    particles = particles.filter(p => p.y > -20);
+    particles = particles.filter(p => p.y > -30);
     
     particles.forEach(p => {
         p.y -= p.speed;
-        p.wobble += 0.015;
-        p.x += Math.sin(p.wobble) * 0.4;
+        p.wobble += 0.02;
+        p.x += Math.sin(p.wobble) * 0.6;
         
+        // Bulle remplie
         matrixCtx.globalAlpha = 0.4;
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        matrixCtx.arc(p.x, p.y, Math.max(1, p.size), 0, Math.PI * 2);
         matrixCtx.fillStyle = p.color;
         matrixCtx.fill();
         
+        // Contour
+        matrixCtx.globalAlpha = 0.7;
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x, p.y, Math.max(0.5, p.size), 0, Math.PI * 2);
+        matrixCtx.arc(p.x, p.y, Math.max(1, p.size), 0, Math.PI * 2);
         matrixCtx.strokeStyle = p.color;
-        matrixCtx.lineWidth = 1;
+        matrixCtx.lineWidth = 2;
         matrixCtx.stroke();
         
         // Reflet
+        matrixCtx.globalAlpha = 0.8;
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x - p.size * 0.25, p.y - p.size * 0.25, Math.max(0.2, p.size * 0.15), 0, Math.PI * 2);
-        matrixCtx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        matrixCtx.arc(p.x - p.size * 0.3, p.y - p.size * 0.3, Math.max(0.5, p.size * 0.2), 0, Math.PI * 2);
+        matrixCtx.fillStyle = 'white';
         matrixCtx.fill();
+        
         matrixCtx.globalAlpha = 1;
     });
 }
 
-// === MIDNIGHT - Étoiles et étoiles filantes ===
+// === MIDNIGHT - Étoiles scintillantes + filantes ===
 function animateMidnight() {
-    if (particles.length < 40 && Math.random() > 0.92) {
+    // Étoiles
+    if (frameCount % 8 === 0 && particles.length < 60) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: Math.random() * matrixCanvas.height,
-            size: Math.random() * 1.5 + 0.5,
+            size: Math.random() * 2 + 1,
             life: 1,
-            twinkle: Math.random() * Math.PI * 2
+            twinkle: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 0.1 + 0.03
         });
     }
     
     // Étoile filante rare
-    if (Math.random() > 0.997) {
+    if (Math.random() > 0.995) {
         const startX = Math.random() * matrixCanvas.width;
-        const startY = Math.random() * matrixCanvas.height * 0.4;
+        const startY = Math.random() * matrixCanvas.height * 0.5;
+        
         matrixCtx.beginPath();
         matrixCtx.moveTo(startX, startY);
-        matrixCtx.lineTo(startX + 60, startY + 30);
+        matrixCtx.lineTo(startX + 100, startY + 50);
         
-        const gradient = matrixCtx.createLinearGradient(startX, startY, startX + 60, startY + 30);
-        gradient.addColorStop(0, 'rgba(108, 143, 255, 0.7)');
+        const gradient = matrixCtx.createLinearGradient(startX, startY, startX + 100, startY + 50);
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        gradient.addColorStop(0.3, 'rgba(108, 143, 255, 0.7)');
         gradient.addColorStop(1, 'transparent');
         matrixCtx.strokeStyle = gradient;
         matrixCtx.lineWidth = 2;
         matrixCtx.stroke();
     }
     
-    particles = particles.filter(p => p.life > 0.05);
+    particles = particles.filter(p => p.life > 0.02);
     
     particles.forEach(p => {
         p.life -= 0.002;
-        p.twinkle += 0.03;
+        p.twinkle += p.twinkleSpeed;
         const brightness = (Math.sin(p.twinkle) + 1) / 2;
         
-        matrixCtx.globalAlpha = p.life * brightness * 0.7;
+        matrixCtx.globalAlpha = p.life * brightness;
+        matrixCtx.shadowBlur = 5;
+        matrixCtx.shadowColor = '#6c8fff';
+        matrixCtx.fillStyle = '#ffffff';
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x, p.y, Math.max(0.3, p.size * brightness), 0, Math.PI * 2);
-        matrixCtx.fillStyle = '#6c8fff';
+        matrixCtx.arc(p.x, p.y, Math.max(0.5, p.size * brightness), 0, Math.PI * 2);
         matrixCtx.fill();
         matrixCtx.globalAlpha = 1;
+        matrixCtx.shadowBlur = 0;
     });
 }
 
-// === DESERT - Grains de sable doux ===
+// === DESERT - Grains de sable flottants ===
 function animateDesert() {
-    if (particles.length < 25 && Math.random() > 0.95) {
+    if (frameCount % 12 === 0 && particles.length < 40) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: Math.random() * matrixCanvas.height,
-            size: Math.random() * 2 + 1,
-            vx: (Math.random() - 0.5) * 0.2,
-            vy: (Math.random() - 0.5) * 0.2,
+            size: Math.random() * 3 + 1,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.3,
             life: 1
         });
     }
     
-    particles = particles.filter(p => p.life > 0.05);
+    particles = particles.filter(p => p.life > 0.02);
     
     particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
-        p.life -= 0.003;
+        p.life -= 0.004;
         
-        const radius = Math.max(0.3, p.size * p.life);
-        matrixCtx.globalAlpha = p.life * 0.4;
-        matrixCtx.beginPath();
+        const radius = Math.max(0.5, p.size * p.life);
+        matrixCtx.globalAlpha = p.life * 0.6;
         matrixCtx.fillStyle = '#e07840';
+        matrixCtx.shadowBlur = 3;
+        matrixCtx.shadowColor = '#e07840';
+        matrixCtx.beginPath();
         matrixCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         matrixCtx.fill();
         matrixCtx.globalAlpha = 1;
+        matrixCtx.shadowBlur = 0;
     });
 }
 
 // === Reset pour changement de thème ===
 function resetAnimationForTheme() {
     particles = [];
+    frameCount = 0;
     const columns = Math.floor(window.innerWidth / 25);
     matrixDrops = [];
     for (let i = 0; i < columns; i++) {
