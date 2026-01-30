@@ -1,4 +1,9 @@
-// === CONFIGURATION ===
+// =============================================
+// PRODUCTIVEAPP - APP.JS
+// Logique principale + Webhooks N8N
+// =============================================
+
+// === CONFIGURATION N8N (NE PAS MODIFIER) ===
 const N8N_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/b44d5f39-8f25-4fb0-9fcf-d69be1ffa1a1';
 const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400-91f2-48ea-b115-26a330247dcc';
 
@@ -23,74 +28,7 @@ const DEFAULT_PROJECTS = [
     { id: 'general', name: 'Général', icon: '📋', color: '#a89078', desc: 'Tâches diverses' }
 ];
 
-// === DONNÉES ===
-let currentUser = null;
-let bubbles = JSON.parse(localStorage.getItem('bubbles_v2')) || [];
-let journal = JSON.parse(localStorage.getItem('journal_v2')) || [];
-let projects = JSON.parse(localStorage.getItem('projects_v2')) || DEFAULT_PROJECTS;
-let history = JSON.parse(localStorage.getItem('history_v2')) || [];
-
-let activeProjectFilter = 'all';
-let activeUserFilter = 'all';
-
-// === ÉLÉMENTS DOM ===
-const loginScreen = document.getElementById('login-screen');
-const userSelectGrid = document.getElementById('user-select-grid');
-const passwordForm = document.getElementById('password-form');
-const loginUsername = document.getElementById('login-username');
-const loginPassword = document.getElementById('login-password');
-const loginBtn = document.getElementById('login-btn');
-const backBtn = document.getElementById('back-btn');
-const loginError = document.getElementById('login-error');
-const logoutBtn = document.getElementById('logout-btn');
-const currentUserBadge = document.getElementById('current-user-badge');
-
-const bubbleInput = document.getElementById('bubble-input');
-const projectSelect = document.getElementById('project-select');
-const prioritySelect = document.getElementById('priority-select');
-const addBubbleBtn = document.getElementById('add-bubble-btn');
-
-const todoBubbles = document.getElementById('todo-bubbles');
-const inprogressBubbles = document.getElementById('inprogress-bubbles');
-const doneBubbles = document.getElementById('done-bubbles');
-const todoCount = document.getElementById('todo-count');
-const inprogressCount = document.getElementById('inprogress-count');
-const doneCount = document.getElementById('done-count');
-
-const projectsFilterList = document.getElementById('projects-filter-list');
-const addProjectFilterBtn = document.getElementById('add-project-filter-btn');
-const userFilterSelect = document.getElementById('user-filter-select');
-
-const journalInput = document.getElementById('journal-input');
-const addJournalBtn = document.getElementById('add-journal-btn');
-const journalEntries = document.getElementById('journal-entries');
-
-const generateSummaryBtn = document.getElementById('generate-summary');
-const downloadPdfBtn = document.getElementById('download-pdf');
-const dailySummary = document.getElementById('daily-summary');
-
-const themeBtn = document.getElementById('theme-btn');
-const themeModal = document.getElementById('theme-modal');
-const themeModalClose = document.getElementById('theme-modal-close');
-const themeSlider = document.getElementById('theme-slider');
-const themeName = document.getElementById('theme-name');
-
-const newProjectModal = document.getElementById('new-project-modal');
-const newProjectName = document.getElementById('new-project-name');
-const newProjectDesc = document.getElementById('new-project-desc');
-const newProjectCancel = document.getElementById('new-project-cancel');
-const newProjectConfirm = document.getElementById('new-project-confirm');
-
-const chatbotToggle = document.getElementById('chatbot-toggle');
-const chatbotWindow = document.getElementById('chatbot-window');
-const chatbotClose = document.getElementById('chatbot-close');
-const chatbotSizeToggle = document.getElementById('chatbot-size-toggle');
-const chatbotInput = document.getElementById('chatbot-input');
-const chatbotSend = document.getElementById('chatbot-send');
-const chatbotMessages = document.getElementById('chatbot-messages');
-const expandIcon = document.getElementById('expand-icon');
-const collapseIcon = document.getElementById('collapse-icon');
-
+// === THÈMES ===
 const THEMES = [
     { id: 'desert', name: '🏜️ Désert' },
     { id: 'matrix', name: '💚 Matrix' },
@@ -103,13 +41,26 @@ const THEMES = [
     { id: 'hacker', name: '🖤 Hacker' }
 ];
 
-// === AUTHENTIFICATION ===
+// === STATE ===
+let currentUser = null;
+let tasks = JSON.parse(localStorage.getItem('tasks_v3')) || [];
+let journal = JSON.parse(localStorage.getItem('journal_v3')) || [];
+let projects = JSON.parse(localStorage.getItem('projects_v3')) || DEFAULT_PROJECTS;
+
+let activeProjectFilter = 'all';
+let activeUserFilter = 'all';
+let viewMode = localStorage.getItem('viewMode') || 'columns'; // 'columns' ou 'bubbles'
+
+// === DOM ELEMENTS ===
+const $ = id => document.getElementById(id);
+
+// =============================================
+// AUTHENTIFICATION
+// =============================================
+
 function renderUserSelect() {
-    const grid = document.getElementById('user-select-grid');
-    if (!grid) {
-        console.error('user-select-grid not found');
-        return;
-    }
+    const grid = $('user-select-grid');
+    if (!grid) return;
     
     grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
@@ -117,8 +68,6 @@ function renderUserSelect() {
             <span class="user-name-select">${user.name}</span>
         </button>
     `).join('');
-    
-    console.log('Users rendered:', USERS.length);
     
     grid.querySelectorAll('.user-select-btn').forEach(btn => {
         btn.addEventListener('click', () => selectUser(btn.dataset.userid));
@@ -130,136 +79,833 @@ function selectUser(userId) {
     if (!user) return;
     
     currentUser = user;
-    loginUsername.textContent = `${user.avatar} ${user.name}`;
-    userSelectGrid.style.display = 'none';
-    passwordForm.style.display = 'flex';
-    loginPassword.focus();
+    $('login-username').textContent = `${user.avatar} ${user.name}`;
+    $('user-select-grid').classList.add('hidden');
+    $('password-form').classList.remove('hidden');
+    $('login-password').focus();
 }
 
 function attemptLogin() {
-    const password = loginPassword.value;
+    const password = $('login-password').value;
     
     if (password === currentUser.password) {
         sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-        loginScreen.classList.add('hidden');
-        loginError.textContent = '';
+        $('login-screen').classList.add('hidden');
+        $('login-error').textContent = '';
         initApp();
     } else {
-        loginError.textContent = 'Mot de passe incorrect';
-        loginPassword.value = '';
-        loginPassword.focus();
+        $('login-error').textContent = 'Mot de passe incorrect';
+        $('login-password').value = '';
+        $('login-password').focus();
     }
 }
 
 function logout() {
     sessionStorage.removeItem('currentUser');
     currentUser = null;
-    loginScreen.classList.remove('hidden');
-    userSelectGrid.style.display = 'grid';
-    passwordForm.style.display = 'none';
-    loginPassword.value = '';
-    loginError.textContent = '';
+    $('login-screen').classList.remove('hidden');
+    $('user-select-grid').classList.remove('hidden');
+    $('password-form').classList.add('hidden');
+    $('login-password').value = '';
+    $('login-error').textContent = '';
 }
 
 function checkExistingSession() {
     const saved = sessionStorage.getItem('currentUser');
     if (saved) {
         currentUser = JSON.parse(saved);
-        loginScreen.classList.add('hidden');
+        $('login-screen').classList.add('hidden');
         initApp();
         return true;
     }
     return false;
 }
 
-loginBtn.addEventListener('click', attemptLogin);
-loginPassword.addEventListener('keypress', (e) => { if (e.key === 'Enter') attemptLogin(); });
-backBtn.addEventListener('click', () => {
-    userSelectGrid.style.display = 'grid';
-    passwordForm.style.display = 'none';
-    loginError.textContent = '';
-    currentUser = null;
-});
-logoutBtn.addEventListener('click', logout);
+// =============================================
+// INITIALISATION
+// =============================================
 
-// === INITIALISATION APP ===
 function initApp() {
-    currentUserBadge.innerHTML = `
+    // Update user badge
+    $('current-user-badge').innerHTML = `
         <span class="user-avatar">${currentUser.avatar}</span>
         <span class="user-name">${currentUser.name}</span>
     `;
     
+    // Load settings
     loadTheme();
+    loadViewMode();
+    
+    // Render UI
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
-    renderBubbles();
+    renderTasks();
     renderJournal();
-    setTimeout(startAnimation, 100);
+    
+    // Start animations
+    setTimeout(() => {
+        if (typeof initAnimation === 'function') initAnimation();
+    }, 100);
+    
+    console.log('✅ App initialized');
 }
 
-// === GESTION DES PROJETS ===
+// =============================================
+// THÈMES
+// =============================================
+
+function setTheme(themeId) {
+    if (themeId === 'desert') {
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', themeId);
+    }
+    localStorage.setItem('theme', themeId);
+    
+    // Reset animations pour le nouveau thème
+    if (typeof resetAnimationForTheme === 'function') {
+        resetAnimationForTheme();
+    }
+}
+
+function loadTheme() {
+    const saved = localStorage.getItem('theme') || 'desert';
+    setTheme(saved);
+    
+    const idx = THEMES.findIndex(t => t.id === saved);
+    if (idx !== -1) {
+        $('theme-slider').value = idx;
+        $('theme-name').textContent = THEMES[idx].name;
+    }
+}
+
+// =============================================
+// VUE MODE (Colonnes vs Bulles)
+// =============================================
+
+function loadViewMode() {
+    viewMode = localStorage.getItem('viewMode') || 'columns';
+    updateViewMode();
+}
+
+function toggleViewMode() {
+    viewMode = viewMode === 'columns' ? 'bubbles' : 'columns';
+    localStorage.setItem('viewMode', viewMode);
+    updateViewMode();
+    renderTasks();
+}
+
+function updateViewMode() {
+    const columnsView = $('columns-view');
+    const bubblesView = $('bubbles-view');
+    const toggleBtn = $('view-toggle-btn');
+    
+    if (viewMode === 'columns') {
+        columnsView.classList.remove('hidden');
+        bubblesView.classList.add('hidden');
+        toggleBtn.textContent = '📊';
+        toggleBtn.title = 'Mode Bulles';
+    } else {
+        columnsView.classList.add('hidden');
+        bubblesView.classList.remove('hidden');
+        toggleBtn.textContent = '📋';
+        toggleBtn.title = 'Mode Colonnes';
+    }
+}
+
+// =============================================
+// PROJETS
+// =============================================
+
 function renderProjectsFilter() {
     const counts = {};
     projects.forEach(p => {
-        counts[p.id] = bubbles.filter(b => b.project === p.id && b.status !== 'done').length;
+        counts[p.id] = tasks.filter(t => t.project === p.id && t.status !== 'done').length;
     });
-    const totalCount = bubbles.filter(b => b.status !== 'done').length;
+    const totalCount = tasks.filter(t => t.status !== 'done').length;
     
-    document.getElementById('count-all').textContent = totalCount;
+    $('count-all').textContent = totalCount;
     
-    projectsFilterList.innerHTML = projects.map(p => `
-        <button class="project-filter-btn ${activeProjectFilter === p.id ? 'active' : ''}" data-project="${p.id}">
-            <span class="filter-icon">${p.icon}</span>
-            <span class="filter-name">${p.name}</span>
-            <span class="filter-count">${counts[p.id] || 0}</span>
+    $('projects-filter-list').innerHTML = projects.map(p => `
+        <button class="project-chip ${activeProjectFilter === p.id ? 'active' : ''}" data-project="${p.id}">
+            <span class="chip-icon">${p.icon}</span>
+            <span class="chip-name">${p.name}</span>
+            <span class="chip-count">${counts[p.id] || 0}</span>
         </button>
     `).join('');
     
-    document.querySelectorAll('.project-filter-btn').forEach(btn => {
+    // Event listeners
+    document.querySelectorAll('.project-chip').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.project-filter-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.project-chip').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             activeProjectFilter = btn.dataset.project;
-            renderBubbles();
+            renderTasks();
         });
     });
 }
 
 function renderProjectSelect() {
-    projectSelect.innerHTML = '<option value="">Projet...</option>' + 
+    $('project-select').innerHTML = '<option value="">Projet...</option>' + 
         projects.map(p => `<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
-}
-
-function renderUserFilter() {
-    userFilterSelect.innerHTML = '<option value="all">👥 Tout le monde</option>' +
-        USERS.map(u => `<option value="${u.id}">${u.avatar} ${u.name}</option>`).join('');
-    
-    userFilterSelect.addEventListener('change', () => {
-        activeUserFilter = userFilterSelect.value;
-        renderBubbles();
-        renderJournal();
-    });
 }
 
 function getProject(projectId) {
     return projects.find(p => p.id === projectId) || projects.find(p => p.id === 'general');
 }
 
-addProjectFilterBtn.addEventListener('click', () => {
-    newProjectModal.classList.remove('hidden');
-    newProjectName.focus();
+function renderUserFilter() {
+    $('user-filter-select').innerHTML = '<option value="all">👥 Tout le monde</option>' +
+        USERS.map(u => `<option value="${u.id}">${u.avatar} ${u.name}</option>`).join('');
+}
+
+// =============================================
+// UTILS
+// =============================================
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function saveTasks() {
+    localStorage.setItem('tasks_v3', JSON.stringify(tasks));
+}
+
+function saveJournal() {
+    localStorage.setItem('journal_v3', JSON.stringify(journal));
+}
+
+function saveProjects() {
+    localStorage.setItem('projects_v3', JSON.stringify(projects));
+}
+
+async function sendToN8N(type, data) {
+    try {
+        await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, user: currentUser.name, ...data })
+        });
+    } catch (e) {
+        console.error('N8N Error:', e);
+    }
+}
+// =============================================
+// TÂCHES
+// =============================================
+
+function createTask() {
+    const text = $('task-input').value.trim();
+    if (!text) return;
+    
+    const projectId = $('project-select').value || 'general';
+    const priorityLevel = parseInt($('priority-select').value) || 2;
+    const priorityLabels = { 1: 'Urgent', 2: 'Normal', 3: 'Basse' };
+    
+    const task = {
+        id: Date.now(),
+        text: text,
+        status: 'todo',
+        priority: { level: priorityLevel, label: priorityLabels[priorityLevel] },
+        project: projectId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+    };
+    
+    tasks.push(task);
+    saveTasks();
+    renderTasks();
+    renderProjectsFilter();
+    
+    $('task-input').value = '';
+    $('project-select').value = '';
+    $('priority-select').value = '2';
+    
+    sendToN8N('task', task);
+}
+
+function renderTasks() {
+    let filtered = tasks;
+    
+    if (activeProjectFilter !== 'all') {
+        filtered = filtered.filter(t => t.project === activeProjectFilter);
+    }
+    if (activeUserFilter !== 'all') {
+        filtered = filtered.filter(t => t.userId === activeUserFilter);
+    }
+    
+    const todo = filtered.filter(t => t.status === 'todo').sort((a, b) => a.priority.level - b.priority.level);
+    const inprogress = filtered.filter(t => t.status === 'inprogress');
+    const done = filtered.filter(t => t.status === 'done').slice(0, 20);
+    
+    if (viewMode === 'columns') {
+        renderColumnsView(todo, inprogress, done);
+    } else {
+        renderBubblesView(todo, inprogress, done);
+    }
+    
+    attachTaskEvents();
+}
+
+function renderColumnsView(todo, inprogress, done) {
+    $('todo-count').textContent = todo.length;
+    $('inprogress-count').textContent = inprogress.length;
+    $('done-count').textContent = done.length;
+    
+    $('todo-list').innerHTML = todo.length ? todo.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Aucune tâche</div>';
+    $('inprogress-list').innerHTML = inprogress.length ? inprogress.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Rien en cours</div>';
+    $('done-list').innerHTML = done.length ? done.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Rien terminé</div>';
+}
+
+function renderBubblesView(todo, inprogress, done) {
+    const allTodo = [...todo, ...inprogress];
+    $('bubbles-todo').innerHTML = allTodo.length ? allTodo.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Aucune tâche</div>';
+    $('bubbles-done').innerHTML = done.length ? done.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Rien terminé</div>';
+}
+
+function renderTaskHTML(task) {
+    const project = getProject(task.project);
+    const isOwn = task.userId === currentUser.id;
+    
+    return `
+        <div class="task-bubble ${task.status}" data-id="${task.id}">
+            <div class="task-header">
+                <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon} ${project.name}</span>
+                <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
+                ${!isOwn ? `<span class="task-user">${task.userName}</span>` : ''}
+            </div>
+            <div class="task-text">${escapeHtml(task.text)}</div>
+            <div class="task-actions">
+                ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
+                ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅ Terminé</button>` : ''}
+                ${task.status === 'todo' ? `<button class="task-action-btn complete" data-action="done">✅ Fait</button>` : ''}
+                <button class="task-action-btn delete" data-action="delete">🗑️</button>
+            </div>
+        </div>
+    `;
+}
+
+function attachTaskEvents() {
+    document.querySelectorAll('.task-action-btn').forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const taskEl = newBtn.closest('.task-bubble');
+            if (!taskEl) return;
+            
+            const taskId = Number(taskEl.dataset.id);
+            const action = newBtn.dataset.action;
+            handleTaskAction(taskId, action);
+        });
+    });
+}
+
+function handleTaskAction(taskId, action) {
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) return;
+    
+    const task = tasks[taskIndex];
+    
+    if (action === 'start') {
+        task.status = 'inprogress';
+        task.startedAt = new Date().toISOString();
+        task.updatedAt = new Date().toISOString();
+        addJournalEntry('task', `🔄 Commencé: ${task.text}`, 2);
+    } else if (action === 'done') {
+        task.status = 'done';
+        task.completedAt = new Date().toISOString();
+        task.updatedAt = new Date().toISOString();
+        addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
+    } else if (action === 'delete') {
+        tasks.splice(taskIndex, 1);
+        addJournalEntry('task', `🗑️ Supprimé: ${task.text}`, 2);
+    }
+    
+    saveTasks();
+    renderTasks();
+    renderProjectsFilter();
+}
+
+// =============================================
+// JOURNAL AMÉLIORÉ
+// =============================================
+
+function addJournalEntry(category, text, energy) {
+    journal.unshift({
+        id: Date.now(),
+        category: category,
+        text: text,
+        energy: energy,
+        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toISOString(),
+        userId: currentUser.id,
+        userName: currentUser.name
+    });
+    saveJournal();
+    renderJournal();
+}
+
+function renderJournal() {
+    const today = new Date().toDateString();
+    let entries = journal.filter(e => new Date(e.date).toDateString() === today);
+    
+    if (activeUserFilter !== 'all') {
+        entries = entries.filter(e => e.userId === activeUserFilter);
+    }
+    
+    const stats = {
+        total: entries.length,
+        wins: entries.filter(e => e.category === 'win').length,
+        ideas: entries.filter(e => e.category === 'idea').length,
+        blockers: entries.filter(e => e.category === 'blocker').length
+    };
+    
+    $('journal-stats').innerHTML = `
+        <span>📝 ${stats.total}</span>
+        <span>🏆 ${stats.wins}</span>
+        <span>💡 ${stats.ideas}</span>
+        <span>🚧 ${stats.blockers}</span>
+    `;
+    
+    const catIcons = { task: '✅', idea: '💡', reflection: '🤔', blocker: '🚧', win: '🏆' };
+    const energyLabels = { 1: 'low', 2: 'normal', 3: 'high' };
+    const energyText = { 1: '😴', 2: '😊', 3: '⚡' };
+    
+    $('journal-entries').innerHTML = entries.length ? entries.map(e => `
+        <div class="journal-entry">
+            <span class="entry-category">${catIcons[e.category] || '📝'}</span>
+            <div class="entry-content">
+                <div class="entry-text">${escapeHtml(e.text)}</div>
+                <div class="entry-meta">
+                    <span>${e.time}</span>
+                    <span>${e.userName}</span>
+                    <span class="entry-energy ${energyLabels[e.energy]}">${energyText[e.energy]}</span>
+                </div>
+            </div>
+        </div>
+    `).join('') : '<div class="empty-state">Aucune entrée aujourd\'hui</div>';
+}
+
+// =============================================
+// CHATBOT IA
+// =============================================
+
+let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
+
+async function sendChatMessage() {
+    const message = $('chatbot-input').value.trim();
+    if (!message) return;
+    
+    addChatMsg(message, 'user');
+    $('chatbot-input').value = '';
+    const loadingDiv = addChatMsg('Réflexion...', 'assistant loading');
+    
+    try {
+        const context = buildAIContext();
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message, context, user: currentUser.name, userId: currentUser.id })
+        });
+        
+        let aiResponse = await response.text();
+        try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
+        
+        loadingDiv.remove();
+        aiResponse = processAIActions(aiResponse);
+        addChatMsg(aiResponse || 'OK!', 'assistant');
+    } catch (e) {
+        loadingDiv.remove();
+        addChatMsg('Erreur de connexion', 'assistant');
+    }
+}
+
+function buildAIContext() {
+    const todo = tasks.filter(t => t.status === 'todo');
+    const inProgress = tasks.filter(t => t.status === 'inprogress');
+    const today = new Date().toDateString();
+    const todayJournal = journal.filter(e => new Date(e.date).toDateString() === today);
+    
+    const urgent = todo.filter(t => t.priority.level === 1);
+    
+    let ctx = `=== EMPIRE DIGITAL GIRI ===\nUser: ${currentUser.name} (${currentUser.role})\nDate: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
+    ctx += `🔥 URGENT: ${urgent.length} | 📋 À faire: ${todo.length} | 🔄 En cours: ${inProgress.length}\n\n`;
+    
+    if (urgent.length) {
+        ctx += `URGENTS:\n${urgent.map(t => `- ${t.text} (${getProject(t.project).name})`).join('\n')}\n\n`;
+    }
+    
+    if (inProgress.length) {
+        ctx += `EN COURS:\n${inProgress.map(t => `- ${t.text}`).join('\n')}\n\n`;
+    }
+    
+    projects.forEach(p => {
+        const pTodo = todo.filter(t => t.project === p.id);
+        if (pTodo.length) {
+            ctx += `📁 ${p.name}: ${pTodo.map(t => t.text).join(', ')}\n`;
+        }
+    });
+    
+    ctx += `\nJOURNAL: ${todayJournal.slice(0, 5).map(e => e.text).join(' | ') || 'Vide'}`;
+    
+    return ctx;
+}
+
+function processAIActions(response) {
+    if (response.includes('ACTION:CREATE|')) {
+        [...response.matchAll(/ACTION:CREATE\|([^\n]+)/g)].forEach(m => {
+            tasks.push({
+                id: Date.now() + Math.random(),
+                text: m[1].trim(),
+                status: 'todo',
+                priority: { level: 2, label: 'Normal' },
+                project: activeProjectFilter !== 'all' ? activeProjectFilter : 'general',
+                userId: currentUser.id,
+                userName: currentUser.name,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+        });
+        saveTasks(); renderTasks(); renderProjectsFilter();
+        response = response.replace(/ACTION:CREATE\|[^\n]+/g, '') + '\n✅ Tâche créée!';
+    }
+    
+    if (response.includes('ACTION:DONE|')) {
+        [...response.matchAll(/ACTION:DONE\|([^\n]+)/g)].forEach(m => {
+            const t = tasks.find(t => t.status !== 'done' && t.text.toLowerCase().includes(m[1].trim().toLowerCase()));
+            if (t) { t.status = 'done'; t.completedAt = new Date().toISOString(); }
+        });
+        saveTasks(); renderTasks(); renderProjectsFilter();
+        response = response.replace(/ACTION:DONE\|[^\n]+/g, '') + '\n✅ Terminé!';
+    }
+    
+    return response.trim();
+}
+
+function addChatMsg(text, cls) {
+    const div = document.createElement('div');
+    div.className = `chat-msg ${cls}`;
+    div.textContent = text;
+    $('chatbot-messages').appendChild(div);
+    $('chatbot-messages').scrollTop = $('chatbot-messages').scrollHeight;
+    return div;
+}
+
+// =============================================
+// RAPPORT
+// =============================================
+
+let lastReport = null;
+
+async function generateReport() {
+    $('report-content').innerHTML = '<p style="color:var(--text-muted)">🔮 Génération...</p>';
+    $('download-pdf-btn').classList.add('hidden');
+    
+    const today = new Date().toDateString();
+    const todayDone = tasks.filter(t => t.status === 'done' && t.completedAt && new Date(t.completedAt).toDateString() === today);
+    const todo = tasks.filter(t => t.status === 'todo');
+    const inProg = tasks.filter(t => t.status === 'inprogress');
+    
+    const metrics = { todo: todo.length, inProg: inProg.length, done: todayDone.length };
+    
+    try {
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: 'Génère un rapport concis: synthèse, accomplissements, recommandations.',
+                context: buildAIContext(),
+                user: currentUser.name,
+                type: 'report'
+            })
+        });
+        
+        let ai = await response.text();
+        try { const j = JSON.parse(ai); ai = j.response || j.text || ai; } catch(e) {}
+        ai = ai.replace(/ACTION:[A-Z]+\|[^\n]*/g, '').trim();
+        
+        lastReport = { metrics, ai, date: new Date() };
+        showReport(metrics, ai);
+        $('download-pdf-btn').classList.remove('hidden');
+    } catch(e) {
+        showReport(metrics, null);
+    }
+}
+
+function showReport(m, ai) {
+    $('report-content').innerHTML = `
+        <h3>📊 Rapport - ${new Date().toLocaleDateString('fr-FR')}</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0">
+            <div style="background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
+                <div style="font-size:1.5rem;font-weight:bold;color:var(--accent)">${m.todo}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">À faire</div>
+            </div>
+            <div style="background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
+                <div style="font-size:1.5rem;font-weight:bold;color:var(--warning)">${m.inProg}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">En cours</div>
+            </div>
+            <div style="background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
+                <div style="font-size:1.5rem;font-weight:bold;color:var(--success)">${m.done}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">Terminées</div>
+            </div>
+        </div>
+        ${ai ? `<div style="background:var(--bg-card);padding:15px;border-radius:12px;border-left:3px solid var(--accent);white-space:pre-wrap;line-height:1.6">${escapeHtml(ai)}</div>` : ''}
+    `;
+}
+
+function downloadPDF() {
+    if (!lastReport) return alert('Génère un rapport d\'abord');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const w = doc.internal.pageSize.getWidth();
+    
+    doc.setFillColor(224, 120, 64);
+    doc.rect(0, 0, w, 25, 'F');
+    doc.setTextColor(255);
+    doc.setFontSize(14);
+    doc.text('RAPPORT DIGITAL GIRI', w/2, 15, { align: 'center' });
+    
+    let y = 40;
+    doc.setTextColor(0);
+    doc.setFontSize(10);
+    doc.text(`Date: ${lastReport.date.toLocaleDateString('fr-FR')}`, 20, y);
+    y += 10;
+    doc.text(`À faire: ${lastReport.metrics.todo} | En cours: ${lastReport.metrics.inProg} | Terminées: ${lastReport.metrics.done}`, 20, y);
+    y += 15;
+    
+    if (lastReport.ai) {
+        doc.setFontSize(9);
+        doc.splitTextToSize(lastReport.ai, w - 40).forEach(line => {
+            if (y > 280) { doc.addPage(); y = 20; }
+            doc.text(line, 20, y);
+            y += 5;
+        });
+    }
+    
+    doc.save(`rapport_${lastReport.date.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`);
+}
+
+// =============================================
+// EVENT LISTENERS
+// =============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 ProductiveApp starting...');
+    
+    renderUserSelect();
+    $('login-btn').addEventListener('click', attemptLogin);
+    $('login-password').addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
+    $('back-btn').addEventListener('click', () => {
+        $('user-select-grid').classList.remove('hidden');
+        $('password-form').classList.add('hidden');
+        $('login-error').textContent = '';
+        currentUser = null;
+    });
+    $('logout-btn').addEventListener('click', logout);
+    
+    $('add-task-btn').addEventListener('click', createTask);
+    $('task-input').addEventListener('keypress', e => { if (e.key === 'Enter') createTask(); });
+    
+    $('view-toggle-btn').addEventListener('click', toggleViewMode);
+    
+    $('theme-btn').addEventListener('click', () => $('theme-modal').classList.remove('hidden'));
+    $('close-theme-modal').addEventListener('click', () => $('theme-modal').classList.add('hidden'));
+    $('theme-modal').addEventListener('click', e => { if (e.target.id === 'theme-modal') $('theme-modal').classList.add('hidden'); });
+    $('theme-slider').addEventListener('input', () => {
+        const theme = THEMES[parseInt($('theme-slider').value)];
+        setTheme(theme.id);
+        $('theme-name').textContent = theme.name;
+    });
+    
+    $('add-project-btn').addEventListener('click', () => $('project-modal').classList.remove('hidden'));
+    $('cancel-project').addEventListener('click', () => {
+        $('project-modal').classList.add('hidden');
+        $('new-project-name').value = '';
+        $('new-project-desc').value = '';
+    });
+    $('confirm-project').addEventListener('click', () => {
+        const name = $('new-project-name').value.trim();
+        const desc = $('new-project-desc').value.trim();
+        if (!name) return;
+        
+        const icons = ['📁', '🎯', '💡', '🚀', '⭐', '🔥', '💎', '🌟'];
+        const colors = ['#e07840', '#00ff66', '#ff6b9d', '#6c8fff', '#00b4d8', '#bf6bff', '#f97316', '#4ade80'];
+        
+        projects.push({
+            id: 'proj_' + Date.now(),
+            name: name,
+            icon: icons[Math.floor(Math.random() * icons.length)],
+            color: colors[Math.floor(Math.random() * colors.length)],
+            desc: desc || name
+        });
+        
+        saveProjects();
+        renderProjectsFilter();
+        renderProjectSelect();
+        $('project-modal').classList.add('hidden');
+        $('new-project-name').value = '';
+        $('new-project-desc').value = '';
+    });
+    $('project-modal').addEventListener('click', e => { if (e.target.id === 'project-modal') $('project-modal').classList.add('hidden'); });
+    
+    $('user-filter-select').addEventListener('change', () => {
+        activeUserFilter = $('user-filter-select').value;
+        renderTasks();
+        renderJournal();
+    });
+    
+    $('add-journal-btn').addEventListener('click', () => {
+        const text = $('journal-input').value.trim();
+        if (text) {
+            addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
+            $('journal-input').value = '';
+        }
+    });
+    $('journal-input').addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            const text = $('journal-input').value.trim();
+            if (text) {
+                addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
+                $('journal-input').value = '';
+            }
+        }
+    });
+    
+    $('generate-report-btn').addEventListener('click', generateReport);
+    $('download-pdf-btn').addEventListener('click', downloadPDF);
+    
+    $('chatbot-toggle').addEventListener('click', () => {
+        $('chatbot-window').classList.toggle('hidden');
+        if (!$('chatbot-window').classList.contains('hidden')) $('chatbot-input').focus();
+    });
+    $('chatbot-close').addEventListener('click', () => $('chatbot-window').classList.add('hidden'));
+    $('chatbot-resize').addEventListener('click', () => {
+        chatbotLarge = !chatbotLarge;
+        localStorage.setItem('chatbot-large', chatbotLarge);
+        $('chatbot-window').classList.toggle('large', chatbotLarge);
+    });
+    $('chatbot-send').addEventListener('click', sendChatMessage);
+    $('chatbot-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
+    
+    checkExistingSession();
+    
+    console.log('✅ ProductiveApp ready!');
 });
 
-newProjectCancel.addEventListener('click', () => {
-    newProjectModal.classList.add('hidden');
-    newProjectName.value = '';
-    newProjectDesc.value = '';
-});
+// =============================================
+// RAPPORT
+// =============================================
 
-newProjectConfirm.addEventListener('click', () => {
-    const name = newProjectName.value.trim();
-    const desc = newProjectDesc.value.trim();
+var lastReportData = null;
+
+async function generateReport() {
+    $('report-content').innerHTML = '<p style="color:var(--text-muted)">🔮 Génération...</p>';
+    
+    try {
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: 'Génère un rapport de direction concis avec: synthèse, accomplissements, points attention, recommandations.',
+                context: buildAIContext(),
+                user: currentUser.name,
+                type: 'report'
+            })
+        });
+        
+        let ai = await response.text();
+        try { const j = JSON.parse(ai); ai = j.response || j.text || ai; } catch(e) {}
+        ai = ai.replace(/ACTION:[A-Z]+\|[^\n]*/g, '').trim();
+        
+        lastReportData = { ai: ai, date: new Date() };
+        showReport(ai);
+        $('download-pdf-btn').classList.remove('hidden');
+    } catch(e) {
+        $('report-content').innerHTML = '<p style="color:var(--danger)">Erreur de génération</p>';
+    }
+}
+
+function showReport(ai) {
+    const todo = tasks.filter(t => t.status === 'todo').length;
+    const inProg = tasks.filter(t => t.status === 'inprogress').length;
+    const todayStr = new Date().toDateString();
+    const done = tasks.filter(t => t.status === 'done' && t.completedAt && new Date(t.completedAt).toDateString() === todayStr).length;
+    
+    $('report-content').innerHTML = 
+        '<h3>📊 Rapport - ' + new Date().toLocaleDateString('fr-FR') + '</h3>' +
+        '<div style="display:flex;gap:16px;margin:16px 0">' +
+            '<div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">' +
+                '<div style="font-size:1.5rem;font-weight:bold;color:var(--accent)">' + todo + '</div>' +
+                '<div style="font-size:0.75rem;color:var(--text-muted)">À faire</div>' +
+            '</div>' +
+            '<div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">' +
+                '<div style="font-size:1.5rem;font-weight:bold;color:var(--warning)">' + inProg + '</div>' +
+                '<div style="font-size:0.75rem;color:var(--text-muted)">En cours</div>' +
+            '</div>' +
+            '<div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">' +
+                '<div style="font-size:1.5rem;font-weight:bold;color:var(--success)">' + done + '</div>' +
+                '<div style="font-size:0.75rem;color:var(--text-muted)">Terminées</div>' +
+            '</div>' +
+        '</div>' +
+        (ai ? '<div style="background:var(--bg-card);padding:16px;border-radius:12px;border-left:3px solid var(--accent);white-space:pre-wrap;line-height:1.6">' + escapeHtml(ai) + '</div>' : '');
+}
+
+function downloadPDF() {
+    if (!lastReportData) return alert('Génère un rapport d\'abord');
+    
+    const jsPDF = window.jspdf.jsPDF;
+    const doc = new jsPDF();
+    const w = doc.internal.pageSize.getWidth();
+    
+    doc.setFillColor(224, 120, 64);
+    doc.rect(0, 0, w, 25, 'F');
+    doc.setTextColor(255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RAPPORT DIGITAL GIRI', w/2, 15, { align: 'center' });
+    
+    let y = 40;
+    doc.setTextColor(0);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    
+    if (lastReportData.ai) {
+        const lines = doc.splitTextToSize(lastReportData.ai, w - 40);
+        lines.forEach(function(line) {
+            if (y > 280) { doc.addPage(); y = 20; }
+            doc.text(line, 20, y);
+            y += 5;
+        });
+    }
+    
+    doc.save('rapport_' + lastReportData.date.toLocaleDateString('fr-FR').replace(/\//g, '-') + '.pdf');
+}
+
+// =============================================
+// MODALS
+// =============================================
+
+function openProjectModal() {
+    $('project-modal').classList.remove('hidden');
+    $('new-project-name').focus();
+}
+
+function closeProjectModal() {
+    $('project-modal').classList.add('hidden');
+    $('new-project-name').value = '';
+    $('new-project-desc').value = '';
+}
+
+function createProject() {
+    const name = $('new-project-name').value.trim();
+    const desc = $('new-project-desc').value.trim();
     if (!name) return;
     
     const icons = ['📁', '🎯', '💡', '🚀', '⭐', '🔥', '💎', '🌟'];
@@ -276,491 +922,76 @@ newProjectConfirm.addEventListener('click', () => {
     saveProjects();
     renderProjectsFilter();
     renderProjectSelect();
-    newProjectModal.classList.add('hidden');
-    newProjectName.value = '';
-    newProjectDesc.value = '';
-});
-
-newProjectModal.addEventListener('click', (e) => {
-    if (e.target === newProjectModal) newProjectModal.classList.add('hidden');
-});
-
-// === GESTION DES BULLES ===
-addBubbleBtn.addEventListener('click', createBubble);
-bubbleInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') createBubble(); });
-
-function createBubble() {
-    const text = bubbleInput.value.trim();
-    if (!text) return;
-    
-    const projectId = projectSelect.value || 'general';
-    const priorityLevel = parseInt(prioritySelect.value) || 2;
-    const priorityLabels = { 1: 'Urgent', 2: 'Normal', 3: 'Basse' };
-    
-    const bubble = {
-        id: Date.now(),
-        text: text,
-        status: 'todo',
-        priority: { level: priorityLevel, label: priorityLabels[priorityLevel] },
-        project: projectId,
-        userId: currentUser.id,
-        userName: currentUser.name,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    };
-    
-    bubbles.push(bubble);
-    saveBubbles();
-    renderBubbles();
-    renderProjectsFilter();
-    
-    bubbleInput.value = '';
-    projectSelect.value = '';
-    prioritySelect.value = '2';
-    
-    sendToN8N('bubble', bubble);
+    closeProjectModal();
 }
 
-function renderBubbles() {
-    let filtered = bubbles;
-    
-    if (activeProjectFilter !== 'all') {
-        filtered = filtered.filter(b => b.project === activeProjectFilter);
-    }
-    if (activeUserFilter !== 'all') {
-        filtered = filtered.filter(b => b.userId === activeUserFilter);
-    }
-    
-    const todo = filtered.filter(b => b.status === 'todo').sort((a, b) => a.priority.level - b.priority.level);
-    const inprogress = filtered.filter(b => b.status === 'inprogress');
-    const done = filtered.filter(b => b.status === 'done').slice(0, 20);
-    
-    todoCount.textContent = todo.length;
-    inprogressCount.textContent = inprogress.length;
-    doneCount.textContent = done.length;
-    
-    todoBubbles.innerHTML = todo.length ? todo.map(b => renderBubbleHTML(b)).join('') : '<div class="empty-state">Aucune tâche</div>';
-    inprogressBubbles.innerHTML = inprogress.length ? inprogress.map(b => renderBubbleHTML(b)).join('') : '<div class="empty-state">Rien en cours</div>';
-    doneBubbles.innerHTML = done.length ? done.map(b => renderBubbleHTML(b)).join('') : '<div class="empty-state">Rien terminé</div>';
-    
-    attachBubbleEvents();
-}
+// =============================================
+// EVENT LISTENERS
+// =============================================
 
-function renderBubbleHTML(bubble) {
-    const project = getProject(bubble.project);
-    const isOwn = bubble.userId === currentUser.id;
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 ProductiveApp Starting...');
     
-    return `
-        <div class="bubble ${bubble.status}" data-id="${bubble.id}">
-            <div class="bubble-header">
-                <span class="bubble-project" style="background: ${project.color}20; color: ${project.color};">${project.icon} ${project.name}</span>
-                <span class="bubble-priority ${bubble.priority.level === 1 ? 'urgent' : ''}">${bubble.priority.label}</span>
-                <span class="bubble-user">${isOwn ? '' : bubble.userName}</span>
-            </div>
-            <div class="bubble-text">${escapeHtml(bubble.text)}</div>
-            <div class="bubble-actions">
-                ${bubble.status === 'todo' ? `<button class="bubble-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
-                ${bubble.status === 'inprogress' ? `<button class="bubble-action-btn done" data-action="done">✅ Terminé</button>` : ''}
-                ${bubble.status === 'todo' ? `<button class="bubble-action-btn done" data-action="done">✅ Fait</button>` : ''}
-                <button class="bubble-action-btn delete" data-action="delete">🗑️</button>
-            </div>
-        </div>
-    `;
-}
-
-function attachBubbleEvents() {
-    // Attacher directement sur chaque bouton
-    document.querySelectorAll('.bubble-action-btn').forEach(btn => {
-        // Enlever les anciens listeners en clonant le bouton
-        const newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-        
-        newBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            
-            const bubbleEl = newBtn.closest('.bubble');
-            if (!bubbleEl) return;
-            
-            const bubbleId = Number(bubbleEl.dataset.id);
-            const action = newBtn.dataset.action;
-            
-            console.log('Click! Action:', action, 'Bubble ID:', bubbleId);
-            handleBubbleAction(bubbleId, action);
-        });
+    // Auth
+    renderUserSelect();
+    
+    $('login-btn').addEventListener('click', attemptLogin);
+    $('login-password').addEventListener('keypress', function(e) { if (e.key === 'Enter') attemptLogin(); });
+    $('back-btn').addEventListener('click', function() {
+        $('user-select-grid').classList.remove('hidden');
+        $('password-form').classList.add('hidden');
+        $('login-error').textContent = '';
+        currentUser = null;
     });
-}
-
-function handleBubbleAction(bubbleId, action) {
-    console.log('handleBubbleAction:', bubbleId, action);
-    console.log('Looking in bubbles:', bubbles.map(b => b.id));
+    $('logout-btn').addEventListener('click', logout);
     
-    const bubbleIndex = bubbles.findIndex(b => b.id === bubbleId);
-    if (bubbleIndex === -1) {
-        console.error('Bubble not found:', bubbleId);
-        return;
-    }
+    // Tasks
+    $('add-task-btn').addEventListener('click', createTask);
+    $('task-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createTask(); });
     
-    const bubble = bubbles[bubbleIndex];
+    // View Toggle
+    $('view-toggle-btn').addEventListener('click', toggleViewMode);
     
-    if (action === 'start') {
-        bubble.status = 'inprogress';
-        bubble.startedAt = new Date().toISOString();
-        bubble.updatedAt = new Date().toISOString();
-        addJournalEntry(`🔄 Commencé: ${bubble.text}`);
-    } else if (action === 'done') {
-        bubble.status = 'done';
-        bubble.completedAt = new Date().toISOString();
-        bubble.updatedAt = new Date().toISOString();
-        addJournalEntry(`✅ Terminé: ${bubble.text}`);
-    } else if (action === 'delete') {
-        const deletedText = bubble.text;
-        bubbles.splice(bubbleIndex, 1);
-        addJournalEntry(`🗑️ Supprimé: ${deletedText}`);
-    }
-    
-    saveBubbles();
-    renderBubbles();
-    renderProjectsFilter();
-}
-
-// === JOURNAL ===
-addJournalBtn.addEventListener('click', () => {
-    const text = journalInput.value.trim();
-    if (text) { addJournalEntry(text); journalInput.value = ''; }
-});
-journalInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        const text = journalInput.value.trim();
-        if (text) { addJournalEntry(text); journalInput.value = ''; }
-    }
-});
-
-function addJournalEntry(text) {
-    journal.unshift({
-        id: Date.now(),
-        text: text,
-        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        date: new Date().toISOString(),
-        userId: currentUser.id,
-        userName: currentUser.name
-    });
-    saveJournal();
-    renderJournal();
-}
-
-function renderJournal() {
-    const today = new Date().toDateString();
-    let entries = journal.filter(e => new Date(e.date).toDateString() === today);
-    if (activeUserFilter !== 'all') entries = entries.filter(e => e.userId === activeUserFilter);
-    
-    journalEntries.innerHTML = entries.length ? entries.map(e => `
-        <div class="journal-entry">
-            <span class="time">${e.time}</span>
-            <span class="content">${escapeHtml(e.text)}</span>
-            <span class="entry-user">${e.userName}</span>
-        </div>
-    `).join('') : '<div class="empty-state">Aucune entrée aujourd\'hui</div>';
-}
-
-// === THÈMES ===
-themeBtn.addEventListener('click', () => themeModal.classList.remove('hidden'));
-themeModalClose.addEventListener('click', () => themeModal.classList.add('hidden'));
-themeModal.addEventListener('click', (e) => { if (e.target === themeModal) themeModal.classList.add('hidden'); });
-
-themeSlider.addEventListener('input', () => {
-    const theme = THEMES[parseInt(themeSlider.value)];
-    setTheme(theme.id);
-    themeName.textContent = theme.name;
-});
-
-function setTheme(theme) {
-    if (theme === 'desert') document.documentElement.removeAttribute('data-theme');
-    else document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    
-    // Réinitialiser les animations (fonction définie dans animations.js)
-    if (typeof resetAnimationForTheme === 'function') {
-        resetAnimationForTheme();
-    }
-}
-
-function loadTheme() {
-    const saved = localStorage.getItem('theme') || 'desert';
-    setTheme(saved);
-    const idx = THEMES.findIndex(t => t.id === saved);
-    if (idx !== -1) { themeSlider.value = idx; themeName.textContent = THEMES[idx].name; }
-}
-
-
-// === ANIMATIONS ===
-// Les animations sont dans animations.js séparé
-function startAnimation() {
-    if (typeof initAnimation === "function") {
-        initAnimation();
-    }
-}
-
-// === CHATBOT ===
-let isLargeMode = localStorage.getItem('chatbot-large-mode') === 'true';
-
-chatbotToggle.addEventListener('click', () => { chatbotWindow.classList.toggle('hidden'); if (!chatbotWindow.classList.contains('hidden')) chatbotInput.focus(); });
-chatbotClose.addEventListener('click', () => chatbotWindow.classList.add('hidden'));
-chatbotSizeToggle.addEventListener('click', () => { isLargeMode = !isLargeMode; localStorage.setItem('chatbot-large-mode', isLargeMode); applyChatbotSize(); });
-
-function applyChatbotSize() {
-    chatbotWindow.classList.toggle('large-mode', isLargeMode);
-    expandIcon.style.display = isLargeMode ? 'none' : 'block';
-    collapseIcon.style.display = isLargeMode ? 'block' : 'none';
-}
-
-chatbotSend.addEventListener('click', sendChatMessage);
-chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendChatMessage(); });
-
-async function sendChatMessage() {
-    const message = chatbotInput.value.trim();
-    if (!message) return;
-    
-    addChatMessage(message, 'user');
-    chatbotInput.value = '';
-    const loadingDiv = addChatMessage('Réflexion...', 'assistant loading');
-    
-    try {
-        const context = buildAIContext();
-        const response = await fetch(CHATBOT_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, context, user: currentUser.name, userId: currentUser.id })
-        });
-        
-        let aiResponse = await response.text();
-        try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
-        
-        loadingDiv.remove();
-        aiResponse = processAIActions(aiResponse);
-        addChatMessage(aiResponse || 'OK!', 'assistant');
-    } catch (e) {
-        loadingDiv.remove();
-        addChatMessage('Erreur de connexion', 'assistant');
-    }
-}
-
-function buildAIContext() {
-    const todo = bubbles.filter(b => b.status === 'todo');
-    const inProgress = bubbles.filter(b => b.status === 'inprogress');
-    const today = new Date().toDateString();
-    const todayJournal = journal.filter(e => new Date(e.date).toDateString() === today);
-    
-    // Trier par priorité (urgent d'abord)
-    const urgentTasks = todo.filter(b => b.priority.level === 1);
-    const normalTasks = todo.filter(b => b.priority.level === 2);
-    const lowTasks = todo.filter(b => b.priority.level === 3);
-    
-    let ctx = `=== EMPIRE DIGITAL GIRI ===\nUser: ${currentUser.name} (${currentUser.role})\nDate: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
-    
-    // Résumé priorités
-    ctx += `=== PRIORITÉS ===\n`;
-    ctx += `🔥 URGENT: ${urgentTasks.length} tâches\n`;
-    ctx += `📋 Normal: ${normalTasks.length} tâches\n`;
-    ctx += `⬇️ Basse: ${lowTasks.length} tâches\n`;
-    ctx += `🔄 En cours: ${inProgress.length} tâches\n\n`;
-    
-    // Tâches urgentes en premier
-    if (urgentTasks.length) {
-        ctx += `🔥 TÂCHES URGENTES:\n`;
-        urgentTasks.forEach(b => {
-            const proj = projects.find(p => p.id === b.project);
-            ctx += `  - "${b.text}" (${proj?.name || 'Général'})\n`;
-        });
-        ctx += '\n';
-    }
-    
-    // Tâches en cours
-    if (inProgress.length) {
-        ctx += `🔄 EN COURS:\n`;
-        inProgress.forEach(b => {
-            const proj = projects.find(p => p.id === b.project);
-            ctx += `  - "${b.text}" (${proj?.name || 'Général'}) [${b.priority.label}]\n`;
-        });
-        ctx += '\n';
-    }
-    
-    // Par projet
-    projects.forEach(p => {
-        const pTodo = todo.filter(b => b.project === p.id);
-        if (pTodo.length) {
-            ctx += `📁 ${p.name}:\n`;
-            pTodo.forEach(b => {
-                const priorityIcon = b.priority.level === 1 ? '🔥' : b.priority.level === 3 ? '⬇️' : '📋';
-                ctx += `  ${priorityIcon} "${b.text}" [${b.priority.label}]\n`;
-            });
-        }
+    // User Filter
+    $('user-filter-select').addEventListener('change', function() {
+        activeUserFilter = $('user-filter-select').value;
+        renderTasks();
+        renderJournal();
     });
     
-    ctx += `\n=== JOURNAL ===\n${todayJournal.map(e => `${e.time}: ${e.text}`).join('\n') || 'Vide'}\n`;
-    ctx += `\nActions: ACTION:CREATE|texte, ACTION:DONE|mot-clé, ACTION:DELETE|mot-clé`;
-    
-    return ctx;
-}
-
-function processAIActions(response) {
-    if (response.includes('ACTION:CREATE|')) {
-        [...response.matchAll(/ACTION:CREATE\|([^\n]+)/g)].forEach(m => {
-            bubbles.push({ id: Date.now() + Math.random(), text: m[1].trim(), status: 'todo', priority: { level: 2, label: 'Normal' }, project: activeProjectFilter !== 'all' ? activeProjectFilter : 'general', userId: currentUser.id, userName: currentUser.name, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-        });
-        saveBubbles(); renderBubbles(); renderProjectsFilter();
-        response = response.replace(/ACTION:CREATE\|[^\n]+/g, '') + '\n✅ Tâche créée!';
-    }
-    
-    if (response.includes('ACTION:DELETE|')) {
-        let c = 0;
-        [...response.matchAll(/ACTION:DELETE\|([^\n]+)/g)].forEach(m => {
-            const idx = bubbles.findIndex(b => b.status !== 'done' && b.text.toLowerCase().includes(m[1].trim().toLowerCase()));
-            if (idx !== -1) { bubbles.splice(idx, 1); c++; }
-        });
-        if (c) { saveBubbles(); renderBubbles(); renderProjectsFilter(); response = response.replace(/ACTION:DELETE\|[^\n]+/g, '') + `\n🗑️ ${c} supprimée(s)`; }
-    }
-    
-    if (response.includes('ACTION:DONE|')) {
-        let c = 0;
-        [...response.matchAll(/ACTION:DONE\|([^\n]+)/g)].forEach(m => {
-            const b = bubbles.find(b => b.status !== 'done' && b.text.toLowerCase().includes(m[1].trim().toLowerCase()));
-            if (b) { b.status = 'done'; b.completedAt = new Date().toISOString(); c++; }
-        });
-        if (c) { saveBubbles(); renderBubbles(); renderProjectsFilter(); response = response.replace(/ACTION:DONE\|[^\n]+/g, '') + `\n✅ ${c} terminée(s)`; }
-    }
-    
-    return response.trim();
-}
-
-function addChatMessage(text, cls) {
-    const div = document.createElement('div');
-    div.className = `chat-message ${cls}`;
-    div.textContent = text;
-    chatbotMessages.appendChild(div);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-    return div;
-}
-
-// === RAPPORT ===
-let lastSummaryData = null;
-generateSummaryBtn.addEventListener('click', generateSummary);
-downloadPdfBtn.addEventListener('click', downloadPDF);
-
-async function generateSummary() {
-    dailySummary.innerHTML = '<p style="color:var(--text-muted)">🔮 Génération...</p>';
-    dailySummary.classList.add('visible');
-    downloadPdfBtn.style.display = 'none';
-    
-    const metrics = calcMetrics();
-    
-    try {
-        const response = await fetch(CHATBOT_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: 'Génère un rapport de direction avec: synthèse, accomplissements, points attention, état par projet, recommandations. Sois concis et stratégique.', context: buildAIContext(), user: currentUser.name, type: 'report' })
-        });
-        
-        let ai = await response.text();
-        try { const j = JSON.parse(ai); ai = j.response || j.text || ai; } catch(e) {}
-        ai = ai.replace(/ACTION:[A-Z]+\|[^\n]*/g, '').trim();
-        
-        lastSummaryData = { metrics, ai, date: new Date() };
-        showReport(metrics, ai);
-        downloadPdfBtn.style.display = 'inline-block';
-    } catch(e) {
-        showReport(metrics, null);
-        downloadPdfBtn.style.display = 'inline-block';
-    }
-}
-
-function calcMetrics() {
-    const today = new Date().toDateString();
-    const todo = bubbles.filter(b => b.status === 'todo');
-    const inProg = bubbles.filter(b => b.status === 'inprogress');
-    const done = bubbles.filter(b => b.status === 'done');
-    const todayDone = done.filter(b => b.completedAt && new Date(b.completedAt).toDateString() === today);
-    
-    const byProj = {};
-    projects.forEach(p => {
-        const pb = bubbles.filter(b => b.project === p.id);
-        byProj[p.id] = { name: p.name, icon: p.icon, total: pb.length, done: pb.filter(b => b.status === 'done').length };
+    // Theme
+    $('theme-btn').addEventListener('click', function() { $('theme-modal').classList.remove('hidden'); });
+    $('close-theme-modal').addEventListener('click', function() { $('theme-modal').classList.add('hidden'); });
+    $('theme-modal').addEventListener('click', function(e) { if (e.target === $('theme-modal')) $('theme-modal').classList.add('hidden'); });
+    $('theme-slider').addEventListener('input', function() {
+        const theme = THEMES[parseInt($('theme-slider').value)];
+        setTheme(theme.id);
+        $('theme-name').textContent = theme.name;
     });
     
-    return { todo: todo.length, inProg: inProg.length, todayDone: todayDone.length, byProj };
-}
-
-function showReport(m, ai) {
-    const bars = Object.values(m.byProj).filter(p => p.total > 0).map(p => {
-        const pct = Math.round((p.done / p.total) * 100);
-        return `<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between"><span>${p.icon} ${p.name}</span><span>${p.done}/${p.total}</span></div><div style="background:var(--bg-tertiary);border-radius:10px;height:6px"><div style="background:var(--accent);width:${pct}%;height:100%;border-radius:10px"></div></div></div>`;
-    }).join('');
+    // Project Modal
+    $('add-project-btn').addEventListener('click', openProjectModal);
+    $('cancel-project').addEventListener('click', closeProjectModal);
+    $('confirm-project').addEventListener('click', createProject);
+    $('project-modal').addEventListener('click', function(e) { if (e.target === $('project-modal')) closeProjectModal(); });
     
-    dailySummary.innerHTML = `
-        <h3>📊 Rapport - ${new Date().toLocaleDateString('fr-FR')}</h3>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0">
-            <div style="background:var(--card-bg);padding:12px;border-radius:12px;text-align:center"><div style="font-size:1.5rem;font-weight:bold;color:var(--accent)">${m.todo}</div><div style="font-size:0.75rem;color:var(--text-muted)">À faire</div></div>
-            <div style="background:var(--card-bg);padding:12px;border-radius:12px;text-align:center"><div style="font-size:1.5rem;font-weight:bold;color:var(--warning)">${m.inProg}</div><div style="font-size:0.75rem;color:var(--text-muted)">En cours</div></div>
-            <div style="background:var(--card-bg);padding:12px;border-radius:12px;text-align:center"><div style="font-size:1.5rem;font-weight:bold;color:var(--success)">${m.todayDone}</div><div style="font-size:0.75rem;color:var(--text-muted)">Terminées</div></div>
-        </div>
-        <div style="background:var(--card-bg);padding:15px;border-radius:12px;margin-bottom:15px"><h4 style="margin-bottom:10px">📁 Par projet</h4>${bars || '<p style="color:var(--text-muted)">Aucun</p>'}</div>
-        ${ai ? `<div style="background:var(--card-bg);padding:15px;border-radius:12px;border-left:3px solid var(--accent)"><h4 style="margin-bottom:10px">🔮 Analyse IA</h4><div style="white-space:pre-wrap;line-height:1.6">${escapeHtml(ai)}</div></div>` : ''}
-    `;
-}
-
-function downloadPDF() {
-    if (!lastSummaryData) return alert('Génère un rapport d\'abord');
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const w = doc.internal.pageSize.getWidth();
+    // Journal
+    $('add-journal-btn').addEventListener('click', createJournalEntry);
+    $('journal-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createJournalEntry(); });
     
-    doc.setFillColor(224, 120, 64);
-    doc.rect(0, 0, w, 30, 'F');
-    doc.setTextColor(255); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-    doc.text('RAPPORT DIGITAL GIRI', w/2, 12, { align: 'center' });
-    doc.setFontSize(10); doc.text(lastSummaryData.date.toLocaleDateString('fr-FR'), w/2, 22, { align: 'center' });
+    // Report
+    $('generate-report-btn').addEventListener('click', generateReport);
+    $('download-pdf-btn').addEventListener('click', downloadPDF);
     
-    let y = 45;
-    doc.setTextColor(0); doc.setFontSize(11);
-    doc.text(`À faire: ${lastSummaryData.metrics.todo}  |  En cours: ${lastSummaryData.metrics.inProg}  |  Terminées: ${lastSummaryData.metrics.todayDone}`, 20, y);
-    y += 15;
+    // Chatbot
+    $('chatbot-toggle').addEventListener('click', toggleChatbot);
+    $('chatbot-close').addEventListener('click', function() { $('chatbot-window').classList.add('hidden'); });
+    $('chatbot-resize').addEventListener('click', toggleChatbotSize);
+    $('chatbot-send').addEventListener('click', sendChatMessage);
+    $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     
-    if (lastSummaryData.ai) {
-        doc.setFont('helvetica', 'bold'); doc.text('ANALYSE', 20, y); y += 8;
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
-        doc.splitTextToSize(lastSummaryData.ai, w - 40).forEach(line => { if (y > 280) { doc.addPage(); y = 20; } doc.text(line, 20, y); y += 5; });
-    }
+    // Check Session
+    checkExistingSession();
     
-    doc.save(`rapport_${lastSummaryData.date.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`);
-}
-
-// === UTILS ===
-function saveBubbles() { localStorage.setItem('bubbles_v2', JSON.stringify(bubbles)); }
-function saveJournal() { localStorage.setItem('journal_v2', JSON.stringify(journal)); }
-function saveProjects() { localStorage.setItem('projects_v2', JSON.stringify(projects)); }
-function escapeHtml(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
-async function sendToN8N(type, data) { try { await fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, user: currentUser.name, ...data }) }); } catch(e) {} }
-
-// === START ===
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== APP STARTING ===');
-    
-    try {
-        console.log('1. Rendering user select...');
-        renderUserSelect();
-        console.log('2. User select rendered OK');
-        
-        console.log('3. Checking existing session...');
-        checkExistingSession();
-        console.log('4. Session check OK');
-        
-        console.log('5. Applying chatbot size...');
-        applyChatbotSize();
-        console.log('6. Chatbot size OK');
-        
-        console.log('=== APP READY ===');
-    } catch (error) {
-        console.error('=== APP ERROR ===', error);
-        alert('Erreur: ' + error.message);
-    }
+    console.log('✅ ProductiveApp Ready');
 });
