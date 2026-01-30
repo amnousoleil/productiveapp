@@ -112,60 +112,132 @@ function animate() {
     animationId = requestAnimationFrame(animate);
 }
 
-// Matrix - MAITRE MAHA GIRI qui tombe
+// Matrix - Vraie pluie de code verticale style Matrix
 function drawMatrixRain() {
-    const words = ['真', '覇', '王', 'MAHA', 'GIRI', 'マハ', '01'];
-    
-    if (particles.length < 40) {
+    // Colonnes de texte qui tombent
+    if (particles.length < 25) {
+        const words = '真覇王MAITREMAHAGIRI導師マハギリ悟01';
         particles.push({
             x: Math.random() * matrixCanvas.width,
-            y: -50,
-            speed: Math.random() * 1.5 + 0.5,
-            word: words[Math.floor(Math.random() * words.length)],
-            opacity: Math.random() * 0.3 + 0.1
+            y: -100,
+            chars: [],
+            speed: Math.random() * 2 + 1,
+            length: Math.floor(Math.random() * 15) + 8
         });
+        // Remplir la colonne avec des caractères
+        const lastP = particles[particles.length - 1];
+        for (let i = 0; i < lastP.length; i++) {
+            lastP.chars.push(words[Math.floor(Math.random() * words.length)]);
+        }
     }
     
-    particles = particles.filter(p => p.y < matrixCanvas.height + 100);
+    particles = particles.filter(p => p.y - p.length * 20 < matrixCanvas.height + 100);
     
-    matrixCtx.font = '16px monospace';
+    matrixCtx.font = '18px monospace';
     particles.forEach(p => {
         p.y += p.speed;
-        matrixCtx.fillStyle = `rgba(0, 210, 106, ${p.opacity})`;
-        matrixCtx.fillText(p.word, p.x, p.y);
+        
+        // Dessiner chaque caractère de la colonne
+        p.chars.forEach((char, i) => {
+            const charY = p.y - i * 20;
+            if (charY > 0 && charY < matrixCanvas.height) {
+                // Premier caractère plus brillant
+                const opacity = i === 0 ? 0.9 : Math.max(0.1, 0.6 - i * 0.04);
+                matrixCtx.fillStyle = i === 0 ? '#50ff50' : `rgba(0, 210, 106, ${opacity})`;
+                matrixCtx.fillText(char, p.x, charY);
+            }
+        });
+        
+        // Changer aléatoirement des caractères
+        if (Math.random() > 0.95) {
+            const idx = Math.floor(Math.random() * p.chars.length);
+            const words = '真覇王MAITREMAHAGIRI導師マハギリ悟01';
+            p.chars[idx] = words[Math.floor(Math.random() * words.length)];
+        }
     });
 }
 
-// Midnight - Étoiles scintillantes
+// Midnight - Étoiles scintillantes + étoiles filantes
 function drawStars() {
-    if (particles.length < 100) {
+    // Étoiles fixes qui scintillent
+    if (particles.filter(p => p.type === 'star').length < 80) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: Math.random() * matrixCanvas.height,
-            size: Math.random() * 2.5 + 0.5,
+            size: Math.random() * 2 + 0.5,
             twinkle: Math.random() * Math.PI * 2,
-            speed: Math.random() * 0.05 + 0.02
+            speed: Math.random() * 0.05 + 0.02,
+            type: 'star'
         });
     }
     
+    // Étoiles filantes occasionnelles
+    if (Math.random() > 0.995) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: 0,
+            speed: Math.random() * 8 + 5,
+            length: Math.random() * 80 + 40,
+            type: 'shooting'
+        });
+    }
+    
+    particles = particles.filter(p => {
+        if (p.type === 'shooting') return p.y < matrixCanvas.height && p.x < matrixCanvas.width;
+        return true;
+    });
+    
     particles.forEach(p => {
-        p.twinkle += p.speed;
-        const opacity = 0.5 + Math.sin(p.twinkle) * 0.4;
-        matrixCtx.beginPath();
-        matrixCtx.fillStyle = `rgba(150, 180, 255, ${opacity})`;
-        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        matrixCtx.fill();
+        if (p.type === 'star') {
+            p.twinkle += p.speed;
+            const opacity = 0.5 + Math.sin(p.twinkle) * 0.4;
+            matrixCtx.beginPath();
+            matrixCtx.fillStyle = `rgba(180, 200, 255, ${opacity})`;
+            matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            matrixCtx.fill();
+        } else if (p.type === 'shooting') {
+            // Étoile filante
+            p.x += p.speed * 0.7;
+            p.y += p.speed;
+            
+            const gradient = matrixCtx.createLinearGradient(
+                p.x, p.y, p.x - p.length * 0.7, p.y - p.length
+            );
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+            gradient.addColorStop(1, 'rgba(100, 150, 255, 0)');
+            
+            matrixCtx.beginPath();
+            matrixCtx.strokeStyle = gradient;
+            matrixCtx.lineWidth = 2;
+            matrixCtx.moveTo(p.x, p.y);
+            matrixCtx.lineTo(p.x - p.length * 0.7, p.y - p.length);
+            matrixCtx.stroke();
+        }
     });
 }
 
-// Ocean - Bulles qui montent
+// Ocean - Vagues + bulles
 function drawBubbles() {
-    if (particles.length < 35 && Math.random() > 0.85) {
+    const time = Date.now() / 1000;
+    
+    // Dessiner des vagues en bas
+    matrixCtx.beginPath();
+    matrixCtx.moveTo(0, matrixCanvas.height);
+    for (let x = 0; x <= matrixCanvas.width; x += 20) {
+        const y = matrixCanvas.height - 30 + Math.sin(x / 80 + time) * 15 + Math.sin(x / 40 + time * 1.5) * 8;
+        matrixCtx.lineTo(x, y);
+    }
+    matrixCtx.lineTo(matrixCanvas.width, matrixCanvas.height);
+    matrixCtx.fillStyle = 'rgba(0, 180, 220, 0.08)';
+    matrixCtx.fill();
+    
+    // Bulles qui montent
+    if (particles.length < 25 && Math.random() > 0.9) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: matrixCanvas.height + 20,
-            size: Math.random() * 15 + 5,
-            speed: Math.random() * 1.2 + 0.5,
+            size: Math.random() * 12 + 4,
+            speed: Math.random() * 1.5 + 0.8,
             wobble: Math.random() * Math.PI * 2
         });
     }
@@ -174,12 +246,12 @@ function drawBubbles() {
     
     particles.forEach(p => {
         p.y -= p.speed;
-        p.wobble += 0.04;
-        p.x += Math.sin(p.wobble) * 0.8;
+        p.wobble += 0.06;
+        p.x += Math.sin(p.wobble) * 1;
         matrixCtx.beginPath();
-        matrixCtx.fillStyle = 'rgba(0, 200, 230, 0.08)';
-        matrixCtx.strokeStyle = 'rgba(0, 220, 255, 0.3)';
-        matrixCtx.lineWidth = 1.5;
+        matrixCtx.fillStyle = 'rgba(100, 220, 255, 0.15)';
+        matrixCtx.strokeStyle = 'rgba(150, 240, 255, 0.4)';
+        matrixCtx.lineWidth = 1;
         matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         matrixCtx.fill();
         matrixCtx.stroke();
@@ -217,31 +289,49 @@ function drawMagicParticles() {
     });
 }
 
-// Bubblegum - Grosses bulles roses
+// Bubblegum - Confettis et cœurs qui tombent
 function drawPinkBubbles() {
-    if (particles.length < 25 && Math.random() > 0.9) {
+    if (particles.length < 30 && Math.random() > 0.9) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
-            y: matrixCanvas.height + 50,
-            size: Math.random() * 30 + 15,
-            speed: Math.random() * 0.6 + 0.3,
-            wobble: Math.random() * Math.PI * 2
+            y: -20,
+            size: Math.random() * 12 + 6,
+            speed: Math.random() * 1.5 + 0.5,
+            wobble: Math.random() * Math.PI * 2,
+            rotation: Math.random() * Math.PI * 2,
+            type: Math.random() > 0.5 ? 'heart' : 'confetti',
+            color: `hsl(${Math.random() * 60 + 320}, 80%, 70%)`
         });
     }
     
-    particles = particles.filter(p => p.y > -60);
+    particles = particles.filter(p => p.y < matrixCanvas.height + 30);
     
     particles.forEach(p => {
-        p.y -= p.speed;
-        p.wobble += 0.025;
-        p.x += Math.sin(p.wobble) * 0.8;
-        matrixCtx.beginPath();
-        matrixCtx.fillStyle = 'rgba(255, 107, 157, 0.12)';
-        matrixCtx.strokeStyle = 'rgba(255, 150, 200, 0.35)';
-        matrixCtx.lineWidth = 2;
-        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        matrixCtx.fill();
-        matrixCtx.stroke();
+        p.y += p.speed;
+        p.wobble += 0.05;
+        p.x += Math.sin(p.wobble) * 1.5;
+        p.rotation += 0.03;
+        
+        matrixCtx.save();
+        matrixCtx.translate(p.x, p.y);
+        matrixCtx.rotate(p.rotation);
+        matrixCtx.fillStyle = p.color;
+        matrixCtx.globalAlpha = 0.6;
+        
+        if (p.type === 'heart') {
+            // Dessiner un cœur
+            matrixCtx.beginPath();
+            matrixCtx.moveTo(0, p.size / 4);
+            matrixCtx.bezierCurveTo(p.size / 2, -p.size / 2, p.size, p.size / 4, 0, p.size);
+            matrixCtx.bezierCurveTo(-p.size, p.size / 4, -p.size / 2, -p.size / 2, 0, p.size / 4);
+            matrixCtx.fill();
+        } else {
+            // Confetti rectangle
+            matrixCtx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        }
+        
+        matrixCtx.globalAlpha = 1;
+        matrixCtx.restore();
     });
 }
 
@@ -278,20 +368,61 @@ function drawLeaves() {
     });
 }
 
-// Sunset - Lueur chaude animée
+// Sunset - Rayons de soleil + oiseaux qui volent
 function drawSunsetGlow() {
     const time = Date.now() / 2000;
-    const pulseSize = 350 + Math.sin(time) * 80;
     
-    const gradient = matrixCtx.createRadialGradient(
-        matrixCanvas.width * 0.85, matrixCanvas.height * 0.1, 0,
-        matrixCanvas.width * 0.85, matrixCanvas.height * 0.1, pulseSize
-    );
-    gradient.addColorStop(0, 'rgba(255, 150, 50, 0.15)');
-    gradient.addColorStop(0.4, 'rgba(255, 100, 50, 0.08)');
-    gradient.addColorStop(1, 'rgba(255, 50, 50, 0)');
+    // Soleil
+    const sunX = matrixCanvas.width * 0.85;
+    const sunY = matrixCanvas.height * 0.15;
+    const gradient = matrixCtx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 150);
+    gradient.addColorStop(0, 'rgba(255, 200, 100, 0.3)');
+    gradient.addColorStop(0.5, 'rgba(255, 150, 50, 0.15)');
+    gradient.addColorStop(1, 'rgba(255, 100, 50, 0)');
     matrixCtx.fillStyle = gradient;
     matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    
+    // Rayons
+    matrixCtx.save();
+    matrixCtx.translate(sunX, sunY);
+    for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2 + time * 0.2;
+        const length = 200 + Math.sin(time + i) * 50;
+        matrixCtx.beginPath();
+        matrixCtx.moveTo(0, 0);
+        matrixCtx.lineTo(Math.cos(angle) * length, Math.sin(angle) * length);
+        matrixCtx.strokeStyle = 'rgba(255, 180, 100, 0.1)';
+        matrixCtx.lineWidth = 20;
+        matrixCtx.stroke();
+    }
+    matrixCtx.restore();
+    
+    // Oiseaux
+    if (particles.length < 5 && Math.random() > 0.98) {
+        particles.push({
+            x: -50,
+            y: Math.random() * matrixCanvas.height * 0.5,
+            speed: Math.random() * 1.5 + 1,
+            wingPhase: Math.random() * Math.PI * 2
+        });
+    }
+    
+    particles = particles.filter(p => p.x < matrixCanvas.width + 50);
+    
+    particles.forEach(p => {
+        p.x += p.speed;
+        p.y += Math.sin(p.x / 50) * 0.5;
+        p.wingPhase += 0.15;
+        
+        // Dessiner un oiseau simple
+        matrixCtx.strokeStyle = 'rgba(50, 30, 20, 0.6)';
+        matrixCtx.lineWidth = 2;
+        matrixCtx.beginPath();
+        const wingY = Math.sin(p.wingPhase) * 5;
+        matrixCtx.moveTo(p.x - 10, p.y + wingY);
+        matrixCtx.quadraticCurveTo(p.x, p.y - 3, p.x + 10, p.y + wingY);
+        matrixCtx.stroke();
+    });
 }
 
 // Hacker - Grille dorée avec pulse
