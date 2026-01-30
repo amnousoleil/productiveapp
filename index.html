@@ -4,191 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProductiveApp - Empire Dashboard</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    
+    <!-- CSS segmenté -->
+    <link rel="stylesheet" href="style-base.css?v=1">
+    <link rel="stylesheet" href="style-components.css?v=1">
+    <link rel="stylesheet" href="style-themes.css?v=1">
+    
+    <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-    <!-- ÉCRAN DE CONNEXION -->
+
+    <!-- ========== ÉCRAN DE CONNEXION ========== -->
     <div id="login-screen" class="login-screen">
         <div class="login-container">
             <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="login-logo">
             <h1>ProductiveApp</h1>
             <p>Sélectionne ton profil</p>
-            <div class="user-select-grid" id="user-select-grid">
-                <!-- Users will be rendered here -->
-            </div>
-            <div class="login-form" id="password-form" style="display: none;">
-                <p id="login-username" style="color: var(--accent); margin-bottom: 10px;"></p>
-                <input type="password" id="login-password" placeholder="Mot de passe..." autocomplete="current-password">
+            
+            <div class="user-select-grid" id="user-select-grid"></div>
+            
+            <div class="login-form hidden" id="password-form">
+                <p id="login-username"></p>
+                <input type="password" id="login-password" placeholder="Mot de passe...">
                 <button id="login-btn">Entrer</button>
-                <button id="back-btn" class="back-btn">← Retour</button>
+                <button id="back-btn" class="btn-secondary">← Retour</button>
             </div>
-            <p id="login-error" class="login-error"></p>
+            
+            <p id="login-error" class="error-text"></p>
         </div>
     </div>
 
+    <!-- ========== CANVAS ANIMATIONS ========== -->
     <canvas id="matrix-bg"></canvas>
-    
-    <div class="container">
-        <!-- Header avec user info -->
-        <header>
-            <div class="header-top">
+
+    <!-- ========== APP PRINCIPALE ========== -->
+    <div class="app-container">
+        
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-left">
                 <div class="user-badge" id="current-user-badge">
                     <span class="user-avatar">👤</span>
                     <span class="user-name">User</span>
                 </div>
-                <h1>Empire Dashboard</h1>
-                <div class="header-actions">
-                    <button id="theme-btn" class="icon-btn" title="Thème">⚙️</button>
-                    <button id="logout-btn" class="icon-btn" title="Déconnexion">🚪</button>
-                </div>
             </div>
             
-            <!-- Filtres projets -->
-            <div class="projects-filter">
-                <button class="project-filter-btn active" data-project="all">
-                    <span class="filter-icon">📊</span>
-                    <span class="filter-name">Tout</span>
-                    <span class="filter-count" id="count-all">0</span>
-                </button>
-                <div class="projects-filter-scroll" id="projects-filter-list">
-                    <!-- Projects will be rendered here -->
-                </div>
-                <button id="add-project-filter-btn" class="add-project-btn-small" title="Ajouter un projet">+</button>
-            </div>
+            <h1 class="app-title">Empire Dashboard</h1>
             
-            <!-- Filtre par personne -->
-            <div class="user-filter">
-                <span class="filter-label">Filtrer par :</span>
-                <select id="user-filter-select">
-                    <option value="all">👥 Tout le monde</option>
-                </select>
+            <div class="header-right">
+                <button id="view-toggle-btn" class="icon-btn" title="Changer de vue">📊</button>
+                <button id="theme-btn" class="icon-btn" title="Thème">🎨</button>
+                <button id="logout-btn" class="icon-btn" title="Déconnexion">🚪</button>
             </div>
         </header>
 
-        <!-- Modal Thèmes -->
-        <div id="theme-modal" class="modal hidden">
-            <div class="modal-content theme-modal-content">
-                <h3>✨ Choisis ton ambiance</h3>
-                <div class="theme-slider-container">
-                    <input type="range" id="theme-slider" min="0" max="8" value="0" class="theme-slider">
-                </div>
-                <div id="theme-name" class="theme-name">🏜️ Désert</div>
-                <button id="theme-modal-close" class="modal-btn cancel">Fermer</button>
-            </div>
+        <!-- FILTRES PROJETS -->
+        <nav class="projects-nav">
+            <button class="project-chip active" data-project="all">
+                <span class="chip-icon">📊</span>
+                <span class="chip-name">Tout</span>
+                <span class="chip-count" id="count-all">0</span>
+            </button>
+            <div class="projects-scroll" id="projects-filter-list"></div>
+            <button id="add-project-btn" class="add-chip-btn" title="Nouveau projet">+</button>
+        </nav>
+
+        <!-- FILTRE UTILISATEUR -->
+        <div class="user-filter-bar">
+            <label>Filtrer par :</label>
+            <select id="user-filter-select">
+                <option value="all">👥 Tout le monde</option>
+            </select>
         </div>
 
-        <!-- Modal Nouveau Projet -->
-        <div id="new-project-modal" class="modal hidden">
-            <div class="modal-content">
-                <h3>📁 Nouveau Projet</h3>
-                <input type="text" id="new-project-name" placeholder="Nom du projet..." class="modal-input">
-                <input type="text" id="new-project-desc" placeholder="Description courte (pour l'IA)..." class="modal-input">
-                <div class="modal-buttons">
-                    <button id="new-project-cancel" class="modal-btn cancel">Annuler</button>
-                    <button id="new-project-confirm" class="modal-btn confirm">Créer</button>
-                </div>
-            </div>
-        </div>
+        <!-- INPUT NOUVELLE TÂCHE -->
+        <section class="task-input-section">
+            <input type="text" id="task-input" placeholder="Nouvelle tâche..." autofocus>
+            <select id="project-select">
+                <option value="">Projet...</option>
+            </select>
+            <select id="priority-select">
+                <option value="2">Normal</option>
+                <option value="1">🔥 Urgent</option>
+                <option value="3">Basse</option>
+            </select>
+            <button id="add-task-btn" class="btn-primary">+</button>
+        </section>
 
-        <!-- Zone de création de tâche -->
-        <div class="input-section">
-            <div class="input-row">
-                <input 
-                    type="text" 
-                    id="bubble-input" 
-                    placeholder="Nouvelle tâche..."
-                    autofocus
-                >
-                <select id="project-select" class="project-select">
-                    <option value="">Projet...</option>
-                </select>
-                <select id="priority-select" class="priority-select">
-                    <option value="2">Normal</option>
-                    <option value="1">🔥 Urgent</option>
-                    <option value="3">Basse</option>
-                </select>
-                <button id="add-bubble-btn" class="send-btn">+</button>
-            </div>
-        </div>
-
-        <!-- Vue principale des tâches -->
-        <div class="main-view">
-            <!-- Colonne À faire -->
-            <div class="tasks-column">
+        <!-- ========== VUE TÂCHES ========== -->
+        
+        <!-- Mode 3 colonnes -->
+        <main class="tasks-view columns-view" id="columns-view">
+            <div class="task-column" data-status="todo">
                 <div class="column-header">
                     <h2>⏳ À faire</h2>
-                    <span class="task-count" id="todo-count">0</span>
+                    <span class="column-count" id="todo-count">0</span>
                 </div>
-                <div id="todo-bubbles" class="bubble-list"></div>
+                <div class="task-list" id="todo-list"></div>
             </div>
             
-            <!-- Colonne En cours (nouveau) -->
-            <div class="tasks-column">
+            <div class="task-column" data-status="inprogress">
                 <div class="column-header">
                     <h2>🔄 En cours</h2>
-                    <span class="task-count" id="inprogress-count">0</span>
+                    <span class="column-count" id="inprogress-count">0</span>
                 </div>
-                <div id="inprogress-bubbles" class="bubble-list"></div>
+                <div class="task-list" id="inprogress-list"></div>
             </div>
             
-            <!-- Colonne Terminé -->
-            <div class="tasks-column">
+            <div class="task-column" data-status="done">
                 <div class="column-header">
                     <h2>✅ Terminé</h2>
-                    <span class="task-count" id="done-count">0</span>
+                    <span class="column-count" id="done-count">0</span>
                 </div>
-                <div id="done-bubbles" class="bubble-list"></div>
+                <div class="task-list" id="done-list"></div>
             </div>
-        </div>
+        </main>
 
-        <!-- Section Journal -->
-        <div class="journal-section">
-            <h2>📝 Journal du jour</h2>
-            <div class="journal-input-row">
-                <input 
-                    type="text" 
-                    id="journal-input" 
-                    placeholder="Note ce que tu viens de faire..."
-                >
-                <button id="add-journal-btn" class="send-btn">+</button>
+        <!-- Mode 2 colonnes (Mes Bulles) -->
+        <main class="tasks-view bubbles-view hidden" id="bubbles-view">
+            <div class="bubbles-column" data-status="todo">
+                <h2>À faire</h2>
+                <div class="bubbles-list" id="bubbles-todo"></div>
             </div>
-            <div id="journal-entries" class="journal-list"></div>
             
-            <div class="summary-section">
-                <button id="generate-summary">📊 Générer le rapport</button>
-                <button id="download-pdf" class="download-pdf-btn" style="display: none;">📄 Télécharger PDF</button>
-                <div id="daily-summary" class="summary-box"></div>
+            <div class="bubbles-column" data-status="done">
+                <h2>Terminé ✓</h2>
+                <div class="bubbles-list" id="bubbles-done"></div>
             </div>
-        </div>
+        </main>
+
+        <!-- ========== JOURNAL AMÉLIORÉ ========== -->
+        <section class="journal-section">
+            <div class="journal-header">
+                <h2>📝 Journal du jour</h2>
+                <div class="journal-stats" id="journal-stats"></div>
+            </div>
+            
+            <!-- Input journal avec catégorie -->
+            <div class="journal-input-row">
+                <select id="journal-category">
+                    <option value="task">✅ Tâche</option>
+                    <option value="idea">💡 Idée</option>
+                    <option value="reflection">🤔 Réflexion</option>
+                    <option value="blocker">🚧 Blocage</option>
+                    <option value="win">🏆 Victoire</option>
+                </select>
+                <input type="text" id="journal-input" placeholder="Note ce que tu viens de faire...">
+                <select id="journal-energy">
+                    <option value="3">⚡ Haute énergie</option>
+                    <option value="2" selected>😊 Normal</option>
+                    <option value="1">😴 Fatigué</option>
+                </select>
+                <button id="add-journal-btn" class="btn-primary">+</button>
+            </div>
+            
+            <!-- Liste des entrées -->
+            <div class="journal-entries" id="journal-entries"></div>
+            
+            <!-- Rapport -->
+            <div class="journal-report">
+                <button id="generate-report-btn" class="btn-accent">📊 Générer le rapport</button>
+                <button id="download-pdf-btn" class="btn-secondary hidden">📄 PDF</button>
+            </div>
+            <div class="report-content" id="report-content"></div>
+        </section>
+
     </div>
 
-    <!-- Chatbot IA -->
-    <div id="chatbot-toggle" class="chatbot-toggle">
-        <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Productive App">
+    <!-- ========== MODALS ========== -->
+    
+    <!-- Modal Thème -->
+    <div id="theme-modal" class="modal hidden">
+        <div class="modal-box">
+            <h3>🎨 Choisis ton ambiance</h3>
+            <div class="theme-slider-wrap">
+                <input type="range" id="theme-slider" min="0" max="8" value="0">
+            </div>
+            <div class="theme-preview" id="theme-name">🏜️ Désert</div>
+            <button id="close-theme-modal" class="btn-secondary">Fermer</button>
+        </div>
     </div>
     
-    <div id="chatbot-window" class="chatbot-window hidden">
-        <div class="chatbot-header">
-            <div class="chatbot-header-left">
-                <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="chatbot-header-logo">
-                <span class="chatbot-header-title">Assistant IA</span>
-            </div>
-            <div class="chatbot-header-right">
-                <button id="chatbot-size-toggle" class="chatbot-size-toggle" title="Agrandir / Réduire">
-                    <svg id="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-                    </svg>
-                    <svg id="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
-                        <path d="M4 14h6v6M14 4h6v6M10 14l-7 7M21 3l-7 7"/>
-                    </svg>
-                </button>
-                <button id="chatbot-close" class="chatbot-close">×</button>
+    <!-- Modal Nouveau Projet -->
+    <div id="project-modal" class="modal hidden">
+        <div class="modal-box">
+            <h3>📁 Nouveau Projet</h3>
+            <input type="text" id="new-project-name" class="modal-input" placeholder="Nom du projet...">
+            <input type="text" id="new-project-desc" class="modal-input" placeholder="Description (pour l'IA)...">
+            <div class="modal-actions">
+                <button id="cancel-project" class="btn-secondary">Annuler</button>
+                <button id="confirm-project" class="btn-primary">Créer</button>
             </div>
         </div>
-        <div id="chatbot-messages" class="chatbot-messages">
-            <div class="chat-message assistant">
-                Salut Boss ! 👑 Je connais tous tes projets. Demande-moi le prochain pas sur n'importe quel projet, des conseils de priorisation, ou de l'aide pour organiser ton empire ! 🚀
+    </div>
+
+    <!-- ========== CHATBOT IA ========== -->
+    <button id="chatbot-toggle" class="chatbot-fab">
+        <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="AI">
+    </button>
+    
+    <div id="chatbot-window" class="chatbot-panel hidden">
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="AI">
+                <span>Assistant IA</span>
+            </div>
+            <div class="chatbot-controls">
+                <button id="chatbot-resize" title="Agrandir">⤢</button>
+                <button id="chatbot-close" title="Fermer">×</button>
+            </div>
+        </div>
+        <div class="chatbot-messages" id="chatbot-messages">
+            <div class="chat-msg assistant">
+                Salut Boss ! 👑 Je connais tous tes projets. Demande-moi conseil !
             </div>
         </div>
         <div class="chatbot-input-area">
@@ -197,8 +226,9 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="animations.js?v=4"></script>
-    <script src="app.js?v=4"></script>
+    <!-- ========== SCRIPTS ========== -->
+    <script src="animations.js?v=1"></script>
+    <script src="app.js?v=1"></script>
+
 </body>
 </html>
