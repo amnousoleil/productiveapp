@@ -306,235 +306,256 @@
    STYLES DE BULLES PAR THÈME
    ============================================ */
 
+/* Base commune pour toutes les bulles */
+.bubble {
+    padding: 15px 18px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    animation: popIn 0.3s ease;
+    position: relative;
+}
+
+.bubble:hover {
+    transform: translateY(-3px) scale(1.01);
+}
+
 /* DESERT (default) - Orange chaleureux */
 .bubble {
-    background: linear-gradient(145deg, rgba(224, 120, 64, 0.12), rgba(224, 120, 64, 0.03));
-    border: 1px solid rgba(224, 120, 64, 0.25);
-    box-shadow: 0 4px 15px rgba(224, 120, 64, 0.1);
+    background: linear-gradient(145deg, rgba(224, 120, 64, 0.15), rgba(224, 120, 64, 0.05)) !important;
+    border: 1px solid rgba(224, 120, 64, 0.3) !important;
+    box-shadow: 0 4px 20px rgba(224, 120, 64, 0.15) !important;
 }
 .bubble:hover {
-    box-shadow: 0 8px 30px rgba(224, 120, 64, 0.25), 0 0 20px rgba(224, 120, 64, 0.1);
-    border-color: rgba(224, 120, 64, 0.4);
+    box-shadow: 0 8px 35px rgba(224, 120, 64, 0.3), 0 0 25px rgba(224, 120, 64, 0.15) !important;
+    border-color: rgba(224, 120, 64, 0.5) !important;
 }
 .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(251, 191, 36, 0.2), rgba(224, 120, 64, 0.1));
-    border: 1px solid rgba(251, 191, 36, 0.5);
-    border-left: 4px solid #fbbf24;
-    box-shadow: 0 0 25px rgba(251, 191, 36, 0.2), 0 0 50px rgba(224, 120, 64, 0.1);
+    background: linear-gradient(145deg, rgba(251, 191, 36, 0.25), rgba(224, 120, 64, 0.1)) !important;
+    border: 1px solid rgba(251, 191, 36, 0.6) !important;
+    border-left: 4px solid #fbbf24 !important;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.3), 0 0 60px rgba(224, 120, 64, 0.15) !important;
+}
+.bubble.inprogress .bubble-text {
+    color: #fbbf24 !important;
+    font-weight: 600 !important;
+    text-shadow: 0 0 15px rgba(251, 191, 36, 0.4) !important;
 }
 .bubble.done {
-    background: linear-gradient(145deg, rgba(45, 138, 78, 0.15), rgba(45, 138, 78, 0.05));
-    border: 1px solid rgba(45, 138, 78, 0.4);
-    border-left: 4px solid #2d8a4e;
+    background: linear-gradient(145deg, rgba(45, 138, 78, 0.2), rgba(45, 138, 78, 0.08)) !important;
+    border: 1px solid rgba(45, 138, 78, 0.5) !important;
+    border-left: 4px solid #2d8a4e !important;
+    box-shadow: 0 0 20px rgba(45, 138, 78, 0.2) !important;
 }
 
 /* HACKER - Or et noir élégant */
 [data-theme="hacker"] .bubble {
-    background: linear-gradient(145deg, rgba(255, 215, 0, 0.08), rgba(0, 0, 0, 0.3));
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.12), rgba(0, 0, 0, 0.4)) !important !important;
+    border: 1px solid rgba(255, 215, 0, 0.3) !important !important;
+    box-shadow: 0 4px 25px rgba(255, 215, 0, 0.15) !important !important;
 }
 [data-theme="hacker"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(255, 215, 0, 0.25), 0 0 30px rgba(255, 215, 0, 0.15);
-    border-color: rgba(255, 215, 0, 0.4);
+    box-shadow: 0 8px 40px rgba(255, 215, 0, 0.3), 0 0 35px rgba(255, 215, 0, 0.2) !important !important;
+    border-color: rgba(255, 215, 0, 0.5) !important !important;
 }
 [data-theme="hacker"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(255, 215, 0, 0.2), rgba(255, 180, 0, 0.1));
-    border: 1px solid rgba(255, 215, 0, 0.5);
-    border-left: 4px solid #ffd700;
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 215, 0, 0.1);
+    background: linear-gradient(145deg, rgba(255, 215, 0, 0.25), rgba(255, 180, 0, 0.1)) !important !important;
+    border: 1px solid rgba(255, 215, 0, 0.6) !important !important;
+    border-left: 4px solid #ffd700 !important !important;
+    box-shadow: 0 0 35px rgba(255, 215, 0, 0.35), 0 0 70px rgba(255, 215, 0, 0.15) !important !important;
 }
 [data-theme="hacker"] .bubble.inprogress .bubble-text {
-    color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    color: #ffd700 !important !important;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.6) !important !important;
 }
 [data-theme="hacker"] .bubble.done {
-    background: linear-gradient(145deg, rgba(0, 255, 136, 0.12), rgba(0, 200, 100, 0.05));
-    border: 1px solid rgba(0, 255, 136, 0.4);
-    border-left: 4px solid #00ff88;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+    background: linear-gradient(145deg, rgba(0, 255, 136, 0.15), rgba(0, 200, 100, 0.05)) !important !important;
+    border: 1px solid rgba(0, 255, 136, 0.5) !important !important;
+    border-left: 4px solid #00ff88 !important !important;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.2) !important !important;
 }
 
 /* MATRIX - Vert néon */
 [data-theme="matrix"] .bubble {
-    background: linear-gradient(145deg, rgba(0, 255, 102, 0.08), rgba(0, 50, 20, 0.3));
-    border: 1px solid rgba(0, 255, 102, 0.2);
-    box-shadow: 0 4px 20px rgba(0, 255, 102, 0.1);
+    background: linear-gradient(145deg, rgba(0, 255, 102, 0.12), rgba(0, 50, 20, 0.4)) !important !important;
+    border: 1px solid rgba(0, 255, 102, 0.3) !important !important;
+    box-shadow: 0 4px 25px rgba(0, 255, 102, 0.15) !important !important;
 }
 [data-theme="matrix"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(0, 255, 102, 0.25), 0 0 30px rgba(0, 255, 102, 0.15);
-    border-color: rgba(0, 255, 102, 0.4);
+    box-shadow: 0 8px 40px rgba(0, 255, 102, 0.3), 0 0 35px rgba(0, 255, 102, 0.2) !important !important;
+    border-color: rgba(0, 255, 102, 0.5) !important !important;
 }
 [data-theme="matrix"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(0, 255, 102, 0.2), rgba(0, 200, 80, 0.1));
-    border: 1px solid rgba(0, 255, 102, 0.5);
-    border-left: 4px solid #00ff66;
-    box-shadow: 0 0 30px rgba(0, 255, 102, 0.3), 0 0 60px rgba(0, 255, 102, 0.1);
+    background: linear-gradient(145deg, rgba(0, 255, 102, 0.25), rgba(0, 200, 80, 0.1)) !important !important;
+    border: 1px solid rgba(0, 255, 102, 0.6) !important !important;
+    border-left: 4px solid #00ff66 !important !important;
+    box-shadow: 0 0 35px rgba(0, 255, 102, 0.35), 0 0 70px rgba(0, 255, 102, 0.15) !important !important;
 }
 [data-theme="matrix"] .bubble.inprogress .bubble-text {
-    color: #00ff66;
-    text-shadow: 0 0 10px rgba(0, 255, 102, 0.5);
+    color: #00ff66 !important !important;
+    text-shadow: 0 0 15px rgba(0, 255, 102, 0.6) !important !important;
 }
 [data-theme="matrix"] .bubble.done {
-    background: linear-gradient(145deg, rgba(0, 180, 80, 0.15), rgba(0, 100, 50, 0.05));
-    border: 1px solid rgba(0, 180, 80, 0.4);
-    border-left: 4px solid #00b450;
+    background: linear-gradient(145deg, rgba(0, 180, 80, 0.2), rgba(0, 100, 50, 0.08)) !important !important;
+    border: 1px solid rgba(0, 180, 80, 0.5) !important !important;
+    border-left: 4px solid #00b450 !important !important;
+    box-shadow: 0 0 20px rgba(0, 180, 80, 0.2) !important !important;
 }
 
 /* OCEAN - Bleu profond */
 [data-theme="ocean"] .bubble {
-    background: linear-gradient(145deg, rgba(0, 180, 216, 0.12), rgba(2, 48, 71, 0.3));
-    border: 1px solid rgba(0, 180, 216, 0.25);
-    box-shadow: 0 4px 20px rgba(0, 180, 216, 0.1);
+    background: linear-gradient(145deg, rgba(0, 180, 216, 0.12), rgba(2, 48, 71, 0.3)) !important;
+    border: 1px solid rgba(0, 180, 216, 0.25) !important;
+    box-shadow: 0 4px 20px rgba(0, 180, 216, 0.1) !important;
 }
 [data-theme="ocean"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(0, 180, 216, 0.25), 0 0 30px rgba(72, 202, 228, 0.15);
-    border-color: rgba(0, 180, 216, 0.4);
+    box-shadow: 0 8px 35px rgba(0, 180, 216, 0.25), 0 0 30px rgba(72, 202, 228, 0.15) !important;
+    border-color: rgba(0, 180, 216, 0.4) !important;
 }
 [data-theme="ocean"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(72, 202, 228, 0.2), rgba(0, 180, 216, 0.1));
-    border: 1px solid rgba(72, 202, 228, 0.5);
-    border-left: 4px solid #48cae4;
-    box-shadow: 0 0 30px rgba(72, 202, 228, 0.3), 0 0 60px rgba(0, 180, 216, 0.1);
+    background: linear-gradient(145deg, rgba(72, 202, 228, 0.2), rgba(0, 180, 216, 0.1)) !important;
+    border: 1px solid rgba(72, 202, 228, 0.5) !important;
+    border-left: 4px solid #48cae4 !important;
+    box-shadow: 0 0 30px rgba(72, 202, 228, 0.3), 0 0 60px rgba(0, 180, 216, 0.1) !important;
 }
 [data-theme="ocean"] .bubble.inprogress .bubble-text {
-    color: #48cae4;
-    text-shadow: 0 0 10px rgba(72, 202, 228, 0.5);
+    color: #48cae4 !important;
+    text-shadow: 0 0 10px rgba(72, 202, 228, 0.5) !important;
 }
 [data-theme="ocean"] .bubble.done {
-    background: linear-gradient(145deg, rgba(6, 214, 160, 0.15), rgba(6, 150, 120, 0.05));
-    border: 1px solid rgba(6, 214, 160, 0.4);
-    border-left: 4px solid #06d6a0;
+    background: linear-gradient(145deg, rgba(6, 214, 160, 0.15), rgba(6, 150, 120, 0.05)) !important;
+    border: 1px solid rgba(6, 214, 160, 0.4) !important;
+    border-left: 4px solid #06d6a0 !important;
 }
 
 /* FANTASY - Violet magique */
 [data-theme="fantasy"] .bubble {
-    background: linear-gradient(145deg, rgba(191, 107, 255, 0.12), rgba(32, 24, 48, 0.3));
-    border: 1px solid rgba(191, 107, 255, 0.25);
-    box-shadow: 0 4px 20px rgba(191, 107, 255, 0.1);
+    background: linear-gradient(145deg, rgba(191, 107, 255, 0.12), rgba(32, 24, 48, 0.3)) !important;
+    border: 1px solid rgba(191, 107, 255, 0.25) !important;
+    box-shadow: 0 4px 20px rgba(191, 107, 255, 0.1) !important;
 }
 [data-theme="fantasy"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(191, 107, 255, 0.25), 0 0 30px rgba(255, 107, 218, 0.15);
-    border-color: rgba(191, 107, 255, 0.4);
+    box-shadow: 0 8px 35px rgba(191, 107, 255, 0.25), 0 0 30px rgba(255, 107, 218, 0.15) !important;
+    border-color: rgba(191, 107, 255, 0.4) !important;
 }
 [data-theme="fantasy"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(255, 107, 218, 0.2), rgba(191, 107, 255, 0.1));
-    border: 1px solid rgba(255, 107, 218, 0.5);
-    border-left: 4px solid #ff6bda;
-    box-shadow: 0 0 30px rgba(255, 107, 218, 0.3), 0 0 60px rgba(191, 107, 255, 0.1);
+    background: linear-gradient(145deg, rgba(255, 107, 218, 0.2), rgba(191, 107, 255, 0.1)) !important;
+    border: 1px solid rgba(255, 107, 218, 0.5) !important;
+    border-left: 4px solid #ff6bda !important;
+    box-shadow: 0 0 30px rgba(255, 107, 218, 0.3), 0 0 60px rgba(191, 107, 255, 0.1) !important;
 }
 [data-theme="fantasy"] .bubble.inprogress .bubble-text {
-    color: #ff6bda;
-    text-shadow: 0 0 10px rgba(255, 107, 218, 0.5);
+    color: #ff6bda !important;
+    text-shadow: 0 0 10px rgba(255, 107, 218, 0.5) !important;
 }
 [data-theme="fantasy"] .bubble.done {
-    background: linear-gradient(145deg, rgba(191, 107, 255, 0.15), rgba(150, 80, 200, 0.05));
-    border: 1px solid rgba(191, 107, 255, 0.4);
-    border-left: 4px solid #bf6bff;
+    background: linear-gradient(145deg, rgba(191, 107, 255, 0.15), rgba(150, 80, 200, 0.05)) !important;
+    border: 1px solid rgba(191, 107, 255, 0.4) !important;
+    border-left: 4px solid #bf6bff !important;
 }
 
 /* SUNSET - Orange coucher de soleil */
 [data-theme="sunset"] .bubble {
-    background: linear-gradient(145deg, rgba(249, 115, 22, 0.12), rgba(74, 37, 21, 0.3));
-    border: 1px solid rgba(249, 115, 22, 0.25);
-    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.1);
+    background: linear-gradient(145deg, rgba(249, 115, 22, 0.12), rgba(74, 37, 21, 0.3)) !important;
+    border: 1px solid rgba(249, 115, 22, 0.25) !important;
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.1) !important;
 }
 [data-theme="sunset"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(249, 115, 22, 0.25), 0 0 30px rgba(251, 191, 36, 0.15);
-    border-color: rgba(249, 115, 22, 0.4);
+    box-shadow: 0 8px 35px rgba(249, 115, 22, 0.25), 0 0 30px rgba(251, 191, 36, 0.15) !important;
+    border-color: rgba(249, 115, 22, 0.4) !important;
 }
 [data-theme="sunset"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(251, 191, 36, 0.2), rgba(249, 115, 22, 0.1));
-    border: 1px solid rgba(251, 191, 36, 0.5);
-    border-left: 4px solid #fbbf24;
-    box-shadow: 0 0 30px rgba(251, 191, 36, 0.3), 0 0 60px rgba(249, 115, 22, 0.1);
+    background: linear-gradient(145deg, rgba(251, 191, 36, 0.2), rgba(249, 115, 22, 0.1)) !important;
+    border: 1px solid rgba(251, 191, 36, 0.5) !important;
+    border-left: 4px solid #fbbf24 !important;
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.3), 0 0 60px rgba(249, 115, 22, 0.1) !important;
 }
 [data-theme="sunset"] .bubble.inprogress .bubble-text {
-    color: #fbbf24;
-    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    color: #fbbf24 !important;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.5) !important;
 }
 [data-theme="sunset"] .bubble.done {
-    background: linear-gradient(145deg, rgba(251, 191, 36, 0.15), rgba(200, 150, 30, 0.05));
-    border: 1px solid rgba(251, 191, 36, 0.4);
-    border-left: 4px solid #fbbf24;
+    background: linear-gradient(145deg, rgba(251, 191, 36, 0.15), rgba(200, 150, 30, 0.05)) !important;
+    border: 1px solid rgba(251, 191, 36, 0.4) !important;
+    border-left: 4px solid #fbbf24 !important;
 }
 
 /* FOREST - Vert nature */
 [data-theme="forest"] .bubble {
-    background: linear-gradient(145deg, rgba(74, 222, 128, 0.1), rgba(24, 37, 24, 0.3));
-    border: 1px solid rgba(74, 222, 128, 0.2);
-    box-shadow: 0 4px 20px rgba(74, 222, 128, 0.1);
+    background: linear-gradient(145deg, rgba(74, 222, 128, 0.1), rgba(24, 37, 24, 0.3)) !important;
+    border: 1px solid rgba(74, 222, 128, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(74, 222, 128, 0.1) !important;
 }
 [data-theme="forest"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(74, 222, 128, 0.25), 0 0 30px rgba(34, 197, 94, 0.15);
-    border-color: rgba(74, 222, 128, 0.4);
+    box-shadow: 0 8px 35px rgba(74, 222, 128, 0.25), 0 0 30px rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(74, 222, 128, 0.4) !important;
 }
 [data-theme="forest"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(163, 230, 53, 0.2), rgba(74, 222, 128, 0.1));
-    border: 1px solid rgba(163, 230, 53, 0.5);
-    border-left: 4px solid #a3e635;
-    box-shadow: 0 0 30px rgba(163, 230, 53, 0.3), 0 0 60px rgba(74, 222, 128, 0.1);
+    background: linear-gradient(145deg, rgba(163, 230, 53, 0.2), rgba(74, 222, 128, 0.1)) !important;
+    border: 1px solid rgba(163, 230, 53, 0.5) !important;
+    border-left: 4px solid #a3e635 !important;
+    box-shadow: 0 0 30px rgba(163, 230, 53, 0.3), 0 0 60px rgba(74, 222, 128, 0.1) !important;
 }
 [data-theme="forest"] .bubble.inprogress .bubble-text {
-    color: #a3e635;
-    text-shadow: 0 0 10px rgba(163, 230, 53, 0.5);
+    color: #a3e635 !important;
+    text-shadow: 0 0 10px rgba(163, 230, 53, 0.5) !important;
 }
 [data-theme="forest"] .bubble.done {
-    background: linear-gradient(145deg, rgba(34, 197, 94, 0.15), rgba(20, 150, 70, 0.05));
-    border: 1px solid rgba(34, 197, 94, 0.4);
-    border-left: 4px solid #22c55e;
+    background: linear-gradient(145deg, rgba(34, 197, 94, 0.15), rgba(20, 150, 70, 0.05)) !important;
+    border: 1px solid rgba(34, 197, 94, 0.4) !important;
+    border-left: 4px solid #22c55e !important;
 }
 
 /* BUBBLEGUM - Rose bonbon */
 [data-theme="bubblegum"] .bubble {
-    background: linear-gradient(145deg, rgba(255, 107, 157, 0.12), rgba(50, 20, 35, 0.3));
-    border: 1px solid rgba(255, 107, 157, 0.25);
-    box-shadow: 0 4px 20px rgba(255, 107, 157, 0.1);
+    background: linear-gradient(145deg, rgba(255, 107, 157, 0.12), rgba(50, 20, 35, 0.3)) !important;
+    border: 1px solid rgba(255, 107, 157, 0.25) !important;
+    box-shadow: 0 4px 20px rgba(255, 107, 157, 0.1) !important;
 }
 [data-theme="bubblegum"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(255, 107, 157, 0.25), 0 0 30px rgba(255, 158, 196, 0.15);
-    border-color: rgba(255, 107, 157, 0.4);
+    box-shadow: 0 8px 35px rgba(255, 107, 157, 0.25), 0 0 30px rgba(255, 158, 196, 0.15) !important;
+    border-color: rgba(255, 107, 157, 0.4) !important;
 }
 [data-theme="bubblegum"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(255, 158, 196, 0.2), rgba(255, 107, 157, 0.1));
-    border: 1px solid rgba(255, 158, 196, 0.5);
-    border-left: 4px solid #ff9ec4;
-    box-shadow: 0 0 30px rgba(255, 158, 196, 0.3), 0 0 60px rgba(255, 107, 157, 0.1);
+    background: linear-gradient(145deg, rgba(255, 158, 196, 0.2), rgba(255, 107, 157, 0.1)) !important;
+    border: 1px solid rgba(255, 158, 196, 0.5) !important;
+    border-left: 4px solid #ff9ec4 !important;
+    box-shadow: 0 0 30px rgba(255, 158, 196, 0.3), 0 0 60px rgba(255, 107, 157, 0.1) !important;
 }
 [data-theme="bubblegum"] .bubble.inprogress .bubble-text {
-    color: #ff9ec4;
-    text-shadow: 0 0 10px rgba(255, 158, 196, 0.5);
+    color: #ff9ec4 !important;
+    text-shadow: 0 0 10px rgba(255, 158, 196, 0.5) !important;
 }
 [data-theme="bubblegum"] .bubble.done {
-    background: linear-gradient(145deg, rgba(168, 230, 207, 0.15), rgba(120, 200, 170, 0.05));
-    border: 1px solid rgba(168, 230, 207, 0.4);
-    border-left: 4px solid #a8e6cf;
+    background: linear-gradient(145deg, rgba(168, 230, 207, 0.15), rgba(120, 200, 170, 0.05)) !important;
+    border: 1px solid rgba(168, 230, 207, 0.4) !important;
+    border-left: 4px solid #a8e6cf !important;
 }
 
 /* MIDNIGHT - Bleu nuit */
 [data-theme="midnight"] .bubble {
-    background: linear-gradient(145deg, rgba(108, 143, 255, 0.1), rgba(26, 26, 46, 0.3));
-    border: 1px solid rgba(108, 143, 255, 0.2);
-    box-shadow: 0 4px 20px rgba(108, 143, 255, 0.1);
+    background: linear-gradient(145deg, rgba(108, 143, 255, 0.1), rgba(26, 26, 46, 0.3)) !important;
+    border: 1px solid rgba(108, 143, 255, 0.2) !important;
+    box-shadow: 0 4px 20px rgba(108, 143, 255, 0.1) !important;
 }
 [data-theme="midnight"] .bubble:hover {
-    box-shadow: 0 8px 35px rgba(108, 143, 255, 0.25), 0 0 30px rgba(140, 172, 255, 0.15);
-    border-color: rgba(108, 143, 255, 0.4);
+    box-shadow: 0 8px 35px rgba(108, 143, 255, 0.25), 0 0 30px rgba(140, 172, 255, 0.15) !important;
+    border-color: rgba(108, 143, 255, 0.4) !important;
 }
 [data-theme="midnight"] .bubble.inprogress {
-    background: linear-gradient(145deg, rgba(140, 172, 255, 0.2), rgba(108, 143, 255, 0.1));
-    border: 1px solid rgba(140, 172, 255, 0.5);
-    border-left: 4px solid #8cacff;
-    box-shadow: 0 0 30px rgba(140, 172, 255, 0.3), 0 0 60px rgba(108, 143, 255, 0.1);
+    background: linear-gradient(145deg, rgba(140, 172, 255, 0.2), rgba(108, 143, 255, 0.1)) !important;
+    border: 1px solid rgba(140, 172, 255, 0.5) !important;
+    border-left: 4px solid #8cacff !important;
+    box-shadow: 0 0 30px rgba(140, 172, 255, 0.3), 0 0 60px rgba(108, 143, 255, 0.1) !important;
 }
 [data-theme="midnight"] .bubble.inprogress .bubble-text {
-    color: #8cacff;
-    text-shadow: 0 0 10px rgba(140, 172, 255, 0.5);
+    color: #8cacff !important;
+    text-shadow: 0 0 10px rgba(140, 172, 255, 0.5) !important;
 }
 [data-theme="midnight"] .bubble.done {
-    background: linear-gradient(145deg, rgba(74, 111, 255, 0.15), rgba(50, 80, 200, 0.05));
-    border: 1px solid rgba(74, 111, 255, 0.4);
-    border-left: 4px solid #4a6fff;
+    background: linear-gradient(145deg, rgba(74, 111, 255, 0.15), rgba(50, 80, 200, 0.05)) !important;
+    border: 1px solid rgba(74, 111, 255, 0.4) !important;
+    border-left: 4px solid #4a6fff !important;
 }
 
 /* Animation pulse pour toutes les bulles en cours */
