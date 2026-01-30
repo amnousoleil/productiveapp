@@ -105,14 +105,22 @@ const THEMES = [
 
 // === AUTHENTIFICATION ===
 function renderUserSelect() {
-    userSelectGrid.innerHTML = USERS.map(user => `
+    const grid = document.getElementById('user-select-grid');
+    if (!grid) {
+        console.error('user-select-grid not found');
+        return;
+    }
+    
+    grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
             <span class="user-avatar-big">${user.avatar}</span>
             <span class="user-name-select">${user.name}</span>
         </button>
     `).join('');
     
-    document.querySelectorAll('.user-select-btn').forEach(btn => {
+    console.log('Users rendered:', USERS.length);
+    
+    grid.querySelectorAll('.user-select-btn').forEach(btn => {
         btn.addEventListener('click', () => selectUser(btn.dataset.userid));
     });
 }
