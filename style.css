@@ -668,21 +668,21 @@ header h1 {
     right: 25px;
     width: 60px;
     height: 60px;
-    background: linear-gradient(135deg, #e07840 0%, #f4a261 100%);
+    background: linear-gradient(135deg, var(--accent, #e07840) 0%, var(--accent-light, #f4a261) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 5px 25px rgba(224, 120, 64, 0.4);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     z-index: 1000;
-    color: #1a1410;
+    color: var(--bg-primary, #1a1410);
 }
 
 .chatbot-toggle:hover {
     transform: scale(1.1);
-    box-shadow: 0 8px 35px rgba(224, 120, 64, 0.5);
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.4);
 }
 
 .chatbot-window {
@@ -691,8 +691,8 @@ header h1 {
     right: 25px;
     width: 380px;
     height: 500px;
-    background: linear-gradient(165deg, #1a1410 0%, #2d2117 100%);
-    border: 1px solid rgba(245, 230, 211, 0.15);
+    background: linear-gradient(165deg, var(--bg-primary, #1a1410) 0%, var(--bg-secondary, #2d2117) 100%);
+    border: 1px solid var(--border, rgba(245, 230, 211, 0.15));
     border-radius: 20px;
     display: flex;
     flex-direction: column;
@@ -718,12 +718,12 @@ header h1 {
 
 .chatbot-header {
     padding: 18px 20px;
-    background: rgba(245, 230, 211, 0.05);
+    background: var(--card-bg, rgba(245, 230, 211, 0.05));
     border-radius: 20px 20px 0 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid rgba(245, 230, 211, 0.1);
+    border-bottom: 1px solid var(--border, rgba(245, 230, 211, 0.1));
 }
 
 .chatbot-header span {
