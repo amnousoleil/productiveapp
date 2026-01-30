@@ -22,12 +22,64 @@ const confirmModal = document.getElementById('confirm-modal');
 const modalMessage = document.getElementById('modal-message');
 const modalCancel = document.getElementById('modal-cancel');
 const modalConfirm = document.getElementById('modal-confirm');
+const themeBtn = document.getElementById('theme-btn');
+const themeModal = document.getElementById('theme-modal');
+const themeModalClose = document.getElementById('theme-modal-close');
+const themeCards = document.querySelectorAll('.theme-card');
 
 // === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', () => {
     renderBubbles();
     renderJournal();
+    loadTheme();
 });
+
+// === GESTION DES THÈMES ===
+themeBtn.addEventListener('click', () => {
+    themeModal.classList.remove('hidden');
+});
+
+themeModalClose.addEventListener('click', () => {
+    themeModal.classList.add('hidden');
+});
+
+themeModal.addEventListener('click', (e) => {
+    if (e.target === themeModal) {
+        themeModal.classList.add('hidden');
+    }
+});
+
+themeCards.forEach(card => {
+    card.addEventListener('click', () => {
+        const theme = card.dataset.theme;
+        setTheme(theme);
+        
+        // Update active state
+        themeCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+    });
+});
+
+function setTheme(theme) {
+    if (theme === 'desert') {
+        document.documentElement.removeAttribute('data-theme');
+    } else {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('theme', theme);
+}
+
+function loadTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'desert';
+    setTheme(savedTheme);
+    
+    // Update active state on cards
+    themeCards.forEach(card => {
+        if (card.dataset.theme === savedTheme) {
+            card.classList.add('active');
+        }
+    });
+}
 
 // === VIDER TOUTES LES BULLES ===
 clearAllBtn.addEventListener('click', () => {
