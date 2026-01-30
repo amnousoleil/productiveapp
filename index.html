@@ -86,17 +86,30 @@
         </div>
     </div>
 
-    <!-- Chatbot IA -->
+    <!-- Chatbot IA - Toggle Button avec Logo -->
     <div id="chatbot-toggle" class="chatbot-toggle">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-        </svg>
+        <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Productive App">
     </div>
     
+    <!-- Chatbot Window -->
     <div id="chatbot-window" class="chatbot-window hidden">
         <div class="chatbot-header">
-            <span>🔮 Assistant IA</span>
-            <button id="chatbot-close" class="chatbot-close">×</button>
+            <div class="chatbot-header-left">
+                <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="chatbot-header-logo">
+                <span class="chatbot-header-title">Productive App</span>
+            </div>
+            <div class="chatbot-header-right">
+                <!-- Toggle Size Button -->
+                <button id="chatbot-size-toggle" class="chatbot-size-toggle" title="Agrandir / Réduire">
+                    <svg id="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                    </svg>
+                    <svg id="collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                        <path d="M4 14h6v6M14 4h6v6M10 14l-7 7M21 3l-7 7"/>
+                    </svg>
+                </button>
+                <button id="chatbot-close" class="chatbot-close">×</button>
+            </div>
         </div>
         <div id="chatbot-messages" class="chatbot-messages">
             <div class="chat-message assistant">
