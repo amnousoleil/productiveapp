@@ -1,3 +1,7 @@
+// === CONFIGURATION N8N ===
+const N8N_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/b44d5f39-8f25-4fb0-9fcf-d69be1ffa1a1';
+const CURRENT_USER = 'Maha';
+
 // === DONNÉES ===
 let bubbles = JSON.parse(localStorage.getItem('bubbles')) || [];
 let journal = JSON.parse(localStorage.getItem('journal')) || [];
@@ -47,6 +51,33 @@ function createBubble(text) {
     bubbles.push(bubble);
     saveBubbles();
     renderBubbles();
+    
+    // Envoi à n8n
+    sendToN8N('bubble', bubble);
+}
+
+// === ENVOI VERS N8N ===
+async function sendToN8N(type, data) {
+    try {
+        const payload = {
+            type: type,
+            user: CURRENT_USER,
+            ...data,
+            priority_level: data.priority?.level,
+            priority_label: data.priority?.label
+        };
+        
+        await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+        console.log('Envoyé à n8n:', payload);
+    } catch (error) {
+        console.error('Erreur envoi n8n:', error);
+    }
 }
 
 // === ANALYSE DE PRIORITÉ SIMPLE ===
