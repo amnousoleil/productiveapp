@@ -319,7 +319,7 @@ body {
     height: 100%;
     z-index: -1;
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 .container {
@@ -613,11 +613,13 @@ header {
 }
 
 .tasks-column {
-    background: var(--card-bg);
+    background: var(--bg-primary);
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 15px;
     min-height: 300px;
+    position: relative;
+    z-index: 10;
 }
 
 .column-header {
