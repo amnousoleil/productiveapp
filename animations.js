@@ -372,16 +372,17 @@ function animateDesert() {
         });
     }
     
-    particles = particles.filter(p => p.life > 0);
+    particles = particles.filter(p => p.life > 0.01);
     
     particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
         p.life -= 0.005;
         
+        const radius = Math.max(0.1, p.size * p.life);
         matrixCtx.beginPath();
         matrixCtx.fillStyle = `rgba(224, 120, 64, ${p.life * 0.4})`;
-        matrixCtx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        matrixCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
         matrixCtx.fill();
     });
 }
