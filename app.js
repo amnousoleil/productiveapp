@@ -25,7 +25,19 @@ const modalConfirm = document.getElementById('modal-confirm');
 const themeBtn = document.getElementById('theme-btn');
 const themeModal = document.getElementById('theme-modal');
 const themeModalClose = document.getElementById('theme-modal-close');
-const themeCards = document.querySelectorAll('.theme-card');
+const themeSlider = document.getElementById('theme-slider');
+const themeName = document.getElementById('theme-name');
+
+const THEMES = [
+    { id: 'desert', name: '🏜️ Désert' },
+    { id: 'matrix', name: '💚 Matrix' },
+    { id: 'bubblegum', name: '🍬 Bubblegum' },
+    { id: 'midnight', name: '🌙 Midnight' },
+    { id: 'ocean', name: '🌊 Océan' },
+    { id: 'fantasy', name: '🔮 Fantasy' },
+    { id: 'sunset', name: '🌅 Sunset' },
+    { id: 'forest', name: '🌲 Forest' }
+];
 
 // === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,15 +61,11 @@ themeModal.addEventListener('click', (e) => {
     }
 });
 
-themeCards.forEach(card => {
-    card.addEventListener('click', () => {
-        const theme = card.dataset.theme;
-        setTheme(theme);
-        
-        // Update active state
-        themeCards.forEach(c => c.classList.remove('active'));
-        card.classList.add('active');
-    });
+themeSlider.addEventListener('input', () => {
+    const index = parseInt(themeSlider.value);
+    const theme = THEMES[index];
+    setTheme(theme.id);
+    themeName.textContent = theme.name;
 });
 
 function setTheme(theme) {
@@ -73,12 +81,12 @@ function loadTheme() {
     const savedTheme = localStorage.getItem('theme') || 'desert';
     setTheme(savedTheme);
     
-    // Update active state on cards
-    themeCards.forEach(card => {
-        if (card.dataset.theme === savedTheme) {
-            card.classList.add('active');
-        }
-    });
+    // Update slider position
+    const index = THEMES.findIndex(t => t.id === savedTheme);
+    if (index !== -1) {
+        themeSlider.value = index;
+        themeName.textContent = THEMES[index].name;
+    }
 }
 
 // === VIDER TOUTES LES BULLES ===
