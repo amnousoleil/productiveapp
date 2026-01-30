@@ -1110,36 +1110,87 @@ ${doneBubblesList.slice(0, 10).map(b => `- "${b.text}" | Projet: ${b.project}`).
             // Si ce n'est pas du JSON, utiliser la réponse brute
         }
         
-        // Vérifier si l'IA demande une action (supporte les 2 formats)
-        // Format 1: ACTION:CREATE|texte de la tâche
-        // Format 2: ACTION:CREATE {"text": "..."}
-        if (aiResponse.includes('ACTION:CREATE')) {
-            let taskText = null;
-            
-            // Format avec pipe: ACTION:CREATE|texte
-            const pipeMatch = aiResponse.match(/ACTION:CREATE\|([^\n]+)/);
-            if (pipeMatch) {
-                taskText = pipeMatch[1].trim();
-                aiResponse = aiResponse.replace(/ACTION:CREATE\|[^\n]+/, '').trim();
-            }
-            
-            // Format JSON: ACTION:CREATE {"text": "..."}
-            const jsonMatch = aiResponse.match(/ACTION:CREATE\s*(\{.*\})/);
-            if (jsonMatch && !taskText) {
-                try {
-                    const taskData = JSON.parse(jsonMatch[1]);
-                    taskText = taskData.text;
-                    aiResponse = aiResponse.replace(/ACTION:CREATE\s*\{.*\}/, '').trim();
-                } catch (e) {
-                    console.error('Erreur parsing JSON tâche:', e);
+        // === ACTIONS DE L'IA ===
+        // L'IA peut : créer, supprimer, modifier des tâches
+        
+        // ACTION:CREATE|texte de la tâche
+        if (aiResponse.includes('ACTION:CREATE|')) {
+            const matches = aiResponse.matchAll(/ACTION:CREATE\|([^\n]+)/g);
+            for (const match of matches) {
+                const taskText = match[1].trim();
+                if (taskText) {
+                    createBubbleFromAI({ text: taskText });
+                    console.log('Tâche créée:', taskText);
                 }
             }
-            
-            // Créer la bulle si on a un texte
-            if (taskText) {
-                createBubbleFromAI({ text: taskText });
-                aiResponse += '\n\n✅ Tâche créée : "' + taskText + '"';
+            aiResponse = aiResponse.replace(/ACTION:CREATE\|[^\n]+/g, '').trim();
+            aiResponse += '\n\n✅ Tâche(s) créée(s) !';
+        }
+        
+        // ACTION:DELETE|texte exact ou partiel de la tâche à supprimer
+        if (aiResponse.includes('ACTION:DELETE|')) {
+            const matches = aiResponse.matchAll(/ACTION:DELETE\|([^\n]+)/g);
+            let deletedCount = 0;
+            for (const match of matches) {
+                const searchText = match[1].trim().toLowerCase();
+                if (searchText) {
+                    const bubbleIndex = bubbles.findIndex(b => 
+                        !b.done && b.text.toLowerCase().includes(searchText)
+                    );
+                    if (bubbleIndex !== -1) {
+                        const deleted = bubbles.splice(bubbleIndex, 1)[0];
+                        console.log('Tâche supprimée:', deleted.text);
+                        deletedCount++;
+                    }
+                }
             }
+            if (deletedCount > 0) {
+                saveBubbles();
+                renderBubbles();
+                aiResponse = aiResponse.replace(/ACTION:DELETE\|[^\n]+/g, '').trim();
+                aiResponse += `\n\n🗑️ ${deletedCount} tâche(s) supprimée(s) !`;
+            }
+        }
+        
+        // ACTION:DONE|texte exact ou partiel de la tâche à marquer comme terminée
+        if (aiResponse.includes('ACTION:DONE|')) {
+            const matches = aiResponse.matchAll(/ACTION:DONE\|([^\n]+)/g);
+            let doneCount = 0;
+            for (const match of matches) {
+                const searchText = match[1].trim().toLowerCase();
+                if (searchText) {
+                    const bubble = bubbles.find(b => 
+                        !b.done && b.text.toLowerCase().includes(searchText)
+                    );
+                    if (bubble) {
+                        bubble.done = true;
+                        bubble.completedAt = new Date().toISOString();
+                        addJournalEntry(`✓ Terminé: ${bubble.text}`);
+                        console.log('Tâche terminée:', bubble.text);
+                        doneCount++;
+                    }
+                }
+            }
+            if (doneCount > 0) {
+                saveBubbles();
+                renderBubbles();
+                aiResponse = aiResponse.replace(/ACTION:DONE\|[^\n]+/g, '').trim();
+                aiResponse += `\n\n✅ ${doneCount} tâche(s) marquée(s) comme terminée(s) !`;
+            }
+        }
+        
+        // ACTION:CLEAR_DONE - Vider toutes les tâches terminées
+        if (aiResponse.includes('ACTION:CLEAR_DONE')) {
+            const beforeCount = bubbles.length;
+            bubbles = bubbles.filter(b => !b.done);
+            const deletedCount = beforeCount - bubbles.length;
+            if (deletedCount > 0) {
+                saveBubbles();
+                renderBubbles();
+                console.log('Tâches terminées supprimées:', deletedCount);
+            }
+            aiResponse = aiResponse.replace(/ACTION:CLEAR_DONE/g, '').trim();
+            aiResponse += `\n\n🧹 ${deletedCount} tâche(s) terminée(s) supprimée(s) !`;
         }
         
         addChatMessage(aiResponse || 'Réponse reçue !', 'assistant');
