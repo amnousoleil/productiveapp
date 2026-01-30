@@ -45,16 +45,8 @@ function animateCanvas() {
         matrixCanvas.height = window.innerHeight;
     }
     
-    // Clear - trainée plus opaque pour éviter les bandes blanches
-    if (theme === 'hacker') {
-        matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-    } else if (theme === 'matrix') {
-        matrixCtx.fillStyle = 'rgba(10, 15, 10, 0.15)';
-        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-    } else {
-        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-    }
+    // Clear complet pour tous les thèmes - évite les trainées blanches
+    matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
     
     switch(theme) {
         case 'hacker': animateHacker(); break;
@@ -71,61 +63,103 @@ function animateCanvas() {
     requestAnimationFrame(animateCanvas);
 }
 
-// === HACKER - Lent et reposant ===
+// === HACKER - Code doré avec trainée simulée ===
 function animateHacker() {
-    matrixCtx.font = '12px monospace';
+    matrixCtx.font = '14px monospace';
     
     const chars = '01';
-    const columns = Math.floor(matrixCanvas.width / 100);
+    const columns = Math.floor(matrixCanvas.width / 25);
     
     for (let i = 0; i < columns; i++) {
-        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
-        
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 100;
-        const y = matrixDrops[i] * 35;
-        
-        matrixCtx.globalAlpha = 0.25;
-        matrixCtx.shadowBlur = 5;
-        matrixCtx.shadowColor = '#ffd700';
-        matrixCtx.fillStyle = '#ffd700';
-        matrixCtx.fillText(char, x, y);
-        matrixCtx.shadowBlur = 0;
-        matrixCtx.globalAlpha = 1;
-        
-        if (y > matrixCanvas.height && Math.random() > 0.99) {
-            matrixDrops[i] = 0;
+        if (matrixDrops[i] === undefined) {
+            matrixDrops[i] = Math.random() * -50;
         }
-        matrixDrops[i] += 0.05; // Lent mais visible
+        
+        const x = i * 25;
+        const baseY = matrixDrops[i];
+        
+        // Dessiner une trainée de 12 caractères
+        for (let j = 0; j < 12; j++) {
+            const y = (baseY - j) * 22;
+            if (y < 0 || y > matrixCanvas.height) continue;
+            
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            
+            // Le premier caractère est le plus brillant
+            if (j === 0) {
+                matrixCtx.fillStyle = '#ffffff';
+                matrixCtx.shadowBlur = 8;
+                matrixCtx.shadowColor = '#ffd700';
+            } else {
+                // Dégradé d'opacité pour la trainée
+                const alpha = Math.max(0.1, 1 - (j / 12));
+                matrixCtx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+                matrixCtx.shadowBlur = 0;
+            }
+            
+            matrixCtx.fillText(char, x, y);
+        }
+        matrixCtx.shadowBlur = 0;
+        
+        // Avancer la goutte
+        matrixDrops[i] += 0.25;
+        
+        // Reset quand elle sort de l'écran
+        if (matrixDrops[i] * 22 > matrixCanvas.height + 300) {
+            if (Math.random() > 0.97) {
+                matrixDrops[i] = 0;
+            }
+        }
     }
 }
 
-// === MATRIX - Code vert lent et reposant ===
+// === MATRIX - Code vert avec trainée simulée ===
 function animateMatrix() {
-    matrixCtx.font = '12px monospace';
+    matrixCtx.font = '14px monospace';
     
-    const chars = 'ア01';
-    const columns = Math.floor(matrixCanvas.width / 80);
+    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン01';
+    const columns = Math.floor(matrixCanvas.width / 20);
     
     for (let i = 0; i < columns; i++) {
-        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
-        
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 80;
-        const y = matrixDrops[i] * 30;
-        
-        matrixCtx.globalAlpha = 0.3;
-        matrixCtx.shadowBlur = 6;
-        matrixCtx.shadowColor = '#00ff66';
-        matrixCtx.fillStyle = '#00ff66';
-        matrixCtx.fillText(char, x, y);
-        matrixCtx.shadowBlur = 0;
-        matrixCtx.globalAlpha = 1;
-        
-        if (y > matrixCanvas.height && Math.random() > 0.99) {
-            matrixDrops[i] = 0;
+        if (matrixDrops[i] === undefined) {
+            matrixDrops[i] = Math.random() * -50;
         }
-        matrixDrops[i] += 0.06; // Lent mais visible
+        
+        const x = i * 20;
+        const baseY = matrixDrops[i];
+        
+        // Dessiner une trainée de 15 caractères
+        for (let j = 0; j < 15; j++) {
+            const y = (baseY - j) * 20;
+            if (y < 0 || y > matrixCanvas.height) continue;
+            
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            
+            // Le premier caractère est le plus brillant
+            if (j === 0) {
+                matrixCtx.fillStyle = '#ffffff';
+                matrixCtx.shadowBlur = 10;
+                matrixCtx.shadowColor = '#00ff66';
+            } else {
+                // Dégradé d'opacité pour la trainée
+                const alpha = Math.max(0.1, 1 - (j / 15));
+                matrixCtx.fillStyle = `rgba(0, 255, 102, ${alpha})`;
+                matrixCtx.shadowBlur = 0;
+            }
+            
+            matrixCtx.fillText(char, x, y);
+        }
+        matrixCtx.shadowBlur = 0;
+        
+        // Avancer la goutte
+        matrixDrops[i] += 0.3;
+        
+        // Reset quand elle sort de l'écran
+        if (matrixDrops[i] * 20 > matrixCanvas.height + 300) {
+            if (Math.random() > 0.95) {
+                matrixDrops[i] = 0;
+            }
+        }
     }
 }
 
