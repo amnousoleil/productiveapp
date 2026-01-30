@@ -1757,3 +1757,13 @@ header { margin-bottom: 20px; }
 [data-theme="midnight"] .bubble.done .bubble-text {
     color: rgba(129, 140, 248, 0.9) !important;
 }
+/* FIX BULLES TERMINÉES */
+.bubble.done {
+    background: linear-gradient(135deg, rgba(6, 214, 160, 0.4), rgba(6, 180, 130, 0.2)) !important;
+    border: 2px solid rgba(6, 214, 160, 0.7) !important;
+    box-shadow: 0 8px 40px rgba(6, 214, 160, 0.4), 0 0 60px rgba(6, 214, 160, 0.2) !important;
+}
+.bubble.done .bubble-text {
+    color: #06d6a0 !important;
+    text-decoration: line-through !important;
+}
