@@ -68,61 +68,61 @@ function animateCanvas() {
     requestAnimationFrame(animateCanvas);
 }
 
-// === HACKER - Subtil, très lent, doré ===
+// === HACKER - Ultra lent, zen ===
 function animateHacker() {
-    matrixCtx.font = '14px monospace';
+    matrixCtx.font = '12px monospace';
     
-    const chars = '01<>{}/\\';
-    const columns = Math.floor(matrixCanvas.width / 50); // Moins de colonnes
+    const chars = '01<>';
+    const columns = Math.floor(matrixCanvas.width / 80); // Très peu de colonnes
     
     for (let i = 0; i < columns; i++) {
         if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
         
         const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 50;
-        const y = matrixDrops[i] * 25;
+        const x = i * 80;
+        const y = matrixDrops[i] * 30;
         
-        matrixCtx.globalAlpha = 0.4;
-        matrixCtx.shadowBlur = 8;
+        matrixCtx.globalAlpha = 0.3;
+        matrixCtx.shadowBlur = 6;
         matrixCtx.shadowColor = '#ffd700';
         matrixCtx.fillStyle = '#ffd700';
         matrixCtx.fillText(char, x, y);
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
         
-        if (y > matrixCanvas.height && Math.random() > 0.995) {
+        if (y > matrixCanvas.height && Math.random() > 0.998) {
             matrixDrops[i] = 0;
         }
-        matrixDrops[i] += 0.08; // Très lent
+        matrixDrops[i] += 0.02; // Ultra lent
     }
 }
 
-// === MATRIX - Code vert lent ===
+// === MATRIX - Code vert ultra lent ===
 function animateMatrix() {
-    matrixCtx.font = '14px monospace';
+    matrixCtx.font = '12px monospace';
     
-    const chars = 'アイウエオカキク01';
-    const columns = Math.floor(matrixCanvas.width / 35);
+    const chars = 'アイウ01';
+    const columns = Math.floor(matrixCanvas.width / 60);
     
     for (let i = 0; i < columns; i++) {
         if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
         
         const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 35;
-        const y = matrixDrops[i] * 22;
+        const x = i * 60;
+        const y = matrixDrops[i] * 25;
         
-        matrixCtx.globalAlpha = 0.5;
-        matrixCtx.shadowBlur = 10;
+        matrixCtx.globalAlpha = 0.4;
+        matrixCtx.shadowBlur = 8;
         matrixCtx.shadowColor = '#00ff66';
         matrixCtx.fillStyle = '#00ff66';
         matrixCtx.fillText(char, x, y);
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
         
-        if (y > matrixCanvas.height && Math.random() > 0.995) {
+        if (y > matrixCanvas.height && Math.random() > 0.998) {
             matrixDrops[i] = 0;
         }
-        matrixDrops[i] += 0.12; // Plus lent
+        matrixDrops[i] += 0.03; // Ultra lent
     }
 }
 
