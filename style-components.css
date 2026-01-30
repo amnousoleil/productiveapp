@@ -80,181 +80,183 @@
 }
 
 /* =============================================
-   BULLES / TÂCHES - COMPATIBLE ANCIEN + NOUVEAU
+   BULLES / TÂCHES - SECTION COMPLÈTE
    ============================================= */
 
-.task-bubble,
-.bubble {
-    padding: 12px 15px !important;
-    border-radius: 15px !important;
-    background: var(--bubble-bg) !important;
-    border: 2px solid var(--bubble-border) !important;
-    box-shadow: var(--bubble-glow) !important;
+/* === Base des bulles === */
+.bubble,
+.task-bubble {
+    padding: 14px 18px !important;
+    border-radius: 16px !important;
     cursor: pointer !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
-    overflow: hidden !important;
     animation: popIn 0.3s ease !important;
-}
-
-.task-bubble:hover,
-.bubble:hover {
-    transform: translateY(-4px) scale(1.02) !important;
+    
+    /* Style par défaut - À faire */
+    background: linear-gradient(145deg, rgba(224, 120, 64, 0.2) 0%, rgba(180, 80, 40, 0.1) 100%) !important;
+    border: 2px solid rgba(224, 120, 64, 0.4) !important;
     box-shadow: 
-        0 15px 50px var(--accent-glow),
-        0 0 70px rgba(224, 120, 64, 0.3) !important;
+        0 4px 20px rgba(224, 120, 64, 0.2),
+        0 0 30px rgba(224, 120, 64, 0.1) !important;
 }
 
-/* === État En Cours === */
-.task-bubble.inprogress,
-.bubble.inprogress {
-    background: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%) !important;
-    border: 2px solid rgba(251, 191, 36, 0.8) !important;
+.bubble:hover,
+.task-bubble:hover {
+    transform: translateY(-5px) scale(1.02) !important;
     box-shadow: 
-        0 0 25px rgba(251, 191, 36, 0.5),
-        0 0 50px rgba(251, 191, 36, 0.3),
-        0 8px 32px rgba(251, 191, 36, 0.4) !important;
-    animation: popIn 0.3s ease, glowPulse 2s ease-in-out infinite !important;
+        0 10px 40px rgba(224, 120, 64, 0.35),
+        0 0 50px rgba(224, 120, 64, 0.2) !important;
 }
 
-.task-bubble.inprogress .task-text,
-.task-bubble.inprogress .bubble-text,
-.bubble.inprogress .task-text,
-.bubble.inprogress .bubble-text {
-    font-weight: 600 !important;
+/* === État En Cours - Glow Orange/Jaune Pulsant === */
+.bubble.inprogress,
+.task-bubble.inprogress {
+    background: linear-gradient(145deg, rgba(251, 191, 36, 0.35) 0%, rgba(249, 115, 22, 0.2) 100%) !important;
+    border: 2px solid rgba(251, 191, 36, 0.7) !important;
+    box-shadow: 
+        0 0 20px rgba(251, 191, 36, 0.5),
+        0 0 40px rgba(251, 191, 36, 0.3),
+        0 8px 30px rgba(251, 191, 36, 0.4) !important;
+    animation: popIn 0.3s ease, glowPulseOrange 2s ease-in-out infinite !important;
+}
+
+.bubble.inprogress .bubble-text,
+.task-bubble.inprogress .task-text {
     color: #fbbf24 !important;
+    font-weight: 600 !important;
 }
 
-/* === État Terminé === MEGA GLOW VERT === */
-.task-bubble.done,
-.bubble.done {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.5) 0%, rgba(22, 163, 74, 0.3) 100%) !important;
-    border: 3px solid rgba(34, 197, 94, 0.9) !important;
+/* === État Terminé - MEGA GLOW VERT === */
+.bubble.done,
+.task-bubble.done {
+    background: linear-gradient(145deg, rgba(34, 197, 94, 0.45) 0%, rgba(22, 163, 74, 0.25) 100%) !important;
+    border: 3px solid rgba(34, 197, 94, 0.8) !important;
     box-shadow: 
         0 0 25px rgba(34, 197, 94, 0.7),
-        0 0 50px rgba(34, 197, 94, 0.5),
-        0 0 75px rgba(34, 197, 94, 0.3),
-        0 10px 40px rgba(34, 197, 94, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        0 0 50px rgba(34, 197, 94, 0.4),
+        0 0 75px rgba(34, 197, 94, 0.2),
+        0 8px 35px rgba(34, 197, 94, 0.5) !important;
     opacity: 1 !important;
 }
 
-.task-bubble.done .task-text,
-.task-bubble.done .bubble-text,
-.bubble.done .task-text,
-.bubble.done .bubble-text {
-    text-decoration: line-through !important;
-    color: #4ade80 !important;
-    opacity: 1 !important;
-    text-shadow: 0 0 15px rgba(74, 222, 128, 0.6) !important;
-}
-
-.task-bubble.done .task-header,
-.task-bubble.done .bubble-header,
-.bubble.done .task-header,
-.bubble.done .bubble-header {
-    opacity: 0.95 !important;
-}
-
-.task-bubble.done:hover,
-.bubble.done:hover {
+.bubble.done:hover,
+.task-bubble.done:hover {
     transform: translateY(-6px) scale(1.03) !important;
     box-shadow: 
         0 0 35px rgba(34, 197, 94, 0.9),
         0 0 70px rgba(34, 197, 94, 0.6),
-        0 0 100px rgba(34, 197, 94, 0.4),
-        0 20px 60px rgba(34, 197, 94, 0.7),
-        inset 0 2px 0 rgba(255, 255, 255, 0.25) !important;
+        0 0 100px rgba(34, 197, 94, 0.3),
+        0 15px 50px rgba(34, 197, 94, 0.7) !important;
 }
 
-/* === Éléments de la bulle === */
+.bubble.done .bubble-text,
+.task-bubble.done .task-text {
+    text-decoration: line-through !important;
+    color: #4ade80 !important;
+    text-shadow: 0 0 15px rgba(74, 222, 128, 0.6) !important;
+    opacity: 1 !important;
+}
+
+.bubble.done .bubble-header,
+.task-bubble.done .task-header {
+    opacity: 0.9 !important;
+}
+
+/* === Animation Glow Pulsant Orange === */
+@keyframes glowPulseOrange {
+    0%, 100% {
+        box-shadow: 
+            0 0 20px rgba(251, 191, 36, 0.5),
+            0 0 40px rgba(251, 191, 36, 0.3),
+            0 8px 30px rgba(251, 191, 36, 0.4);
+    }
+    50% {
+        box-shadow: 
+            0 0 30px rgba(251, 191, 36, 0.7),
+            0 0 60px rgba(251, 191, 36, 0.5),
+            0 8px 40px rgba(251, 191, 36, 0.6);
+    }
+}
+
+/* === Éléments internes des bulles === */
+.bubble-header,
 .task-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    margin-bottom: var(--space-sm);
-    flex-wrap: wrap;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 8px !important;
+    flex-wrap: wrap !important;
 }
 
-.task-project {
-    font-size: 0.75rem;
-    padding: 3px 10px;
-    border-radius: 10px;
-    font-weight: 500;
-}
-
-.task-priority {
-    font-size: 0.7rem;
-    padding: 2px 8px;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.1);
-    color: var(--text-muted);
-}
-
-.task-priority.urgent {
-    background: rgba(239, 68, 68, 0.3);
-    color: #ff6b6b;
-}
-
-.task-user {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    margin-left: auto;
-}
-
+.bubble-text,
 .task-text {
-    font-size: 0.95rem;
-    line-height: 1.5;
-    color: var(--text);
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    color: var(--text) !important;
 }
 
-/* === Actions au hover === */
+.bubble-actions,
 .task-actions {
-    display: flex;
-    gap: var(--space-xs);
-    margin-top: var(--space-md);
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    display: flex !important;
+    gap: 6px !important;
+    margin-top: 12px !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s ease !important;
 }
 
+.bubble:hover .bubble-actions,
 .task-bubble:hover .task-actions {
-    opacity: 1;
+    opacity: 1 !important;
 }
 
-.task-action-btn {
-    padding: 6px 12px;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition: var(--transition-fast);
+/* === Tags projet/priorité === */
+.task-project,
+.bubble-project {
+    font-size: 0.75rem !important;
+    padding: 3px 10px !important;
+    border-radius: 10px !important;
+    font-weight: 500 !important;
 }
 
-.task-action-btn.start {
-    background: var(--warning);
-    color: #000;
+.task-priority,
+.bubble-priority {
+    font-size: 0.7rem !important;
+    padding: 2px 8px !important;
+    border-radius: 8px !important;
+    background: rgba(255,255,255,0.1) !important;
+    color: var(--text-muted) !important;
 }
 
-.task-action-btn.complete {
-    background: var(--success);
-    color: #fff;
+.task-priority.urgent,
+.bubble-priority.urgent {
+    background: rgba(239, 68, 68, 0.3) !important;
+    color: #ff6b6b !important;
 }
 
-.task-action-btn.delete {
-    background: var(--danger);
-    color: #fff;
+/* === Boutons d'action === */
+.task-action-btn,
+.bubble-action-btn {
+    padding: 6px 12px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 0.75rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
-.task-action-btn:hover {
-    transform: scale(1.08);
-}
+.task-action-btn.start { background: #fbbf24 !important; color: #000 !important; }
+.task-action-btn.complete { background: #22c55e !important; color: #fff !important; }
+.task-action-btn.delete { background: #ef4444 !important; color: #fff !important; }
 
-/* === Empty State === */
+.task-action-btn:hover { transform: scale(1.1) !important; }
+
+/* === État vide === */
 .empty-state {
-    padding: var(--space-xl);
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.9rem;
+    padding: 32px !important;
+    text-align: center !important;
+    color: var(--text-muted) !important;
+    font-size: 0.9rem !important;
 }
 
 /* =============================================
@@ -712,46 +714,4 @@
         right: 10px;
         bottom: 10px;
     }
-}
-
-/* =============================================
-   OVERRIDE TOTAL - BULLES TERMINÉES
-   Ces styles écrasent TOUT avec max spécificité
-   ============================================= */
-
-div.bubble.done,
-div.task-bubble.done,
-.bubble-list div.bubble.done,
-.task-list div.task-bubble.done,
-#done-bubbles div.bubble.done,
-#done-list div.task-bubble.done,
-[class*="done-bubbles"] div.done,
-[class*="bubble-list"] div.done {
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.55) 0%, rgba(22, 163, 74, 0.35) 100%) !important;
-    border: 3px solid #22c55e !important;
-    box-shadow: 
-        0 0 30px rgba(34, 197, 94, 0.8),
-        0 0 60px rgba(34, 197, 94, 0.5),
-        0 0 90px rgba(34, 197, 94, 0.3),
-        0 10px 40px rgba(34, 197, 94, 0.6) !important;
-    opacity: 1 !important;
-}
-
-div.bubble.done:hover,
-div.task-bubble.done:hover {
-    transform: translateY(-6px) scale(1.03) !important;
-    box-shadow: 
-        0 0 40px rgba(34, 197, 94, 1),
-        0 0 80px rgba(34, 197, 94, 0.7),
-        0 0 120px rgba(34, 197, 94, 0.4),
-        0 20px 60px rgba(34, 197, 94, 0.8) !important;
-}
-
-div.bubble.done .bubble-text,
-div.task-bubble.done .task-text,
-.done .bubble-text,
-.done .task-text {
-    color: #4ade80 !important;
-    text-shadow: 0 0 20px rgba(74, 222, 128, 0.8) !important;
-    opacity: 1 !important;
 }
