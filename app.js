@@ -871,43 +871,114 @@ function renderJournal() {
     });
 }
 
-// === RÉSUMÉ DU JOUR ===
+// === RÉSUMÉ DU JOUR (avec IA) ===
 generateSummaryBtn.addEventListener('click', generateSummary);
 
-function generateSummary() {
+async function generateSummary() {
+    const todoBubblesList = bubbles.filter(b => !b.done);
+    const doneBubblesList = bubbles.filter(b => b.done);
     const today = new Date().toDateString();
     const todayEntries = journal.filter(e => new Date(e.date).toDateString() === today);
-    const completedToday = bubbles.filter(b => b.done && b.completedAt && new Date(b.completedAt).toDateString() === today);
+    const completedToday = doneBubblesList.filter(b => b.completedAt && new Date(b.completedAt).toDateString() === today);
     
-    let summaryHtml = `<h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>`;
+    // Afficher le loading
+    dailySummary.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">🔮 L'IA analyse tes tâches...</p>`;
+    dailySummary.classList.add('visible');
     
-    if (todayEntries.length === 0 && completedToday.length === 0) {
-        summaryHtml += '<p>Aucune activité enregistrée aujourd\'hui.</p>';
-    } else {
-        summaryHtml += `<p><strong>${completedToday.length}</strong> bulle(s) terminée(s)</p>`;
-        summaryHtml += `<p><strong>${todayEntries.length}</strong> entrée(s) dans le journal</p>`;
-        
-        if (todayEntries.length > 0) {
-            summaryHtml += '<p style="margin-top: 15px;"><strong>Ce que tu as fait :</strong></p>';
-            summaryHtml += '<ul style="margin-left: 20px; margin-top: 5px;">';
-            todayEntries.forEach(e => {
-                summaryHtml += `<li>${escapeHtml(e.text)}</li>`;
-            });
-            summaryHtml += '</ul>';
-        }
+    // Si aucune tâche à faire, résumé simple
+    if (todoBubblesList.length === 0) {
+        dailySummary.innerHTML = `
+            <h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
+            <p>🎉 Toutes tes tâches sont terminées ! Bravo !</p>
+            <p><strong>${completedToday.length}</strong> tâche(s) complétée(s) aujourd'hui.</p>
+        `;
+        return;
     }
     
-    // Sauvegarde dans l'historique
-    const summaryData = {
-        date: new Date().toISOString(),
-        entries: todayEntries,
-        completedBubbles: completedToday
-    };
-    history.push(summaryData);
-    localStorage.setItem('history', JSON.stringify(history));
-    
-    dailySummary.innerHTML = summaryHtml;
-    dailySummary.classList.add('visible');
+    try {
+        // Préparer le contexte pour l'IA
+        const context = `
+UTILISATEUR: ${CURRENT_USER}
+DATE: ${new Date().toLocaleDateString('fr-FR')}
+
+TÂCHES À FAIRE (${todoBubblesList.length}):
+${todoBubblesList.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n')}
+
+TÂCHES TERMINÉES AUJOURD'HUI (${completedToday.length}):
+${completedToday.map(b => `- "${b.text}"`).join('\n') || 'Aucune encore'}
+
+JOURNAL DU JOUR:
+${todayEntries.map(e => `- ${e.time}: ${e.text}`).join('\n') || 'Aucune entrée'}
+        `.trim();
+        
+        const prompt = `Analyse ces tâches et donne-moi un résumé clair et motivant. 
+Identifie les 4 tâches les plus importantes à faire en priorité aujourd'hui, en expliquant brièvement pourquoi.
+Sois concis, direct et encourageant. Utilise des emojis avec parcimonie.
+Format souhaité:
+1. Brève analyse de la situation
+2. Les 4 priorités du jour (numérotées)
+3. Un mot d'encouragement`;
+
+        // Appel au webhook chatbot (on réutilise le même)
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                message: prompt,
+                context: context,
+                user: CURRENT_USER,
+                type: 'summary'
+            })
+        });
+        
+        const data = await response.text();
+        
+        // Parser la réponse
+        let aiResponse = data;
+        try {
+            const jsonData = JSON.parse(data);
+            aiResponse = jsonData.response || jsonData.text || jsonData.output || data;
+        } catch (e) {
+            // Si ce n'est pas du JSON, utiliser la réponse brute
+        }
+        
+        // Nettoyer la réponse des éventuels ACTION:CREATE
+        aiResponse = aiResponse.replace(/ACTION:CREATE\|[^\n]*/g, '').trim();
+        
+        // Afficher le résumé IA
+        dailySummary.innerHTML = `
+            <h3>🔮 Résumé IA du ${new Date().toLocaleDateString('fr-FR')}</h3>
+            <div style="white-space: pre-wrap; line-height: 1.7;">${escapeHtml(aiResponse)}</div>
+            <p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted);">
+                📈 ${todoBubblesList.length} tâche(s) en cours · ${completedToday.length} terminée(s) aujourd'hui
+            </p>
+        `;
+        
+        // Sauvegarde dans l'historique
+        const summaryData = {
+            date: new Date().toISOString(),
+            entries: todayEntries,
+            completedBubbles: completedToday,
+            aiSummary: aiResponse
+        };
+        history.push(summaryData);
+        localStorage.setItem('history', JSON.stringify(history));
+        
+    } catch (error) {
+        console.error('Erreur résumé IA:', error);
+        
+        // Fallback vers résumé simple
+        dailySummary.innerHTML = `
+            <h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
+            <p>⚠️ L'IA n'a pas pu répondre. Voici un résumé simple :</p>
+            <p><strong>${todoBubblesList.length}</strong> tâche(s) à faire</p>
+            <p><strong>${completedToday.length}</strong> tâche(s) terminée(s) aujourd'hui</p>
+            <p style="margin-top: 10px;"><strong>Tâches urgentes :</strong></p>
+            <ul style="margin-left: 20px;">
+                ${todoBubblesList.filter(b => b.priority.level === 1).map(b => `<li>${escapeHtml(b.text)}</li>`).join('') || '<li>Aucune tâche urgente</li>'}
+            </ul>
+        `;
+    }
 }
 
 // === UTILITAIRES ===
@@ -1039,18 +1110,35 @@ ${doneBubblesList.slice(0, 10).map(b => `- "${b.text}" | Projet: ${b.project}`).
             // Si ce n'est pas du JSON, utiliser la réponse brute
         }
         
-        // Vérifier si l'IA demande une action
+        // Vérifier si l'IA demande une action (supporte les 2 formats)
+        // Format 1: ACTION:CREATE|texte de la tâche
+        // Format 2: ACTION:CREATE {"text": "..."}
         if (aiResponse.includes('ACTION:CREATE')) {
-            const actionMatch = aiResponse.match(/ACTION:CREATE\s*(\{.*\})/);
-            if (actionMatch) {
+            let taskText = null;
+            
+            // Format avec pipe: ACTION:CREATE|texte
+            const pipeMatch = aiResponse.match(/ACTION:CREATE\|([^\n]+)/);
+            if (pipeMatch) {
+                taskText = pipeMatch[1].trim();
+                aiResponse = aiResponse.replace(/ACTION:CREATE\|[^\n]+/, '').trim();
+            }
+            
+            // Format JSON: ACTION:CREATE {"text": "..."}
+            const jsonMatch = aiResponse.match(/ACTION:CREATE\s*(\{.*\})/);
+            if (jsonMatch && !taskText) {
                 try {
-                    const taskData = JSON.parse(actionMatch[1]);
-                    createBubbleFromAI(taskData);
+                    const taskData = JSON.parse(jsonMatch[1]);
+                    taskText = taskData.text;
                     aiResponse = aiResponse.replace(/ACTION:CREATE\s*\{.*\}/, '').trim();
-                    aiResponse += '\n\n✅ Tâche créée !';
                 } catch (e) {
-                    console.error('Erreur création tâche:', e);
+                    console.error('Erreur parsing JSON tâche:', e);
                 }
+            }
+            
+            // Créer la bulle si on a un texte
+            if (taskText) {
+                createBubbleFromAI({ text: taskText });
+                aiResponse += '\n\n✅ Tâche créée : "' + taskText + '"';
             }
         }
         
