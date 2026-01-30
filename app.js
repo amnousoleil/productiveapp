@@ -882,15 +882,14 @@ async function generateSummary() {
     const completedToday = doneBubblesList.filter(b => b.completedAt && new Date(b.completedAt).toDateString() === today);
     
     // Afficher le loading
-    dailySummary.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">🔮 L'IA analyse tes tâches...</p>`;
+    dailySummary.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">🔮 L'IA analyse ta journée...</p>`;
     dailySummary.classList.add('visible');
     
-    // Si aucune tâche à faire, résumé simple
-    if (todoBubblesList.length === 0) {
+    // Si aucune activité du tout
+    if (todayEntries.length === 0 && completedToday.length === 0 && todoBubblesList.length === 0) {
         dailySummary.innerHTML = `
             <h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
-            <p>🎉 Toutes tes tâches sont terminées ! Bravo !</p>
-            <p><strong>${completedToday.length}</strong> tâche(s) complétée(s) aujourd'hui.</p>
+            <p>Aucune activité enregistrée aujourd'hui. Ajoute des tâches ou note ce que tu fais dans le journal !</p>
         `;
         return;
     }
@@ -898,28 +897,29 @@ async function generateSummary() {
     try {
         // Préparer le contexte pour l'IA
         const context = `
-UTILISATEUR: ${CURRENT_USER}
 DATE: ${new Date().toLocaleDateString('fr-FR')}
 
-TÂCHES À FAIRE (${todoBubblesList.length}):
-${todoBubblesList.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n')}
+JOURNAL DU JOUR (ce que l'utilisateur a noté avoir fait) :
+${todayEntries.map(e => `- ${e.time}: ${e.text}`).join('\n') || 'Rien noté encore'}
 
-TÂCHES TERMINÉES AUJOURD'HUI (${completedToday.length}):
-${completedToday.map(b => `- "${b.text}"`).join('\n') || 'Aucune encore'}
+TÂCHES TERMINÉES AUJOURD'HUI :
+${completedToday.map(b => `- "${b.text}" (projet: ${b.project})`).join('\n') || 'Aucune'}
 
-JOURNAL DU JOUR:
-${todayEntries.map(e => `- ${e.time}: ${e.text}`).join('\n') || 'Aucune entrée'}
+TÂCHES ENCORE À FAIRE :
+${todoBubblesList.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n') || 'Aucune - tout est fait !'}
         `.trim();
         
-        const prompt = `Analyse ces tâches et donne-moi un résumé clair et motivant. 
-Identifie les 4 tâches les plus importantes à faire en priorité aujourd'hui, en expliquant brièvement pourquoi.
-Sois concis, direct et encourageant. Utilise des emojis avec parcimonie.
-Format souhaité:
-1. Brève analyse de la situation
-2. Les 4 priorités du jour (numérotées)
-3. Un mot d'encouragement`;
+        const prompt = `Fais-moi un RÉSUMÉ CLAIR de ma journée basé sur le contexte ci-dessus.
 
-        // Appel au webhook chatbot (on réutilise le même)
+Structure ton résumé ainsi :
+1. **Ce qui a été accompli** : Liste narrative de tout ce qui a été fait (journal + tâches terminées)
+2. **Ce qu'il reste à faire** : Les tâches en cours, par ordre de priorité (si il y en a)
+3. **Bilan** : Une phrase de conclusion (encourageante si productif, motivante si peu fait)
+
+Sois concis mais complet. Utilise un ton positif et des emojis avec parcimonie.
+Ne dis pas "selon le contexte" ou "d'après les données", parle directement.`;
+
+        // Appel au webhook chatbot
         const response = await fetch(CHATBOT_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -942,16 +942,13 @@ Format souhaité:
             // Si ce n'est pas du JSON, utiliser la réponse brute
         }
         
-        // Nettoyer la réponse des éventuels ACTION:CREATE
-        aiResponse = aiResponse.replace(/ACTION:CREATE\|[^\n]*/g, '').trim();
+        // Nettoyer la réponse des éventuelles actions
+        aiResponse = aiResponse.replace(/ACTION:(CREATE|DELETE|DONE|CLEAR_DONE)\|?[^\n]*/g, '').trim();
         
         // Afficher le résumé IA
         dailySummary.innerHTML = `
-            <h3>🔮 Résumé IA du ${new Date().toLocaleDateString('fr-FR')}</h3>
-            <div style="white-space: pre-wrap; line-height: 1.7;">${escapeHtml(aiResponse)}</div>
-            <p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted);">
-                📈 ${todoBubblesList.length} tâche(s) en cours · ${completedToday.length} terminée(s) aujourd'hui
-            </p>
+            <h3>🔮 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
+            <div style="white-space: pre-wrap; line-height: 1.8;">${escapeHtml(aiResponse)}</div>
         `;
         
         // Sauvegarde dans l'historique
@@ -970,13 +967,19 @@ Format souhaité:
         // Fallback vers résumé simple
         dailySummary.innerHTML = `
             <h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
-            <p>⚠️ L'IA n'a pas pu répondre. Voici un résumé simple :</p>
-            <p><strong>${todoBubblesList.length}</strong> tâche(s) à faire</p>
-            <p><strong>${completedToday.length}</strong> tâche(s) terminée(s) aujourd'hui</p>
-            <p style="margin-top: 10px;"><strong>Tâches urgentes :</strong></p>
-            <ul style="margin-left: 20px;">
-                ${todoBubblesList.filter(b => b.priority.level === 1).map(b => `<li>${escapeHtml(b.text)}</li>`).join('') || '<li>Aucune tâche urgente</li>'}
-            </ul>
+            <p>⚠️ L'IA n'a pas pu répondre. Voici ce qui a été noté :</p>
+            ${todayEntries.length > 0 ? `
+                <p><strong>Journal :</strong></p>
+                <ul style="margin-left: 20px;">
+                    ${todayEntries.map(e => `<li>${e.time} - ${escapeHtml(e.text)}</li>`).join('')}
+                </ul>
+            ` : '<p>Rien dans le journal aujourd\'hui.</p>'}
+            ${completedToday.length > 0 ? `
+                <p><strong>Tâches terminées :</strong></p>
+                <ul style="margin-left: 20px;">
+                    ${completedToday.map(b => `<li>${escapeHtml(b.text)}</li>`).join('')}
+                </ul>
+            ` : ''}
         `;
     }
 }
