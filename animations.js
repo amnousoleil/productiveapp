@@ -68,11 +68,40 @@ function animateCanvas() {
     requestAnimationFrame(animateCanvas);
 }
 
-// === HACKER - Subtil, lent, doré ===
+// === HACKER - Subtil, très lent, doré ===
 function animateHacker() {
     matrixCtx.font = '14px monospace';
     
     const chars = '01<>{}/\\';
+    const columns = Math.floor(matrixCanvas.width / 50); // Moins de colonnes
+    
+    for (let i = 0; i < columns; i++) {
+        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
+        
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * 50;
+        const y = matrixDrops[i] * 25;
+        
+        matrixCtx.globalAlpha = 0.4;
+        matrixCtx.shadowBlur = 8;
+        matrixCtx.shadowColor = '#ffd700';
+        matrixCtx.fillStyle = '#ffd700';
+        matrixCtx.fillText(char, x, y);
+        matrixCtx.shadowBlur = 0;
+        matrixCtx.globalAlpha = 1;
+        
+        if (y > matrixCanvas.height && Math.random() > 0.995) {
+            matrixDrops[i] = 0;
+        }
+        matrixDrops[i] += 0.08; // Très lent
+    }
+}
+
+// === MATRIX - Code vert lent ===
+function animateMatrix() {
+    matrixCtx.font = '14px monospace';
+    
+    const chars = 'アイウエオカキク01';
     const columns = Math.floor(matrixCanvas.width / 35);
     
     for (let i = 0; i < columns; i++) {
@@ -80,49 +109,20 @@ function animateHacker() {
         
         const char = chars[Math.floor(Math.random() * chars.length)];
         const x = i * 35;
-        const y = matrixDrops[i] * 20;
+        const y = matrixDrops[i] * 22;
         
         matrixCtx.globalAlpha = 0.5;
         matrixCtx.shadowBlur = 10;
-        matrixCtx.shadowColor = '#ffd700';
-        matrixCtx.fillStyle = '#ffd700';
-        matrixCtx.fillText(char, x, y);
-        matrixCtx.shadowBlur = 0;
-        matrixCtx.globalAlpha = 1;
-        
-        if (y > matrixCanvas.height && Math.random() > 0.99) {
-            matrixDrops[i] = 0;
-        }
-        matrixDrops[i] += 0.2;
-    }
-}
-
-// === MATRIX - Code vert ===
-function animateMatrix() {
-    matrixCtx.font = '14px monospace';
-    
-    const chars = 'アイウエオカキク01';
-    const columns = Math.floor(matrixCanvas.width / 25);
-    
-    for (let i = 0; i < columns; i++) {
-        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
-        
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 25;
-        const y = matrixDrops[i] * 18;
-        
-        matrixCtx.globalAlpha = 0.6;
-        matrixCtx.shadowBlur = 12;
         matrixCtx.shadowColor = '#00ff66';
         matrixCtx.fillStyle = '#00ff66';
         matrixCtx.fillText(char, x, y);
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
         
-        if (y > matrixCanvas.height && Math.random() > 0.98) {
+        if (y > matrixCanvas.height && Math.random() > 0.995) {
             matrixDrops[i] = 0;
         }
-        matrixDrops[i] += 0.3;
+        matrixDrops[i] += 0.12; // Plus lent
     }
 }
 
