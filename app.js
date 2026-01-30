@@ -17,11 +17,28 @@ const generateSummaryBtn = document.getElementById('generate-summary');
 const dailySummary = document.getElementById('daily-summary');
 const addBubbleBtn = document.getElementById('add-bubble-btn');
 const addJournalBtn = document.getElementById('add-journal-btn');
+const clearAllBtn = document.getElementById('clear-all-btn');
 
 // === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', () => {
     renderBubbles();
     renderJournal();
+});
+
+// === VIDER TOUTES LES BULLES ===
+clearAllBtn.addEventListener('click', () => {
+    if (bubbles.length === 0) {
+        alert('Il n\'y a aucune bulle à supprimer !');
+        return;
+    }
+    
+    const confirmation = confirm(`⚠️ Tu es sur le point de supprimer ${bubbles.length} bulle(s).\n\nCette action est irréversible.\n\nConfirmer la suppression ?`);
+    
+    if (confirmation) {
+        bubbles = [];
+        saveBubbles();
+        renderBubbles();
+    }
 });
 
 // === CRÉATION DE BULLES ===
