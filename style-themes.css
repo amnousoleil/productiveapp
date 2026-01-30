@@ -1,7 +1,47 @@
 /* =============================================
    PRODUCTIVEAPP - THEMES CSS
-   9 thèmes avec variables et glow
+   10 thèmes avec variables et glow
    ============================================= */
+
+/* =============================================
+   THEME: ACADEMIE 📚 (NOUVEAU)
+   Sobre, crème, professionnel, reposant
+   ============================================= */
+[data-theme="academie"] {
+    --bg-primary: #faf8f5;
+    --bg-secondary: #f5f2ed;
+    --bg-tertiary: #ebe7e0;
+    --bg-card: rgba(139, 119, 101, 0.08);
+    
+    --text: #3d3530;
+    --text-muted: #8b7765;
+    
+    --accent: #6b8f71;
+    --accent-light: #8bab91;
+    --accent-glow: rgba(107, 143, 113, 0.2);
+    
+    --success: #7a9f7a;
+    --success-glow: rgba(122, 159, 122, 0.2);
+    
+    --warning: #c9a86c;
+    --danger: #b56b6b;
+    
+    --border: rgba(139, 119, 101, 0.2);
+    --border-strong: rgba(139, 119, 101, 0.4);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(235, 231, 224, 0.8) 0%, rgba(245, 242, 237, 0.9) 100%);
+    --bubble-border: rgba(139, 119, 101, 0.3);
+    --bubble-glow: 0 4px 12px rgba(139, 119, 101, 0.1);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(201, 168, 108, 0.2) 0%, rgba(245, 242, 237, 0.8) 100%);
+    --bubble-inprogress-border: rgba(201, 168, 108, 0.5);
+    --bubble-inprogress-glow: 0 4px 16px rgba(201, 168, 108, 0.2);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(122, 159, 122, 0.15) 0%, rgba(245, 242, 237, 0.8) 100%);
+    --bubble-done-border: rgba(122, 159, 122, 0.4);
+    --bubble-done-glow: 0 4px 12px rgba(122, 159, 122, 0.15);
+    --bubble-done-text: #5a7a5a;
+}
 
 /* =============================================
    THEME: MATRIX 💚
@@ -38,7 +78,7 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(0, 180, 80, 0.25) 0%, rgba(0, 120, 60, 0.1) 100%);
     --bubble-done-border: rgba(0, 180, 80, 0.6);
-    --bubble-done-glow: 0 8px 32px rgba(0, 180, 80, 0.35), 0 0 48px rgba(0, 180, 80, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(0, 180, 80, 0.25), 0 0 30px rgba(0, 180, 80, 0.15);
     --bubble-done-text: #00ff66;
 }
 
@@ -77,7 +117,7 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 180, 100, 0.1) 100%);
     --bubble-done-border: rgba(0, 255, 136, 0.6);
-    --bubble-done-glow: 0 8px 32px rgba(0, 255, 136, 0.35), 0 0 48px rgba(0, 255, 136, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(0, 255, 136, 0.25), 0 0 30px rgba(0, 255, 136, 0.15);
     --bubble-done-text: #00ff88;
 }
 
@@ -116,7 +156,7 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(6, 214, 160, 0.3) 0%, rgba(6, 150, 120, 0.12) 100%);
     --bubble-done-border: rgba(6, 214, 160, 0.65);
-    --bubble-done-glow: 0 8px 35px rgba(6, 214, 160, 0.4), 0 0 50px rgba(6, 214, 160, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(6, 214, 160, 0.3), 0 0 30px rgba(6, 214, 160, 0.15);
     --bubble-done-text: #06d6a0;
 }
 
@@ -155,7 +195,7 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(139, 92, 246, 0.12) 100%);
     --bubble-done-border: rgba(168, 85, 247, 0.65);
-    --bubble-done-glow: 0 8px 35px rgba(168, 85, 247, 0.4), 0 0 50px rgba(168, 85, 247, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(168, 85, 247, 0.3), 0 0 30px rgba(168, 85, 247, 0.15);
     --bubble-done-text: #a855f7;
 }
 
@@ -186,15 +226,15 @@
     
     --bubble-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(180, 60, 20, 0.15) 100%);
     --bubble-border: rgba(249, 115, 22, 0.55);
-    --bubble-glow: 0 8px 35px rgba(249, 115, 22, 0.4), 0 0 50px rgba(251, 191, 36, 0.2);
+    --bubble-glow: 0 6px 25px rgba(249, 115, 22, 0.3), 0 0 40px rgba(251, 191, 36, 0.15);
     
     --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%);
     --bubble-inprogress-border: rgba(251, 191, 36, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(251, 191, 36, 0.5), 0 0 80px rgba(249, 115, 22, 0.3);
+    --bubble-inprogress-glow: 0 6px 35px rgba(251, 191, 36, 0.4), 0 0 60px rgba(249, 115, 22, 0.25);
     
     --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(200, 150, 30, 0.1) 100%);
     --bubble-done-border: rgba(251, 191, 36, 0.65);
-    --bubble-done-glow: 0 8px 35px rgba(251, 191, 36, 0.4), 0 0 50px rgba(251, 191, 36, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(251, 191, 36, 0.3), 0 0 30px rgba(251, 191, 36, 0.15);
     --bubble-done-text: #fbbf24;
 }
 
@@ -233,7 +273,7 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
     --bubble-done-border: rgba(34, 197, 94, 0.65);
-    --bubble-done-glow: 0 8px 35px rgba(34, 197, 94, 0.4), 0 0 50px rgba(34, 197, 94, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.15);
     --bubble-done-text: #22c55e;
 }
 
@@ -272,7 +312,7 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(168, 230, 207, 0.35) 0%, rgba(134, 239, 172, 0.15) 100%);
     --bubble-done-border: rgba(168, 230, 207, 0.7);
-    --bubble-done-glow: 0 8px 35px rgba(168, 230, 207, 0.4), 0 0 50px rgba(168, 230, 207, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(168, 230, 207, 0.3), 0 0 30px rgba(168, 230, 207, 0.15);
     --bubble-done-text: #86efac;
 }
 
@@ -311,6 +351,6 @@
     
     --bubble-done-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(79, 70, 229, 0.12) 100%);
     --bubble-done-border: rgba(99, 102, 241, 0.65);
-    --bubble-done-glow: 0 8px 35px rgba(99, 102, 241, 0.4), 0 0 50px rgba(99, 102, 241, 0.2);
+    --bubble-done-glow: 0 6px 20px rgba(99, 102, 241, 0.3), 0 0 30px rgba(99, 102, 241, 0.15);
     --bubble-done-text: #818cf8;
 }
