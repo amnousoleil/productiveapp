@@ -1,0 +1,316 @@
+/* =============================================
+   PRODUCTIVEAPP - THEMES CSS
+   9 thèmes avec variables et glow
+   ============================================= */
+
+/* =============================================
+   THEME: MATRIX 💚
+   ============================================= */
+[data-theme="matrix"] {
+    --bg-primary: #0a0f0a;
+    --bg-secondary: #0f1a0f;
+    --bg-tertiary: #152015;
+    --bg-card: rgba(0, 255, 102, 0.08);
+    
+    --text: #e0ffe0;
+    --text-muted: #70b070;
+    
+    --accent: #00ff66;
+    --accent-light: #4dff8d;
+    --accent-glow: rgba(0, 255, 102, 0.4);
+    
+    --success: #00cc52;
+    --success-glow: rgba(0, 204, 82, 0.4);
+    
+    --warning: #66ff00;
+    --danger: #ff3333;
+    
+    --border: rgba(0, 255, 102, 0.2);
+    --border-strong: rgba(0, 255, 102, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.2) 0%, rgba(0, 80, 40, 0.3) 100%);
+    --bubble-border: rgba(0, 255, 102, 0.5);
+    --bubble-glow: 0 8px 32px rgba(0, 255, 102, 0.3), 0 0 48px rgba(0, 255, 102, 0.15);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.35) 0%, rgba(0, 200, 80, 0.15) 100%);
+    --bubble-inprogress-border: rgba(0, 255, 102, 0.8);
+    --bubble-inprogress-glow: 0 8px 50px rgba(0, 255, 102, 0.5), 0 0 80px rgba(0, 255, 102, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(0, 180, 80, 0.25) 0%, rgba(0, 120, 60, 0.1) 100%);
+    --bubble-done-border: rgba(0, 180, 80, 0.6);
+    --bubble-done-glow: 0 8px 32px rgba(0, 180, 80, 0.35), 0 0 48px rgba(0, 180, 80, 0.2);
+    --bubble-done-text: #00ff66;
+}
+
+/* =============================================
+   THEME: HACKER 🖤
+   ============================================= */
+[data-theme="hacker"] {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-tertiary: #111111;
+    --bg-card: rgba(255, 215, 0, 0.08);
+    
+    --text: #ffffff;
+    --text-muted: #888888;
+    
+    --accent: #ffd700;
+    --accent-light: #ffe44d;
+    --accent-glow: rgba(255, 215, 0, 0.4);
+    
+    --success: #00ff88;
+    --success-glow: rgba(0, 255, 136, 0.4);
+    
+    --warning: #ffd700;
+    --danger: #ff3333;
+    
+    --border: rgba(255, 215, 0, 0.2);
+    --border-strong: rgba(255, 215, 0, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
+    --bubble-border: rgba(255, 215, 0, 0.5);
+    --bubble-glow: 0 8px 32px rgba(255, 215, 0, 0.3), 0 0 48px rgba(255, 215, 0, 0.15);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(200, 160, 0, 0.15) 100%);
+    --bubble-inprogress-border: rgba(255, 215, 0, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(255, 215, 0, 0.5), 0 0 100px rgba(255, 215, 0, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 180, 100, 0.1) 100%);
+    --bubble-done-border: rgba(0, 255, 136, 0.6);
+    --bubble-done-glow: 0 8px 32px rgba(0, 255, 136, 0.35), 0 0 48px rgba(0, 255, 136, 0.2);
+    --bubble-done-text: #00ff88;
+}
+
+/* =============================================
+   THEME: OCEAN 🌊
+   ============================================= */
+[data-theme="ocean"] {
+    --bg-primary: #03071e;
+    --bg-secondary: #023047;
+    --bg-tertiary: #0a4c6e;
+    --bg-card: rgba(0, 180, 216, 0.1);
+    
+    --text: #caf0f8;
+    --text-muted: #90e0ef;
+    
+    --accent: #00b4d8;
+    --accent-light: #48cae4;
+    --accent-glow: rgba(0, 180, 216, 0.4);
+    
+    --success: #06d6a0;
+    --success-glow: rgba(6, 214, 160, 0.4);
+    
+    --warning: #48cae4;
+    --danger: #ef476f;
+    
+    --border: rgba(0, 180, 216, 0.25);
+    --border-strong: rgba(0, 180, 216, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(0, 180, 216, 0.25) 0%, rgba(2, 48, 71, 0.35) 100%);
+    --bubble-border: rgba(0, 180, 216, 0.5);
+    --bubble-glow: 0 8px 32px rgba(0, 180, 216, 0.35), 0 0 48px rgba(72, 202, 228, 0.2);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(72, 202, 228, 0.35) 0%, rgba(0, 180, 216, 0.15) 100%);
+    --bubble-inprogress-border: rgba(72, 202, 228, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(72, 202, 228, 0.5), 0 0 80px rgba(0, 180, 216, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(6, 214, 160, 0.3) 0%, rgba(6, 150, 120, 0.12) 100%);
+    --bubble-done-border: rgba(6, 214, 160, 0.65);
+    --bubble-done-glow: 0 8px 35px rgba(6, 214, 160, 0.4), 0 0 50px rgba(6, 214, 160, 0.2);
+    --bubble-done-text: #06d6a0;
+}
+
+/* =============================================
+   THEME: FANTASY 🔮
+   ============================================= */
+[data-theme="fantasy"] {
+    --bg-primary: #0d0a12;
+    --bg-secondary: #15101f;
+    --bg-tertiary: #201830;
+    --bg-card: rgba(191, 107, 255, 0.1);
+    
+    --text: #f0e6ff;
+    --text-muted: #b8a0d0;
+    
+    --accent: #bf6bff;
+    --accent-light: #d08fff;
+    --accent-glow: rgba(191, 107, 255, 0.4);
+    
+    --success: #ff6bda;
+    --success-glow: rgba(255, 107, 218, 0.4);
+    
+    --warning: #ff9f6b;
+    --danger: #ff5555;
+    
+    --border: rgba(191, 107, 255, 0.25);
+    --border-strong: rgba(191, 107, 255, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(191, 107, 255, 0.25) 0%, rgba(100, 50, 150, 0.2) 100%);
+    --bubble-border: rgba(191, 107, 255, 0.5);
+    --bubble-glow: 0 8px 32px rgba(191, 107, 255, 0.35), 0 0 48px rgba(255, 107, 218, 0.2);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 107, 218, 0.35) 0%, rgba(191, 107, 255, 0.15) 100%);
+    --bubble-inprogress-border: rgba(255, 107, 218, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(255, 107, 218, 0.5), 0 0 80px rgba(191, 107, 255, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(139, 92, 246, 0.12) 100%);
+    --bubble-done-border: rgba(168, 85, 247, 0.65);
+    --bubble-done-glow: 0 8px 35px rgba(168, 85, 247, 0.4), 0 0 50px rgba(168, 85, 247, 0.2);
+    --bubble-done-text: #a855f7;
+}
+
+/* =============================================
+   THEME: SUNSET 🌅
+   ============================================= */
+[data-theme="sunset"] {
+    --bg-primary: #1a0a05;
+    --bg-secondary: #2d1810;
+    --bg-tertiary: #4a2515;
+    --bg-card: rgba(249, 115, 22, 0.12);
+    
+    --text: #fff5eb;
+    --text-muted: #e0a080;
+    
+    --accent: #f97316;
+    --accent-light: #fb923c;
+    --accent-glow: rgba(249, 115, 22, 0.45);
+    
+    --success: #fbbf24;
+    --success-glow: rgba(251, 191, 36, 0.4);
+    
+    --warning: #fbbf24;
+    --danger: #dc2626;
+    
+    --border: rgba(249, 115, 22, 0.25);
+    --border-strong: rgba(249, 115, 22, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(180, 60, 20, 0.15) 100%);
+    --bubble-border: rgba(249, 115, 22, 0.55);
+    --bubble-glow: 0 8px 35px rgba(249, 115, 22, 0.4), 0 0 50px rgba(251, 191, 36, 0.2);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%);
+    --bubble-inprogress-border: rgba(251, 191, 36, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(251, 191, 36, 0.5), 0 0 80px rgba(249, 115, 22, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(200, 150, 30, 0.1) 100%);
+    --bubble-done-border: rgba(251, 191, 36, 0.65);
+    --bubble-done-glow: 0 8px 35px rgba(251, 191, 36, 0.4), 0 0 50px rgba(251, 191, 36, 0.2);
+    --bubble-done-text: #fbbf24;
+}
+
+/* =============================================
+   THEME: FOREST 🌲
+   ============================================= */
+[data-theme="forest"] {
+    --bg-primary: #080c08;
+    --bg-secondary: #101810;
+    --bg-tertiary: #182518;
+    --bg-card: rgba(74, 222, 128, 0.1);
+    
+    --text: #e8f5e9;
+    --text-muted: #90b090;
+    
+    --accent: #4ade80;
+    --accent-light: #6ee7a0;
+    --accent-glow: rgba(74, 222, 128, 0.4);
+    
+    --success: #22c55e;
+    --success-glow: rgba(34, 197, 94, 0.4);
+    
+    --warning: #a3e635;
+    --danger: #ef4444;
+    
+    --border: rgba(74, 222, 128, 0.2);
+    --border-strong: rgba(74, 222, 128, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(30, 80, 40, 0.25) 100%);
+    --bubble-border: rgba(74, 222, 128, 0.5);
+    --bubble-glow: 0 8px 32px rgba(74, 222, 128, 0.3), 0 0 48px rgba(34, 197, 94, 0.15);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.35) 0%, rgba(74, 222, 128, 0.15) 100%);
+    --bubble-inprogress-border: rgba(163, 230, 53, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(163, 230, 53, 0.5), 0 0 80px rgba(74, 222, 128, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
+    --bubble-done-border: rgba(34, 197, 94, 0.65);
+    --bubble-done-glow: 0 8px 35px rgba(34, 197, 94, 0.4), 0 0 50px rgba(34, 197, 94, 0.2);
+    --bubble-done-text: #22c55e;
+}
+
+/* =============================================
+   THEME: BUBBLEGUM 🍬
+   ============================================= */
+[data-theme="bubblegum"] {
+    --bg-primary: #1a1018;
+    --bg-secondary: #2d1828;
+    --bg-tertiary: #3d2038;
+    --bg-card: rgba(255, 107, 157, 0.1);
+    
+    --text: #ffe8f5;
+    --text-muted: #d090b0;
+    
+    --accent: #ff6b9d;
+    --accent-light: #ff9ec4;
+    --accent-glow: rgba(255, 107, 157, 0.4);
+    
+    --success: #a8e6cf;
+    --success-glow: rgba(168, 230, 207, 0.4);
+    
+    --warning: #ffd93d;
+    --danger: #ff6b6b;
+    
+    --border: rgba(255, 107, 157, 0.25);
+    --border-strong: rgba(255, 107, 157, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(255, 107, 157, 0.25) 0%, rgba(150, 50, 90, 0.15) 100%);
+    --bubble-border: rgba(255, 107, 157, 0.5);
+    --bubble-glow: 0 8px 32px rgba(255, 107, 157, 0.35), 0 0 48px rgba(255, 158, 196, 0.2);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 158, 196, 0.4) 0%, rgba(255, 107, 157, 0.2) 100%);
+    --bubble-inprogress-border: rgba(255, 158, 196, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(255, 158, 196, 0.5), 0 0 80px rgba(255, 107, 157, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(168, 230, 207, 0.35) 0%, rgba(134, 239, 172, 0.15) 100%);
+    --bubble-done-border: rgba(168, 230, 207, 0.7);
+    --bubble-done-glow: 0 8px 35px rgba(168, 230, 207, 0.4), 0 0 50px rgba(168, 230, 207, 0.2);
+    --bubble-done-text: #86efac;
+}
+
+/* =============================================
+   THEME: MIDNIGHT 🌙
+   ============================================= */
+[data-theme="midnight"] {
+    --bg-primary: #0a0a12;
+    --bg-secondary: #12121f;
+    --bg-tertiary: #1a1a2e;
+    --bg-card: rgba(108, 143, 255, 0.1);
+    
+    --text: #e8eaff;
+    --text-muted: #8888bb;
+    
+    --accent: #6c8fff;
+    --accent-light: #8cacff;
+    --accent-glow: rgba(108, 143, 255, 0.4);
+    
+    --success: #818cf8;
+    --success-glow: rgba(129, 140, 248, 0.4);
+    
+    --warning: #a78bfa;
+    --danger: #ff6b8a;
+    
+    --border: rgba(108, 143, 255, 0.2);
+    --border-strong: rgba(108, 143, 255, 0.5);
+    
+    --bubble-bg: linear-gradient(135deg, rgba(108, 143, 255, 0.2) 0%, rgba(40, 50, 100, 0.25) 100%);
+    --bubble-border: rgba(108, 143, 255, 0.5);
+    --bubble-glow: 0 8px 32px rgba(108, 143, 255, 0.3), 0 0 48px rgba(140, 172, 255, 0.15);
+    
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(140, 172, 255, 0.35) 0%, rgba(108, 143, 255, 0.15) 100%);
+    --bubble-inprogress-border: rgba(140, 172, 255, 0.85);
+    --bubble-inprogress-glow: 0 8px 50px rgba(140, 172, 255, 0.5), 0 0 80px rgba(108, 143, 255, 0.3);
+    
+    --bubble-done-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(79, 70, 229, 0.12) 100%);
+    --bubble-done-border: rgba(99, 102, 241, 0.65);
+    --bubble-done-glow: 0 8px 35px rgba(99, 102, 241, 0.4), 0 0 50px rgba(99, 102, 241, 0.2);
+    --bubble-done-text: #818cf8;
+}
