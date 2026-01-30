@@ -35,40 +35,20 @@
         <div id="theme-modal" class="modal hidden">
             <div class="modal-content theme-modal-content">
                 <h3>✨ Choisis ton ambiance</h3>
-                <div class="theme-grid">
-                    <div class="theme-card" data-theme="desert">
-                        <div class="theme-preview desert-preview"></div>
-                        <span>🏜️ Désert</span>
-                    </div>
-                    <div class="theme-card" data-theme="matrix">
-                        <div class="theme-preview matrix-preview"></div>
-                        <span>💚 Matrix</span>
-                    </div>
-                    <div class="theme-card" data-theme="bubblegum">
-                        <div class="theme-preview bubblegum-preview"></div>
-                        <span>🍬 Bubblegum</span>
-                    </div>
-                    <div class="theme-card" data-theme="midnight">
-                        <div class="theme-preview midnight-preview"></div>
-                        <span>🌙 Midnight</span>
-                    </div>
-                    <div class="theme-card" data-theme="ocean">
-                        <div class="theme-preview ocean-preview"></div>
-                        <span>🌊 Océan</span>
-                    </div>
-                    <div class="theme-card" data-theme="fantasy">
-                        <div class="theme-preview fantasy-preview"></div>
-                        <span>🔮 Fantasy</span>
-                    </div>
-                    <div class="theme-card" data-theme="sunset">
-                        <div class="theme-preview sunset-preview"></div>
-                        <span>🌅 Sunset</span>
-                    </div>
-                    <div class="theme-card" data-theme="forest">
-                        <div class="theme-preview forest-preview"></div>
-                        <span>🌲 Forest</span>
+                <div class="theme-slider-container">
+                    <input type="range" id="theme-slider" min="0" max="7" value="0" class="theme-slider">
+                    <div class="theme-labels">
+                        <span>🏜️</span>
+                        <span>💚</span>
+                        <span>🍬</span>
+                        <span>🌙</span>
+                        <span>🌊</span>
+                        <span>🔮</span>
+                        <span>🌅</span>
+                        <span>🌲</span>
                     </div>
                 </div>
+                <div id="theme-name" class="theme-name">Désert</div>
                 <button id="theme-modal-close" class="modal-btn cancel">Fermer</button>
             </div>
         </div>
