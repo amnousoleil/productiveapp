@@ -21,18 +21,18 @@
 
 /* Theme: Matrix */
 [data-theme="matrix"] {
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #111111;
-    --bg-tertiary: #1a1a1a;
-    --text: #e0e0e0;
-    --text-muted: #888888;
-    --accent: #00d26a;
-    --accent-light: #00ff88;
-    --success: #1a8f4a;
-    --success-light: #25a55a;
+    --bg-primary: #0a1a0a;
+    --bg-secondary: #0f2a0f;
+    --bg-tertiary: #153515;
+    --text: #e0ffe0;
+    --text-muted: #80c080;
+    --accent: #00ff66;
+    --accent-light: #66ff99;
+    --success: #00cc55;
+    --success-light: #33ff77;
     --danger: #ff4444;
-    --card-bg: rgba(0, 210, 106, 0.08);
-    --border: rgba(0, 210, 106, 0.15);
+    --card-bg: rgba(0, 255, 102, 0.1);
+    --border: rgba(0, 255, 102, 0.2);
 }
 
 /* Theme: Bubblegum */
