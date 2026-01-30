@@ -551,15 +551,49 @@ function buildAIContext() {
     const today = new Date().toDateString();
     const todayJournal = journal.filter(e => new Date(e.date).toDateString() === today);
     
+    // Trier par priorité (urgent d'abord)
+    const urgentTasks = todo.filter(b => b.priority.level === 1);
+    const normalTasks = todo.filter(b => b.priority.level === 2);
+    const lowTasks = todo.filter(b => b.priority.level === 3);
+    
     let ctx = `=== EMPIRE DIGITAL GIRI ===\nUser: ${currentUser.name} (${currentUser.role})\nDate: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
     
+    // Résumé priorités
+    ctx += `=== PRIORITÉS ===\n`;
+    ctx += `🔥 URGENT: ${urgentTasks.length} tâches\n`;
+    ctx += `📋 Normal: ${normalTasks.length} tâches\n`;
+    ctx += `⬇️ Basse: ${lowTasks.length} tâches\n`;
+    ctx += `🔄 En cours: ${inProgress.length} tâches\n\n`;
+    
+    // Tâches urgentes en premier
+    if (urgentTasks.length) {
+        ctx += `🔥 TÂCHES URGENTES:\n`;
+        urgentTasks.forEach(b => {
+            const proj = projects.find(p => p.id === b.project);
+            ctx += `  - "${b.text}" (${proj?.name || 'Général'})\n`;
+        });
+        ctx += '\n';
+    }
+    
+    // Tâches en cours
+    if (inProgress.length) {
+        ctx += `🔄 EN COURS:\n`;
+        inProgress.forEach(b => {
+            const proj = projects.find(p => p.id === b.project);
+            ctx += `  - "${b.text}" (${proj?.name || 'Général'}) [${b.priority.label}]\n`;
+        });
+        ctx += '\n';
+    }
+    
+    // Par projet
     projects.forEach(p => {
         const pTodo = todo.filter(b => b.project === p.id);
-        const pInProg = inProgress.filter(b => b.project === p.id);
-        if (pTodo.length || pInProg.length) {
-            ctx += `\n📁 ${p.name} (${p.desc}):\n`;
-            if (pInProg.length) ctx += `  EN COURS: ${pInProg.map(b => b.text).join(', ')}\n`;
-            if (pTodo.length) ctx += `  À FAIRE: ${pTodo.map(b => `"${b.text}" [${b.priority.label}]`).join(', ')}\n`;
+        if (pTodo.length) {
+            ctx += `📁 ${p.name}:\n`;
+            pTodo.forEach(b => {
+                const priorityIcon = b.priority.level === 1 ? '🔥' : b.priority.level === 3 ? '⬇️' : '📋';
+                ctx += `  ${priorityIcon} "${b.text}" [${b.priority.label}]\n`;
+            });
         }
     });
     
