@@ -137,6 +137,29 @@ body {
     min-height: 100vh;
     color: var(--text);
     padding: 20px;
+    position: relative;
+}
+
+/* Matrix Rain Effect */
+#matrix-bg {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.15;
+}
+
+[data-theme="matrix"] #matrix-bg {
+    display: block;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
 }
 
 .container {
