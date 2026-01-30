@@ -462,31 +462,33 @@ function drawSunsetGlow() {
     }
     matrixCtx.restore();
     
-    // Oiseaux
-    if (particles.length < 5 && Math.random() > 0.98) {
+    // Nuages qui passent doucement
+    if (particles.length < 4 && Math.random() > 0.995) {
         particles.push({
-            x: -50,
-            y: Math.random() * matrixCanvas.height * 0.5,
-            speed: Math.random() * 1.5 + 1,
-            wingPhase: Math.random() * Math.PI * 2
+            x: -200,
+            y: Math.random() * matrixCanvas.height * 0.4 + 50,
+            speed: Math.random() * 0.3 + 0.2,
+            width: Math.random() * 150 + 100,
+            height: Math.random() * 40 + 30
         });
     }
     
-    particles = particles.filter(p => p.x < matrixCanvas.width + 50);
+    particles = particles.filter(p => p.x < matrixCanvas.width + 250);
     
     particles.forEach(p => {
         p.x += p.speed;
-        p.y += Math.sin(p.x / 50) * 0.5;
-        p.wingPhase += 0.15;
         
-        // Dessiner un oiseau blanc
-        matrixCtx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-        matrixCtx.lineWidth = 2;
+        // Dessiner un nuage doux
+        matrixCtx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         matrixCtx.beginPath();
-        const wingY = Math.sin(p.wingPhase) * 5;
-        matrixCtx.moveTo(p.x - 12, p.y + wingY);
-        matrixCtx.quadraticCurveTo(p.x, p.y - 4, p.x + 12, p.y + wingY);
-        matrixCtx.stroke();
+        matrixCtx.ellipse(p.x, p.y, p.width * 0.5, p.height * 0.5, 0, 0, Math.PI * 2);
+        matrixCtx.fill();
+        matrixCtx.beginPath();
+        matrixCtx.ellipse(p.x - p.width * 0.3, p.y + 10, p.width * 0.35, p.height * 0.4, 0, 0, Math.PI * 2);
+        matrixCtx.fill();
+        matrixCtx.beginPath();
+        matrixCtx.ellipse(p.x + p.width * 0.3, p.y + 5, p.width * 0.4, p.height * 0.45, 0, 0, Math.PI * 2);
+        matrixCtx.fill();
     });
 }
 
