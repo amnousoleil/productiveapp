@@ -28,8 +28,9 @@ const DEFAULT_PROJECTS = [
     { id: 'general', name: 'Général', icon: '📋', color: '#a89078', desc: 'Tâches diverses' }
 ];
 
-// === THÈMES ===
+// === THÈMES (10 thèmes) ===
 const THEMES = [
+    { id: 'academie', name: '📚 Académie' },
     { id: 'desert', name: '🏜️ Désert' },
     { id: 'matrix', name: '💚 Matrix' },
     { id: 'bubblegum', name: '🍬 Bubblegum' },
@@ -49,7 +50,9 @@ let projects = JSON.parse(localStorage.getItem('projects_v3')) || DEFAULT_PROJEC
 
 let activeProjectFilter = 'all';
 let activeUserFilter = 'all';
-let viewMode = localStorage.getItem('viewMode') || 'columns'; // 'columns' ou 'bubbles'
+let viewMode = localStorage.getItem('viewMode') || 'columns';
+let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
+let lastReportData = null;
 
 // === DOM ELEMENTS ===
 const $ = id => document.getElementById(id);
@@ -126,24 +129,19 @@ function checkExistingSession() {
 // =============================================
 
 function initApp() {
-    // Update user badge
     $('current-user-badge').innerHTML = `
         <span class="user-avatar">${currentUser.avatar}</span>
         <span class="user-name">${currentUser.name}</span>
     `;
     
-    // Load settings
     loadTheme();
     loadViewMode();
-    
-    // Render UI
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
     renderTasks();
     renderJournal();
     
-    // Start animations
     setTimeout(() => {
         if (typeof initAnimation === 'function') initAnimation();
     }, 100);
@@ -163,14 +161,13 @@ function setTheme(themeId) {
     }
     localStorage.setItem('theme', themeId);
     
-    // Reset animations pour le nouveau thème
     if (typeof resetAnimationForTheme === 'function') {
         resetAnimationForTheme();
     }
 }
 
 function loadTheme() {
-    const saved = localStorage.getItem('theme') || 'desert';
+    const saved = localStorage.getItem('theme') || 'academie';
     setTheme(saved);
     
     const idx = THEMES.findIndex(t => t.id === saved);
@@ -235,7 +232,6 @@ function renderProjectsFilter() {
         </button>
     `).join('');
     
-    // Event listeners
     document.querySelectorAll('.project-chip').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.project-chip').forEach(b => b.classList.remove('active'));
@@ -293,6 +289,7 @@ async function sendToN8N(type, data) {
         console.error('N8N Error:', e);
     }
 }
+
 // =============================================
 // TÂCHES
 // =============================================
@@ -373,13 +370,13 @@ function renderTaskHTML(task) {
     const isOwn = task.userId === currentUser.id;
     
     return `
-        <div class="task-bubble ${task.status}" data-id="${task.id}">
-            <div class="task-header">
+        <div class="bubble ${task.status}" data-id="${task.id}">
+            <div class="bubble-header">
                 <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon} ${project.name}</span>
                 <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
                 ${!isOwn ? `<span class="task-user">${task.userName}</span>` : ''}
             </div>
-            <div class="task-text">${escapeHtml(task.text)}</div>
+            <div class="bubble-text">${escapeHtml(task.text)}</div>
             <div class="task-actions">
                 ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
                 ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅ Terminé</button>` : ''}
@@ -397,7 +394,7 @@ function attachTaskEvents() {
         
         newBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const taskEl = newBtn.closest('.task-bubble');
+            const taskEl = newBtn.closest('.bubble');
             if (!taskEl) return;
             
             const taskId = Number(taskEl.dataset.id);
@@ -434,7 +431,7 @@ function handleTaskAction(taskId, action) {
 }
 
 // =============================================
-// JOURNAL AMÉLIORÉ
+// JOURNAL
 // =============================================
 
 function addJournalEntry(category, text, energy) {
@@ -450,6 +447,14 @@ function addJournalEntry(category, text, energy) {
     });
     saveJournal();
     renderJournal();
+}
+
+function createJournalEntry() {
+    const text = $('journal-input').value.trim();
+    if (text) {
+        addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
+        $('journal-input').value = '';
+    }
 }
 
 function renderJournal() {
@@ -497,7 +502,18 @@ function renderJournal() {
 // CHATBOT IA
 // =============================================
 
-let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
+function toggleChatbot() {
+    $('chatbot-window').classList.toggle('hidden');
+    if (!$('chatbot-window').classList.contains('hidden')) {
+        $('chatbot-input').focus();
+    }
+}
+
+function toggleChatbotSize() {
+    chatbotLarge = !chatbotLarge;
+    localStorage.setItem('chatbot-large', chatbotLarge);
+    $('chatbot-window').classList.toggle('large', chatbotLarge);
+}
 
 async function sendChatMessage() {
     const message = $('chatbot-input').value.trim();
@@ -602,211 +618,9 @@ function addChatMsg(text, cls) {
 // RAPPORT
 // =============================================
 
-let lastReport = null;
-
 async function generateReport() {
     $('report-content').innerHTML = '<p style="color:var(--text-muted)">🔮 Génération...</p>';
     $('download-pdf-btn').classList.add('hidden');
-    
-    const today = new Date().toDateString();
-    const todayDone = tasks.filter(t => t.status === 'done' && t.completedAt && new Date(t.completedAt).toDateString() === today);
-    const todo = tasks.filter(t => t.status === 'todo');
-    const inProg = tasks.filter(t => t.status === 'inprogress');
-    
-    const metrics = { todo: todo.length, inProg: inProg.length, done: todayDone.length };
-    
-    try {
-        const response = await fetch(CHATBOT_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: 'Génère un rapport concis: synthèse, accomplissements, recommandations.',
-                context: buildAIContext(),
-                user: currentUser.name,
-                type: 'report'
-            })
-        });
-        
-        let ai = await response.text();
-        try { const j = JSON.parse(ai); ai = j.response || j.text || ai; } catch(e) {}
-        ai = ai.replace(/ACTION:[A-Z]+\|[^\n]*/g, '').trim();
-        
-        lastReport = { metrics, ai, date: new Date() };
-        showReport(metrics, ai);
-        $('download-pdf-btn').classList.remove('hidden');
-    } catch(e) {
-        showReport(metrics, null);
-    }
-}
-
-function showReport(m, ai) {
-    $('report-content').innerHTML = `
-        <h3>📊 Rapport - ${new Date().toLocaleDateString('fr-FR')}</h3>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:15px 0">
-            <div style="background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
-                <div style="font-size:1.5rem;font-weight:bold;color:var(--accent)">${m.todo}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted)">À faire</div>
-            </div>
-            <div style="background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
-                <div style="font-size:1.5rem;font-weight:bold;color:var(--warning)">${m.inProg}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted)">En cours</div>
-            </div>
-            <div style="background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
-                <div style="font-size:1.5rem;font-weight:bold;color:var(--success)">${m.done}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted)">Terminées</div>
-            </div>
-        </div>
-        ${ai ? `<div style="background:var(--bg-card);padding:15px;border-radius:12px;border-left:3px solid var(--accent);white-space:pre-wrap;line-height:1.6">${escapeHtml(ai)}</div>` : ''}
-    `;
-}
-
-function downloadPDF() {
-    if (!lastReport) return alert('Génère un rapport d\'abord');
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const w = doc.internal.pageSize.getWidth();
-    
-    doc.setFillColor(224, 120, 64);
-    doc.rect(0, 0, w, 25, 'F');
-    doc.setTextColor(255);
-    doc.setFontSize(14);
-    doc.text('RAPPORT DIGITAL GIRI', w/2, 15, { align: 'center' });
-    
-    let y = 40;
-    doc.setTextColor(0);
-    doc.setFontSize(10);
-    doc.text(`Date: ${lastReport.date.toLocaleDateString('fr-FR')}`, 20, y);
-    y += 10;
-    doc.text(`À faire: ${lastReport.metrics.todo} | En cours: ${lastReport.metrics.inProg} | Terminées: ${lastReport.metrics.done}`, 20, y);
-    y += 15;
-    
-    if (lastReport.ai) {
-        doc.setFontSize(9);
-        doc.splitTextToSize(lastReport.ai, w - 40).forEach(line => {
-            if (y > 280) { doc.addPage(); y = 20; }
-            doc.text(line, 20, y);
-            y += 5;
-        });
-    }
-    
-    doc.save(`rapport_${lastReport.date.toLocaleDateString('fr-FR').replace(/\//g, '-')}.pdf`);
-}
-
-// =============================================
-// EVENT LISTENERS
-// =============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 ProductiveApp starting...');
-    
-    renderUserSelect();
-    $('login-btn').addEventListener('click', attemptLogin);
-    $('login-password').addEventListener('keypress', e => { if (e.key === 'Enter') attemptLogin(); });
-    $('back-btn').addEventListener('click', () => {
-        $('user-select-grid').classList.remove('hidden');
-        $('password-form').classList.add('hidden');
-        $('login-error').textContent = '';
-        currentUser = null;
-    });
-    $('logout-btn').addEventListener('click', logout);
-    
-    $('add-task-btn').addEventListener('click', createTask);
-    $('task-input').addEventListener('keypress', e => { if (e.key === 'Enter') createTask(); });
-    
-    $('view-toggle-btn').addEventListener('click', toggleViewMode);
-    
-    $('theme-btn').addEventListener('click', () => $('theme-modal').classList.remove('hidden'));
-    $('close-theme-modal').addEventListener('click', () => $('theme-modal').classList.add('hidden'));
-    $('theme-modal').addEventListener('click', e => { if (e.target.id === 'theme-modal') $('theme-modal').classList.add('hidden'); });
-    $('theme-slider').addEventListener('input', () => {
-        const theme = THEMES[parseInt($('theme-slider').value)];
-        setTheme(theme.id);
-        $('theme-name').textContent = theme.name;
-    });
-    
-    $('add-project-btn').addEventListener('click', () => $('project-modal').classList.remove('hidden'));
-    $('cancel-project').addEventListener('click', () => {
-        $('project-modal').classList.add('hidden');
-        $('new-project-name').value = '';
-        $('new-project-desc').value = '';
-    });
-    $('confirm-project').addEventListener('click', () => {
-        const name = $('new-project-name').value.trim();
-        const desc = $('new-project-desc').value.trim();
-        if (!name) return;
-        
-        const icons = ['📁', '🎯', '💡', '🚀', '⭐', '🔥', '💎', '🌟'];
-        const colors = ['#e07840', '#00ff66', '#ff6b9d', '#6c8fff', '#00b4d8', '#bf6bff', '#f97316', '#4ade80'];
-        
-        projects.push({
-            id: 'proj_' + Date.now(),
-            name: name,
-            icon: icons[Math.floor(Math.random() * icons.length)],
-            color: colors[Math.floor(Math.random() * colors.length)],
-            desc: desc || name
-        });
-        
-        saveProjects();
-        renderProjectsFilter();
-        renderProjectSelect();
-        $('project-modal').classList.add('hidden');
-        $('new-project-name').value = '';
-        $('new-project-desc').value = '';
-    });
-    $('project-modal').addEventListener('click', e => { if (e.target.id === 'project-modal') $('project-modal').classList.add('hidden'); });
-    
-    $('user-filter-select').addEventListener('change', () => {
-        activeUserFilter = $('user-filter-select').value;
-        renderTasks();
-        renderJournal();
-    });
-    
-    $('add-journal-btn').addEventListener('click', () => {
-        const text = $('journal-input').value.trim();
-        if (text) {
-            addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
-            $('journal-input').value = '';
-        }
-    });
-    $('journal-input').addEventListener('keypress', e => {
-        if (e.key === 'Enter') {
-            const text = $('journal-input').value.trim();
-            if (text) {
-                addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
-                $('journal-input').value = '';
-            }
-        }
-    });
-    
-    $('generate-report-btn').addEventListener('click', generateReport);
-    $('download-pdf-btn').addEventListener('click', downloadPDF);
-    
-    $('chatbot-toggle').addEventListener('click', () => {
-        $('chatbot-window').classList.toggle('hidden');
-        if (!$('chatbot-window').classList.contains('hidden')) $('chatbot-input').focus();
-    });
-    $('chatbot-close').addEventListener('click', () => $('chatbot-window').classList.add('hidden'));
-    $('chatbot-resize').addEventListener('click', () => {
-        chatbotLarge = !chatbotLarge;
-        localStorage.setItem('chatbot-large', chatbotLarge);
-        $('chatbot-window').classList.toggle('large', chatbotLarge);
-    });
-    $('chatbot-send').addEventListener('click', sendChatMessage);
-    $('chatbot-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendChatMessage(); });
-    
-    checkExistingSession();
-    
-    console.log('✅ ProductiveApp ready!');
-});
-
-// =============================================
-// RAPPORT
-// =============================================
-
-var lastReportData = null;
-
-async function generateReport() {
-    $('report-content').innerHTML = '<p style="color:var(--text-muted)">🔮 Génération...</p>';
     
     try {
         const response = await fetch(CHATBOT_WEBHOOK_URL, {
@@ -838,23 +652,24 @@ function showReport(ai) {
     const todayStr = new Date().toDateString();
     const done = tasks.filter(t => t.status === 'done' && t.completedAt && new Date(t.completedAt).toDateString() === todayStr).length;
     
-    $('report-content').innerHTML = 
-        '<h3>📊 Rapport - ' + new Date().toLocaleDateString('fr-FR') + '</h3>' +
-        '<div style="display:flex;gap:16px;margin:16px 0">' +
-            '<div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">' +
-                '<div style="font-size:1.5rem;font-weight:bold;color:var(--accent)">' + todo + '</div>' +
-                '<div style="font-size:0.75rem;color:var(--text-muted)">À faire</div>' +
-            '</div>' +
-            '<div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">' +
-                '<div style="font-size:1.5rem;font-weight:bold;color:var(--warning)">' + inProg + '</div>' +
-                '<div style="font-size:0.75rem;color:var(--text-muted)">En cours</div>' +
-            '</div>' +
-            '<div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">' +
-                '<div style="font-size:1.5rem;font-weight:bold;color:var(--success)">' + done + '</div>' +
-                '<div style="font-size:0.75rem;color:var(--text-muted)">Terminées</div>' +
-            '</div>' +
-        '</div>' +
-        (ai ? '<div style="background:var(--bg-card);padding:16px;border-radius:12px;border-left:3px solid var(--accent);white-space:pre-wrap;line-height:1.6">' + escapeHtml(ai) + '</div>' : '');
+    $('report-content').innerHTML = `
+        <h3>📊 Rapport - ${new Date().toLocaleDateString('fr-FR')}</h3>
+        <div style="display:flex;gap:16px;margin:16px 0">
+            <div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
+                <div style="font-size:1.5rem;font-weight:bold;color:var(--accent)">${todo}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">À faire</div>
+            </div>
+            <div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
+                <div style="font-size:1.5rem;font-weight:bold;color:var(--warning)">${inProg}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">En cours</div>
+            </div>
+            <div style="flex:1;background:var(--bg-card);padding:12px;border-radius:12px;text-align:center">
+                <div style="font-size:1.5rem;font-weight:bold;color:var(--success)">${done}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">Terminées</div>
+            </div>
+        </div>
+        ${ai ? `<div style="background:var(--bg-card);padding:16px;border-radius:12px;border-left:3px solid var(--accent);white-space:pre-wrap;line-height:1.6">${escapeHtml(ai)}</div>` : ''}
+    `;
 }
 
 function downloadPDF() {
