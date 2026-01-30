@@ -871,53 +871,200 @@ function renderJournal() {
     });
 }
 
-// === RÉSUMÉ DU JOUR (avec IA) ===
+// === REPORTING PRO (avec IA + PDF) ===
 generateSummaryBtn.addEventListener('click', generateSummary);
 
-async function generateSummary() {
+const downloadPdfBtn = document.getElementById('download-pdf');
+let lastSummaryData = null;
+
+downloadPdfBtn.addEventListener('click', downloadSummaryPDF);
+
+// Calculer les métriques
+function calculateMetrics() {
+    const today = new Date().toDateString();
+    const thisWeek = getWeekDates();
+    
     const todoBubblesList = bubbles.filter(b => !b.done);
     const doneBubblesList = bubbles.filter(b => b.done);
-    const today = new Date().toDateString();
-    const todayEntries = journal.filter(e => new Date(e.date).toDateString() === today);
     const completedToday = doneBubblesList.filter(b => b.completedAt && new Date(b.completedAt).toDateString() === today);
+    const completedThisWeek = doneBubblesList.filter(b => b.completedAt && isInWeek(new Date(b.completedAt), thisWeek));
+    const createdToday = bubbles.filter(b => new Date(b.createdAt).toDateString() === today);
     
+    const todayEntries = journal.filter(e => new Date(e.date).toDateString() === today);
+    
+    // Répartition par projet
+    const projectStats = {};
+    bubbles.forEach(b => {
+        const proj = b.project || 'Général';
+        if (!projectStats[proj]) {
+            projectStats[proj] = { total: 0, done: 0, pending: 0, urgent: 0 };
+        }
+        projectStats[proj].total++;
+        if (b.done) {
+            projectStats[proj].done++;
+        } else {
+            projectStats[proj].pending++;
+            if (b.priority.level === 1) projectStats[proj].urgent++;
+        }
+    });
+    
+    // Répartition par priorité
+    const priorityStats = {
+        urgent: todoBubblesList.filter(b => b.priority.level === 1).length,
+        normal: todoBubblesList.filter(b => b.priority.level === 2).length,
+        low: todoBubblesList.filter(b => b.priority.level === 3).length
+    };
+    
+    // Taux de complétion
+    const totalTasks = bubbles.length;
+    const completionRate = totalTasks > 0 ? Math.round((doneBubblesList.length / totalTasks) * 100) : 0;
+    
+    // Tâches par jour cette semaine
+    const weeklyProgress = [];
+    const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(thisWeek.start);
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toDateString();
+        const completed = doneBubblesList.filter(b => 
+            b.completedAt && new Date(b.completedAt).toDateString() === dateStr
+        ).length;
+        const created = bubbles.filter(b => 
+            new Date(b.createdAt).toDateString() === dateStr
+        ).length;
+        weeklyProgress.push({
+            day: dayNames[date.getDay()],
+            date: date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+            completed,
+            created,
+            isToday: dateStr === today
+        });
+    }
+    
+    return {
+        today: {
+            date: new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+            created: createdToday.length,
+            completed: completedToday.length,
+            pending: todoBubblesList.length,
+            journalEntries: todayEntries.length
+        },
+        overall: {
+            total: totalTasks,
+            done: doneBubblesList.length,
+            pending: todoBubblesList.length,
+            completionRate
+        },
+        priority: priorityStats,
+        projects: projectStats,
+        weeklyProgress,
+        journal: todayEntries,
+        pendingTasks: todoBubblesList,
+        completedTasks: completedToday,
+        allCompletedTasks: doneBubblesList
+    };
+}
+
+function getWeekDates() {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const start = new Date(now);
+    start.setDate(now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); // Lundi
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(start);
+    end.setDate(start.getDate() + 6); // Dimanche
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+}
+
+function isInWeek(date, week) {
+    return date >= week.start && date <= week.end;
+}
+
+async function generateSummary() {
     // Afficher le loading
-    dailySummary.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">🔮 L'IA analyse ta journée...</p>`;
+    dailySummary.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">🔮 Génération du rapport en cours...</p>`;
     dailySummary.classList.add('visible');
+    downloadPdfBtn.style.display = 'none';
+    
+    // Calculer toutes les métriques
+    const metrics = calculateMetrics();
+    
+    console.log('📊 Métriques calculées:', metrics);
     
     // Si aucune activité du tout
-    if (todayEntries.length === 0 && completedToday.length === 0 && todoBubblesList.length === 0) {
+    if (metrics.overall.total === 0 && metrics.journal.length === 0) {
         dailySummary.innerHTML = `
-            <h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
-            <p>Aucune activité enregistrée aujourd'hui. Ajoute des tâches ou note ce que tu fais dans le journal !</p>
+            <h3>📊 Rapport du ${metrics.today.date}</h3>
+            <p>Aucune activité enregistrée. Commence par ajouter des tâches !</p>
         `;
         return;
     }
     
     try {
-        // Préparer le contexte pour l'IA
+        // Préparer le contexte détaillé pour l'IA
         const context = `
-DATE: ${new Date().toLocaleDateString('fr-FR')}
+=== RAPPORT DE PRODUCTIVITÉ ===
+Date: ${metrics.today.date}
 
-JOURNAL DU JOUR (ce que l'utilisateur a noté avoir fait) :
-${todayEntries.map(e => `- ${e.time}: ${e.text}`).join('\n') || 'Rien noté encore'}
+📈 MÉTRIQUES DU JOUR:
+- Tâches créées aujourd'hui: ${metrics.today.created}
+- Tâches terminées aujourd'hui: ${metrics.today.completed}
+- Tâches en attente: ${metrics.today.pending}
+- Entrées journal: ${metrics.today.journalEntries}
 
-TÂCHES TERMINÉES AUJOURD'HUI :
-${completedToday.map(b => `- "${b.text}" (projet: ${b.project})`).join('\n') || 'Aucune'}
+📊 MÉTRIQUES GLOBALES:
+- Total tâches: ${metrics.overall.total}
+- Terminées: ${metrics.overall.done}
+- En attente: ${metrics.overall.pending}
+- Taux de complétion: ${metrics.overall.completionRate}%
 
-TÂCHES ENCORE À FAIRE :
-${todoBubblesList.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n') || 'Aucune - tout est fait !'}
+🚨 PAR PRIORITÉ (en attente):
+- Urgent: ${metrics.priority.urgent}
+- Normal: ${metrics.priority.normal}
+- Basse: ${metrics.priority.low}
+
+📁 PAR PROJET:
+${Object.entries(metrics.projects).map(([proj, stats]) => 
+    `- ${proj}: ${stats.done}/${stats.total} (${stats.pending} en attente${stats.urgent > 0 ? `, ${stats.urgent} urgent(s)` : ''})`
+).join('\n')}
+
+📅 PROGRESSION SEMAINE:
+${metrics.weeklyProgress.map(d => `- ${d.day} ${d.date}: ${d.completed} terminée(s), ${d.created} créée(s)${d.isToday ? ' (AUJOURD\'HUI)' : ''}`).join('\n')}
+
+📝 JOURNAL DU JOUR:
+${metrics.journal.map(e => `- ${e.time}: ${e.text}`).join('\n') || 'Aucune entrée'}
+
+✅ TÂCHES TERMINÉES AUJOURD'HUI:
+${metrics.completedTasks.map(b => `- ${b.text} (${b.project})`).join('\n') || 'Aucune'}
+
+⏳ TÂCHES EN ATTENTE:
+${metrics.pendingTasks.map(b => `- [${b.priority.label}] ${b.text} (${b.project})`).join('\n') || 'Aucune'}
         `.trim();
         
-        const prompt = `Fais-moi un RÉSUMÉ CLAIR de ma journée basé sur le contexte ci-dessus.
+        const prompt = `Tu es un assistant de direction qui analyse la productivité. Génère une ANALYSE STRATÉGIQUE basée sur ces données.
 
-Structure ton résumé ainsi :
-1. **Ce qui a été accompli** : Liste narrative de tout ce qui a été fait (journal + tâches terminées)
-2. **Ce qu'il reste à faire** : Les tâches en cours, par ordre de priorité (si il y en a)
-3. **Bilan** : Une phrase de conclusion (encourageante si productif, motivante si peu fait)
+FORMAT REQUIS (respecte exactement ces sections):
 
-Sois concis mais complet. Utilise un ton positif et des emojis avec parcimonie.
-Ne dis pas "selon le contexte" ou "d'après les données", parle directement.`;
+📋 SYNTHÈSE EXÉCUTIVE
+(2-3 phrases résumant la journée/situation globale)
+
+🎯 ACCOMPLISSEMENTS DU JOUR
+(Liste à puces des réalisations concrètes basées sur le journal et tâches terminées)
+
+⚠️ POINTS D'ATTENTION
+(Tâches urgentes, retards potentiels, déséquilibres entre projets)
+
+📊 ANALYSE PAR PROJET
+(Pour chaque projet actif: statut, charge, recommandation)
+
+💡 RECOMMANDATIONS
+(3 actions prioritaires pour demain, basées sur les données)
+
+📈 TENDANCE
+(La productivité est-elle en hausse/baisse cette semaine ? Pourquoi ?)
+
+Sois factuel, précis et orienté action. Pas de blabla, que du concret utile pour un dirigeant.`;
 
         // Appel au webhook chatbot
         const response = await fetch(CHATBOT_WEBHOOK_URL, {
@@ -927,7 +1074,7 @@ Ne dis pas "selon le contexte" ou "d'après les données", parle directement.`;
                 message: prompt,
                 context: context,
                 user: CURRENT_USER,
-                type: 'summary'
+                type: 'report'
             })
         });
         
@@ -939,49 +1086,418 @@ Ne dis pas "selon le contexte" ou "d'après les données", parle directement.`;
             const jsonData = JSON.parse(data);
             aiResponse = jsonData.response || jsonData.text || jsonData.output || data;
         } catch (e) {
-            // Si ce n'est pas du JSON, utiliser la réponse brute
+            // Pas du JSON, utiliser tel quel
         }
         
-        // Nettoyer la réponse des éventuelles actions
+        // Nettoyer la réponse
         aiResponse = aiResponse.replace(/ACTION:(CREATE|DELETE|DONE|CLEAR_DONE)\|?[^\n]*/g, '').trim();
         
-        // Afficher le résumé IA
-        dailySummary.innerHTML = `
-            <h3>🔮 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
-            <div style="white-space: pre-wrap; line-height: 1.8;">${escapeHtml(aiResponse)}</div>
-        `;
-        
-        // Sauvegarde dans l'historique
-        const summaryData = {
-            date: new Date().toISOString(),
-            entries: todayEntries,
-            completedBubbles: completedToday,
-            aiSummary: aiResponse
+        // Stocker pour le PDF
+        lastSummaryData = {
+            date: metrics.today.date,
+            dateShort: new Date().toLocaleDateString('fr-FR'),
+            metrics: metrics,
+            aiAnalysis: aiResponse,
+            generatedAt: new Date().toISOString()
         };
-        history.push(summaryData);
+        
+        // Afficher le rapport
+        displayReport(metrics, aiResponse);
+        
+        // Afficher le bouton PDF
+        downloadPdfBtn.style.display = 'inline-block';
+        
+        // Sauvegarder dans l'historique
+        history.push(lastSummaryData);
         localStorage.setItem('history', JSON.stringify(history));
         
     } catch (error) {
-        console.error('Erreur résumé IA:', error);
+        console.error('Erreur rapport IA:', error);
         
-        // Fallback vers résumé simple
-        dailySummary.innerHTML = `
-            <h3>📊 Résumé du ${new Date().toLocaleDateString('fr-FR')}</h3>
-            <p>⚠️ L'IA n'a pas pu répondre. Voici ce qui a été noté :</p>
-            ${todayEntries.length > 0 ? `
-                <p><strong>Journal :</strong></p>
-                <ul style="margin-left: 20px;">
-                    ${todayEntries.map(e => `<li>${e.time} - ${escapeHtml(e.text)}</li>`).join('')}
-                </ul>
-            ` : '<p>Rien dans le journal aujourd\'hui.</p>'}
-            ${completedToday.length > 0 ? `
-                <p><strong>Tâches terminées :</strong></p>
-                <ul style="margin-left: 20px;">
-                    ${completedToday.map(b => `<li>${escapeHtml(b.text)}</li>`).join('')}
-                </ul>
-            ` : ''}
-        `;
+        // Fallback sans IA
+        lastSummaryData = {
+            date: metrics.today.date,
+            dateShort: new Date().toLocaleDateString('fr-FR'),
+            metrics: metrics,
+            aiAnalysis: null,
+            generatedAt: new Date().toISOString()
+        };
+        
+        displayReport(metrics, null);
+        downloadPdfBtn.style.display = 'inline-block';
     }
+}
+
+function displayReport(metrics, aiAnalysis) {
+    // Générer les barres de progression par projet
+    const projectBars = Object.entries(metrics.projects).map(([proj, stats]) => {
+        const percent = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
+        return `
+            <div style="margin-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
+                    <span>${proj}</span>
+                    <span>${stats.done}/${stats.total} (${percent}%)</span>
+                </div>
+                <div style="background: var(--bg-tertiary); border-radius: 10px; height: 8px; overflow: hidden;">
+                    <div style="background: linear-gradient(90deg, var(--accent), var(--accent-light)); width: ${percent}%; height: 100%; border-radius: 10px;"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Générer la mini-chart de la semaine
+    const maxDaily = Math.max(...metrics.weeklyProgress.map(d => Math.max(d.completed, d.created)), 1);
+    const weekChart = metrics.weeklyProgress.map(d => {
+        const completedHeight = (d.completed / maxDaily) * 40;
+        const createdHeight = (d.created / maxDaily) * 40;
+        return `
+            <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                <div style="display: flex; gap: 2px; align-items: flex-end; height: 45px;">
+                    <div style="width: 8px; background: var(--success); border-radius: 2px; height: ${completedHeight}px;" title="Terminées: ${d.completed}"></div>
+                    <div style="width: 8px; background: var(--accent); border-radius: 2px; height: ${createdHeight}px;" title="Créées: ${d.created}"></div>
+                </div>
+                <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; ${d.isToday ? 'font-weight: bold; color: var(--accent);' : ''}">${d.day}</span>
+            </div>
+        `;
+    }).join('');
+    
+    dailySummary.innerHTML = `
+        <div style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 5px;">📊 Rapport de Productivité</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">${metrics.today.date}</p>
+        </div>
+        
+        <!-- Métriques clés -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+            <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent);">${metrics.today.completed}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Terminées aujourd'hui</div>
+            </div>
+            <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: var(--text);">${metrics.overall.pending}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">En attente</div>
+            </div>
+            <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: ${metrics.priority.urgent > 0 ? 'var(--danger)' : 'var(--success)'};">${metrics.priority.urgent}</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Urgentes</div>
+            </div>
+            <div style="background: var(--card-bg); padding: 12px; border-radius: 12px; text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);">${metrics.overall.completionRate}%</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Complétion</div>
+            </div>
+        </div>
+        
+        <!-- Progression semaine -->
+        <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin-bottom: 10px; font-size: 0.9rem;">📅 Cette semaine</h4>
+            <div style="display: flex; justify-content: space-between;">
+                ${weekChart}
+            </div>
+            <div style="display: flex; gap: 15px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted);">
+                <span><span style="display: inline-block; width: 10px; height: 10px; background: var(--success); border-radius: 2px; margin-right: 5px;"></span>Terminées</span>
+                <span><span style="display: inline-block; width: 10px; height: 10px; background: var(--accent); border-radius: 2px; margin-right: 5px;"></span>Créées</span>
+            </div>
+        </div>
+        
+        <!-- Progression par projet -->
+        <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin-bottom: 12px; font-size: 0.9rem;">📁 Par projet</h4>
+            ${projectBars || '<p style="color: var(--text-muted);">Aucun projet</p>'}
+        </div>
+        
+        <!-- Analyse IA -->
+        ${aiAnalysis ? `
+            <div style="background: var(--card-bg); padding: 15px; border-radius: 12px; border-left: 3px solid var(--accent);">
+                <h4 style="margin-bottom: 12px; font-size: 0.9rem;">🔮 Analyse IA</h4>
+                <div style="white-space: pre-wrap; line-height: 1.7; font-size: 0.9rem;">${escapeHtml(aiAnalysis)}</div>
+            </div>
+        ` : `
+            <div style="background: var(--card-bg); padding: 15px; border-radius: 12px;">
+                <p style="color: var(--text-muted);">⚠️ Analyse IA non disponible</p>
+            </div>
+        `}
+    `;
+}
+
+// === TÉLÉCHARGER LE RAPPORT EN PDF PRO ===
+function downloadSummaryPDF() {
+    if (!lastSummaryData) {
+        alert('Génère d\'abord un rapport !');
+        return;
+    }
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const metrics = lastSummaryData.metrics;
+    
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const maxWidth = pageWidth - margin * 2;
+    let y = 20;
+    
+    // === PAGE 1: EN-TÊTE ET MÉTRIQUES ===
+    
+    // Titre principal
+    doc.setFillColor(224, 120, 64); // Orange accent
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RAPPORT DE PRODUCTIVITÉ', pageWidth / 2, 18, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(lastSummaryData.date, pageWidth / 2, 30, { align: 'center' });
+    
+    y = 55;
+    doc.setTextColor(0, 0, 0);
+    
+    // Métriques clés - Boîtes
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('MÉTRIQUES CLÉS', margin, y);
+    y += 10;
+    
+    const boxWidth = (maxWidth - 15) / 4;
+    const boxHeight = 25;
+    const boxes = [
+        { label: 'Terminées\naujourd\'hui', value: metrics.today.completed, color: [45, 138, 78] },
+        { label: 'En attente', value: metrics.overall.pending, color: [100, 100, 100] },
+        { label: 'Urgentes', value: metrics.priority.urgent, color: metrics.priority.urgent > 0 ? [199, 80, 80] : [45, 138, 78] },
+        { label: 'Complétion', value: metrics.overall.completionRate + '%', color: [45, 138, 78] }
+    ];
+    
+    boxes.forEach((box, i) => {
+        const x = margin + i * (boxWidth + 5);
+        doc.setFillColor(...box.color);
+        doc.roundedRect(x, y, boxWidth, boxHeight, 3, 3, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(String(box.value), x + boxWidth / 2, y + 10, { align: 'center' });
+        
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        const labelLines = box.label.split('\n');
+        labelLines.forEach((line, li) => {
+            doc.text(line, x + boxWidth / 2, y + 16 + li * 4, { align: 'center' });
+        });
+    });
+    
+    y += boxHeight + 15;
+    doc.setTextColor(0, 0, 0);
+    
+    // Progression par projet
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROGRESSION PAR PROJET', margin, y);
+    y += 8;
+    
+    Object.entries(metrics.projects).forEach(([proj, stats]) => {
+        const percent = stats.total > 0 ? Math.round((stats.done / stats.total) * 100) : 0;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`${proj}`, margin, y);
+        doc.text(`${stats.done}/${stats.total} (${percent}%)`, pageWidth - margin, y, { align: 'right' });
+        
+        y += 4;
+        
+        // Barre de progression
+        doc.setFillColor(230, 230, 230);
+        doc.roundedRect(margin, y, maxWidth, 5, 2, 2, 'F');
+        
+        if (percent > 0) {
+            doc.setFillColor(224, 120, 64);
+            doc.roundedRect(margin, y, maxWidth * (percent / 100), 5, 2, 2, 'F');
+        }
+        
+        y += 10;
+    });
+    
+    y += 5;
+    
+    // Progression de la semaine
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PROGRESSION DE LA SEMAINE', margin, y);
+    y += 10;
+    
+    const chartX = margin;
+    const chartWidth = maxWidth;
+    const chartHeight = 35;
+    const barWidth = chartWidth / 7 - 8;
+    const maxVal = Math.max(...metrics.weeklyProgress.map(d => Math.max(d.completed, d.created)), 1);
+    
+    metrics.weeklyProgress.forEach((d, i) => {
+        const x = chartX + i * (chartWidth / 7) + 4;
+        const completedH = (d.completed / maxVal) * chartHeight;
+        const createdH = (d.created / maxVal) * chartHeight;
+        
+        // Barre terminées (vert)
+        doc.setFillColor(45, 138, 78);
+        doc.rect(x, y + chartHeight - completedH, barWidth / 2 - 1, completedH, 'F');
+        
+        // Barre créées (orange)
+        doc.setFillColor(224, 120, 64);
+        doc.rect(x + barWidth / 2, y + chartHeight - createdH, barWidth / 2 - 1, createdH, 'F');
+        
+        // Label jour
+        doc.setFontSize(8);
+        doc.setTextColor(d.isToday ? 224 : 100, d.isToday ? 120 : 100, d.isToday ? 64 : 100);
+        doc.text(d.day, x + barWidth / 2, y + chartHeight + 8, { align: 'center' });
+    });
+    
+    y += chartHeight + 15;
+    
+    // Légende
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.setFillColor(45, 138, 78);
+    doc.rect(margin, y, 8, 4, 'F');
+    doc.text('Terminées', margin + 12, y + 3);
+    doc.setFillColor(224, 120, 64);
+    doc.rect(margin + 50, y, 8, 4, 'F');
+    doc.text('Créées', margin + 62, y + 3);
+    
+    y += 15;
+    doc.setTextColor(0, 0, 0);
+    
+    // === JOURNAL DU JOUR ===
+    if (metrics.journal && metrics.journal.length > 0) {
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('JOURNAL DU JOUR', margin, y);
+        y += 8;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        metrics.journal.forEach(entry => {
+            if (y > pageHeight - 30) {
+                doc.addPage();
+                y = 20;
+            }
+            
+            const text = `${entry.time} - ${entry.text}`;
+            const lines = doc.splitTextToSize(text, maxWidth - 10);
+            
+            doc.setFillColor(245, 245, 245);
+            doc.roundedRect(margin, y - 3, maxWidth, lines.length * 5 + 4, 2, 2, 'F');
+            
+            doc.text(lines, margin + 5, y + 2);
+            y += lines.length * 5 + 8;
+        });
+        
+        y += 5;
+    }
+    
+    // === TÂCHES EN ATTENTE ===
+    if (metrics.pendingTasks && metrics.pendingTasks.length > 0) {
+        if (y > pageHeight - 50) {
+            doc.addPage();
+            y = 20;
+        }
+        
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('TÂCHES EN ATTENTE', margin, y);
+        y += 8;
+        
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        metrics.pendingTasks.forEach(task => {
+            if (y > pageHeight - 20) {
+                doc.addPage();
+                y = 20;
+            }
+            
+            // Badge priorité
+            const priorityColors = {
+                'Urgent': [199, 80, 80],
+                'Normal': [100, 100, 100],
+                'Basse': [150, 150, 150]
+            };
+            const pColor = priorityColors[task.priority.label] || [100, 100, 100];
+            
+            doc.setFillColor(...pColor);
+            doc.roundedRect(margin, y - 3, 35, 6, 2, 2, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(7);
+            doc.text(task.priority.label.toUpperCase(), margin + 17.5, y + 1, { align: 'center' });
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(10);
+            const taskLines = doc.splitTextToSize(task.text, maxWidth - 45);
+            doc.text(taskLines, margin + 40, y);
+            
+            doc.setTextColor(150, 150, 150);
+            doc.setFontSize(8);
+            doc.text(`[${task.project}]`, pageWidth - margin, y, { align: 'right' });
+            
+            doc.setTextColor(0, 0, 0);
+            y += taskLines.length * 5 + 6;
+        });
+        
+        y += 5;
+    }
+    
+    // === ANALYSE IA ===
+    if (lastSummaryData.aiAnalysis) {
+        if (y > pageHeight - 80) {
+            doc.addPage();
+            y = 20;
+        }
+        
+        doc.setFillColor(255, 248, 240);
+        doc.roundedRect(margin - 5, y - 5, maxWidth + 10, 15, 3, 3, 'F');
+        
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(224, 120, 64);
+        doc.text('ANALYSE & RECOMMANDATIONS IA', margin, y + 5);
+        y += 18;
+        
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        
+        const aiLines = doc.splitTextToSize(lastSummaryData.aiAnalysis, maxWidth);
+        aiLines.forEach(line => {
+            if (y > pageHeight - 15) {
+                doc.addPage();
+                y = 20;
+            }
+            doc.text(line, margin, y);
+            y += 5;
+        });
+    }
+    
+    // === FOOTER SUR TOUTES LES PAGES ===
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        
+        // Ligne de séparation
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+        
+        // Texte footer
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(`ProductiveApp - Rapport généré le ${new Date().toLocaleString('fr-FR')}`, margin, pageHeight - 8);
+        doc.text(`Page ${i}/${pageCount}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+    }
+    
+    // Télécharger
+    const fileName = `rapport_productivite_${lastSummaryData.dateShort.replace(/\//g, '-')}.pdf`;
+    doc.save(fileName);
+    
+    console.log('📄 PDF généré:', fileName);
 }
 
 // === UTILITAIRES ===
