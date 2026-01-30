@@ -380,22 +380,27 @@ function attachBubbleEvents() {
 }
 
 function handleBubbleAction(bubbleId, action) {
-    const bubble = bubbles.find(b => b.id === bubbleId);
-    if (!bubble) return;
+    const bubbleIndex = bubbles.findIndex(b => b.id === bubbleId);
+    if (bubbleIndex === -1) return;
+    
+    const bubble = bubbles[bubbleIndex];
     
     if (action === 'start') {
         bubble.status = 'inprogress';
         bubble.startedAt = new Date().toISOString();
+        bubble.updatedAt = new Date().toISOString();
         addJournalEntry(`🔄 Commencé: ${bubble.text}`);
     } else if (action === 'done') {
         bubble.status = 'done';
         bubble.completedAt = new Date().toISOString();
+        bubble.updatedAt = new Date().toISOString();
         addJournalEntry(`✅ Terminé: ${bubble.text}`);
     } else if (action === 'delete') {
-        bubbles = bubbles.filter(b => b.id !== bubbleId);
+        const deletedText = bubble.text;
+        bubbles.splice(bubbleIndex, 1);
+        addJournalEntry(`🗑️ Supprimé: ${deletedText}`);
     }
     
-    bubble.updatedAt = new Date().toISOString();
     saveBubbles();
     renderBubbles();
     renderProjectsFilter();
