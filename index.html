@@ -3,35 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProductiveApp - Mes Bulles</title>
+    <title>ProductiveApp - Empire Dashboard</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
+    <!-- ÉCRAN DE CONNEXION -->
+    <div id="login-screen" class="login-screen">
+        <div class="login-container">
+            <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="login-logo">
+            <h1>ProductiveApp</h1>
+            <p>Sélectionne ton profil</p>
+            <div class="user-select-grid" id="user-select-grid">
+                <!-- Users will be rendered here -->
+            </div>
+            <div class="login-form" id="password-form" style="display: none;">
+                <p id="login-username" style="color: var(--accent); margin-bottom: 10px;"></p>
+                <input type="password" id="login-password" placeholder="Mot de passe..." autocomplete="current-password">
+                <button id="login-btn">Entrer</button>
+                <button id="back-btn" class="back-btn">← Retour</button>
+            </div>
+            <p id="login-error" class="login-error"></p>
+        </div>
+    </div>
+
     <canvas id="matrix-bg"></canvas>
+    
     <div class="container">
-        <!-- Modal de confirmation -->
-        <div id="confirm-modal" class="modal hidden">
-            <div class="modal-content">
-                <p id="modal-message">Tu es sur le point de supprimer toutes les bulles.</p>
-                <p class="modal-warning">Cette action est irréversible.</p>
-                <div class="modal-buttons">
-                    <button id="modal-cancel" class="modal-btn cancel">Annuler</button>
-                    <button id="modal-confirm" class="modal-btn confirm">Supprimer</button>
+        <!-- Header avec user info -->
+        <header>
+            <div class="header-top">
+                <div class="user-badge" id="current-user-badge">
+                    <span class="user-avatar">👤</span>
+                    <span class="user-name">User</span>
+                </div>
+                <h1>Empire Dashboard</h1>
+                <div class="header-actions">
+                    <button id="theme-btn" class="icon-btn" title="Thème">⚙️</button>
+                    <button id="logout-btn" class="icon-btn" title="Déconnexion">🚪</button>
                 </div>
             </div>
-        </div>
-
-        <header>
-            <h1>Mes Bulles</h1>
-            <p class="subtitle">Tape ta tâche et appuie sur Entrée</p>
-            <button id="clear-all-btn" class="trash-btn" title="Vider toutes les bulles">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6"/>
-                </svg>
-            </button>
-            <button id="theme-btn" class="theme-btn" title="Changer de thème">⚙️</button>
+            
+            <!-- Filtres projets -->
+            <div class="projects-filter">
+                <button class="project-filter-btn active" data-project="all">
+                    <span class="filter-icon">📊</span>
+                    <span class="filter-name">Tout</span>
+                    <span class="filter-count" id="count-all">0</span>
+                </button>
+                <div class="projects-filter-scroll" id="projects-filter-list">
+                    <!-- Projects will be rendered here -->
+                </div>
+                <button id="add-project-filter-btn" class="add-project-btn-small" title="Ajouter un projet">+</button>
+            </div>
+            
+            <!-- Filtre par personne -->
+            <div class="user-filter">
+                <span class="filter-label">Filtrer par :</span>
+                <select id="user-filter-select">
+                    <option value="all">👥 Tout le monde</option>
+                </select>
+            </div>
         </header>
-        
+
         <!-- Modal Thèmes -->
         <div id="theme-modal" class="modal hidden">
             <div class="modal-content theme-modal-content">
@@ -44,31 +78,73 @@
             </div>
         </div>
 
+        <!-- Modal Nouveau Projet -->
+        <div id="new-project-modal" class="modal hidden">
+            <div class="modal-content">
+                <h3>📁 Nouveau Projet</h3>
+                <input type="text" id="new-project-name" placeholder="Nom du projet..." class="modal-input">
+                <input type="text" id="new-project-desc" placeholder="Description courte (pour l'IA)..." class="modal-input">
+                <div class="modal-buttons">
+                    <button id="new-project-cancel" class="modal-btn cancel">Annuler</button>
+                    <button id="new-project-confirm" class="modal-btn confirm">Créer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone de création de tâche -->
         <div class="input-section">
             <div class="input-row">
                 <input 
                     type="text" 
                     id="bubble-input" 
-                    placeholder="Nouvelle bulle..."
+                    placeholder="Nouvelle tâche..."
                     autofocus
                 >
+                <select id="project-select" class="project-select">
+                    <option value="">Projet...</option>
+                </select>
+                <select id="priority-select" class="priority-select">
+                    <option value="2">Normal</option>
+                    <option value="1">🔥 Urgent</option>
+                    <option value="3">Basse</option>
+                </select>
                 <button id="add-bubble-btn" class="send-btn">+</button>
             </div>
         </div>
 
-        <div class="bubbles-container">
-            <div class="column">
-                <h2>À faire</h2>
+        <!-- Vue principale des tâches -->
+        <div class="main-view">
+            <!-- Colonne À faire -->
+            <div class="tasks-column">
+                <div class="column-header">
+                    <h2>⏳ À faire</h2>
+                    <span class="task-count" id="todo-count">0</span>
+                </div>
                 <div id="todo-bubbles" class="bubble-list"></div>
             </div>
-            <div class="column">
-                <h2>Terminé</h2>
+            
+            <!-- Colonne En cours (nouveau) -->
+            <div class="tasks-column">
+                <div class="column-header">
+                    <h2>🔄 En cours</h2>
+                    <span class="task-count" id="inprogress-count">0</span>
+                </div>
+                <div id="inprogress-bubbles" class="bubble-list"></div>
+            </div>
+            
+            <!-- Colonne Terminé -->
+            <div class="tasks-column">
+                <div class="column-header">
+                    <h2>✅ Terminé</h2>
+                    <span class="task-count" id="done-count">0</span>
+                </div>
                 <div id="done-bubbles" class="bubble-list"></div>
             </div>
         </div>
 
+        <!-- Section Journal -->
         <div class="journal-section">
-            <h2>Journal du jour</h2>
+            <h2>📝 Journal du jour</h2>
             <div class="journal-input-row">
                 <input 
                     type="text" 
@@ -80,27 +156,25 @@
             <div id="journal-entries" class="journal-list"></div>
             
             <div class="summary-section">
-                <button id="generate-summary">Générer le résumé du jour</button>
+                <button id="generate-summary">📊 Générer le rapport</button>
                 <button id="download-pdf" class="download-pdf-btn" style="display: none;">📄 Télécharger PDF</button>
                 <div id="daily-summary" class="summary-box"></div>
             </div>
         </div>
     </div>
 
-    <!-- Chatbot IA - Toggle Button avec Logo -->
+    <!-- Chatbot IA -->
     <div id="chatbot-toggle" class="chatbot-toggle">
         <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Productive App">
     </div>
     
-    <!-- Chatbot Window -->
     <div id="chatbot-window" class="chatbot-window hidden">
         <div class="chatbot-header">
             <div class="chatbot-header-left">
                 <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="chatbot-header-logo">
-                <span class="chatbot-header-title">Productive App</span>
+                <span class="chatbot-header-title">Assistant IA</span>
             </div>
             <div class="chatbot-header-right">
-                <!-- Toggle Size Button -->
                 <button id="chatbot-size-toggle" class="chatbot-size-toggle" title="Agrandir / Réduire">
                     <svg id="expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
@@ -114,7 +188,7 @@
         </div>
         <div id="chatbot-messages" class="chatbot-messages">
             <div class="chat-message assistant">
-                Salut ! Je suis ton assistant. Pose-moi des questions sur tes tâches, demande des conseils de priorité, ou discute de ton organisation ! 💫
+                Salut Boss ! 👑 Je connais tous tes projets. Demande-moi le prochain pas sur n'importe quel projet, des conseils de priorisation, ou de l'aide pour organiser ton empire ! 🚀
             </div>
         </div>
         <div class="chatbot-input-area">
@@ -123,7 +197,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
