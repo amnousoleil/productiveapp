@@ -78,6 +78,7 @@ function createBubble(text) {
         text: text,
         done: false,
         priority: analyzePriority(text),
+        project: detectProject(text),
         createdAt: new Date().toISOString()
     };
     
@@ -97,7 +98,8 @@ async function sendToN8N(type, data) {
             user: CURRENT_USER,
             ...data,
             priority_level: data.priority?.level,
-            priority_label: data.priority?.label
+            priority_label: data.priority?.label,
+            project: data.project || 'Général'
         };
         
         await fetch(N8N_WEBHOOK_URL, {
@@ -113,20 +115,75 @@ async function sendToN8N(type, data) {
     }
 }
 
-// === ANALYSE DE PRIORITÉ SIMPLE ===
+// === ANALYSE DE PRIORITÉ ET PROJET ===
 function analyzePriority(text) {
-    const urgentKeywords = ['urgent', 'important', 'deadline', 'aujourd\'hui', 'maintenant', 'asap', 'critique'];
-    const lowKeywords = ['peut-être', 'éventuellement', 'un jour', 'quand possible', 'optionnel'];
+    const urgentKeywords = ['urgent', 'important', 'deadline', 'aujourd\'hui', 'maintenant', 'asap', 'critique', 'vite', 'rapidement'];
+    const lowKeywords = ['peut-être', 'éventuellement', 'un jour', 'quand possible', 'optionnel', 'si possible', 'à voir'];
     
     const textLower = text.toLowerCase();
     
+    let level = 2;
+    let label = 'Normal';
+    
     if (urgentKeywords.some(kw => textLower.includes(kw))) {
-        return { level: 1, label: 'Urgent' };
+        level = 1;
+        label = 'Urgent';
+    } else if (lowKeywords.some(kw => textLower.includes(kw))) {
+        level = 3;
+        label = 'Basse';
     }
-    if (lowKeywords.some(kw => textLower.includes(kw))) {
-        return { level: 3, label: 'Basse' };
+    
+    return { level, label };
+}
+
+function detectProject(text) {
+    const textLower = text.toLowerCase();
+    
+    // Règles de détection de projet (ordre de priorité)
+    const projectRules = [
+        // Admin / Comptabilité
+        { keywords: ['urssaf', 'ursaff', 'déclaration', 'décla', 'impôt', 'impots', 'tva', 'sasu', 'sarl', 'micro-entreprise', 'autoentrepreneur', 'comptable', 'compta', 'bilan', 'cfe', 'cotisation', 'charges', 'kbis', 'caf'], project: 'Admin' },
+        
+        // Banque / Finances
+        { keywords: ['banque', 'virement', 'rib', 'iban', 'compte bancaire', 'carte bancaire', 'prélèvement', 'chèque', 'crédit', 'prêt'], project: 'Banque' },
+        
+        // Juridique
+        { keywords: ['avocat', 'avocate', 'contrat', 'cgv', 'cgu', 'mentions légales', 'rgpd', 'litige', 'huissier', 'tribunal', 'juridique', 'notaire'], project: 'Juridique' },
+        
+        // Clients / Commercial
+        { keywords: ['devis', 'facture client', 'prospect', 'rendez-vous client', 'rdv client', 'appel client', 'relance client', 'closing', 'vente', 'commercial'], project: 'Clients' },
+        
+        // Marketing / Communication
+        { keywords: ['instagram', 'insta', 'facebook', 'linkedin', 'tiktok', 'youtube', 'post', 'publication', 'story', 'reel', 'newsletter', 'emailing', 'mailer', 'mailchimp', 'campagne', 'pub ', 'publicité', 'contenu', 'visuel', 'branding', 'logo', 'méta', 'meta'], project: 'Marketing' },
+        
+        // Produit / Offres
+        { keywords: ['formation', 'coaching', 'programme', 'module', 'cours', 'offre', 'lancement', 'tunnel', 'page de vente', 'webinaire', 'masterclass'], project: 'Produit' },
+        
+        // Tech / Développement
+        { keywords: ['site', 'website', 'bug', 'application', 'app', 'code', 'développement', 'n8n', 'automatisation', 'api', 'serveur', 'hébergement', 'wordpress'], project: 'Tech' },
+        
+        // Perso / Famille
+        { keywords: ['mère', 'maman', 'père', 'papa', 'fille', 'fils', 'enfant', 'famille', 'frère', 'soeur', 'sœur', 'mari', 'femme', 'ex ', 'copain', 'copine', 'maison', 'appartement', 'ménage', 'courses', 'médecin', 'docteur', 'santé', 'dentiste', 'kiné', 'perso'], project: 'Perso' },
+    ];
+    
+    // Chercher une correspondance
+    for (const rule of projectRules) {
+        if (rule.keywords.some(kw => textLower.includes(kw))) {
+            return rule.project;
+        }
     }
-    return { level: 2, label: 'Normal' };
+    
+    // Détecter les prénoms courants
+    const prenoms = ['stéphane', 'stephane', 'marie', 'sophie', 'julie', 'laura', 'emma', 'léa', 'chloé', 'camille', 'sarah', 'lucas', 'hugo', 'louis', 'jules', 'gabriel', 'arthur', 'nathan', 'thomas', 'nicolas', 'pierre', 'jean', 'paul', 'michel', 'philippe', 'alain', 'bernard', 'patrick', 'david', 'eric', 'olivier', 'laurent', 'christophe', 'christian', 'daniel', 'pascal', 'jacques', 'thierry', 'claude', 'didier', 'denis', 'serge', 'gérard', 'nathalie', 'isabelle', 'sylvie', 'catherine', 'christine', 'monique', 'nicole', 'françoise', 'anne', 'brigitte', 'martine', 'karima', 'kada', 'karim', 'mohamed', 'ahmed', 'fatima', 'samira', 'yasmine', 'leila', 'nadia', 'rachid', 'said', 'hassan', 'ali', 'youssef', 'omar', 'adam', 'amine', 'mehdi', 'sami', 'walid', 'rayan', 'ilyes', 'enzo', 'mathis', 'théo', 'raphaël', 'maxime', 'antoine', 'alexandre', 'quentin', 'romain', 'kevin', 'julien', 'florian', 'dylan', 'killian', 'alexis', 'valentin', 'bastien', 'corentin', 'adrien', 'benjamin', 'clément', 'victor', 'samuel', 'evan', 'noah', 'ethan', 'liam', 'léo', 'malo', 'timéo', 'mathéo', 'loïc', 'jérémy', 'jonathan', 'anthony', 'jordan', 'steven', 'bryan', 'amélie', 'clara', 'manon', 'océane', 'anaïs', 'justine', 'pauline', 'charlotte', 'juliette', 'margot', 'eva', 'lola', 'zoé', 'inès', 'jade', 'louise', 'alice', 'rose', 'anna', 'elsa', 'mila', 'lina', 'nina', 'maya', 'lou', 'lucie', 'maëlys', 'lilou', 'louna', 'romane', 'clémence', 'agathe', 'victoire', 'elise', 'mathilde', 'margaux', 'célia', 'coralie', 'elodie', 'audrey', 'mélanie', 'jennifer', 'jessica', 'vanessa', 'sabrina', 'laetitia', 'aurélie', 'emilie', 'virginie', 'sandrine', 'valérie', 'stéphanie', 'véronique', 'corinne', 'laurence', 'karine', 'carine', 'delphine', 'céline', 'fabienne', 'dominique', 'patricia', 'josiane', 'florence', 'hélène', 'béatrice', 'agnès'];
+    
+    for (const prenom of prenoms) {
+        if (textLower.includes(prenom)) {
+            // Capitaliser la première lettre
+            return prenom.charAt(0).toUpperCase() + prenom.slice(1);
+        }
+    }
+    
+    return 'Général';
 }
 
 // === RENDU DES BULLES ===
