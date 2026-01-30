@@ -72,27 +72,19 @@ themeSlider.addEventListener('input', () => {
     themeName.textContent = theme.name;
 });
 
-// === MATRIX RAIN EFFECT ===
+// === EFFETS VISUELS PAR THÈME ===
 const matrixCanvas = document.getElementById('matrix-bg');
 const matrixCtx = matrixCanvas.getContext('2d');
-let matrixColumns = [];
-let matrixAnimationId = null;
 let particles = [];
+let animationId = null;
 
-function initMatrix() {
+function initCanvas() {
     matrixCanvas.width = window.innerWidth;
     matrixCanvas.height = window.innerHeight;
-    
-    const fontSize = 16;
-    const columns = Math.floor(matrixCanvas.width / fontSize);
-    
-    matrixColumns = [];
-    for (let i = 0; i < columns; i++) {
-        matrixColumns[i] = Math.random() * matrixCanvas.height;
-    }
+    particles = [];
 }
 
-function drawMatrix() {
+function animate() {
     const theme = document.documentElement.getAttribute('data-theme');
     
     matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
@@ -113,44 +105,34 @@ function drawMatrix() {
         drawSunsetGlow();
     } else if (theme === 'hacker') {
         drawHackerGrid();
-    } else if (theme === 'desert' || !theme) {
+    } else {
         drawSandParticles();
     }
     
-    matrixAnimationId = requestAnimationFrame(drawMatrix);
+    animationId = requestAnimationFrame(animate);
 }
 
-// Matrix - Code qui tombe très lentement avec MAITRE MAHA GIRI
+// Matrix - MAITRE MAHA GIRI qui tombe
 function drawMatrixRain() {
-    const words = ['MAITRE', 'MAHA', 'GIRI', 'マ', 'ハ', 'ギ', 'リ', '0', '1'];
+    const words = ['真', '覇', '王', 'MAHA', 'GIRI', 'マハ', '01'];
     
-    // Initialiser les colonnes si pas fait
-    if (!matrixColumns.length || matrixColumns.length < 30) {
-        matrixColumns = [];
-        for (let i = 0; i < 30; i++) {
-            matrixColumns.push({
-                x: Math.random() * matrixCanvas.width,
-                y: Math.random() * matrixCanvas.height - matrixCanvas.height,
-                speed: Math.random() * 0.3 + 0.1,
-                word: words[Math.floor(Math.random() * words.length)],
-                opacity: Math.random() * 0.15 + 0.05
-            });
-        }
+    if (particles.length < 40) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: -50,
+            speed: Math.random() * 1.5 + 0.5,
+            word: words[Math.floor(Math.random() * words.length)],
+            opacity: Math.random() * 0.3 + 0.1
+        });
     }
     
-    matrixCtx.font = '12px monospace';
+    particles = particles.filter(p => p.y < matrixCanvas.height + 100);
     
-    matrixColumns.forEach(col => {
-        col.y += col.speed;
-        
-        if (col.y > matrixCanvas.height + 50) {
-            col.y = -50;
-            col.x = Math.random() * matrixCanvas.width;
-            col.word = words[Math.floor(Math.random() * words.length)];
-        }
-        
-        matrixCtx.fillStyle = `rgba(0, 210, 106, ${col.opacity})`;
-        matrixCtx.fillText(col.word, col.x, col.y);
+    matrixCtx.font = '16px monospace';
+    particles.forEach(p => {
+        p.y += p.speed;
+        matrixCtx.fillStyle = `rgba(0, 210, 106, ${p.opacity})`;
+        matrixCtx.fillText(p.word, p.x, p.y);
     });
 }
 
@@ -369,26 +351,21 @@ function drawSandParticles() {
     });
 }
 
-function startMatrix() {
-    if (!matrixAnimationId) {
-        particles = [];
-        initMatrix();
-        drawMatrix();
+function startAnimation() {
+    if (!animationId) {
+        initCanvas();
+        animate();
     }
 }
 
-function stopMatrix() {
-    if (matrixAnimationId) {
-        cancelAnimationFrame(matrixAnimationId);
-        matrixAnimationId = null;
-        particles = [];
-        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+function stopAnimation() {
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null;
     }
 }
 
-window.addEventListener('resize', () => {
-    initMatrix();
-});
+window.addEventListener('resize', initCanvas);
 
 function setTheme(theme) {
     if (theme === 'desert') {
@@ -398,12 +375,8 @@ function setTheme(theme) {
     }
     localStorage.setItem('theme', theme);
     
-    // Redémarrer l'animation avec le nouveau thème
+    // Reset particles pour le nouveau thème
     particles = [];
-    matrixColumns = [];
-    if (!matrixAnimationId) {
-        startMatrix();
-    }
 }
 
 function loadTheme() {
@@ -418,7 +391,7 @@ function loadTheme() {
     }
     
     // Démarrer l'animation
-    setTimeout(startMatrix, 100);
+    setTimeout(startAnimation, 100);
 }
 
 // === VIDER TOUTES LES BULLES ===
