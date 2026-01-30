@@ -45,9 +45,12 @@ function animateCanvas() {
         matrixCanvas.height = window.innerHeight;
     }
     
-    // Clear - traînée pour hacker/matrix, clear complet pour les autres
-    if (theme === 'hacker' || theme === 'matrix') {
-        matrixCtx.fillStyle = theme === 'hacker' ? 'rgba(0, 0, 0, 0.06)' : 'rgba(10, 15, 10, 0.06)';
+    // Clear - trainée plus opaque pour éviter les bandes blanches
+    if (theme === 'hacker') {
+        matrixCtx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    } else if (theme === 'matrix') {
+        matrixCtx.fillStyle = 'rgba(10, 15, 10, 0.15)';
         matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
     } else {
         matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
