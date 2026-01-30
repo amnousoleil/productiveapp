@@ -68,12 +68,41 @@ function animateCanvas() {
     requestAnimationFrame(animateCanvas);
 }
 
-// === HACKER - Ultra lent, zen ===
+// === HACKER - Méga lent, méditatif ===
 function animateHacker() {
     matrixCtx.font = '12px monospace';
     
-    const chars = '01<>';
-    const columns = Math.floor(matrixCanvas.width / 80); // Très peu de colonnes
+    const chars = '01';
+    const columns = Math.floor(matrixCanvas.width / 100); // Très espacé
+    
+    for (let i = 0; i < columns; i++) {
+        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
+        
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * 100;
+        const y = matrixDrops[i] * 35;
+        
+        matrixCtx.globalAlpha = 0.25;
+        matrixCtx.shadowBlur = 5;
+        matrixCtx.shadowColor = '#ffd700';
+        matrixCtx.fillStyle = '#ffd700';
+        matrixCtx.fillText(char, x, y);
+        matrixCtx.shadowBlur = 0;
+        matrixCtx.globalAlpha = 1;
+        
+        if (y > matrixCanvas.height && Math.random() > 0.999) {
+            matrixDrops[i] = 0;
+        }
+        matrixDrops[i] += 0.005; // MEGA lent
+    }
+}
+
+// === MATRIX - Code vert méga lent ===
+function animateMatrix() {
+    matrixCtx.font = '12px monospace';
+    
+    const chars = 'ア01';
+    const columns = Math.floor(matrixCanvas.width / 80);
     
     for (let i = 0; i < columns; i++) {
         if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
@@ -84,45 +113,16 @@ function animateHacker() {
         
         matrixCtx.globalAlpha = 0.3;
         matrixCtx.shadowBlur = 6;
-        matrixCtx.shadowColor = '#ffd700';
-        matrixCtx.fillStyle = '#ffd700';
-        matrixCtx.fillText(char, x, y);
-        matrixCtx.shadowBlur = 0;
-        matrixCtx.globalAlpha = 1;
-        
-        if (y > matrixCanvas.height && Math.random() > 0.998) {
-            matrixDrops[i] = 0;
-        }
-        matrixDrops[i] += 0.02; // Ultra lent
-    }
-}
-
-// === MATRIX - Code vert ultra lent ===
-function animateMatrix() {
-    matrixCtx.font = '12px monospace';
-    
-    const chars = 'アイウ01';
-    const columns = Math.floor(matrixCanvas.width / 60);
-    
-    for (let i = 0; i < columns; i++) {
-        if (matrixDrops[i] === undefined) matrixDrops[i] = Math.random() * -20;
-        
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 60;
-        const y = matrixDrops[i] * 25;
-        
-        matrixCtx.globalAlpha = 0.4;
-        matrixCtx.shadowBlur = 8;
         matrixCtx.shadowColor = '#00ff66';
         matrixCtx.fillStyle = '#00ff66';
         matrixCtx.fillText(char, x, y);
         matrixCtx.shadowBlur = 0;
         matrixCtx.globalAlpha = 1;
         
-        if (y > matrixCanvas.height && Math.random() > 0.998) {
+        if (y > matrixCanvas.height && Math.random() > 0.999) {
             matrixDrops[i] = 0;
         }
-        matrixDrops[i] += 0.03; // Ultra lent
+        matrixDrops[i] += 0.008; // MEGA lent
     }
 }
 
