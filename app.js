@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderBubbles();
     renderJournal();
     loadTheme();
+    applyChatbotSize(); // Appliquer la taille sauvegardée du chatbot
 });
 
 // === GESTION DES THÈMES ===
@@ -942,8 +943,37 @@ const chatbotClose = document.getElementById('chatbot-close');
 const chatbotInput = document.getElementById('chatbot-input');
 const chatbotSend = document.getElementById('chatbot-send');
 const chatbotMessages = document.getElementById('chatbot-messages');
+const chatbotSizeToggle = document.getElementById('chatbot-size-toggle');
+const expandIcon = document.getElementById('expand-icon');
+const collapseIcon = document.getElementById('collapse-icon');
 
-// Toggle chatbot
+// État du mode large (sauvegardé dans localStorage)
+let isLargeMode = localStorage.getItem('chatbot-large-mode') === 'true';
+
+// Appliquer la taille sauvegardée du chatbot
+function applyChatbotSize() {
+    if (isLargeMode) {
+        chatbotWindow.classList.add('large-mode');
+        expandIcon.style.display = 'none';
+        collapseIcon.style.display = 'block';
+    } else {
+        chatbotWindow.classList.remove('large-mode');
+        expandIcon.style.display = 'block';
+        collapseIcon.style.display = 'none';
+    }
+}
+
+// Toggle entre petit et grand mode
+function toggleChatbotSize() {
+    isLargeMode = !isLargeMode;
+    localStorage.setItem('chatbot-large-mode', isLargeMode);
+    applyChatbotSize();
+}
+
+// Event listener pour le bouton de taille
+chatbotSizeToggle.addEventListener('click', toggleChatbotSize);
+
+// Toggle chatbot (ouvrir/fermer)
 chatbotToggle.addEventListener('click', () => {
     chatbotWindow.classList.toggle('hidden');
     if (!chatbotWindow.classList.contains('hidden')) {
@@ -974,16 +1004,16 @@ async function sendChatMessage() {
     
     try {
         // Préparer le contexte des tâches
-        const todoBubbles = bubbles.filter(b => !b.done);
-        const doneBubbles = bubbles.filter(b => b.done);
+        const todoBubblesList = bubbles.filter(b => !b.done);
+        const doneBubblesList = bubbles.filter(b => b.done);
         
         const context = `
 UTILISATEUR: ${CURRENT_USER}
-TÂCHES À FAIRE (${todoBubbles.length}):
-${todoBubbles.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n') || 'Aucune'}
+TÂCHES À FAIRE (${todoBubblesList.length}):
+${todoBubblesList.map(b => `- "${b.text}" | Priorité: ${b.priority.label} | Projet: ${b.project}`).join('\n') || 'Aucune'}
 
-TÂCHES TERMINÉES (${doneBubbles.length}):
-${doneBubbles.slice(0, 10).map(b => `- "${b.text}" | Projet: ${b.project}`).join('\n') || 'Aucune'}
+TÂCHES TERMINÉES (${doneBubblesList.length}):
+${doneBubblesList.slice(0, 10).map(b => `- "${b.text}" | Projet: ${b.project}`).join('\n') || 'Aucune'}
         `.trim();
         
         // Appel au webhook n8n
