@@ -18,6 +18,10 @@ const dailySummary = document.getElementById('daily-summary');
 const addBubbleBtn = document.getElementById('add-bubble-btn');
 const addJournalBtn = document.getElementById('add-journal-btn');
 const clearAllBtn = document.getElementById('clear-all-btn');
+const confirmModal = document.getElementById('confirm-modal');
+const modalMessage = document.getElementById('modal-message');
+const modalCancel = document.getElementById('modal-cancel');
+const modalConfirm = document.getElementById('modal-confirm');
 
 // === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,16 +32,28 @@ document.addEventListener('DOMContentLoaded', () => {
 // === VIDER TOUTES LES BULLES ===
 clearAllBtn.addEventListener('click', () => {
     if (bubbles.length === 0) {
-        alert('Il n\'y a aucune bulle à supprimer !');
         return;
     }
     
-    const confirmation = confirm(`⚠️ Tu es sur le point de supprimer ${bubbles.length} bulle(s).\n\nCette action est irréversible.\n\nConfirmer la suppression ?`);
-    
-    if (confirmation) {
-        bubbles = [];
-        saveBubbles();
-        renderBubbles();
+    modalMessage.textContent = `Tu es sur le point de supprimer ${bubbles.length} bulle(s).`;
+    confirmModal.classList.remove('hidden');
+});
+
+modalCancel.addEventListener('click', () => {
+    confirmModal.classList.add('hidden');
+});
+
+modalConfirm.addEventListener('click', () => {
+    bubbles = [];
+    saveBubbles();
+    renderBubbles();
+    confirmModal.classList.add('hidden');
+});
+
+// Fermer la modale en cliquant en dehors
+confirmModal.addEventListener('click', (e) => {
+    if (e.target === confirmModal) {
+        confirmModal.classList.add('hidden');
     }
 });
 
