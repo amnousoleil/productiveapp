@@ -11,6 +11,8 @@ const doneBubbles = document.getElementById('done-bubbles');
 const journalEntries = document.getElementById('journal-entries');
 const generateSummaryBtn = document.getElementById('generate-summary');
 const dailySummary = document.getElementById('daily-summary');
+const addBubbleBtn = document.getElementById('add-bubble-btn');
+const addJournalBtn = document.getElementById('add-journal-btn');
 
 // === INITIALISATION ===
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,6 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // === CRÉATION DE BULLES ===
 bubbleInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && bubbleInput.value.trim()) {
+        createBubble(bubbleInput.value.trim());
+        bubbleInput.value = '';
+    }
+});
+
+addBubbleBtn.addEventListener('click', () => {
+    if (bubbleInput.value.trim()) {
         createBubble(bubbleInput.value.trim());
         bubbleInput.value = '';
     }
@@ -109,6 +118,13 @@ function deleteBubble(id, event) {
 // === JOURNAL ===
 journalInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter' && journalInput.value.trim()) {
+        addJournalEntry(journalInput.value.trim());
+        journalInput.value = '';
+    }
+});
+
+addJournalBtn.addEventListener('click', () => {
+    if (journalInput.value.trim()) {
         addJournalEntry(journalInput.value.trim());
         journalInput.value = '';
     }
