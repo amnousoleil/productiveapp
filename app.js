@@ -484,17 +484,9 @@ function setTheme(theme) {
     else document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
     
-    // Réinitialiser les particules pour le nouveau thème
-    particles = [];
-    matrixDrops = [];
-    const columns = Math.floor(window.innerWidth / 20);
-    for (let i = 0; i < columns; i++) {
-        matrixDrops[i] = Math.random() * -100;
-    }
-    
-    // Clear le canvas
-    if (matrixCtx) {
-        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    // Réinitialiser les animations (fonction définie dans animations.js)
+    if (typeof resetAnimationForTheme === 'function') {
+        resetAnimationForTheme();
     }
 }
 
