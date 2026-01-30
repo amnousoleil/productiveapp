@@ -95,6 +95,11 @@ function animate() {
         particles.columns = null;
     }
     
+    // Limite de sécurité - éviter les fuites mémoire
+    if (Array.isArray(particles) && particles.length > 200) {
+        particles = particles.slice(-100);
+    }
+    
     matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
     
     try {
@@ -119,6 +124,9 @@ function animate() {
         }
     } catch (e) {
         console.error('Animation error:', e);
+        // Reset en cas d'erreur
+        particles = [];
+        particles.columns = null;
     }
     
     animationId = requestAnimationFrame(animate);
@@ -204,8 +212,9 @@ function drawMatrixRain() {
 
 // Midnight - Étoiles scintillantes + étoiles filantes
 function drawStars() {
-    // Étoiles fixes qui scintillent
-    if (particles.filter(p => p.type === 'star').length < 80) {
+    // Étoiles fixes qui scintillent (max 80, pas plus)
+    const stars = particles.filter(p => p.type === 'star');
+    if (stars.length < 80) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: Math.random() * matrixCanvas.height,
@@ -227,10 +236,16 @@ function drawStars() {
         });
     }
     
+    // Nettoyer les étoiles filantes sorties
     particles = particles.filter(p => {
         if (p.type === 'shooting') return p.y < matrixCanvas.height && p.x < matrixCanvas.width;
         return true;
     });
+    
+    // Limiter le total
+    if (particles.length > 100) {
+        particles = particles.filter(p => p.type === 'star').slice(0, 80);
+    }
     
     particles.forEach(p => {
         if (p.type === 'star') {
