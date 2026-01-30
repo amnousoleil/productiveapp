@@ -318,15 +318,15 @@ function drawBubbles() {
     });
 }
 
-// Fantasy - Particules magiques avec glow
+// Fantasy - Particules magiques avec glow (plus longues)
 function drawMagicParticles() {
-    if (particles.length < 60 && Math.random() > 0.8) {
+    if (particles.length < 40 && Math.random() > 0.85) {
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: Math.random() * matrixCanvas.height,
-            size: Math.random() * 5 + 2,
-            vx: (Math.random() - 0.5) * 1,
-            vy: (Math.random() - 0.5) * 1,
+            size: Math.random() * 6 + 3,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
             life: 1,
             hue: Math.random() * 60 + 260
         });
@@ -337,7 +337,7 @@ function drawMagicParticles() {
     particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
-        p.life -= 0.008;
+        p.life -= 0.003;
         
         matrixCtx.beginPath();
         matrixCtx.fillStyle = `hsla(${p.hue}, 80%, 70%, ${p.life * 0.6})`;
@@ -395,17 +395,22 @@ function drawPinkBubbles() {
     });
 }
 
-// Forest - Feuilles qui tombent
+// Forest - Feuilles d'automne avec vent
 function drawLeaves() {
-    if (particles.length < 20 && Math.random() > 0.93) {
+    const windTime = Date.now() / 1000;
+    const wind = Math.sin(windTime * 0.5) * 2 + Math.sin(windTime * 1.3) * 1;
+    
+    if (particles.length < 25 && Math.random() > 0.92) {
+        const colors = ['rgba(74, 222, 128, 0.5)', 'rgba(255, 180, 50, 0.5)', 'rgba(255, 100, 50, 0.5)', 'rgba(200, 80, 50, 0.5)', 'rgba(255, 220, 100, 0.5)'];
         particles.push({
             x: Math.random() * matrixCanvas.width,
             y: -30,
             rotation: Math.random() * Math.PI * 2,
             speed: Math.random() * 1 + 0.5,
-            rotSpeed: (Math.random() - 0.5) * 0.08,
+            rotSpeed: (Math.random() - 0.5) * 0.1,
             wobble: Math.random() * Math.PI * 2,
-            size: Math.random() * 10 + 8
+            size: Math.random() * 10 + 8,
+            color: colors[Math.floor(Math.random() * colors.length)]
         });
     }
     
@@ -414,13 +419,13 @@ function drawLeaves() {
     particles.forEach(p => {
         p.y += p.speed;
         p.wobble += 0.04;
-        p.x += Math.sin(p.wobble) * 1.2;
-        p.rotation += p.rotSpeed;
+        p.x += Math.sin(p.wobble) * 1.2 + wind;
+        p.rotation += p.rotSpeed + wind * 0.02;
         
         matrixCtx.save();
         matrixCtx.translate(p.x, p.y);
         matrixCtx.rotate(p.rotation);
-        matrixCtx.fillStyle = 'rgba(74, 222, 128, 0.4)';
+        matrixCtx.fillStyle = p.color;
         matrixCtx.beginPath();
         matrixCtx.ellipse(0, 0, p.size, p.size / 2.5, 0, 0, Math.PI * 2);
         matrixCtx.fill();
@@ -474,47 +479,72 @@ function drawSunsetGlow() {
         p.y += Math.sin(p.x / 50) * 0.5;
         p.wingPhase += 0.15;
         
-        // Dessiner un oiseau simple
-        matrixCtx.strokeStyle = 'rgba(50, 30, 20, 0.6)';
+        // Dessiner un oiseau blanc
+        matrixCtx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
         matrixCtx.lineWidth = 2;
         matrixCtx.beginPath();
         const wingY = Math.sin(p.wingPhase) * 5;
-        matrixCtx.moveTo(p.x - 10, p.y + wingY);
-        matrixCtx.quadraticCurveTo(p.x, p.y - 3, p.x + 10, p.y + wingY);
+        matrixCtx.moveTo(p.x - 12, p.y + wingY);
+        matrixCtx.quadraticCurveTo(p.x, p.y - 4, p.x + 12, p.y + wingY);
         matrixCtx.stroke();
     });
 }
 
-// Hacker - Grille dorée avec pulse
+// Hacker - Grille avec courants électriques
 function drawHackerGrid() {
     const time = Date.now() / 800;
     const pulse = 0.04 + Math.sin(time) * 0.02;
     
-    matrixCtx.strokeStyle = `rgba(255, 215, 0, ${pulse})`;
-    matrixCtx.lineWidth = 1;
-    
-    for (let x = 0; x < matrixCanvas.width; x += 80) {
-        matrixCtx.beginPath();
-        matrixCtx.moveTo(x, 0);
-        matrixCtx.lineTo(x, matrixCanvas.height);
-        matrixCtx.stroke();
-    }
-    for (let y = 0; y < matrixCanvas.height; y += 80) {
-        matrixCtx.beginPath();
-        matrixCtx.moveTo(0, y);
-        matrixCtx.lineTo(matrixCanvas.width, y);
-        matrixCtx.stroke();
-    }
-    
-    // Points lumineux aux intersections
-    matrixCtx.fillStyle = `rgba(255, 215, 0, ${pulse * 3})`;
-    for (let x = 0; x < matrixCanvas.width; x += 80) {
-        for (let y = 0; y < matrixCanvas.height; y += 80) {
+    // Grille de points
+    matrixCtx.fillStyle = `rgba(255, 215, 0, ${pulse * 2})`;
+    for (let x = 0; x < matrixCanvas.width; x += 60) {
+        for (let y = 0; y < matrixCanvas.height; y += 60) {
             matrixCtx.beginPath();
             matrixCtx.arc(x, y, 2, 0, Math.PI * 2);
             matrixCtx.fill();
         }
     }
+    
+    // Courants électriques
+    if (particles.length < 8 && Math.random() > 0.95) {
+        const startX = Math.floor(Math.random() * (matrixCanvas.width / 60)) * 60;
+        const startY = Math.floor(Math.random() * (matrixCanvas.height / 60)) * 60;
+        particles.push({
+            x: startX, y: startY,
+            path: [{x: startX, y: startY}],
+            color: Math.random() > 0.5 ? '#00bfff' : '#ff8c00',
+            life: 1
+        });
+    }
+    
+    particles = particles.filter(p => p.life > 0);
+    
+    particles.forEach(p => {
+        // Étendre le chemin
+        if (p.path.length < 15 && Math.random() > 0.3) {
+            const last = p.path[p.path.length - 1];
+            const dirs = [[60,0],[-60,0],[0,60],[0,-60]];
+            const dir = dirs[Math.floor(Math.random() * dirs.length)];
+            const newX = Math.max(0, Math.min(matrixCanvas.width, last.x + dir[0]));
+            const newY = Math.max(0, Math.min(matrixCanvas.height, last.y + dir[1]));
+            p.path.push({x: newX, y: newY});
+        }
+        
+        p.life -= 0.02;
+        
+        // Dessiner le courant
+        matrixCtx.beginPath();
+        matrixCtx.strokeStyle = p.color;
+        matrixCtx.lineWidth = 3;
+        matrixCtx.shadowBlur = 15;
+        matrixCtx.shadowColor = p.color;
+        matrixCtx.globalAlpha = p.life;
+        matrixCtx.moveTo(p.path[0].x, p.path[0].y);
+        p.path.forEach(pt => matrixCtx.lineTo(pt.x, pt.y));
+        matrixCtx.stroke();
+        matrixCtx.shadowBlur = 0;
+        matrixCtx.globalAlpha = 1;
+    });
 }
 
 // Désert - Particules de sable qui volent
