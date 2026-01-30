@@ -38,8 +38,18 @@ header h1 {
     margin-bottom: 30px;
 }
 
+.input-row, .journal-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.journal-input-row {
+    margin-bottom: 20px;
+}
+
 #bubble-input, #journal-input {
-    width: 100%;
+    flex: 1;
     padding: 15px 20px;
     font-size: 1.1rem;
     border: 1px solid rgba(245, 230, 211, 0.15);
@@ -48,6 +58,32 @@ header h1 {
     color: #f5e6d3;
     outline: none;
     transition: all 0.3s ease;
+}
+
+.send-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #e07840 0%, #f4a261 100%);
+    color: #1a1410;
+    font-size: 1.5rem;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.send-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(224, 120, 64, 0.4);
+}
+
+.send-btn:active {
+    transform: scale(0.95);
 }
 
 #bubble-input::placeholder, #journal-input::placeholder {
@@ -159,10 +195,6 @@ header h1 {
     font-weight: 400;
     margin-bottom: 15px;
     color: #c4a882;
-}
-
-.journal-input-row {
-    margin-bottom: 20px;
 }
 
 #journal-input {
