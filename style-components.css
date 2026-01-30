@@ -1,0 +1,694 @@
+/* =============================================
+   PRODUCTIVEAPP - COMPONENTS CSS
+   Bulles, Boutons, Modals, Journal, Chatbot
+   ============================================= */
+
+/* =============================================
+   BOUTONS
+   ============================================= */
+
+.btn-primary {
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: var(--bg-primary);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px var(--accent-glow);
+}
+
+.btn-secondary {
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    background: rgba(224, 120, 64, 0.1);
+}
+
+.btn-accent {
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: var(--bg-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.btn-accent:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px var(--accent-glow);
+}
+
+.icon-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+    transform: scale(1.05);
+}
+
+/* =============================================
+   BULLES / TÂCHES
+   ============================================= */
+
+.task-bubble {
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-lg);
+    background: var(--bubble-bg);
+    border: 2px solid var(--bubble-border);
+    box-shadow: var(--bubble-glow);
+    cursor: pointer;
+    transition: var(--transition-bounce);
+    position: relative;
+    overflow: hidden;
+    animation: popIn 0.3s ease;
+}
+
+/* Effet de lumière en haut */
+.task-bubble::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+    pointer-events: none;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.task-bubble:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+        0 15px 50px var(--accent-glow),
+        0 0 70px rgba(224, 120, 64, 0.2);
+}
+
+/* === État En Cours === */
+.task-bubble.inprogress {
+    background: var(--bubble-inprogress-bg);
+    border-color: var(--bubble-inprogress-border);
+    box-shadow: var(--bubble-inprogress-glow);
+    animation: popIn 0.3s ease, glowPulse 2.5s ease-in-out infinite;
+}
+
+.task-bubble.inprogress .task-text {
+    font-weight: 600;
+    color: var(--warning);
+}
+
+/* === État Terminé === */
+.task-bubble.done {
+    background: var(--bubble-done-bg);
+    border-color: var(--bubble-done-border);
+    box-shadow: var(--bubble-done-glow);
+}
+
+.task-bubble.done .task-text {
+    text-decoration: line-through;
+    color: var(--bubble-done-text);
+    opacity: 0.85;
+}
+
+.task-bubble.done .task-header {
+    opacity: 0.7;
+}
+
+/* === Éléments de la bulle === */
+.task-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.task-project {
+    font-size: 0.75rem;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.task-priority {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    color: var(--text-muted);
+}
+
+.task-priority.urgent {
+    background: rgba(239, 68, 68, 0.3);
+    color: #ff6b6b;
+}
+
+.task-user {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-left: auto;
+}
+
+.task-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+/* === Actions au hover === */
+.task-actions {
+    display: flex;
+    gap: var(--space-xs);
+    margin-top: var(--space-md);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.task-bubble:hover .task-actions {
+    opacity: 1;
+}
+
+.task-action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.task-action-btn.start {
+    background: var(--warning);
+    color: #000;
+}
+
+.task-action-btn.complete {
+    background: var(--success);
+    color: #fff;
+}
+
+.task-action-btn.delete {
+    background: var(--danger);
+    color: #fff;
+}
+
+.task-action-btn:hover {
+    transform: scale(1.08);
+}
+
+/* === Empty State === */
+.empty-state {
+    padding: var(--space-xl);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* =============================================
+   MODALS
+   ============================================= */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    max-width: 420px;
+    width: 90%;
+    animation: popIn 0.3s ease;
+}
+
+.modal-box h3 {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: var(--space-lg);
+    color: var(--text);
+}
+
+.modal-input {
+    width: 100%;
+    padding: var(--space-md) var(--space-lg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: var(--space-md);
+    outline: none;
+    transition: var(--transition-normal);
+}
+
+.modal-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.modal-input::placeholder {
+    color: var(--text-muted);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.modal-actions button {
+    flex: 1;
+}
+
+/* === Theme Modal === */
+.theme-slider-wrap {
+    padding: var(--space-lg) var(--space-md);
+    margin: var(--space-lg) 0;
+}
+
+.theme-slider-wrap input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--bg-tertiary);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.theme-slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: var(--transition-normal);
+}
+
+.theme-slider-wrap input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.theme-preview {
+    font-size: 1.3rem;
+    text-align: center;
+    color: var(--accent);
+    margin-bottom: var(--space-lg);
+}
+
+/* =============================================
+   JOURNAL SECTION
+   ============================================= */
+
+.journal-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.journal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+}
+
+.journal-header h2 {
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+.journal-stats {
+    display: flex;
+    gap: var(--space-md);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.journal-input-row {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.journal-input-row select {
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-primary);
+    color: var(--text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.journal-input-row input {
+    flex: 1;
+    min-width: 200px;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-primary);
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+    transition: var(--transition-normal);
+}
+
+.journal-input-row input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+}
+
+.journal-input-row input::placeholder {
+    color: var(--text-muted);
+}
+
+/* === Journal Entries === */
+.journal-entries {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: var(--space-lg);
+}
+
+.journal-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    border-left: 3px solid var(--accent);
+    animation: popIn 0.2s ease;
+}
+
+.entry-category {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.entry-content {
+    flex: 1;
+}
+
+.entry-text {
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.entry-meta {
+    display: flex;
+    gap: var(--space-md);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.entry-energy {
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+}
+
+.entry-energy.high {
+    background: rgba(34, 197, 94, 0.2);
+    color: var(--success);
+}
+
+.entry-energy.normal {
+    background: rgba(251, 191, 36, 0.2);
+    color: var(--warning);
+}
+
+.entry-energy.low {
+    background: rgba(239, 68, 68, 0.2);
+    color: var(--danger);
+}
+
+/* === Journal Report === */
+.journal-report {
+    display: flex;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.report-content {
+    background: var(--bg-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    margin-top: var(--space-md);
+}
+
+.report-content:empty {
+    display: none;
+}
+
+/* =============================================
+   CHATBOT
+   ============================================= */
+
+.chatbot-fab {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    cursor: pointer;
+    box-shadow: 0 8px 30px var(--accent-glow);
+    transition: var(--transition-normal);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.chatbot-fab img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+}
+
+.chatbot-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px var(--accent-glow);
+}
+
+.chatbot-panel {
+    position: fixed;
+    bottom: 100px;
+    right: 25px;
+    width: 380px;
+    height: 500px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    overflow: hidden;
+    transition: var(--transition-normal);
+}
+
+.chatbot-panel.large {
+    width: 600px;
+    height: 700px;
+    bottom: 20px;
+}
+
+.chatbot-header {
+    padding: var(--space-md);
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chatbot-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.chatbot-title img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.chatbot-title span {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.chatbot-controls {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.chatbot-controls button {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.chatbot-controls button:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
+.chatbot-messages {
+    flex: 1;
+    padding: var(--space-md);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.chat-msg {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    max-width: 85%;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    animation: popIn 0.2s ease;
+}
+
+.chat-msg.user {
+    background: var(--accent);
+    color: var(--bg-primary);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.chat-msg.assistant {
+    background: var(--bg-primary);
+    color: var(--text);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border);
+}
+
+.chat-msg.loading {
+    opacity: 0.6;
+}
+
+.chatbot-input-area {
+    padding: var(--space-md);
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.chatbot-input-area input {
+    flex: 1;
+    padding: var(--space-sm) var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 0.9rem;
+    outline: none;
+    transition: var(--transition-normal);
+}
+
+.chatbot-input-area input:focus {
+    border-color: var(--accent);
+}
+
+.chatbot-input-area input::placeholder {
+    color: var(--text-muted);
+}
+
+.chatbot-input-area button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: var(--transition-normal);
+}
+
+.chatbot-input-area button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px var(--accent-glow);
+}
+
+/* === Chatbot Responsive === */
+@media (max-width: 768px) {
+    .chatbot-panel {
+        width: calc(100% - 30px);
+        right: 15px;
+        height: 60vh;
+    }
+    
+    .chatbot-panel.large {
+        width: calc(100% - 20px);
+        height: 80vh;
+        right: 10px;
+        bottom: 10px;
+    }
+}
