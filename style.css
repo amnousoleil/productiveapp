@@ -409,10 +409,12 @@ header h1 {
     font-size: 1.1rem;
     border: 1px solid var(--border);
     border-radius: 50px;
-    background: var(--card-bg);
+    background: var(--bg-secondary);
     color: var(--text);
     outline: none;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
 }
 
 .send-btn {
@@ -540,9 +542,11 @@ header h1 {
 }
 
 .journal-section {
-    background: var(--card-bg);
+    background: var(--bg-secondary);
     border-radius: 20px;
     padding: 25px;
+    position: relative;
+    z-index: 5;
 }
 
 .journal-section h2 {
