@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProductiveApp - Empire Dashboard</title>
+    <title>ProductiveApp - Ma Vision</title>
     
     <!-- CSS segmenté -->
-    <link rel="stylesheet" href="style-base.css?v=3">
-    <link rel="stylesheet" href="style-components.css?v=3">
-    <link rel="stylesheet" href="style-themes.css?v=3">
+    <link rel="stylesheet" href="style-base.css?v=4">
+    <link rel="stylesheet" href="style-components.css?v=4">
+    <link rel="stylesheet" href="style-themes.css?v=4">
     
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -50,7 +50,7 @@
                 </div>
             </div>
             
-            <h1 class="app-title">Empire Dashboard</h1>
+            <h1 class="app-title">Ma Vision</h1>
             
             <div class="header-right">
                 <button id="view-toggle-btn" class="icon-btn" title="Changer de vue">📊</button>
@@ -174,7 +174,7 @@
 
     <!-- ========== MODALS ========== -->
     
-    <!-- Modal Thème (10 thèmes maintenant) -->
+    <!-- Modal Thème (10 thèmes) -->
     <div id="theme-modal" class="modal hidden">
         <div class="modal-box">
             <h3>🎨 Choisis ton ambiance</h3>
@@ -269,7 +269,7 @@
             font-weight: 600 !important;
         }
 
-        /* === BULLES TERMINÉES - GLOW DOUX === */
+        /* === BULLES TERMINÉES === */
         body .bubble.done,
         body .task-bubble.done,
         body div.bubble.done,
@@ -285,7 +285,6 @@
         body div.bubble.done:hover,
         body div.task-bubble.done:hover {
             transform: translateY(-4px) scale(1.02) !important;
-            box-shadow: 0 6px 25px rgba(34, 197, 94, 0.35) !important;
         }
 
         body .bubble.done .bubble-text,
@@ -293,7 +292,6 @@
         body div.bubble.done .bubble-text,
         body div.task-bubble.done .task-text {
             color: var(--bubble-done-text, #4ade80) !important;
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.4) !important;
             text-decoration: line-through !important;
             opacity: 1 !important;
         }
@@ -317,8 +315,8 @@
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=2"></script>
-    <script src="app.js?v=2"></script>
+    <script src="animations.js?v=3"></script>
+    <script src="app.js?v=3"></script>
 
 </body>
 </html>
