@@ -36,7 +36,8 @@ const THEMES = [
     { id: 'ocean', name: '🌊 Océan' },
     { id: 'fantasy', name: '🔮 Fantasy' },
     { id: 'sunset', name: '🌅 Sunset' },
-    { id: 'forest', name: '🌲 Forest' }
+    { id: 'forest', name: '🌲 Forest' },
+    { id: 'hacker', name: '🖤 Hacker' }
 ];
 
 // === INITIALISATION ===
@@ -68,6 +69,274 @@ themeSlider.addEventListener('input', () => {
     themeName.textContent = theme.name;
 });
 
+// === MATRIX RAIN EFFECT ===
+const matrixCanvas = document.getElementById('matrix-bg');
+const matrixCtx = matrixCanvas.getContext('2d');
+let matrixColumns = [];
+let matrixAnimationId = null;
+let particles = [];
+
+function initMatrix() {
+    matrixCanvas.width = window.innerWidth;
+    matrixCanvas.height = window.innerHeight;
+    
+    const fontSize = 16;
+    const columns = Math.floor(matrixCanvas.width / fontSize);
+    
+    matrixColumns = [];
+    for (let i = 0; i < columns; i++) {
+        matrixColumns[i] = Math.random() * matrixCanvas.height;
+    }
+}
+
+function drawMatrix() {
+    const theme = document.documentElement.getAttribute('data-theme');
+    
+    matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    
+    if (theme === 'matrix') {
+        drawMatrixRain();
+    } else if (theme === 'midnight') {
+        drawStars();
+    } else if (theme === 'ocean') {
+        drawBubbles();
+    } else if (theme === 'fantasy') {
+        drawMagicParticles();
+    } else if (theme === 'bubblegum') {
+        drawPinkBubbles();
+    } else if (theme === 'forest') {
+        drawLeaves();
+    } else if (theme === 'sunset') {
+        drawSunsetGlow();
+    } else if (theme === 'hacker') {
+        drawHackerGrid();
+    } else if (theme === 'desert' || !theme) {
+        drawSandParticles();
+    }
+    
+    matrixAnimationId = requestAnimationFrame(drawMatrix);
+}
+
+// Matrix - Code qui tombe doucement
+function drawMatrixRain() {
+    matrixCtx.fillStyle = 'rgba(0, 210, 106, 0.03)';
+    matrixCtx.font = '14px monospace';
+    
+    const chars = 'アイウエオカキクケコ01';
+    
+    for (let i = 0; i < matrixColumns.length; i += 3) {
+        if (Math.random() > 0.98) {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+            matrixCtx.fillText(char, i * 14, matrixColumns[i]);
+            
+            if (matrixColumns[i] > matrixCanvas.height) {
+                matrixColumns[i] = 0;
+            }
+            matrixColumns[i] += 8;
+        }
+    }
+}
+
+// Midnight - Étoiles scintillantes
+function drawStars() {
+    if (particles.length < 50) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: Math.random() * matrixCanvas.height,
+            size: Math.random() * 2 + 1,
+            twinkle: Math.random() * Math.PI * 2
+        });
+    }
+    
+    particles.forEach(p => {
+        p.twinkle += 0.02;
+        const opacity = 0.3 + Math.sin(p.twinkle) * 0.2;
+        matrixCtx.beginPath();
+        matrixCtx.fillStyle = `rgba(108, 143, 255, ${opacity})`;
+        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        matrixCtx.fill();
+    });
+}
+
+// Ocean - Bulles qui montent
+function drawBubbles() {
+    if (particles.length < 20 && Math.random() > 0.95) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: matrixCanvas.height + 20,
+            size: Math.random() * 8 + 3,
+            speed: Math.random() * 0.5 + 0.3
+        });
+    }
+    
+    particles = particles.filter(p => p.y > -20);
+    
+    particles.forEach(p => {
+        p.y -= p.speed;
+        p.x += Math.sin(p.y / 30) * 0.3;
+        matrixCtx.beginPath();
+        matrixCtx.strokeStyle = 'rgba(0, 180, 216, 0.15)';
+        matrixCtx.lineWidth = 1;
+        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        matrixCtx.stroke();
+    });
+}
+
+// Fantasy - Particules magiques
+function drawMagicParticles() {
+    if (particles.length < 30 && Math.random() > 0.9) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: Math.random() * matrixCanvas.height,
+            size: Math.random() * 3 + 1,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            life: 1
+        });
+    }
+    
+    particles = particles.filter(p => p.life > 0);
+    
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.003;
+        
+        matrixCtx.beginPath();
+        matrixCtx.fillStyle = `rgba(191, 107, 255, ${p.life * 0.3})`;
+        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        matrixCtx.fill();
+    });
+}
+
+// Bubblegum - Bulles roses
+function drawPinkBubbles() {
+    if (particles.length < 15 && Math.random() > 0.97) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: matrixCanvas.height + 30,
+            size: Math.random() * 15 + 8,
+            speed: Math.random() * 0.3 + 0.2
+        });
+    }
+    
+    particles = particles.filter(p => p.y > -50);
+    
+    particles.forEach(p => {
+        p.y -= p.speed;
+        p.x += Math.sin(p.y / 50) * 0.5;
+        matrixCtx.beginPath();
+        matrixCtx.fillStyle = 'rgba(255, 107, 157, 0.08)';
+        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        matrixCtx.fill();
+    });
+}
+
+// Forest - Feuilles qui tombent
+function drawLeaves() {
+    if (particles.length < 10 && Math.random() > 0.98) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: -20,
+            rotation: Math.random() * Math.PI * 2,
+            speed: Math.random() * 0.5 + 0.3
+        });
+    }
+    
+    particles = particles.filter(p => p.y < matrixCanvas.height + 20);
+    
+    particles.forEach(p => {
+        p.y += p.speed;
+        p.x += Math.sin(p.y / 40) * 0.5;
+        p.rotation += 0.02;
+        
+        matrixCtx.save();
+        matrixCtx.translate(p.x, p.y);
+        matrixCtx.rotate(p.rotation);
+        matrixCtx.fillStyle = 'rgba(74, 222, 128, 0.15)';
+        matrixCtx.beginPath();
+        matrixCtx.ellipse(0, 0, 8, 4, 0, 0, Math.PI * 2);
+        matrixCtx.fill();
+        matrixCtx.restore();
+    });
+}
+
+// Sunset - Lueur chaude
+function drawSunsetGlow() {
+    const gradient = matrixCtx.createRadialGradient(
+        matrixCanvas.width * 0.8, matrixCanvas.height * 0.2, 0,
+        matrixCanvas.width * 0.8, matrixCanvas.height * 0.2, 300
+    );
+    gradient.addColorStop(0, 'rgba(249, 115, 22, 0.05)');
+    gradient.addColorStop(1, 'rgba(249, 115, 22, 0)');
+    matrixCtx.fillStyle = gradient;
+    matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+}
+
+// Hacker - Grille subtile
+function drawHackerGrid() {
+    matrixCtx.strokeStyle = 'rgba(255, 215, 0, 0.02)';
+    matrixCtx.lineWidth = 1;
+    
+    for (let x = 0; x < matrixCanvas.width; x += 50) {
+        matrixCtx.beginPath();
+        matrixCtx.moveTo(x, 0);
+        matrixCtx.lineTo(x, matrixCanvas.height);
+        matrixCtx.stroke();
+    }
+    for (let y = 0; y < matrixCanvas.height; y += 50) {
+        matrixCtx.beginPath();
+        matrixCtx.moveTo(0, y);
+        matrixCtx.lineTo(matrixCanvas.width, y);
+        matrixCtx.stroke();
+    }
+}
+
+// Désert - Particules de sable
+function drawSandParticles() {
+    if (particles.length < 20 && Math.random() > 0.95) {
+        particles.push({
+            x: Math.random() * matrixCanvas.width,
+            y: Math.random() * matrixCanvas.height,
+            size: Math.random() * 2 + 1,
+            vx: Math.random() * 0.3,
+            life: 1
+        });
+    }
+    
+    particles = particles.filter(p => p.life > 0 && p.x < matrixCanvas.width + 20);
+    
+    particles.forEach(p => {
+        p.x += p.vx;
+        p.life -= 0.005;
+        matrixCtx.beginPath();
+        matrixCtx.fillStyle = `rgba(224, 120, 64, ${p.life * 0.1})`;
+        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        matrixCtx.fill();
+    });
+}
+
+function startMatrix() {
+    if (!matrixAnimationId) {
+        particles = [];
+        initMatrix();
+        drawMatrix();
+    }
+}
+
+function stopMatrix() {
+    if (matrixAnimationId) {
+        cancelAnimationFrame(matrixAnimationId);
+        matrixAnimationId = null;
+        particles = [];
+        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    }
+}
+
+window.addEventListener('resize', () => {
+    initMatrix();
+});
+
 function setTheme(theme) {
     if (theme === 'desert') {
         document.documentElement.removeAttribute('data-theme');
@@ -75,6 +344,12 @@ function setTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
     }
     localStorage.setItem('theme', theme);
+    
+    // Redémarrer l'animation avec le nouveau thème
+    particles = [];
+    if (!matrixAnimationId) {
+        startMatrix();
+    }
 }
 
 function loadTheme() {
@@ -88,10 +363,8 @@ function loadTheme() {
         themeName.textContent = THEMES[index].name;
     }
     
-    // Démarrer Matrix si c'est le thème actif
-    if (savedTheme === 'matrix') {
-        setTimeout(startMatrix, 100);
-    }
+    // Démarrer l'animation
+    setTimeout(startMatrix, 100);
 }
 
 // === VIDER TOUTES LES BULLES ===
@@ -407,91 +680,6 @@ window.exportData = function() {
         journal: journal,
         history: history
     };
-};
-
-// === MATRIX RAIN EFFECT ===
-const matrixCanvas = document.getElementById('matrix-bg');
-const matrixCtx = matrixCanvas.getContext('2d');
-
-let matrixColumns = [];
-let matrixAnimationId = null;
-
-function initMatrix() {
-    matrixCanvas.width = window.innerWidth;
-    matrixCanvas.height = window.innerHeight;
-    
-    const fontSize = 14;
-    const columns = Math.floor(matrixCanvas.width / fontSize);
-    
-    matrixColumns = [];
-    for (let i = 0; i < columns; i++) {
-        matrixColumns[i] = Math.random() * matrixCanvas.height;
-    }
-}
-
-function drawMatrix() {
-    matrixCtx.fillStyle = 'rgba(13, 17, 23, 0.05)';
-    matrixCtx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-    
-    matrixCtx.fillStyle = '#238636';
-    matrixCtx.font = '14px monospace';
-    
-    const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF';
-    
-    for (let i = 0; i < matrixColumns.length; i++) {
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 14;
-        const y = matrixColumns[i];
-        
-        matrixCtx.fillText(char, x, y);
-        
-        if (y > matrixCanvas.height && Math.random() > 0.975) {
-            matrixColumns[i] = 0;
-        }
-        matrixColumns[i] += 14;
-    }
-    
-    matrixAnimationId = requestAnimationFrame(drawMatrix);
-}
-
-function startMatrix() {
-    if (!matrixAnimationId) {
-        initMatrix();
-        drawMatrix();
-    }
-}
-
-function stopMatrix() {
-    if (matrixAnimationId) {
-        cancelAnimationFrame(matrixAnimationId);
-        matrixAnimationId = null;
-        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
-    }
-}
-
-// Gérer le resize
-window.addEventListener('resize', () => {
-    if (document.documentElement.getAttribute('data-theme') === 'matrix') {
-        initMatrix();
-    }
-});
-
-// Modifier setTheme pour gérer l'effet Matrix
-const originalSetTheme = setTheme;
-setTheme = function(theme) {
-    if (theme === 'desert') {
-        document.documentElement.removeAttribute('data-theme');
-    } else {
-        document.documentElement.setAttribute('data-theme', theme);
-    }
-    localStorage.setItem('theme', theme);
-    
-    // Gérer l'effet Matrix
-    if (theme === 'matrix') {
-        startMatrix();
-    } else {
-        stopMatrix();
-    }
 };
 
 // === CHATBOT IA ===
