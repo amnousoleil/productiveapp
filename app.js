@@ -369,35 +369,30 @@ function renderBubbleHTML(bubble) {
 }
 
 function attachBubbleEvents() {
-    // Event delegation - on attache une seule fois sur les conteneurs parents
-    ['todo-bubbles', 'inprogress-bubbles', 'done-bubbles'].forEach(containerId => {
-        const container = document.getElementById(containerId);
-        if (!container) return;
+    // Attacher directement sur chaque bouton
+    document.querySelectorAll('.bubble-action-btn').forEach(btn => {
+        // Enlever les anciens listeners en clonant le bouton
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
         
-        // Supprimer les anciens listeners en clonant
-        const newContainer = container.cloneNode(true);
-        container.parentNode.replaceChild(newContainer, container);
-        
-        // Ajouter le listener sur le conteneur
-        newContainer.addEventListener('click', (e) => {
-            const btn = e.target.closest('.bubble-action-btn');
-            if (!btn) return;
-            
+        newBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const bubble = btn.closest('.bubble');
+            e.preventDefault();
+            
+            const bubble = newBtn.closest('.bubble');
             if (!bubble) return;
             
             const bubbleId = parseInt(bubble.dataset.id);
-            const action = btn.dataset.action;
+            const action = newBtn.dataset.action;
             
-            console.log('Action:', action, 'on bubble:', bubbleId);
+            console.log('Click! Action:', action, 'Bubble ID:', bubbleId);
             handleBubbleAction(bubbleId, action);
         });
     });
 }
 
 function handleBubbleAction(bubbleId, action) {
-    console.log('handleBubbleAction called:', bubbleId, action);
+    console.log('handleBubbleAction:', bubbleId, action);
     
     const bubbleIndex = bubbles.findIndex(b => b.id === bubbleId);
     if (bubbleIndex === -1) {
@@ -406,7 +401,6 @@ function handleBubbleAction(bubbleId, action) {
     }
     
     const bubble = bubbles[bubbleIndex];
-    console.log('Found bubble:', bubble.text);
     
     if (action === 'start') {
         bubble.status = 'inprogress';
