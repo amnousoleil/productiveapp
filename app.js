@@ -369,21 +369,44 @@ function renderBubbleHTML(bubble) {
 }
 
 function attachBubbleEvents() {
-    document.querySelectorAll('.bubble').forEach(el => {
-        el.querySelectorAll('.bubble-action-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                handleBubbleAction(parseInt(el.dataset.id), btn.dataset.action);
-            });
+    // Event delegation - on attache une seule fois sur les conteneurs parents
+    ['todo-bubbles', 'inprogress-bubbles', 'done-bubbles'].forEach(containerId => {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        
+        // Supprimer les anciens listeners en clonant
+        const newContainer = container.cloneNode(true);
+        container.parentNode.replaceChild(newContainer, container);
+        
+        // Ajouter le listener sur le conteneur
+        newContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.bubble-action-btn');
+            if (!btn) return;
+            
+            e.stopPropagation();
+            const bubble = btn.closest('.bubble');
+            if (!bubble) return;
+            
+            const bubbleId = parseInt(bubble.dataset.id);
+            const action = btn.dataset.action;
+            
+            console.log('Action:', action, 'on bubble:', bubbleId);
+            handleBubbleAction(bubbleId, action);
         });
     });
 }
 
 function handleBubbleAction(bubbleId, action) {
+    console.log('handleBubbleAction called:', bubbleId, action);
+    
     const bubbleIndex = bubbles.findIndex(b => b.id === bubbleId);
-    if (bubbleIndex === -1) return;
+    if (bubbleIndex === -1) {
+        console.error('Bubble not found:', bubbleId);
+        return;
+    }
     
     const bubble = bubbles[bubbleIndex];
+    console.log('Found bubble:', bubble.text);
     
     if (action === 'start') {
         bubble.status = 'inprogress';
@@ -460,6 +483,19 @@ function setTheme(theme) {
     if (theme === 'desert') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
+    
+    // Réinitialiser les particules pour le nouveau thème
+    particles = [];
+    matrixDrops = [];
+    const columns = Math.floor(window.innerWidth / 20);
+    for (let i = 0; i < columns; i++) {
+        matrixDrops[i] = Math.random() * -100;
+    }
+    
+    // Clear le canvas
+    if (matrixCtx) {
+        matrixCtx.clearRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+    }
 }
 
 function loadTheme() {
@@ -475,20 +511,22 @@ const matrixCtx = matrixCanvas.getContext('2d');
 let particles = [];
 let matrixDrops = [];
 let animationId = null;
+let animationStarted = false;
 
 function startAnimation() {
+    if (animationStarted) return; // Ne pas relancer si déjà en cours
+    animationStarted = true;
+    
     matrixCanvas.width = window.innerWidth;
     matrixCanvas.height = window.innerHeight;
-    particles = [];
-    matrixDrops = [];
     
-    // Init matrix drops pour les thèmes qui en ont besoin
+    // Init matrix drops
     const columns = Math.floor(matrixCanvas.width / 20);
     for (let i = 0; i < columns; i++) {
         matrixDrops[i] = Math.random() * -100;
     }
     
-    if (!animationId) animate();
+    animate();
 }
 
 function animate() {
