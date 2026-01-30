@@ -430,34 +430,47 @@ function animateMidnight() {
 
 // === DESERT - Grains de sable flottants ===
 function animateDesert() {
-    if (frameCount % 12 === 0 && particles.length < 40) {
+    // Créer des particules régulièrement sur le côté gauche
+    if (frameCount % 8 === 0 && particles.length < 60) {
         particles.push({
-            x: Math.random() * matrixCanvas.width,
+            x: -10, // Départ à gauche
             y: Math.random() * matrixCanvas.height,
-            size: Math.random() * 3 + 1,
-            vx: (Math.random() - 0.5) * 0.3,
-            vy: (Math.random() - 0.5) * 0.3,
-            life: 1
+            size: Math.random() * 4 + 2,
+            speed: Math.random() * 2 + 1, // Vitesse horizontale
+            drift: Math.random() * 0.5 - 0.25, // Légère oscillation verticale
+            opacity: Math.random() * 0.5 + 0.5
         });
     }
     
-    particles = particles.filter(p => p.life > 0.02);
+    // Filtrer les particules sorties de l'écran
+    particles = particles.filter(p => p.x < matrixCanvas.width + 20);
     
+    // Dessiner et animer chaque particule
     particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life -= 0.004;
+        // Mouvement principal : gauche à droite (vent)
+        p.x += p.speed;
+        // Légère oscillation verticale (flottement)
+        p.y += Math.sin(frameCount * 0.02 + p.x * 0.01) * p.drift;
         
-        const radius = Math.max(0.5, p.size * p.life);
-        matrixCtx.globalAlpha = p.life * 0.6;
-        matrixCtx.fillStyle = '#e07840';
-        matrixCtx.shadowBlur = 3;
+        // Dessiner avec glow
+        matrixCtx.save();
+        matrixCtx.globalAlpha = p.opacity;
+        matrixCtx.shadowBlur = 15;
         matrixCtx.shadowColor = '#e07840';
+        matrixCtx.fillStyle = '#f4a261';
         matrixCtx.beginPath();
-        matrixCtx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        matrixCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         matrixCtx.fill();
-        matrixCtx.globalAlpha = 1;
-        matrixCtx.shadowBlur = 0;
+        
+        // Deuxième couche de glow plus large
+        matrixCtx.shadowBlur = 25;
+        matrixCtx.shadowColor = '#e07840';
+        matrixCtx.globalAlpha = p.opacity * 0.3;
+        matrixCtx.beginPath();
+        matrixCtx.arc(p.x, p.y, p.size * 1.5, 0, Math.PI * 2);
+        matrixCtx.fill();
+        
+        matrixCtx.restore();
     });
 }
 
