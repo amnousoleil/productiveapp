@@ -379,10 +379,10 @@ function attachBubbleEvents() {
             e.stopPropagation();
             e.preventDefault();
             
-            const bubble = newBtn.closest('.bubble');
-            if (!bubble) return;
+            const bubbleEl = newBtn.closest('.bubble');
+            if (!bubbleEl) return;
             
-            const bubbleId = parseInt(bubble.dataset.id);
+            const bubbleId = Number(bubbleEl.dataset.id);
             const action = newBtn.dataset.action;
             
             console.log('Click! Action:', action, 'Bubble ID:', bubbleId);
@@ -393,6 +393,7 @@ function attachBubbleEvents() {
 
 function handleBubbleAction(bubbleId, action) {
     console.log('handleBubbleAction:', bubbleId, action);
+    console.log('Looking in bubbles:', bubbles.map(b => b.id));
     
     const bubbleIndex = bubbles.findIndex(b => b.id === bubbleId);
     if (bubbleIndex === -1) {
