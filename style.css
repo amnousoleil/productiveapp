@@ -613,13 +613,45 @@ header {
 }
 
 .tasks-column {
-    background: var(--bg-primary);
+    background: #1a1410;
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 15px;
     min-height: 300px;
     position: relative;
     z-index: 10;
+}
+
+[data-theme="matrix"] .tasks-column {
+    background: #0a0f0a;
+}
+
+[data-theme="hacker"] .tasks-column {
+    background: #0a0a0a;
+}
+
+[data-theme="ocean"] .tasks-column {
+    background: #0a1520;
+}
+
+[data-theme="fantasy"] .tasks-column {
+    background: #1a1025;
+}
+
+[data-theme="sunset"] .tasks-column {
+    background: #1a1210;
+}
+
+[data-theme="forest"] .tasks-column {
+    background: #0f1a10;
+}
+
+[data-theme="bubblegum"] .tasks-column {
+    background: #1a1018;
+}
+
+[data-theme="midnight"] .tasks-column {
+    background: #0a0a15;
 }
 
 .column-header {
