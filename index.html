@@ -6,9 +6,9 @@
     <title>ProductiveApp - Ma Vision</title>
     
     <!-- CSS segmenté -->
-    <link rel="stylesheet" href="style-base.css?v=4">
-    <link rel="stylesheet" href="style-components.css?v=4">
-    <link rel="stylesheet" href="style-themes.css?v=4">
+    <link rel="stylesheet" href="style-base.css?v=5">
+    <link rel="stylesheet" href="style-components.css?v=5">
+    <link rel="stylesheet" href="style-themes.css?v=5">
     
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -243,6 +243,14 @@
             box-shadow: var(--bubble-glow, 0 4px 20px rgba(224, 120, 64, 0.2)) !important;
         }
 
+        /* Texte des bulles - utilise la variable du thème si définie */
+        body .bubble .bubble-text,
+        body .task-bubble .task-text,
+        body div.bubble .bubble-text,
+        body div.task-bubble .task-text {
+            color: var(--bubble-text-color, var(--text)) !important;
+        }
+
         body .bubble:hover,
         body .task-bubble:hover,
         body div.bubble:hover,
@@ -265,7 +273,7 @@
         body .task-bubble.inprogress .task-text,
         body div.bubble.inprogress .bubble-text,
         body div.task-bubble.inprogress .task-text {
-            color: var(--warning, #fbbf24) !important;
+            color: var(--bubble-text-color, var(--warning, #fbbf24)) !important;
             font-weight: 600 !important;
         }
 
@@ -293,14 +301,14 @@
         body div.task-bubble.done .task-text {
             color: var(--bubble-done-text, #4ade80) !important;
             text-decoration: line-through !important;
-            opacity: 1 !important;
+            opacity: 0.85 !important;
         }
 
         body .bubble.done .bubble-header,
         body .task-bubble.done .task-header,
         body div.bubble.done .bubble-header,
         body div.task-bubble.done .task-header {
-            opacity: 0.9 !important;
+            opacity: 0.8 !important;
         }
 
         /* === ANIMATION GLOW SUBTILE === */
@@ -315,8 +323,8 @@
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=3"></script>
-    <script src="app.js?v=3"></script>
+    <script src="animations.js?v=4"></script>
+    <script src="app.js?v=4"></script>
 
 </body>
 </html>
