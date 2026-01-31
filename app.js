@@ -409,6 +409,7 @@ async function initApp() {
     
     loadTheme();
     loadViewMode();
+    initChatbotFontSize();
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
@@ -742,7 +743,7 @@ function attachTaskEventsFull() {
 }
 
 function attachTaskEventsSimple() {
-    // Boutons edit (crayon)
+    // Boutons edit (crayon) - ouvre la modal
     document.querySelectorAll('.bubbles-view .edit-btn').forEach(btn => {
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
@@ -755,12 +756,22 @@ function attachTaskEventsSimple() {
         });
     });
     
-    // Clic sur la bulle = ouvre la modal
+    // Clic sur la bulle = TOGGLE fait/à faire (mode 2 colonnes)
     document.querySelectorAll('.bubble[data-simple="true"]').forEach(bubble => {
         bubble.addEventListener('click', (e) => {
             // Ignorer si on a cliqué sur le bouton edit
             if (e.target.closest('.edit-btn')) return;
-            openEditTaskModal(bubble.dataset.id);
+            
+            const taskId = bubble.dataset.id;
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            // Toggle: todo/inprogress -> done, done -> todo
+            if (task.status === 'done') {
+                handleTaskAction(taskId, 'reopen');
+            } else {
+                handleTaskAction(taskId, 'done');
+            }
         });
     });
 }
@@ -1028,6 +1039,25 @@ function toggleChatbotSize() {
     $('chatbot-window').classList.toggle('large', chatbotLarge);
 }
 
+// Tailles de police du chatbot
+const FONT_SIZES = ['small', 'medium', 'large', 'xlarge'];
+let chatbotFontSize = localStorage.getItem('chatbot-font-size') || 'medium';
+
+function toggleChatbotFontSize() {
+    const currentIndex = FONT_SIZES.indexOf(chatbotFontSize);
+    const nextIndex = (currentIndex + 1) % FONT_SIZES.length;
+    chatbotFontSize = FONT_SIZES[nextIndex];
+    localStorage.setItem('chatbot-font-size', chatbotFontSize);
+    $('chatbot-window').dataset.font = chatbotFontSize;
+    
+    const labels = { small: 'Petit', medium: 'Moyen', large: 'Grand', xlarge: 'Très grand' };
+    console.log('📝 Taille police:', labels[chatbotFontSize]);
+}
+
+function initChatbotFontSize() {
+    $('chatbot-window').dataset.font = chatbotFontSize;
+}
+
 async function sendChatMessage() {
     const message = $('chatbot-input').value.trim();
     if (!message) return;
@@ -1066,29 +1096,45 @@ function buildAIContext() {
     const urgent = todo.filter(t => t.priority.level === 1);
     
     let ctx = `=== EMPIRE DIGITAL GIRI ===\nUser: ${currentUser.name} (${currentUser.role})\nDate: ${new Date().toLocaleDateString('fr-FR')}\n\n`;
-    ctx += `🔥 URGENT: ${urgent.length} | 📋 À faire: ${todo.length} | 🔄 En cours: ${inProgress.length}\n\n`;
+    
+    ctx += `📊 STATS: 🔥 Urgent: ${urgent.length} | 📋 À faire: ${todo.length} | 🔄 En cours: ${inProgress.length}\n\n`;
+    
+    // Commandes disponibles
+    ctx += `🤖 COMMANDES DISPONIBLES (utilise-les pour agir):
+- ACTION:CREATE|texte → Créer une tâche
+- ACTION:DONE|texte → Marquer comme terminé
+- ACTION:START|texte → Commencer une tâche
+- ACTION:PRIORITY|texte|1 → Mettre en urgent (1=urgent, 2=normal, 3=basse)
+- ACTION:REOPEN|texte → Réouvrir une tâche terminée
+
+`;
     
     if (urgent.length) {
-        ctx += `URGENTS:\n${urgent.map(t => `- ${t.text} (${getProject(t.project).name}) [${t.userName}]`).join('\n')}\n\n`;
+        ctx += `🔥 URGENT:\n${urgent.map(t => `- ${t.text} (${getProject(t.project).name})`).join('\n')}\n\n`;
     }
     
     if (inProgress.length) {
-        ctx += `EN COURS:\n${inProgress.map(t => `- ${t.text} [${t.userName}]`).join('\n')}\n\n`;
+        ctx += `🔄 EN COURS:\n${inProgress.map(t => `- ${t.text}`).join('\n')}\n\n`;
     }
     
+    // Liste des tâches par projet
+    ctx += `📋 TÂCHES À FAIRE:\n`;
     projects.forEach(p => {
         const pTodo = todo.filter(t => t.project === p.id);
         if (pTodo.length) {
-            ctx += `📁 ${p.name}: ${pTodo.map(t => `${t.text} [${t.userName}]`).join(', ')}\n`;
+            ctx += `${p.icon} ${p.name}:\n${pTodo.map(t => `  - ${t.text} [P${t.priority.level}]`).join('\n')}\n`;
         }
     });
     
-    ctx += `\nJOURNAL: ${todayJournal.slice(0, 5).map(e => e.text).join(' | ') || 'Vide'}`;
+    ctx += `\n📝 JOURNAL (5 derniers): ${todayJournal.slice(0, 5).map(e => e.text).join(' | ') || 'Vide'}`;
     
     return ctx;
 }
 
 async function processAIActions(response) {
+    let actionsPerformed = [];
+    
+    // ACTION:CREATE|texte de la tâche
     if (response.includes('ACTION:CREATE|')) {
         for (const m of [...response.matchAll(/ACTION:CREATE\|([^\n]+)/g)]) {
             const taskData = {
@@ -1116,25 +1162,73 @@ async function processAIActions(response) {
                     createdAt: newTask.created_at,
                     updatedAt: newTask.updated_at
                 });
+                actionsPerformed.push(`✅ Tâche créée: ${m[1].trim()}`);
             }
         }
-        renderTasks();
-        renderProjectsFilter();
-        response = response.replace(/ACTION:CREATE\|[^\n]+/g, '') + '\n✅ Tâche créée!';
     }
     
+    // ACTION:DONE|texte de la tâche
     if (response.includes('ACTION:DONE|')) {
         for (const m of [...response.matchAll(/ACTION:DONE\|([^\n]+)/g)]) {
-            const t = tasks.find(t => t.status !== 'done' && t.text.toLowerCase().includes(m[1].trim().toLowerCase()));
+            const searchText = m[1].trim().toLowerCase();
+            const t = tasks.find(t => t.status !== 'done' && t.text.toLowerCase().includes(searchText));
             if (t) {
                 await updateTaskAPI(t.id, 'done', t.priority.level);
                 t.status = 'done';
                 t.completedAt = new Date().toISOString();
+                actionsPerformed.push(`✅ Terminé: ${t.text}`);
             }
         }
+    }
+    
+    // ACTION:PRIORITY|texte|niveau (1=urgent, 2=normal, 3=basse)
+    if (response.includes('ACTION:PRIORITY|')) {
+        for (const m of [...response.matchAll(/ACTION:PRIORITY\|([^|]+)\|(\d)/g)]) {
+            const searchText = m[1].trim().toLowerCase();
+            const newPriority = parseInt(m[2]);
+            const t = tasks.find(t => t.text.toLowerCase().includes(searchText));
+            if (t && newPriority >= 1 && newPriority <= 3) {
+                await updateTaskAPI(t.id, t.status, newPriority);
+                t.priority = { level: newPriority, label: getPriorityLabel(newPriority) };
+                const priorityNames = { 1: '🔥 Urgent', 2: 'Normal', 3: 'Basse' };
+                actionsPerformed.push(`🎯 Priorité ${priorityNames[newPriority]}: ${t.text}`);
+            }
+        }
+    }
+    
+    // ACTION:START|texte de la tâche
+    if (response.includes('ACTION:START|')) {
+        for (const m of [...response.matchAll(/ACTION:START\|([^\n]+)/g)]) {
+            const searchText = m[1].trim().toLowerCase();
+            const t = tasks.find(t => t.status === 'todo' && t.text.toLowerCase().includes(searchText));
+            if (t) {
+                await updateTaskAPI(t.id, 'inprogress', t.priority.level);
+                t.status = 'inprogress';
+                actionsPerformed.push(`▶️ Commencé: ${t.text}`);
+            }
+        }
+    }
+    
+    // ACTION:REOPEN|texte de la tâche
+    if (response.includes('ACTION:REOPEN|')) {
+        for (const m of [...response.matchAll(/ACTION:REOPEN\|([^\n]+)/g)]) {
+            const searchText = m[1].trim().toLowerCase();
+            const t = tasks.find(t => t.status === 'done' && t.text.toLowerCase().includes(searchText));
+            if (t) {
+                await updateTaskAPI(t.id, 'todo', t.priority.level);
+                t.status = 'todo';
+                t.completedAt = null;
+                actionsPerformed.push(`🔄 Réouvert: ${t.text}`);
+            }
+        }
+    }
+    
+    // Si des actions ont été effectuées
+    if (actionsPerformed.length > 0) {
         renderTasks();
         renderProjectsFilter();
-        response = response.replace(/ACTION:DONE\|[^\n]+/g, '') + '\n✅ Terminé!';
+        response = response.replace(/ACTION:[A-Z]+\|[^\n]*/g, '').trim();
+        response += '\n\n' + actionsPerformed.join('\n');
     }
     
     return response.trim();
@@ -1333,6 +1427,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $('chatbot-toggle').addEventListener('click', toggleChatbot);
     $('chatbot-close').addEventListener('click', function() { $('chatbot-window').classList.add('hidden'); });
     $('chatbot-resize').addEventListener('click', toggleChatbotSize);
+    $('chatbot-font-size').addEventListener('click', toggleChatbotFontSize);
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     
