@@ -660,17 +660,17 @@ function renderBubblesView(todo, inprogress, done) {
 function renderTaskHTMLFull(task) {
     const project = getProject(task.project);
     const userAvatar = getUserAvatar(task.userId);
+    const hasDescription = task.description && task.description.trim();
     
     return `
         <div class="bubble ${task.status}" data-id="${task.id}">
-            <button class="edit-btn" data-action="edit" title="Modifier">✏️</button>
+            <button class="edit-btn ${hasDescription ? 'has-note' : ''}" data-action="edit" title="${hasDescription ? 'Voir/Modifier notes' : 'Ajouter notes'}">✏️</button>
             <div class="bubble-header">
                 <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon} ${project.name}</span>
                 <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
                 <span class="task-user" title="${task.userName}">${userAvatar}</span>
             </div>
             <div class="bubble-text">${escapeHtml(task.text)}</div>
-            ${task.description ? `<div class="bubble-description">${escapeHtml(task.description)}</div>` : ''}
             <div class="task-actions">
                 ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
                 ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅ Terminé</button>` : ''}
@@ -686,17 +686,17 @@ function renderTaskHTMLFull(task) {
 function renderTaskHTMLSimple(task) {
     const project = getProject(task.project);
     const userAvatar = getUserAvatar(task.userId);
+    const hasDescription = task.description && task.description.trim();
     
     return `
         <div class="bubble ${task.status}" data-id="${task.id}" data-simple="true">
-            <button class="edit-btn" data-action="edit" title="Modifier">✏️</button>
+            <button class="edit-btn ${hasDescription ? 'has-note' : ''}" data-action="edit" title="${hasDescription ? 'Voir/Modifier notes' : 'Ajouter notes'}">✏️</button>
             <div class="bubble-header">
                 <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon}</span>
                 <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
                 <span class="task-user" title="${task.userName}">${userAvatar}</span>
             </div>
             <div class="bubble-text">${escapeHtml(task.text)}</div>
-            ${task.description ? `<div class="bubble-description">${escapeHtml(task.description)}</div>` : ''}
         </div>
     `;
 }
@@ -730,10 +730,19 @@ function attachTaskEventsFull() {
             openEditTaskModal(taskEl.dataset.id);
         });
     });
+    
+    // Clic sur la bulle = ouvre la modal aussi
+    document.querySelectorAll('#columns-view .bubble').forEach(bubble => {
+        bubble.addEventListener('click', (e) => {
+            // Ignorer si on a cliqué sur un bouton
+            if (e.target.closest('.task-action-btn') || e.target.closest('.edit-btn')) return;
+            openEditTaskModal(bubble.dataset.id);
+        });
+    });
 }
 
 function attachTaskEventsSimple() {
-    // Boutons edit (crayon) d'abord
+    // Boutons edit (crayon)
     document.querySelectorAll('.bubbles-view .edit-btn').forEach(btn => {
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
@@ -746,21 +755,12 @@ function attachTaskEventsSimple() {
         });
     });
     
-    // Clic sur la bulle = toggle
+    // Clic sur la bulle = ouvre la modal
     document.querySelectorAll('.bubble[data-simple="true"]').forEach(bubble => {
         bubble.addEventListener('click', (e) => {
             // Ignorer si on a cliqué sur le bouton edit
             if (e.target.closest('.edit-btn')) return;
-            
-            const taskId = bubble.dataset.id;
-            const task = tasks.find(t => t.id === taskId);
-            if (!task) return;
-            
-            if (task.status === 'done') {
-                handleTaskAction(taskId, 'reopen');
-            } else {
-                handleTaskAction(taskId, 'done');
-            }
+            openEditTaskModal(bubble.dataset.id);
         });
     });
 }
@@ -802,6 +802,36 @@ async function handleTaskAction(taskId, action) {
 }
 
 // =============================================
+// EXPORT / BACKUP
+// =============================================
+
+function exportData() {
+    const data = {
+        exportDate: new Date().toISOString(),
+        tenant: TENANT_ID,
+        user: currentUser.name,
+        tasks: tasks,
+        journal: journal,
+        projects: projects
+    };
+    
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `productiveapp_backup_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    console.log('✅ Backup exporté:', data.tasks.length, 'tâches,', data.journal.length, 'entrées journal');
+    alert(`✅ Backup téléchargé !\n\n${tasks.length} tâches\n${journal.length} entrées journal`);
+}
+
+// =============================================
 // ÉDITION TÂCHES
 // =============================================
 
@@ -812,8 +842,34 @@ function openEditTaskModal(taskId) {
     $('edit-task-id').value = taskId;
     $('edit-task-title').value = task.text;
     $('edit-task-description').value = task.description || '';
+    
+    // Boutons d'action selon le statut
+    let statusButtons = '';
+    if (task.status === 'todo') {
+        statusButtons = `
+            <button class="btn-warning modal-action-btn" onclick="modalTaskAction('${taskId}', 'start')">▶️ Commencer</button>
+            <button class="btn-success modal-action-btn" onclick="modalTaskAction('${taskId}', 'done')">✅ Terminé</button>
+        `;
+    } else if (task.status === 'inprogress') {
+        statusButtons = `
+            <button class="btn-success modal-action-btn" onclick="modalTaskAction('${taskId}', 'done')">✅ Terminé</button>
+        `;
+    } else if (task.status === 'done') {
+        statusButtons = `
+            <button class="btn-secondary modal-action-btn" onclick="modalTaskAction('${taskId}', 'reopen')">🔄 Réouvrir</button>
+        `;
+    }
+    statusButtons += `<button class="btn-danger modal-action-btn" onclick="modalTaskAction('${taskId}', 'delete')">🗑️ Supprimer</button>`;
+    
+    $('modal-status-actions').innerHTML = statusButtons;
+    
     $('edit-task-modal').classList.remove('hidden');
-    $('edit-task-title').focus();
+    $('edit-task-description').focus();
+}
+
+async function modalTaskAction(taskId, action) {
+    await handleTaskAction(taskId, action);
+    closeEditTaskModal();
 }
 
 function closeEditTaskModal() {
@@ -1236,6 +1292,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUser = null;
     });
     $('logout-btn').addEventListener('click', logout);
+    $('export-btn').addEventListener('click', exportData);
     
     $('add-task-btn').addEventListener('click', createTask);
     $('task-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createTask(); });
