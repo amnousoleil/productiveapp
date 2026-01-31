@@ -11,9 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style-base.css?v=9">
-    <link rel="stylesheet" href="style-components.css?v=9">
-    <link rel="stylesheet" href="style-themes.css?v=9">
+    <link rel="stylesheet" href="style-base.css?v=12">
+    <link rel="stylesheet" href="style-components.css?v=12">
+    <link rel="stylesheet" href="style-themes.css?v=12">
     
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -212,7 +212,11 @@
             
             <input type="text" id="edit-task-title" class="modal-input" placeholder="Titre de la tâche...">
             
-            <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes, sous-tâches..." rows="8"></textarea>
+            <!-- TEXTAREA AVEC BOUTON REFORMULATION -->
+            <div class="textarea-with-reformulate">
+                <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes, sous-tâches... (correction auto quand tu cliques ailleurs)" rows="8"></textarea>
+                <button type="button" id="reformulate-btn" class="reformulate-btn" title="Reformuler avec l'IA pour rendre plus clair">💡</button>
+            </div>
             
             <div class="modal-selects-row">
                 <div class="modal-select-group">
@@ -379,7 +383,6 @@
             transform: translateY(-4px) scale(1.02) !important;
         }
 
-        /* Titre de la tâche - Couleur adaptée au thème */
         body .bubble .bubble-text {
             color: var(--bubble-text, #1a1a1a) !important;
             font-size: 1.05rem !important;
@@ -387,7 +390,6 @@
             font-weight: 600 !important;
         }
 
-        /* Description / sous-texte */
         body .bubble .bubble-description {
             color: var(--bubble-text-muted, #444) !important;
             font-size: 0.85rem !important;
@@ -398,7 +400,6 @@
             font-style: normal;
         }
 
-        /* Bulles en cours */
         body .bubble.inprogress {
             background: var(--bubble-inprogress-bg, linear-gradient(145deg, rgba(251, 191, 36, 0.5) 0%, rgba(249, 115, 22, 0.3) 100%)) !important;
             border: 2px solid var(--bubble-inprogress-border, rgba(251, 191, 36, 0.8)) !important;
@@ -406,7 +407,6 @@
             animation: glowPulse 2.5s ease-in-out infinite !important;
         }
 
-        /* Bulles terminées */
         body .bubble.done {
             background: var(--bubble-done-bg, linear-gradient(145deg, rgba(34, 197, 94, 0.35) 0%, rgba(22, 163, 74, 0.2) 100%)) !important;
             border: 2px solid var(--bubble-done-border, rgba(34, 197, 94, 0.5)) !important;
@@ -416,53 +416,31 @@
             opacity: 0.6 !important;
         }
 
-        /* === THÈMES SOMBRES - Texte clair sur bulles === */
+        /* === THÈMES SOMBRES === */
         [data-theme="matrix"] .bubble .bubble-text {
             color: #00ff66 !important;
             text-shadow: 0 0 10px rgba(0,255,102,0.5);
         }
-        [data-theme="matrix"] .bubble.inprogress .bubble-text {
-            color: #00ff66 !important;
-        }
-        [data-theme="matrix"] .bubble.done .bubble-text {
-            color: #00cc55 !important;
-        }
+        [data-theme="matrix"] .bubble.inprogress .bubble-text { color: #00ff66 !important; }
+        [data-theme="matrix"] .bubble.done .bubble-text { color: #00cc55 !important; }
         
-        [data-theme="midnight"] .bubble .bubble-text {
-            color: #c0d0ff !important;
-        }
-        [data-theme="midnight"] .bubble.inprogress .bubble-text {
-            color: #fbbf24 !important;
-        }
+        [data-theme="midnight"] .bubble .bubble-text { color: #c0d0ff !important; }
+        [data-theme="midnight"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
         
         [data-theme="hacker"] .bubble .bubble-text {
             color: #00ff00 !important;
             text-shadow: 0 0 8px rgba(0,255,0,0.4);
         }
-        [data-theme="hacker"] .bubble.inprogress .bubble-text {
-            color: #ffff00 !important;
-        }
+        [data-theme="hacker"] .bubble.inprogress .bubble-text { color: #ffff00 !important; }
         
-        [data-theme="fantasy"] .bubble .bubble-text {
-            color: #e8d0ff !important;
-        }
-        [data-theme="fantasy"] .bubble.inprogress .bubble-text {
-            color: #fbbf24 !important;
-        }
+        [data-theme="fantasy"] .bubble .bubble-text { color: #e8d0ff !important; }
+        [data-theme="fantasy"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
 
-        [data-theme="ocean"] .bubble .bubble-text {
-            color: #e0f7ff !important;
-        }
-        [data-theme="ocean"] .bubble.inprogress .bubble-text {
-            color: #fbbf24 !important;
-        }
+        [data-theme="ocean"] .bubble .bubble-text { color: #e0f7ff !important; }
+        [data-theme="ocean"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
 
-        [data-theme="forest"] .bubble .bubble-text {
-            color: #d0ffe0 !important;
-        }
-        [data-theme="forest"] .bubble.inprogress .bubble-text {
-            color: #fbbf24 !important;
-        }
+        [data-theme="forest"] .bubble .bubble-text { color: #d0ffe0 !important; }
+        [data-theme="forest"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
 
         [data-theme="matrix"] .bubble .bubble-description,
         [data-theme="midnight"] .bubble .bubble-description,
@@ -472,6 +450,7 @@
         [data-theme="forest"] .bubble .bubble-description {
             color: #aaa !important;
         }
+
         [data-theme="matrix"] .bubble {
             background: linear-gradient(145deg, rgba(0, 255, 102, 0.15) 0%, rgba(0, 180, 70, 0.1) 100%) !important;
             border-color: rgba(0, 255, 102, 0.4) !important;
@@ -515,7 +494,6 @@
             box-shadow: 0 0 25px rgba(191, 107, 255, 0.4) !important;
         }
 
-        /* === THÈMES CLAIRS === */
         [data-theme="bubblegum"] .bubble .bubble-text,
         [data-theme="sunset"] .bubble .bubble-text,
         [data-theme="academie"] .bubble .bubble-text,
@@ -542,16 +520,9 @@
             transition: opacity 0.2s;
             font-size: 0.8rem;
         }
-        .bubble:hover .edit-btn {
-            opacity: 1;
-        }
-        .bubble .edit-btn:hover {
-            background: rgba(0,0,0,0.2);
-        }
-        /* Indicateur si des notes existent */
-        .bubble .edit-btn.has-note {
-            opacity: 0.7;
-        }
+        .bubble:hover .edit-btn { opacity: 1; }
+        .bubble .edit-btn:hover { background: rgba(0,0,0,0.2); }
+        .bubble .edit-btn.has-note { opacity: 0.7; }
         .bubble .edit-btn.has-note::after {
             content: '•';
             color: #e07840;
@@ -560,7 +531,7 @@
             top: -4px;
             right: -2px;
         }
-        /* Thèmes sombres - bouton crayon clair */
+
         [data-theme="matrix"] .bubble .edit-btn,
         [data-theme="midnight"] .bubble .edit-btn,
         [data-theme="hacker"] .bubble .edit-btn,
@@ -577,14 +548,10 @@
         [data-theme="forest"] .bubble .edit-btn:hover {
             background: rgba(255,255,255,0.25);
         }
-        [data-theme="matrix"] .bubble .edit-btn.has-note::after {
-            color: #00ff66;
-        }
-        [data-theme="hacker"] .bubble .edit-btn.has-note::after {
-            color: #00ff00;
-        }
+        [data-theme="matrix"] .bubble .edit-btn.has-note::after { color: #00ff66; }
+        [data-theme="hacker"] .bubble .edit-btn.has-note::after { color: #00ff00; }
 
-        /* === MODAL LARGE (Édition tâche) === */
+        /* === MODAL LARGE === */
         .modal-box-large {
             width: 90%;
             max-width: 600px;
@@ -600,7 +567,43 @@
             padding: 14px 16px;
         }
 
-        /* === MODAL TEXTAREA (Grande) === */
+        /* === TEXTAREA AVEC BOUTON REFORMULATION 💡 === */
+        .textarea-with-reformulate {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .textarea-with-reformulate .modal-textarea {
+            margin-bottom: 0;
+            padding-right: 55px;
+        }
+        .reformulate-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 38px;
+            height: 38px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            cursor: pointer;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(251, 191, 36, 0.4);
+        }
+        .reformulate-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 16px rgba(251, 191, 36, 0.6);
+        }
+        .reformulate-btn:disabled {
+            opacity: 0.5;
+            cursor: wait;
+            transform: none;
+        }
+
+        /* === MODAL TEXTAREA === */
         .modal-textarea {
             width: 100%;
             padding: 16px;
@@ -631,9 +634,7 @@
             gap: 12px;
             margin-bottom: 16px;
         }
-        .modal-select-group {
-            flex: 1;
-        }
+        .modal-select-group { flex: 1; }
         .modal-select-group label {
             display: block;
             font-size: 0.85rem;
@@ -674,18 +675,9 @@
             font-weight: 500;
             transition: all 0.2s;
         }
-        .btn-warning {
-            background: #fbbf24;
-            color: #1a1a1a;
-        }
-        .btn-success {
-            background: #22c55e;
-            color: white;
-        }
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
+        .btn-warning { background: #fbbf24; color: #1a1a1a; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-danger { background: #ef4444; color: white; }
         .modal-action-btn:hover {
             opacity: 0.9;
             transform: scale(1.02);
@@ -704,83 +696,40 @@
                 width: 100%;
                 text-align: center;
             }
-            .header-left, .header-right {
-                flex: 1;
-            }
+            .header-left, .header-right { flex: 1; }
             
-            .projects-nav {
-                padding: 8px;
-                gap: 6px;
-            }
-            .project-chip {
-                padding: 6px 10px;
-                font-size: 0.8rem;
-            }
+            .projects-nav { padding: 8px; gap: 6px; }
+            .project-chip { padding: 6px 10px; font-size: 0.8rem; }
             
             .task-input-section {
                 flex-wrap: wrap;
                 gap: 8px;
                 padding: 10px;
             }
-            #task-input {
-                width: 100%;
-                min-width: auto;
-            }
-            .task-input-section select {
-                flex: 1;
-                min-width: 80px;
-            }
+            #task-input { width: 100%; min-width: auto; }
+            .task-input-section select { flex: 1; min-width: 80px; }
             
-            .tasks-view.columns-view {
-                flex-direction: column;
-                gap: 16px;
-            }
-            .task-column {
-                min-width: auto;
-                width: 100%;
-            }
+            .tasks-view.columns-view { flex-direction: column; gap: 16px; }
+            .task-column { min-width: auto; width: 100%; }
             
-            .bubbles-view {
-                flex-direction: column;
-                gap: 16px;
-            }
-            .bubbles-column {
-                width: 100%;
-            }
+            .bubbles-view { flex-direction: column; gap: 16px; }
+            .bubbles-column { width: 100%; }
             
-            /* Modal mobile - plein écran */
             .modal-box-large {
                 width: 95%;
                 max-width: none;
                 max-height: 95vh;
                 margin: 10px;
             }
-            .modal-textarea {
-                min-height: 150px;
-            }
-            .modal-selects-row {
-                flex-direction: column;
-                gap: 10px;
-            }
-            .modal-status-actions {
-                justify-content: center;
-            }
-            .modal-action-btn {
-                flex: 1;
-                min-width: 100px;
-            }
+            .modal-textarea { min-height: 150px; }
+            .modal-selects-row { flex-direction: column; gap: 10px; }
+            .modal-status-actions { justify-content: center; }
+            .modal-action-btn { flex: 1; min-width: 100px; }
             
-            /* Journal mobile */
-            .journal-input-row {
-                flex-wrap: wrap;
-            }
+            .journal-input-row { flex-wrap: wrap; }
             .journal-input-row select,
-            .journal-input-row input {
-                flex: 1;
-                min-width: 120px;
-            }
+            .journal-input-row input { flex: 1; min-width: 120px; }
             
-            /* Chatbot mobile */
             .chatbot-panel {
                 width: 95% !important;
                 right: 2.5% !important;
@@ -788,56 +737,30 @@
                 bottom: 80px !important;
                 max-height: 60vh !important;
             }
-            .chatbot-panel.large {
-                height: 70vh !important;
-            }
+            .chatbot-panel.large { height: 70vh !important; }
         }
 
         @media (max-width: 480px) {
-            .app-title {
-                font-size: 1.2rem !important;
-            }
-            .user-badge .user-name {
-                display: none;
-            }
-            .header-right .icon-btn {
-                padding: 8px;
-                font-size: 1rem;
-            }
+            .app-title { font-size: 1.2rem !important; }
+            .user-badge .user-name { display: none; }
+            .header-right .icon-btn { padding: 8px; font-size: 1rem; }
             
-            .bubble {
-                padding: 12px 14px !important;
-            }
-            .bubble .bubble-text {
-                font-size: 0.95rem !important;
-            }
+            .bubble { padding: 12px 14px !important; }
+            .bubble .bubble-text { font-size: 0.95rem !important; }
             
-            .modal-box-large h3 {
-                font-size: 1.1rem;
-            }
-            .modal-action-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-            }
+            .modal-box-large h3 { font-size: 1.1rem; }
+            .modal-action-btn { padding: 8px 12px; font-size: 0.8rem; }
         }
 
         /* === CHATBOT FONT SIZE === */
         .chatbot-panel[data-font="small"] .chatbot-messages,
-        .chatbot-panel[data-font="small"] .chat-msg {
-            font-size: 0.75rem !important;
-        }
+        .chatbot-panel[data-font="small"] .chat-msg { font-size: 0.75rem !important; }
         .chatbot-panel[data-font="medium"] .chatbot-messages,
-        .chatbot-panel[data-font="medium"] .chat-msg {
-            font-size: 0.95rem !important;
-        }
+        .chatbot-panel[data-font="medium"] .chat-msg { font-size: 0.95rem !important; }
         .chatbot-panel[data-font="large"] .chatbot-messages,
-        .chatbot-panel[data-font="large"] .chat-msg {
-            font-size: 1.15rem !important;
-        }
+        .chatbot-panel[data-font="large"] .chat-msg { font-size: 1.15rem !important; }
         .chatbot-panel[data-font="xlarge"] .chatbot-messages,
-        .chatbot-panel[data-font="xlarge"] .chat-msg {
-            font-size: 1.4rem !important;
-        }
+        .chatbot-panel[data-font="xlarge"] .chat-msg { font-size: 1.4rem !important; }
         #chatbot-font-size {
             font-size: 0.75rem;
             padding: 4px 8px;
@@ -847,32 +770,22 @@
             color: white;
             cursor: pointer;
         }
-        #chatbot-font-size:hover {
-            background: rgba(255,255,255,0.2);
-        }
+        #chatbot-font-size:hover { background: rgba(255,255,255,0.2); }
 
-        /* === VUE 2 COLONNES - Simplifiée === */
+        /* === VUE 2 COLONNES === */
         .bubbles-view .hint {
             font-size: 0.7rem;
             font-weight: normal;
             opacity: 0.6;
         }
-        .bubbles-view .bubble {
-            cursor: pointer;
-        }
-        .bubbles-view .bubble:active {
-            transform: scale(0.98) !important;
-        }
-
-        /* === CACHE les actions en vue 2 colonnes === */
-        .bubbles-view .task-actions {
-            display: none !important;
-        }
+        .bubbles-view .bubble { cursor: pointer; }
+        .bubbles-view .bubble:active { transform: scale(0.98) !important; }
+        .bubbles-view .task-actions { display: none !important; }
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=9"></script>
-    <script src="app.js?v=11.2"></script>
+    <script src="animations.js?v=12"></script>
+    <script src="app.js?v=12"></script>
 
 </body>
 </html>
