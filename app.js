@@ -1,6 +1,6 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS
-// Version API PostgreSQL (Tasks + Journal)
+// PRODUCTIVEAPP - APP.JS v8
+// PostgreSQL + Assignation tâches entre users
 // =============================================
 
 // === CONFIGURATION API ===
@@ -14,7 +14,7 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 // === UTILISATEURS ===
 const USERS = [
     { id: 'maha', name: 'Maha Giri', avatar: '👑', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: '🧑‍💻', password: 'Autopdutop63.G+htrhs7', role: 'team' }
+    { id: 'brice', name: 'Brice', avatar: '🚀', password: 'Autopdutop63.G+htrhs7', role: 'team' }
 ];
 
 // === PROJETS PAR DÉFAUT ===
@@ -230,6 +230,11 @@ function getUserName(userId) {
     return user ? user.name : userId;
 }
 
+function getUserAvatar(userId) {
+    const user = USERS.find(u => u.id === userId);
+    return user ? user.avatar : '👤';
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -318,6 +323,7 @@ async function initApp() {
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
+    renderAssignSelect();
     
     // Charger depuis PostgreSQL
     await Promise.all([
@@ -398,7 +404,7 @@ function updateViewMode() {
 }
 
 // =============================================
-// PROJETS
+// PROJETS & FILTRES
 // =============================================
 
 function renderProjectsFilter() {
@@ -442,6 +448,18 @@ function renderUserFilter() {
         USERS.map(u => `<option value="${u.id}">${u.avatar} ${u.name}</option>`).join('');
 }
 
+// === NOUVEAU : Sélecteur "Assigner à" ===
+function renderAssignSelect() {
+    const assignSelect = $('assign-select');
+    if (!assignSelect) return;
+    
+    // Option "Moi" par défaut + autres utilisateurs
+    assignSelect.innerHTML = `<option value="">👤 Moi</option>` +
+        USERS.filter(u => u.id !== currentUser.id).map(u => 
+            `<option value="${u.id}">${u.avatar} ${u.name}</option>`
+        ).join('');
+}
+
 // =============================================
 // TÂCHES
 // =============================================
@@ -453,12 +471,15 @@ async function createTask() {
     const projectId = $('project-select').value || 'general';
     const priorityLevel = parseInt($('priority-select').value) || 2;
     
+    // NOUVEAU : Récupérer l'utilisateur assigné (ou soi-même)
+    const assignTo = $('assign-select').value || currentUser.id;
+    
     const taskData = {
         text: text,
         project: projectId,
         priority: { level: priorityLevel, label: getPriorityLabel(priorityLevel) },
-        userId: currentUser.id,
-        userName: currentUser.name
+        userId: assignTo,
+        userName: getUserName(assignTo)
     };
     
     const result = await createTaskAPI(taskData);
@@ -480,12 +501,18 @@ async function createTask() {
         renderTasks();
         renderProjectsFilter();
         
-        await addJournalEntry('task', `📝 Créé: ${text}`, 2);
+        // NOUVEAU : Journal différent si assigné à quelqu'un d'autre
+        if (assignTo !== currentUser.id) {
+            await addJournalEntry('task', `📝 Assigné à ${getUserName(assignTo)}: ${text}`, 2);
+        } else {
+            await addJournalEntry('task', `📝 Créé: ${text}`, 2);
+        }
     }
     
     $('task-input').value = '';
     $('project-select').value = '';
     $('priority-select').value = '2';
+    $('assign-select').value = '';
 }
 
 function renderTasks() {
@@ -530,13 +557,14 @@ function renderBubblesView(todo, inprogress, done) {
 function renderTaskHTML(task) {
     const project = getProject(task.project);
     const isOwn = task.userId === currentUser.id;
+    const userAvatar = getUserAvatar(task.userId);
     
     return `
         <div class="bubble ${task.status}" data-id="${task.id}">
             <div class="bubble-header">
                 <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon} ${project.name}</span>
                 <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
-                ${!isOwn ? `<span class="task-user">${task.userName}</span>` : ''}
+                <span class="task-user" title="${task.userName}">${userAvatar}</span>
             </div>
             <div class="bubble-text">${escapeHtml(task.text)}</div>
             <div class="task-actions">
@@ -732,17 +760,17 @@ function buildAIContext() {
     ctx += `🔥 URGENT: ${urgent.length} | 📋 À faire: ${todo.length} | 🔄 En cours: ${inProgress.length}\n\n`;
     
     if (urgent.length) {
-        ctx += `URGENTS:\n${urgent.map(t => `- ${t.text} (${getProject(t.project).name})`).join('\n')}\n\n`;
+        ctx += `URGENTS:\n${urgent.map(t => `- ${t.text} (${getProject(t.project).name}) [${t.userName}]`).join('\n')}\n\n`;
     }
     
     if (inProgress.length) {
-        ctx += `EN COURS:\n${inProgress.map(t => `- ${t.text}`).join('\n')}\n\n`;
+        ctx += `EN COURS:\n${inProgress.map(t => `- ${t.text} [${t.userName}]`).join('\n')}\n\n`;
     }
     
     projects.forEach(p => {
         const pTodo = todo.filter(t => t.project === p.id);
         if (pTodo.length) {
-            ctx += `📁 ${p.name}: ${pTodo.map(t => t.text).join(', ')}\n`;
+            ctx += `📁 ${p.name}: ${pTodo.map(t => `${t.text} [${t.userName}]`).join(', ')}\n`;
         }
     });
     
@@ -939,7 +967,7 @@ function createProject() {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 ProductiveApp Starting (PostgreSQL Mode)...');
+    console.log('🚀 ProductiveApp Starting (PostgreSQL Mode v8)...');
     
     renderUserSelect();
     
@@ -992,5 +1020,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready (PostgreSQL Mode)');
+    console.log('✅ ProductiveApp Ready (PostgreSQL Mode v8)');
 });
