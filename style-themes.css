@@ -5,7 +5,8 @@
 
 /* =============================================
    THEME: ACADEMIE 📚 
-   Sombre, chaleureux, brun/crème foncé, reposant
+   Fond sombre brun, bulles crème/beige sobres
+   Style papier sur bureau en bois
    ============================================= */
 [data-theme="academie"] {
     --bg-primary: #1a1612;
@@ -29,18 +30,20 @@
     --border: rgba(205, 185, 160, 0.15);
     --border-strong: rgba(205, 185, 160, 0.3);
     
-    --bubble-bg: linear-gradient(135deg, rgba(45, 38, 32, 0.9) 0%, rgba(35, 30, 24, 0.95) 100%);
-    --bubble-border: rgba(201, 168, 108, 0.25);
-    --bubble-glow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    /* Bulles crème/beige - style papier */
+    --bubble-bg: linear-gradient(145deg, rgba(245, 240, 230, 0.95) 0%, rgba(235, 225, 210, 0.9) 100%);
+    --bubble-border: rgba(200, 180, 150, 0.4);
+    --bubble-glow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --bubble-text-color: #3d352a;
     
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(201, 168, 108, 0.15) 0%, rgba(45, 38, 32, 0.9) 100%);
-    --bubble-inprogress-border: rgba(201, 168, 108, 0.4);
-    --bubble-inprogress-glow: 0 4px 16px rgba(201, 168, 108, 0.15);
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(255, 248, 235, 0.95) 0%, rgba(250, 240, 220, 0.9) 100%);
+    --bubble-inprogress-border: rgba(201, 168, 108, 0.5);
+    --bubble-inprogress-glow: 0 2px 12px rgba(201, 168, 108, 0.2);
     
-    --bubble-done-bg: linear-gradient(135deg, rgba(143, 170, 122, 0.12) 0%, rgba(45, 38, 32, 0.9) 100%);
-    --bubble-done-border: rgba(143, 170, 122, 0.35);
-    --bubble-done-glow: 0 4px 12px rgba(143, 170, 122, 0.1);
-    --bubble-done-text: #a8c090;
+    --bubble-done-bg: linear-gradient(145deg, rgba(240, 245, 235, 0.9) 0%, rgba(230, 240, 225, 0.85) 100%);
+    --bubble-done-border: rgba(143, 170, 122, 0.5);
+    --bubble-done-glow: 0 2px 8px rgba(143, 170, 122, 0.15);
+    --bubble-done-text: #5a6b50;
 }
 
 /* =============================================
