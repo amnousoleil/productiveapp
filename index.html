@@ -75,9 +75,9 @@
             <button id="add-project-btn" class="add-chip-btn" title="Nouveau projet">+</button>
         </nav>
 
-        <!-- FILTRE UTILISATEUR - Plus visible -->
+        <!-- FILTRE UTILISATEUR - Discret -->
         <div class="user-filter-bar">
-            <label>👁️ Voir les tâches de :</label>
+            <label>Voir :</label>
             <select id="user-filter-select">
                 <option value="all">👥 Tout le monde</option>
             </select>
@@ -251,15 +251,17 @@
             background-clip: text !important;
         }
 
-        /* === INPUT TÂCHE AMÉLIORÉ === */
+        /* === INPUT TÂCHE ÉLÉGANT === */
         .task-input-section {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            padding: 16px;
-            background: var(--bg-card);
-            border-radius: 12px;
+            gap: 10px;
+            padding: 16px 20px;
+            background: linear-gradient(145deg, rgba(224, 120, 64, 0.08) 0%, rgba(180, 80, 40, 0.04) 100%);
+            border-radius: 16px;
             margin-bottom: 20px;
+            border: 1px solid rgba(224, 120, 64, 0.15);
+            box-shadow: 0 4px 20px rgba(224, 120, 64, 0.1);
         }
         .task-input-main {
             display: flex;
@@ -268,63 +270,71 @@
         }
         .task-input-main input {
             padding: 12px 16px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
+            border-radius: 10px;
+            border: 1px solid rgba(224, 120, 64, 0.2);
             background: var(--bg-primary);
             color: var(--text);
             font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .task-input-main input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(224, 120, 64, 0.15);
+            outline: none;
         }
         #task-input {
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
         #task-description {
             font-size: 0.9rem;
-            opacity: 0.8;
+            opacity: 0.85;
         }
         .task-input-options {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            align-items: center;
         }
         .task-input-options select {
-            flex: 1;
-            min-width: 100px;
-            padding: 10px;
+            padding: 8px 12px;
             border-radius: 8px;
-            border: 1px solid var(--border);
+            border: 1px solid rgba(224, 120, 64, 0.2);
             background: var(--bg-primary);
             color: var(--text);
+            font-size: 0.9rem;
         }
         #add-task-btn {
             padding: 10px 20px;
             font-weight: 600;
+            border-radius: 10px;
         }
 
-        /* === FILTRE UTILISATEUR VISIBLE === */
+        /* === FILTRE UTILISATEUR - Élégant === */
         .user-filter-bar {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: var(--bg-card);
-            border-radius: 10px;
+            gap: 10px;
+            padding: 8px 14px;
+            background: rgba(224, 120, 64, 0.08);
+            border-radius: 25px;
             margin-bottom: 16px;
-            border: 2px solid var(--accent);
+            width: fit-content;
+            border: 1px solid rgba(224, 120, 64, 0.2);
+            box-shadow: 0 2px 12px rgba(224, 120, 64, 0.15);
         }
         .user-filter-bar label {
-            font-weight: 600;
-            color: var(--accent);
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
         .user-filter-bar select {
-            flex: 1;
-            max-width: 200px;
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 15px;
+            border: 1px solid rgba(224, 120, 64, 0.3);
             background: var(--bg-primary);
             color: var(--text);
             font-weight: 500;
+            font-size: 0.9rem;
         }
 
         /* === BULLES === */
