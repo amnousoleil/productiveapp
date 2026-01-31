@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProductiveApp - Ma Vision</title>
     
-    <!-- Google Fonts - Police élégante -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- CSS segmenté -->
-    <link rel="stylesheet" href="style-base.css?v=8">
-    <link rel="stylesheet" href="style-components.css?v=8">
-    <link rel="stylesheet" href="style-themes.css?v=8">
+    <!-- CSS -->
+    <link rel="stylesheet" href="style-base.css?v=9">
+    <link rel="stylesheet" href="style-components.css?v=9">
+    <link rel="stylesheet" href="style-themes.css?v=9">
     
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -75,34 +75,39 @@
             <button id="add-project-btn" class="add-chip-btn" title="Nouveau projet">+</button>
         </nav>
 
-        <!-- FILTRE UTILISATEUR -->
+        <!-- FILTRE UTILISATEUR - Plus visible -->
         <div class="user-filter-bar">
-            <label>Filtrer par :</label>
+            <label>👁️ Voir les tâches de :</label>
             <select id="user-filter-select">
                 <option value="all">👥 Tout le monde</option>
             </select>
         </div>
 
-        <!-- INPUT NOUVELLE TÂCHE -->
+        <!-- INPUT NOUVELLE TÂCHE - Avec description -->
         <section class="task-input-section">
-            <input type="text" id="task-input" placeholder="Nouvelle tâche..." autofocus>
-            <select id="project-select">
-                <option value="">Projet...</option>
-            </select>
-            <select id="priority-select">
-                <option value="2">Normal</option>
-                <option value="1">🔥 Urgent</option>
-                <option value="3">Basse</option>
-            </select>
-            <select id="assign-select" title="Assigner à">
-                <option value="">👤 Moi</option>
-            </select>
-            <button id="add-task-btn" class="btn-primary">+</button>
+            <div class="task-input-main">
+                <input type="text" id="task-input" placeholder="Nouvelle tâche..." autofocus>
+                <input type="text" id="task-description" placeholder="Description / détails (optionnel)...">
+            </div>
+            <div class="task-input-options">
+                <select id="project-select">
+                    <option value="">Projet...</option>
+                </select>
+                <select id="priority-select">
+                    <option value="2">Normal</option>
+                    <option value="1">🔥 Urgent</option>
+                    <option value="3">Basse</option>
+                </select>
+                <select id="assign-select" title="Assigner à">
+                    <option value="">👤 Moi</option>
+                </select>
+                <button id="add-task-btn" class="btn-primary">+ Créer</button>
+            </div>
         </section>
 
         <!-- ========== VUE TÂCHES ========== -->
         
-        <!-- Mode 3 colonnes -->
+        <!-- Mode 3 colonnes (workflow complet) -->
         <main class="tasks-view columns-view" id="columns-view">
             <div class="task-column" data-status="todo">
                 <div class="column-header">
@@ -129,27 +134,26 @@
             </div>
         </main>
 
-        <!-- Mode 2 colonnes (Mes Bulles) -->
+        <!-- Mode 2 colonnes (simple: clic pour basculer) -->
         <main class="tasks-view bubbles-view hidden" id="bubbles-view">
             <div class="bubbles-column" data-status="todo">
-                <h2>À faire</h2>
+                <h2>📋 À faire <span class="hint">(clic = terminé)</span></h2>
                 <div class="bubbles-list" id="bubbles-todo"></div>
             </div>
             
             <div class="bubbles-column" data-status="done">
-                <h2>Terminé ✓</h2>
+                <h2>✅ Terminé <span class="hint">(clic = réouvrir)</span></h2>
                 <div class="bubbles-list" id="bubbles-done"></div>
             </div>
         </main>
 
-        <!-- ========== JOURNAL AMÉLIORÉ ========== -->
+        <!-- ========== JOURNAL ========== -->
         <section class="journal-section">
             <div class="journal-header">
                 <h2>📝 Journal du jour</h2>
                 <div class="journal-stats" id="journal-stats"></div>
             </div>
             
-            <!-- Input journal avec catégorie -->
             <div class="journal-input-row">
                 <select id="journal-category">
                     <option value="task">✅ Tâche</option>
@@ -167,10 +171,8 @@
                 <button id="add-journal-btn" class="btn-primary">+</button>
             </div>
             
-            <!-- Liste des entrées -->
             <div class="journal-entries" id="journal-entries"></div>
             
-            <!-- Rapport -->
             <div class="journal-report">
                 <button id="generate-report-btn" class="btn-accent">📊 Générer le rapport</button>
                 <button id="download-pdf-btn" class="btn-secondary hidden">📄 PDF</button>
@@ -182,7 +184,7 @@
 
     <!-- ========== MODALS ========== -->
     
-    <!-- Modal Thème (10 thèmes) -->
+    <!-- Modal Thème -->
     <div id="theme-modal" class="modal hidden">
         <div class="modal-box">
             <h3>🎨 Choisis ton ambiance</h3>
@@ -234,9 +236,9 @@
         </div>
     </div>
 
-    <!-- ========== OVERRIDE CSS - PRIORITÉ MAXIMALE ========== -->
+    <!-- ========== CSS OVERRIDE ========== -->
     <style>
-        /* === TITRE MA VISION - ELEGANT === */
+        /* === TITRE MA VISION === */
         .app-title {
             font-family: 'Cormorant Garamond', Georgia, serif !important;
             font-size: 2.2rem !important;
@@ -247,14 +249,86 @@
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;
-            text-shadow: none !important;
         }
 
-        /* === BULLES DE BASE === */
-        body .bubble,
-        body .task-bubble,
-        body div.bubble,
-        body div.task-bubble {
+        /* === INPUT TÂCHE AMÉLIORÉ === */
+        .task-input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 16px;
+            background: var(--bg-card);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .task-input-main {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .task-input-main input {
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text);
+            font-size: 1rem;
+        }
+        #task-input {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        #task-description {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .task-input-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .task-input-options select {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text);
+        }
+        #add-task-btn {
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        /* === FILTRE UTILISATEUR VISIBLE === */
+        .user-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            margin-bottom: 16px;
+            border: 2px solid var(--accent);
+        }
+        .user-filter-bar label {
+            font-weight: 600;
+            color: var(--accent);
+        }
+        .user-filter-bar select {
+            flex: 1;
+            max-width: 200px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* === BULLES === */
+        body .bubble {
             padding: 16px 20px !important;
             border-radius: 16px !important;
             cursor: pointer !important;
@@ -264,99 +338,77 @@
             border: 2px solid var(--bubble-border, rgba(224, 120, 64, 0.4)) !important;
             box-shadow: var(--bubble-glow, 0 4px 20px rgba(224, 120, 64, 0.2)) !important;
         }
+        body .bubble:hover {
+            transform: translateY(-4px) scale(1.02) !important;
+        }
 
-        /* Texte des bulles - plus grand et lisible */
-        body .bubble .bubble-text,
-        body .task-bubble .task-text,
-        body div.bubble .bubble-text,
-        body div.task-bubble .task-text {
+        /* Titre de la tâche */
+        body .bubble .bubble-text {
             color: var(--bubble-text-color, var(--text)) !important;
             font-size: 1.05rem !important;
-            line-height: 1.5 !important;
-            font-weight: 500 !important;
+            line-height: 1.4 !important;
+            font-weight: 600 !important;
         }
 
-        body .bubble:hover,
-        body .task-bubble:hover,
-        body div.bubble:hover,
-        body div.task-bubble:hover {
-            transform: translateY(-5px) scale(1.02) !important;
+        /* Description / sous-texte */
+        body .bubble .bubble-description {
+            color: var(--text-muted) !important;
+            font-size: 0.9rem !important;
+            line-height: 1.4 !important;
+            margin-top: 6px;
+            font-style: italic;
+            opacity: 0.85;
         }
 
-        /* === BULLES EN COURS === */
-        body .bubble.inprogress,
-        body .task-bubble.inprogress,
-        body div.bubble.inprogress,
-        body div.task-bubble.inprogress {
+        /* Bulles en cours */
+        body .bubble.inprogress {
             background: var(--bubble-inprogress-bg, linear-gradient(145deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%)) !important;
             border: 2px solid var(--bubble-inprogress-border, rgba(251, 191, 36, 0.8)) !important;
             box-shadow: var(--bubble-inprogress-glow, 0 0 25px rgba(251, 191, 36, 0.5)) !important;
             animation: glowPulse 2.5s ease-in-out infinite !important;
         }
-
-        body .bubble.inprogress .bubble-text,
-        body .task-bubble.inprogress .task-text,
-        body div.bubble.inprogress .bubble-text,
-        body div.task-bubble.inprogress .task-text {
-            color: var(--bubble-text-color, var(--warning, #fbbf24)) !important;
-            font-weight: 600 !important;
-            font-size: 1.05rem !important;
+        body .bubble.inprogress .bubble-text {
+            color: var(--warning, #fbbf24) !important;
         }
 
-        /* === BULLES TERMINÉES === */
-        body .bubble.done,
-        body .task-bubble.done,
-        body div.bubble.done,
-        body div.task-bubble.done {
+        /* Bulles terminées */
+        body .bubble.done {
             background: var(--bubble-done-bg, linear-gradient(145deg, rgba(34, 197, 94, 0.3) 0%, rgba(22, 163, 74, 0.15) 100%)) !important;
             border: 2px solid var(--bubble-done-border, rgba(34, 197, 94, 0.5)) !important;
-            box-shadow: var(--bubble-done-glow, 0 4px 15px rgba(34, 197, 94, 0.25)) !important;
-            opacity: 1 !important;
         }
-
-        body .bubble.done:hover,
-        body .task-bubble.done:hover,
-        body div.bubble.done:hover,
-        body div.task-bubble.done:hover {
-            transform: translateY(-4px) scale(1.02) !important;
-        }
-
-        body .bubble.done .bubble-text,
-        body .task-bubble.done .task-text,
-        body div.bubble.done .bubble-text,
-        body div.task-bubble.done .task-text {
+        body .bubble.done .bubble-text {
             color: var(--bubble-done-text, #4ade80) !important;
             text-decoration: line-through !important;
-            opacity: 0.85 !important;
-            font-size: 1.05rem !important;
-        }
-
-        body .bubble.done .bubble-header,
-        body .task-bubble.done .task-header,
-        body div.bubble.done .bubble-header,
-        body div.task-bubble.done .task-header {
             opacity: 0.8 !important;
         }
 
-        /* === ANIMATION GLOW SUBTILE === */
         @keyframes glowPulse {
-            0%, 100% { 
-                opacity: 1;
-            }
-            50% { 
-                opacity: 0.92;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.92; }
         }
 
-        /* === SÉLECTEUR ASSIGNER À === */
-        #assign-select {
-            min-width: 110px;
+        /* === VUE 2 COLONNES - Simplifiée === */
+        .bubbles-view .hint {
+            font-size: 0.7rem;
+            font-weight: normal;
+            opacity: 0.6;
+        }
+        .bubbles-view .bubble {
+            cursor: pointer;
+        }
+        .bubbles-view .bubble:active {
+            transform: scale(0.98) !important;
+        }
+
+        /* === CACHE les actions en vue 2 colonnes === */
+        .bubbles-view .task-actions {
+            display: none !important;
         }
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=8"></script>
-    <script src="app.js?v=8"></script>
+    <script src="animations.js?v=9"></script>
+    <script src="app.js?v=9"></script>
 
 </body>
 </html>
