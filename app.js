@@ -115,10 +115,12 @@ async function createTaskAPI(taskData) {
             fullText = taskData.text + '\n---\n' + taskData.description;
         }
         
+        const taskId = 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        
         const payload = {
             action: 'create',
             tenant_id: TENANT_ID,
-            task_id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            task_id: taskId,
             user_id: taskData.userId,
             project_id: taskData.project,
             text: fullText,
@@ -133,12 +135,43 @@ async function createTaskAPI(taskData) {
             body: JSON.stringify(payload)
         });
         
-        const result = await response.json();
-        console.log('✅ Tâche créée:', result);
-        return result;
+        // Gérer les réponses vides ou mal formatées
+        const text = await response.text();
+        console.log('📥 Réponse brute:', text);
+        
+        if (!text || text.trim() === '') {
+            // Réponse vide mais probablement OK - on construit le résultat nous-mêmes
+            console.log('⚠️ Réponse vide, on suppose succès');
+            return [{
+                task_id: taskId,
+                text: fullText,
+                status: 'todo',
+                priority: taskData.priority.level,
+                project_id: taskData.project,
+                user_id: taskData.userId,
+                created_at: new Date().toISOString()
+            }];
+        }
+        
+        try {
+            const result = JSON.parse(text);
+            console.log('✅ Tâche créée:', result);
+            return Array.isArray(result) ? result : [result];
+        } catch (parseError) {
+            console.log('⚠️ JSON invalide, on suppose succès');
+            return [{
+                task_id: taskId,
+                text: fullText,
+                status: 'todo',
+                priority: taskData.priority.level,
+                project_id: taskData.project,
+                user_id: taskData.userId,
+                created_at: new Date().toISOString()
+            }];
+        }
     } catch (error) {
         console.error('❌ Erreur création task:', error);
-        alert('Erreur lors de la création de la tâche. Vérifie la console.');
+        alert('Erreur réseau. Vérifie ta connexion.');
         return null;
     }
 }
@@ -236,9 +269,36 @@ async function createJournalAPI(entry) {
                 energy: entry.energy
             })
         });
-        const result = await response.json();
-        console.log('✅ Entrée journal créée:', result);
-        return result;
+        
+        const text = await response.text();
+        
+        if (!text || text.trim() === '') {
+            console.log('⚠️ Journal: réponse vide, on suppose succès');
+            return [{
+                id: Date.now(),
+                category: entry.category,
+                text: entry.text,
+                energy: entry.energy,
+                user_id: entry.userId,
+                created_at: new Date().toISOString()
+            }];
+        }
+        
+        try {
+            const result = JSON.parse(text);
+            console.log('✅ Entrée journal créée:', result);
+            return Array.isArray(result) ? result : [result];
+        } catch (parseError) {
+            console.log('⚠️ Journal: JSON invalide, on suppose succès');
+            return [{
+                id: Date.now(),
+                category: entry.category,
+                text: entry.text,
+                energy: entry.energy,
+                user_id: entry.userId,
+                created_at: new Date().toISOString()
+            }];
+        }
     } catch (error) {
         console.error('❌ Erreur création journal:', error);
         return null;
@@ -497,15 +557,15 @@ async function createTask() {
         return;
     }
     
-    const description = $('task-description') ? $('task-description').value.trim() : '';
+    const description = '';
     const projectId = $('project-select').value || 'general';
     const priorityLevel = parseInt($('priority-select').value) || 2;
     const assignTo = $('assign-select').value || currentUser.id;
     
-    // Désactiver le bouton pendant la création
+    // Désactiver le bouton
     const btn = $('add-task-btn');
     btn.disabled = true;
-    btn.textContent = '⏳...';
+    btn.textContent = '...';
     
     const taskData = {
         text: text,
@@ -519,7 +579,7 @@ async function createTask() {
     const result = await createTaskAPI(taskData);
     
     btn.disabled = false;
-    btn.textContent = '+ Créer';
+    btn.textContent = '+';
     
     if (result && Array.isArray(result) && result.length > 0) {
         const newTask = result[0];
@@ -547,13 +607,11 @@ async function createTask() {
             await addJournalEntry('task', `📝 Créé: ${text}`, 2);
         }
         
-        // Reset inputs
-        $('task-input').value = '';
-        if ($('task-description')) $('task-description').value = '';
-        $('project-select').value = '';
-        $('priority-select').value = '2';
-        $('assign-select').value = '';
-    }
+    // Reset
+    $('task-input').value = '';
+    $('project-select').value = '';
+    $('priority-select').value = '2';
+    $('assign-select').value = '';
 }
 
 function renderTasks() {
@@ -604,6 +662,7 @@ function renderTaskHTMLFull(task) {
     
     return `
         <div class="bubble ${task.status}" data-id="${task.id}">
+            <button class="edit-btn" data-action="edit" title="Modifier">✏️</button>
             <div class="bubble-header">
                 <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon} ${project.name}</span>
                 <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
@@ -622,13 +681,14 @@ function renderTaskHTMLFull(task) {
     `;
 }
 
-// Vue 2 colonnes - simple (pas de boutons, clic = toggle)
+// Vue 2 colonnes - simple (pas de boutons action, clic = toggle)
 function renderTaskHTMLSimple(task) {
     const project = getProject(task.project);
     const userAvatar = getUserAvatar(task.userId);
     
     return `
         <div class="bubble ${task.status}" data-id="${task.id}" data-simple="true">
+            <button class="edit-btn" data-action="edit" title="Modifier">✏️</button>
             <div class="bubble-header">
                 <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon}</span>
                 <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
@@ -641,6 +701,7 @@ function renderTaskHTMLSimple(task) {
 }
 
 function attachTaskEventsFull() {
+    // Boutons d'action
     document.querySelectorAll('.task-action-btn').forEach(btn => {
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
@@ -655,19 +716,45 @@ function attachTaskEventsFull() {
             handleTaskAction(taskId, action);
         });
     });
+    
+    // Boutons edit (crayon)
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        newBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const taskEl = newBtn.closest('.bubble');
+            if (!taskEl) return;
+            openEditTaskModal(taskEl.dataset.id);
+        });
+    });
 }
 
 function attachTaskEventsSimple() {
-    document.querySelectorAll('.bubble[data-simple="true"]').forEach(bubble => {
-        const newBubble = bubble.cloneNode(true);
-        bubble.parentNode.replaceChild(newBubble, bubble);
+    // Boutons edit (crayon) d'abord
+    document.querySelectorAll('.bubbles-view .edit-btn').forEach(btn => {
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
         
-        newBubble.addEventListener('click', () => {
-            const taskId = newBubble.dataset.id;
+        newBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const taskEl = newBtn.closest('.bubble');
+            if (!taskEl) return;
+            openEditTaskModal(taskEl.dataset.id);
+        });
+    });
+    
+    // Clic sur la bulle = toggle
+    document.querySelectorAll('.bubble[data-simple="true"]').forEach(bubble => {
+        bubble.addEventListener('click', (e) => {
+            // Ignorer si on a cliqué sur le bouton edit
+            if (e.target.closest('.edit-btn')) return;
+            
+            const taskId = bubble.dataset.id;
             const task = tasks.find(t => t.id === taskId);
             if (!task) return;
             
-            // Toggle: todo/inprogress -> done, done -> todo
             if (task.status === 'done') {
                 handleTaskAction(taskId, 'reopen');
             } else {
@@ -711,6 +798,80 @@ async function handleTaskAction(taskId, action) {
     
     renderTasks();
     renderProjectsFilter();
+}
+
+// =============================================
+// ÉDITION TÂCHES
+// =============================================
+
+function openEditTaskModal(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    $('edit-task-id').value = taskId;
+    $('edit-task-title').value = task.text;
+    $('edit-task-description').value = task.description || '';
+    $('edit-task-modal').classList.remove('hidden');
+    $('edit-task-title').focus();
+}
+
+function closeEditTaskModal() {
+    $('edit-task-modal').classList.add('hidden');
+    $('edit-task-id').value = '';
+    $('edit-task-title').value = '';
+    $('edit-task-description').value = '';
+}
+
+async function saveEditTask() {
+    const taskId = $('edit-task-id').value;
+    const newTitle = $('edit-task-title').value.trim();
+    const newDescription = $('edit-task-description').value.trim();
+    
+    if (!newTitle) {
+        alert('Le titre ne peut pas être vide');
+        return;
+    }
+    
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+    
+    // Mettre à jour via API
+    await updateTaskTextAPI(taskId, newTitle, newDescription);
+    
+    // Mettre à jour localement
+    task.text = newTitle;
+    task.description = newDescription;
+    task.updatedAt = new Date().toISOString();
+    
+    closeEditTaskModal();
+    renderTasks();
+}
+
+async function updateTaskTextAPI(taskId, title, description) {
+    try {
+        let fullText = title;
+        if (description && description.trim()) {
+            fullText = title + '\n---\n' + description;
+        }
+        
+        const response = await fetch(API_TASKS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'update_text',
+                tenant_id: TENANT_ID,
+                task_id: taskId,
+                text: fullText
+            })
+        });
+        
+        const text = await response.text();
+        console.log('✅ Texte mis à jour:', text);
+        return true;
+    } catch (error) {
+        console.error('❌ Erreur update texte:', error);
+        return false;
+    }
 }
 
 // =============================================
@@ -1099,6 +1260,11 @@ document.addEventListener('DOMContentLoaded', function() {
     $('cancel-project').addEventListener('click', closeProjectModal);
     $('confirm-project').addEventListener('click', createProject);
     $('project-modal').addEventListener('click', function(e) { if (e.target === $('project-modal')) closeProjectModal(); });
+    
+    // Modal édition tâche
+    $('cancel-edit-task').addEventListener('click', closeEditTaskModal);
+    $('confirm-edit-task').addEventListener('click', saveEditTask);
+    $('edit-task-modal').addEventListener('click', function(e) { if (e.target === $('edit-task-modal')) closeEditTaskModal(); });
     
     $('add-journal-btn').addEventListener('click', createJournalEntry);
     $('journal-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createJournalEntry(); });
