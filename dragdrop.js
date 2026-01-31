@@ -1,6 +1,10 @@
 // =============================================
-// PRODUCTIVEAPP - DRAGDROP.JS v1
+// PRODUCTIVEAPP - DRAGDROP.JS v2
 // Module Drag & Drop pour tâches et projets
+// - Opacité réduite
+// - Déplacement vers toutes les colonnes
+// - Réorganisation dans la même colonne
+// - Indicateurs visuels épurés
 // =============================================
 
 // === STATE ===
@@ -29,9 +33,16 @@ function initTaskDragAndDrop() {
         // Retirer les anciens listeners pour éviter les doublons
         bubble.removeEventListener('dragstart', handleTaskDragStart);
         bubble.removeEventListener('dragend', handleTaskDragEnd);
+        bubble.removeEventListener('dragover', handleTaskBubbleDragOver);
+        bubble.removeEventListener('dragleave', handleTaskBubbleDragLeave);
+        bubble.removeEventListener('drop', handleTaskBubbleDrop);
         
         bubble.addEventListener('dragstart', handleTaskDragStart);
         bubble.addEventListener('dragend', handleTaskDragEnd);
+        // Permettre le drop sur les autres bulles pour réorganiser
+        bubble.addEventListener('dragover', handleTaskBubbleDragOver);
+        bubble.addEventListener('dragleave', handleTaskBubbleDragLeave);
+        bubble.addEventListener('drop', handleTaskBubbleDrop);
     });
     
     // Zones de drop (colonnes et listes)
@@ -55,24 +66,22 @@ function handleTaskDragStart(e) {
     // Ajouter une classe au body pour le style global pendant le drag
     document.body.classList.add('is-dragging-task');
     
-    // Réduire l'opacité après un court délai
+    // Légère réduction d'opacité (pas trop)
     setTimeout(() => {
-        this.style.opacity = '0.5';
-        this.style.transform = 'scale(0.95)';
+        this.style.opacity = '0.7';
     }, 0);
 }
 
 function handleTaskDragEnd(e) {
     this.classList.remove('dragging');
     this.style.opacity = '';
-    this.style.transform = '';
     draggedTask = null;
     
     document.body.classList.remove('is-dragging-task');
     
     // Nettoyer tous les indicateurs de drop
-    document.querySelectorAll('.drag-over, .drag-over-above, .drag-over-below').forEach(el => {
-        el.classList.remove('drag-over', 'drag-over-above', 'drag-over-below');
+    document.querySelectorAll('.drag-over, .drag-insert-above, .drag-insert-below').forEach(el => {
+        el.classList.remove('drag-over', 'drag-insert-above', 'drag-insert-below');
     });
 }
 
@@ -82,18 +91,6 @@ function handleTaskDragOver(e) {
     
     const list = this;
     list.classList.add('drag-over');
-    
-    // Trouver la bulle la plus proche pour l'insertion
-    const afterElement = getDragAfterElement(list, e.clientY);
-    
-    // Nettoyer les indicateurs précédents dans cette liste
-    list.querySelectorAll('.drag-over-above, .drag-over-below').forEach(el => {
-        el.classList.remove('drag-over-above', 'drag-over-below');
-    });
-    
-    if (afterElement) {
-        afterElement.classList.add('drag-over-above');
-    }
 }
 
 function handleTaskDragLeave(e) {
@@ -101,9 +98,91 @@ function handleTaskDragLeave(e) {
     if (e.relatedTarget && this.contains(e.relatedTarget)) return;
     
     this.classList.remove('drag-over');
-    this.querySelectorAll('.drag-over-above, .drag-over-below').forEach(el => {
-        el.classList.remove('drag-over-above', 'drag-over-below');
+}
+
+// Drag over sur une bulle (pour insérer avant/après)
+function handleTaskBubbleDragOver(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!draggedTask || draggedTask === this) return;
+    
+    // Nettoyer les autres indicateurs
+    document.querySelectorAll('.drag-insert-above, .drag-insert-below').forEach(el => {
+        if (el !== this) el.classList.remove('drag-insert-above', 'drag-insert-below');
     });
+    
+    // Déterminer si on est dans la moitié haute ou basse
+    const rect = this.getBoundingClientRect();
+    const midpoint = rect.top + rect.height / 2;
+    
+    this.classList.remove('drag-insert-above', 'drag-insert-below');
+    
+    if (e.clientY < midpoint) {
+        this.classList.add('drag-insert-above');
+    } else {
+        this.classList.add('drag-insert-below');
+    }
+}
+
+function handleTaskBubbleDragLeave(e) {
+    this.classList.remove('drag-insert-above', 'drag-insert-below');
+}
+
+// Drop sur une bulle spécifique (réorganisation)
+async function handleTaskBubbleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!draggedTask || draggedTask === this) return;
+    
+    const taskId = e.dataTransfer.getData('text/plain');
+    const targetId = this.dataset.id;
+    
+    // Nettoyer les indicateurs
+    this.classList.remove('drag-insert-above', 'drag-insert-below');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    
+    // Déterminer le nouveau statut selon la colonne de la cible
+    const column = this.closest('.task-column') || this.closest('.bubbles-column');
+    if (!column) return;
+    
+    const newStatus = column.dataset.status;
+    
+    // Accéder aux variables globales de app.js
+    const task = window.tasks ? window.tasks.find(t => t.id === taskId) : null;
+    if (!task) return;
+    
+    // Si le statut change, mettre à jour
+    if (task.status !== newStatus) {
+        const oldStatus = task.status;
+        task.status = newStatus;
+        task.updatedAt = new Date().toISOString();
+        
+        if (newStatus === 'done') {
+            task.completedAt = new Date().toISOString();
+            if (typeof addJournalEntry === 'function') {
+                await addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
+            }
+        } else if (oldStatus === 'done') {
+            task.completedAt = null;
+        } else if (newStatus === 'inprogress' && oldStatus === 'todo') {
+            if (typeof addJournalEntry === 'function') {
+                await addJournalEntry('task', `▶️ Commencé: ${task.text}`, 2);
+            }
+        }
+        
+        // Mettre à jour l'API
+        if (typeof updateTaskAPI === 'function') {
+            await updateTaskAPI(taskId, newStatus, task.priority.level);
+        }
+        
+        console.log(`✅ Tâche déplacée: ${task.text} → ${newStatus}`);
+    }
+    
+    // Re-render
+    if (typeof renderTasks === 'function') renderTasks();
+    if (typeof renderProjectsFilter === 'function') renderProjectsFilter();
 }
 
 async function handleTaskDrop(e) {
@@ -138,12 +217,16 @@ async function handleTaskDrop(e) {
             }
         } else if (oldStatus === 'done') {
             task.completedAt = null;
-            if (newStatus === 'inprogress' && typeof addJournalEntry === 'function') {
-                await addJournalEntry('task', `🔄 Repris: ${task.text}`, 2);
+            if (typeof addJournalEntry === 'function') {
+                await addJournalEntry('task', `🔄 Réouvert: ${task.text}`, 2);
             }
         } else if (newStatus === 'inprogress' && oldStatus === 'todo') {
             if (typeof addJournalEntry === 'function') {
                 await addJournalEntry('task', `▶️ Commencé: ${task.text}`, 2);
+            }
+        } else if (newStatus === 'todo' && oldStatus === 'inprogress') {
+            if (typeof addJournalEntry === 'function') {
+                await addJournalEntry('task', `⏸️ Mis en pause: ${task.text}`, 2);
             }
         }
         
@@ -156,28 +239,13 @@ async function handleTaskDrop(e) {
     }
     
     // Nettoyer les indicateurs
-    list.querySelectorAll('.drag-over-above, .drag-over-below').forEach(el => {
-        el.classList.remove('drag-over-above', 'drag-over-below');
+    document.querySelectorAll('.drag-insert-above, .drag-insert-below').forEach(el => {
+        el.classList.remove('drag-insert-above', 'drag-insert-below');
     });
     
     // Re-render pour synchroniser l'état
     if (typeof renderTasks === 'function') renderTasks();
     if (typeof renderProjectsFilter === 'function') renderProjectsFilter();
-}
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.bubble:not(.dragging)')];
-    
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
-        } else {
-            return closest;
-        }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
 // =============================================
@@ -217,7 +285,7 @@ function handleProjectDragStart(e) {
     document.body.classList.add('is-dragging-project');
     
     setTimeout(() => {
-        this.style.opacity = '0.5';
+        this.style.opacity = '0.6';
     }, 0);
 }
 
@@ -343,4 +411,4 @@ window.initProjectDragAndDrop = initProjectDragAndDrop;
 window.loadProjectsOrder = loadProjectsOrder;
 window.saveProjectsOrder = saveProjectsOrder;
 
-console.log('📦 dragdrop.js loaded');
+console.log('📦 dragdrop.js v2 loaded');
