@@ -206,6 +206,7 @@ async function loadTasksFromAPI() {
                 project: t.project_id,
                 userId: t.user_id,
                 userName: getUserName(t.user_id),
+                position: t.position || 0,
                 createdAt: t.created_at,
                 updatedAt: t.updated_at,
                 completedAt: t.completed_at
@@ -307,6 +308,28 @@ async function updateTaskAPI(taskId, status, priority) {
         return result;
     } catch (error) {
         console.error('❌ Erreur update task:', error);
+        return null;
+    }
+}
+
+async function reorderTaskAPI(taskId, status, position) {
+    try {
+        const response = await fetch(API_TASKS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'reorder',
+                tenant_id: TENANT_ID,
+                task_id: taskId,
+                status: status,
+                position: position
+            })
+        });
+        const result = await response.json();
+        console.log('✅ Tâche réordonnée:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Erreur reorder task:', error);
         return null;
     }
 }
@@ -911,7 +934,8 @@ function renderTasks() {
         filtered = filtered.filter(t => t.userId === activeUserFilter);
     }
     
-    const todo = filtered.filter(t => t.status === 'todo').sort((a, b) => a.priority.level - b.priority.level);
+    // Pas de tri par priorité - on garde l'ordre personnalisé du tableau
+    const todo = filtered.filter(t => t.status === 'todo');
     const inprogress = filtered.filter(t => t.status === 'inprogress');
     const done = filtered.filter(t => t.status === 'done').slice(0, 20);
     
