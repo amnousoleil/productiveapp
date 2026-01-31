@@ -5,10 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProductiveApp - Ma Vision</title>
     
+    <!-- Google Fonts - Police élégante -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+    
     <!-- CSS segmenté -->
-    <link rel="stylesheet" href="style-base.css?v=5">
-    <link rel="stylesheet" href="style-components.css?v=5">
-    <link rel="stylesheet" href="style-themes.css?v=5">
+    <link rel="stylesheet" href="style-base.css?v=6">
+    <link rel="stylesheet" href="style-components.css?v=6">
+    <link rel="stylesheet" href="style-themes.css?v=6">
     
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -228,12 +233,26 @@
 
     <!-- ========== OVERRIDE CSS - PRIORITÉ MAXIMALE ========== -->
     <style>
+        /* === TITRE MA VISION - ELEGANT === */
+        .app-title {
+            font-family: 'Cormorant Garamond', Georgia, serif !important;
+            font-size: 2.2rem !important;
+            font-weight: 500 !important;
+            letter-spacing: 0.12em !important;
+            text-transform: uppercase !important;
+            background: linear-gradient(135deg, var(--accent-light, #f0c850) 0%, var(--accent, #daa520) 50%, var(--accent-light, #f0c850) 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            text-shadow: none !important;
+        }
+
         /* === BULLES DE BASE === */
         body .bubble,
         body .task-bubble,
         body div.bubble,
         body div.task-bubble {
-            padding: 14px 18px !important;
+            padding: 16px 20px !important;
             border-radius: 16px !important;
             cursor: pointer !important;
             transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
@@ -243,12 +262,15 @@
             box-shadow: var(--bubble-glow, 0 4px 20px rgba(224, 120, 64, 0.2)) !important;
         }
 
-        /* Texte des bulles - utilise la variable du thème si définie */
+        /* Texte des bulles - plus grand et lisible */
         body .bubble .bubble-text,
         body .task-bubble .task-text,
         body div.bubble .bubble-text,
         body div.task-bubble .task-text {
             color: var(--bubble-text-color, var(--text)) !important;
+            font-size: 1.05rem !important;
+            line-height: 1.5 !important;
+            font-weight: 500 !important;
         }
 
         body .bubble:hover,
@@ -275,6 +297,7 @@
         body div.task-bubble.inprogress .task-text {
             color: var(--bubble-text-color, var(--warning, #fbbf24)) !important;
             font-weight: 600 !important;
+            font-size: 1.05rem !important;
         }
 
         /* === BULLES TERMINÉES === */
@@ -302,6 +325,7 @@
             color: var(--bubble-done-text, #4ade80) !important;
             text-decoration: line-through !important;
             opacity: 0.85 !important;
+            font-size: 1.05rem !important;
         }
 
         body .bubble.done .bubble-header,
@@ -323,8 +347,8 @@
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=4"></script>
-    <script src="app.js?v=4"></script>
+    <script src="animations.js?v=5"></script>
+    <script src="app.js?v=5"></script>
 
 </body>
 </html>
