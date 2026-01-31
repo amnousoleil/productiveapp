@@ -205,12 +205,26 @@
         </div>
     </div>
 
-    <!-- Modal Éditer Tâche -->
+    <!-- Modal Éditer Tâche - Grande et complète -->
     <div id="edit-task-modal" class="modal hidden">
-        <div class="modal-box">
+        <div class="modal-box modal-box-large">
             <h3>✏️ Éditer la tâche</h3>
-            <input type="text" id="edit-task-title" class="modal-input" placeholder="Titre...">
-            <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes..." rows="4"></textarea>
+            
+            <input type="text" id="edit-task-title" class="modal-input" placeholder="Titre de la tâche...">
+            
+            <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes, sous-tâches..." rows="8"></textarea>
+            
+            <div class="modal-selects-row">
+                <div class="modal-select-group">
+                    <label>📁 Projet</label>
+                    <select id="edit-task-project" class="modal-select"></select>
+                </div>
+                <div class="modal-select-group">
+                    <label>👤 Assigné à</label>
+                    <select id="edit-task-user" class="modal-select"></select>
+                </div>
+            </div>
+            
             <input type="hidden" id="edit-task-id">
             <div class="modal-status-actions" id="modal-status-actions"></div>
             <div class="modal-actions">
@@ -547,20 +561,74 @@
             color: #00ff00;
         }
 
-        /* === MODAL TEXTAREA === */
+        /* === MODAL LARGE (Édition tâche) === */
+        .modal-box-large {
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box-large h3 {
+            font-size: 1.3rem;
+            margin-bottom: 16px;
+        }
+        .modal-box-large .modal-input {
+            font-size: 1.1rem;
+            padding: 14px 16px;
+        }
+
+        /* === MODAL TEXTAREA (Grande) === */
         .modal-textarea {
             width: 100%;
-            padding: 12px;
+            padding: 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            color: var(--text);
+            font-size: 1rem;
+            line-height: 1.6;
+            resize: vertical;
+            min-height: 180px;
+            margin-bottom: 16px;
+            font-family: inherit;
+        }
+        .modal-textarea:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(224, 120, 64, 0.15);
+        }
+        .modal-textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        /* === SÉLECTEURS PROJET/USER === */
+        .modal-selects-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .modal-select-group {
+            flex: 1;
+        }
+        .modal-select-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .modal-select {
+            width: 100%;
+            padding: 12px 14px;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--bg-primary);
             color: var(--text);
             font-size: 0.95rem;
-            resize: vertical;
-            min-height: 80px;
-            margin-bottom: 12px;
+            cursor: pointer;
         }
-        .modal-textarea:focus {
+        .modal-select:focus {
             border-color: var(--accent);
             outline: none;
         }
@@ -575,12 +643,13 @@
             border-bottom: 1px solid var(--border);
         }
         .modal-action-btn {
-            padding: 8px 14px;
+            padding: 10px 16px;
             border-radius: 8px;
             border: none;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 500;
+            transition: all 0.2s;
         }
         .btn-warning {
             background: #fbbf24;
@@ -597,6 +666,136 @@
         .modal-action-btn:hover {
             opacity: 0.9;
             transform: scale(1.02);
+        }
+
+        /* === RESPONSIVE MOBILE === */
+        @media (max-width: 768px) {
+            .app-header {
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 12px;
+            }
+            .app-title {
+                font-size: 1.5rem !important;
+                order: -1;
+                width: 100%;
+                text-align: center;
+            }
+            .header-left, .header-right {
+                flex: 1;
+            }
+            
+            .projects-nav {
+                padding: 8px;
+                gap: 6px;
+            }
+            .project-chip {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+            
+            .task-input-section {
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 10px;
+            }
+            #task-input {
+                width: 100%;
+                min-width: auto;
+            }
+            .task-input-section select {
+                flex: 1;
+                min-width: 80px;
+            }
+            
+            .tasks-view.columns-view {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .task-column {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .bubbles-view {
+                flex-direction: column;
+                gap: 16px;
+            }
+            .bubbles-column {
+                width: 100%;
+            }
+            
+            /* Modal mobile - plein écran */
+            .modal-box-large {
+                width: 95%;
+                max-width: none;
+                max-height: 95vh;
+                margin: 10px;
+            }
+            .modal-textarea {
+                min-height: 150px;
+            }
+            .modal-selects-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .modal-status-actions {
+                justify-content: center;
+            }
+            .modal-action-btn {
+                flex: 1;
+                min-width: 100px;
+            }
+            
+            /* Journal mobile */
+            .journal-input-row {
+                flex-wrap: wrap;
+            }
+            .journal-input-row select,
+            .journal-input-row input {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            /* Chatbot mobile */
+            .chatbot-panel {
+                width: 95% !important;
+                right: 2.5% !important;
+                left: 2.5% !important;
+                bottom: 80px !important;
+                max-height: 60vh !important;
+            }
+            .chatbot-panel.large {
+                height: 70vh !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-title {
+                font-size: 1.2rem !important;
+            }
+            .user-badge .user-name {
+                display: none;
+            }
+            .header-right .icon-btn {
+                padding: 8px;
+                font-size: 1rem;
+            }
+            
+            .bubble {
+                padding: 12px 14px !important;
+            }
+            .bubble .bubble-text {
+                font-size: 0.95rem !important;
+            }
+            
+            .modal-box-large h3 {
+                font-size: 1.1rem;
+            }
+            .modal-action-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
         }
 
         /* === CHATBOT FONT SIZE === */
@@ -650,7 +849,7 @@
 
     <!-- ========== SCRIPTS ========== -->
     <script src="animations.js?v=9"></script>
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
 
 </body>
 </html>
