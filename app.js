@@ -1,7 +1,8 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS v11.2
+// PRODUCTIVEAPP - APP.JS v12
+// + Correction automatique des notes (IA)
+// + Bouton 💡 reformulation
 // + Suppression projets depuis l'interface
-// + Fix compteurs projets
 // + Modal édition agrandie avec projet/user
 // =============================================
 
@@ -9,6 +10,7 @@
 const API_TASKS = 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks';
 const API_JOURNAL = 'https://n8n.srv1053121.hstgr.cloud/webhook/journal';
 const API_PROJECTS = 'https://n8n.srv1053121.hstgr.cloud/webhook/projects';
+const API_CORRECT = 'https://n8n.srv1053121.hstgr.cloud/webhook/correct';
 const TENANT_ID = 'digitalgiri';
 
 // === CONFIGURATION N8N ===
@@ -63,6 +65,112 @@ let lastReportData = null;
 
 // === DOM ===
 const $ = id => document.getElementById(id);
+
+// =============================================
+// CORRECTION AUTOMATIQUE (IA)
+// =============================================
+
+let isCorrectingText = false;
+
+async function correctText(text, mode = 'fix') {
+    if (!text || text.trim().length < 5) return text; // Pas de correction pour texte trop court
+    
+    try {
+        const response = await fetch(API_CORRECT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: text, mode: mode })
+        });
+        
+        const data = await response.json();
+        
+        // Extraire le texte corrigé de la réponse
+        if (data && data.output) {
+            return data.output;
+        } else if (data && data.text) {
+            return data.text;
+        } else if (Array.isArray(data) && data.length > 0) {
+            // Si c'est un array, chercher le contenu texte
+            const firstItem = data[0];
+            if (firstItem.output) return firstItem.output;
+            if (firstItem.text) return firstItem.text;
+            if (firstItem.content) return firstItem.content;
+            // Si c'est un message OpenAI
+            if (firstItem.message && firstItem.message.content) return firstItem.message.content;
+        } else if (typeof data === 'string') {
+            return data;
+        }
+        
+        console.log('⚠️ Format réponse correction inattendu:', data);
+        return text; // Retourner le texte original si format inconnu
+    } catch (error) {
+        console.error('❌ Erreur correction:', error);
+        return text; // En cas d'erreur, retourner le texte original
+    }
+}
+
+async function handleDescriptionBlur(event) {
+    if (isCorrectingText) return; // Éviter les corrections en boucle
+    
+    const textarea = event.target;
+    const text = textarea.value.trim();
+    
+    if (!text || text.length < 10) return; // Pas de correction pour texte trop court
+    
+    isCorrectingText = true;
+    
+    // Ajouter un indicateur visuel
+    textarea.style.opacity = '0.7';
+    textarea.placeholder = '✨ Correction en cours...';
+    
+    try {
+        const correctedText = await correctText(text, 'fix');
+        
+        if (correctedText && correctedText !== text) {
+            textarea.value = correctedText;
+            console.log('✅ Texte corrigé');
+        }
+    } catch (e) {
+        console.error('Erreur correction:', e);
+    }
+    
+    textarea.style.opacity = '1';
+    textarea.placeholder = 'Ajouter des détails, précisions, notes, sous-tâches...';
+    isCorrectingText = false;
+}
+
+async function reformulateDescription() {
+    const textarea = $('edit-task-description');
+    const text = textarea.value.trim();
+    
+    if (!text || text.length < 10) {
+        alert('Écris d\'abord quelque chose à reformuler !');
+        return;
+    }
+    
+    // Indicateur visuel
+    const btn = $('reformulate-btn');
+    const originalText = btn.textContent;
+    btn.textContent = '⏳';
+    btn.disabled = true;
+    textarea.style.opacity = '0.7';
+    
+    try {
+        const reformulatedText = await correctText(text, 'reformulate');
+        
+        if (reformulatedText && reformulatedText !== text) {
+            textarea.value = reformulatedText;
+            console.log('✅ Texte reformulé');
+        }
+    } catch (e) {
+        console.error('Erreur reformulation:', e);
+        alert('Erreur de reformulation');
+    }
+    
+    btn.textContent = originalText;
+    btn.disabled = false;
+    textarea.style.opacity = '1';
+}
 
 // =============================================
 // API TASKS
@@ -571,7 +679,7 @@ async function initApp() {
         if (typeof initAnimation === 'function') initAnimation();
     }, 100);
     
-    console.log('✅ App initialized (v10)');
+    console.log('✅ App initialized (v12)');
 }
 
 // =============================================
@@ -1044,6 +1152,11 @@ function openEditTaskModal(taskId) {
     
     $('edit-task-modal').classList.remove('hidden');
     $('edit-task-title').focus();
+    
+    // Attacher l'événement de correction automatique au textarea
+    const textarea = $('edit-task-description');
+    textarea.removeEventListener('blur', handleDescriptionBlur); // Éviter les doublons
+    textarea.addEventListener('blur', handleDescriptionBlur);
 }
 
 async function modalTaskAction(taskId, action) {
@@ -1595,7 +1708,7 @@ async function createProject() {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 ProductiveApp Starting (v11)...');
+    console.log('🚀 ProductiveApp Starting (v12)...');
     
     renderUserSelect();
     
@@ -1640,6 +1753,11 @@ document.addEventListener('DOMContentLoaded', function() {
     $('confirm-edit-task').addEventListener('click', saveEditTask);
     $('edit-task-modal').addEventListener('click', function(e) { if (e.target === $('edit-task-modal')) closeEditTaskModal(); });
     
+    // Bouton reformulation 💡
+    if ($('reformulate-btn')) {
+        $('reformulate-btn').addEventListener('click', reformulateDescription);
+    }
+    
     $('add-journal-btn').addEventListener('click', createJournalEntry);
     $('journal-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createJournalEntry(); });
     
@@ -1660,5 +1778,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready (v11)');
+    console.log('✅ ProductiveApp Ready (v12)');
 });
