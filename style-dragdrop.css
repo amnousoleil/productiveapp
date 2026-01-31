@@ -1,0 +1,258 @@
+/* =============================================
+   PRODUCTIVEAPP - STYLE-DRAGDROP.CSS v1
+   Styles pour le Drag & Drop
+   ============================================= */
+
+/* === TÂCHES DRAGGABLES === */
+.bubble[draggable="true"] {
+    cursor: grab;
+    user-select: none;
+}
+
+.bubble[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+/* Tâche en cours de drag */
+.bubble.dragging {
+    opacity: 0.5 !important;
+    transform: scale(0.95) rotate(2deg) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+    z-index: 1000;
+}
+
+/* Zone de drop active */
+.task-list.drag-over,
+.bubbles-list.drag-over {
+    background: rgba(224, 120, 64, 0.1);
+    border: 2px dashed var(--accent, #e07840);
+    border-radius: 12px;
+    min-height: 100px;
+    transition: all 0.2s ease;
+}
+
+/* Indicateur d'insertion au-dessus */
+.bubble.drag-over-above {
+    position: relative;
+}
+
+.bubble.drag-over-above::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent, #e07840), transparent);
+    border-radius: 2px;
+    animation: pulseInsert 0.8s ease-in-out infinite;
+}
+
+/* Indicateur d'insertion en-dessous */
+.bubble.drag-over-below {
+    position: relative;
+}
+
+.bubble.drag-over-below::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, transparent, var(--accent, #e07840), transparent);
+    border-radius: 2px;
+    animation: pulseInsert 0.8s ease-in-out infinite;
+}
+
+@keyframes pulseInsert {
+    0%, 100% { opacity: 1; transform: scaleX(0.8); }
+    50% { opacity: 0.6; transform: scaleX(1); }
+}
+
+/* === BODY PENDANT LE DRAG === */
+body.is-dragging-task .bubble:not(.dragging) {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.is-dragging-task .bubble:not(.dragging):hover {
+    transform: translateY(-2px);
+}
+
+body.is-dragging-task .task-column,
+body.is-dragging-task .bubbles-column {
+    transition: background 0.2s ease;
+}
+
+/* Highlight des colonnes pendant le drag */
+body.is-dragging-task .task-column:hover,
+body.is-dragging-task .bubbles-column:hover {
+    background: rgba(224, 120, 64, 0.05);
+    border-radius: 16px;
+}
+
+/* === PROJETS DRAGGABLES === */
+.project-chip[draggable="true"] {
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.project-chip[draggable="true"]:active {
+    cursor: grabbing;
+}
+
+/* Projet en cours de drag */
+.project-chip.dragging-project {
+    opacity: 0.5 !important;
+    transform: scale(0.9) !important;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Indicateur insertion à gauche */
+.project-chip.drag-over-project-left {
+    position: relative;
+}
+
+.project-chip.drag-over-project-left::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    background: var(--accent, #e07840);
+    border-radius: 2px;
+    animation: pulseInsertVertical 0.8s ease-in-out infinite;
+}
+
+/* Indicateur insertion à droite */
+.project-chip.drag-over-project-right {
+    position: relative;
+}
+
+.project-chip.drag-over-project-right::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 4px;
+    bottom: 4px;
+    width: 4px;
+    background: var(--accent, #e07840);
+    border-radius: 2px;
+    animation: pulseInsertVertical 0.8s ease-in-out infinite;
+}
+
+@keyframes pulseInsertVertical {
+    0%, 100% { opacity: 1; transform: scaleY(0.8); }
+    50% { opacity: 0.6; transform: scaleY(1); }
+}
+
+/* === BODY PENDANT DRAG PROJET === */
+body.is-dragging-project .project-chip:not(.dragging-project) {
+    transition: transform 0.15s ease;
+}
+
+body.is-dragging-project .project-chip:not(.dragging-project):hover {
+    transform: scale(1.05);
+}
+
+/* === THÈMES SOMBRES - Ajustements === */
+[data-theme="matrix"] .task-list.drag-over,
+[data-theme="matrix"] .bubbles-list.drag-over {
+    background: rgba(0, 255, 102, 0.1);
+    border-color: #00ff66;
+}
+
+[data-theme="matrix"] .bubble.drag-over-above::before,
+[data-theme="matrix"] .bubble.drag-over-below::after,
+[data-theme="matrix"] .project-chip.drag-over-project-left::before,
+[data-theme="matrix"] .project-chip.drag-over-project-right::after {
+    background: #00ff66;
+}
+
+[data-theme="midnight"] .task-list.drag-over,
+[data-theme="midnight"] .bubbles-list.drag-over {
+    background: rgba(100, 130, 255, 0.1);
+    border-color: #6482ff;
+}
+
+[data-theme="midnight"] .bubble.drag-over-above::before,
+[data-theme="midnight"] .bubble.drag-over-below::after,
+[data-theme="midnight"] .project-chip.drag-over-project-left::before,
+[data-theme="midnight"] .project-chip.drag-over-project-right::after {
+    background: #6482ff;
+}
+
+[data-theme="hacker"] .task-list.drag-over,
+[data-theme="hacker"] .bubbles-list.drag-over {
+    background: rgba(0, 255, 0, 0.1);
+    border-color: #00ff00;
+}
+
+[data-theme="hacker"] .bubble.drag-over-above::before,
+[data-theme="hacker"] .bubble.drag-over-below::after,
+[data-theme="hacker"] .project-chip.drag-over-project-left::before,
+[data-theme="hacker"] .project-chip.drag-over-project-right::after {
+    background: #00ff00;
+}
+
+[data-theme="fantasy"] .task-list.drag-over,
+[data-theme="fantasy"] .bubbles-list.drag-over {
+    background: rgba(191, 107, 255, 0.1);
+    border-color: #bf6bff;
+}
+
+[data-theme="fantasy"] .bubble.drag-over-above::before,
+[data-theme="fantasy"] .bubble.drag-over-below::after,
+[data-theme="fantasy"] .project-chip.drag-over-project-left::before,
+[data-theme="fantasy"] .project-chip.drag-over-project-right::after {
+    background: #bf6bff;
+}
+
+/* === RESPONSIVE - Désactiver sur mobile === */
+@media (max-width: 768px) {
+    .bubble[draggable="true"],
+    .project-chip[draggable="true"] {
+        /* Sur mobile, le drag naturel peut interférer avec le scroll */
+        /* On peut le garder mais avec des indicateurs visuels différents */
+    }
+    
+    /* Indicateurs plus visibles sur mobile */
+    .bubble.drag-over-above::before,
+    .bubble.drag-over-below::after {
+        height: 6px;
+    }
+    
+    .project-chip.drag-over-project-left::before,
+    .project-chip.drag-over-project-right::after {
+        width: 6px;
+    }
+}
+
+/* === ANIMATION FEEDBACK DROP === */
+@keyframes dropSuccess {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); background: rgba(34, 197, 94, 0.3); }
+    100% { transform: scale(1); }
+}
+
+.bubble.just-dropped {
+    animation: dropSuccess 0.4s ease;
+}
+
+/* === EMPTY STATE PENDANT DRAG === */
+body.is-dragging-task .empty-state {
+    border: 2px dashed var(--border, #ccc);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+body.is-dragging-task .task-list:hover .empty-state,
+body.is-dragging-task .bubbles-list:hover .empty-state {
+    border-color: var(--accent, #e07840);
+    background: rgba(224, 120, 64, 0.1);
+}
