@@ -1,6 +1,8 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS v8
-// PostgreSQL + Assignation tâches entre users
+// PRODUCTIVEAPP - APP.JS v9
+// + Description tâches
+// + Vue 2 colonnes: clic = toggle
+// + Corrections bugs création
 // =============================================
 
 // === CONFIGURATION API ===
@@ -32,7 +34,7 @@ const DEFAULT_PROJECTS = [
     { id: 'general', name: 'Général', icon: '📌', color: '#6b7280', desc: 'Tâches diverses' }
 ];
 
-// === THÈMES (10 thèmes) ===
+// === THÈMES ===
 const THEMES = [
     { id: 'academie', name: '📚 Académie' },
     { id: 'desert', name: '🏜️ Désert' },
@@ -58,7 +60,7 @@ let viewMode = localStorage.getItem('viewMode') || 'columns';
 let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
 let lastReportData = null;
 
-// === DOM ELEMENTS ===
+// === DOM ===
 const $ = id => document.getElementById(id);
 
 // =============================================
@@ -74,18 +76,28 @@ async function loadTasksFromAPI() {
         });
         const data = await response.json();
         
-        tasks = data.map(t => ({
-            id: t.task_id,
-            text: t.text,
-            status: t.status,
-            priority: { level: t.priority, label: getPriorityLabel(t.priority) },
-            project: t.project_id,
-            userId: t.user_id,
-            userName: getUserName(t.user_id),
-            createdAt: t.created_at,
-            updatedAt: t.updated_at,
-            completedAt: t.completed_at
-        }));
+        if (!Array.isArray(data)) {
+            console.error('❌ Réponse API invalide:', data);
+            return [];
+        }
+        
+        tasks = data.map(t => {
+            // Parser titre et description (format: "titre\n---\ndescription")
+            const parts = (t.text || '').split('\n---\n');
+            return {
+                id: t.task_id,
+                text: parts[0] || t.text,
+                description: parts[1] || '',
+                status: t.status,
+                priority: { level: t.priority, label: getPriorityLabel(t.priority) },
+                project: t.project_id,
+                userId: t.user_id,
+                userName: getUserName(t.user_id),
+                createdAt: t.created_at,
+                updatedAt: t.updated_at,
+                completedAt: t.completed_at
+            };
+        });
         
         console.log(`✅ ${tasks.length} tâches chargées`);
         return tasks;
@@ -97,24 +109,36 @@ async function loadTasksFromAPI() {
 
 async function createTaskAPI(taskData) {
     try {
+        // Combiner titre et description
+        let fullText = taskData.text;
+        if (taskData.description && taskData.description.trim()) {
+            fullText = taskData.text + '\n---\n' + taskData.description;
+        }
+        
+        const payload = {
+            action: 'create',
+            tenant_id: TENANT_ID,
+            task_id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            user_id: taskData.userId,
+            project_id: taskData.project,
+            text: fullText,
+            priority: taskData.priority.level
+        };
+        
+        console.log('📤 Envoi création tâche:', payload);
+        
         const response = await fetch(API_TASKS, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'create',
-                tenant_id: TENANT_ID,
-                task_id: 'task_' + Date.now(),
-                user_id: taskData.userId,
-                project_id: taskData.project,
-                text: taskData.text,
-                priority: taskData.priority.level
-            })
+            body: JSON.stringify(payload)
         });
+        
         const result = await response.json();
         console.log('✅ Tâche créée:', result);
         return result;
     } catch (error) {
         console.error('❌ Erreur création task:', error);
+        alert('Erreur lors de la création de la tâche. Vérifie la console.');
         return null;
     }
 }
@@ -173,6 +197,11 @@ async function loadJournalFromAPI() {
             body: JSON.stringify({ action: 'get', tenant_id: TENANT_ID })
         });
         const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+            console.error('❌ Réponse journal invalide:', data);
+            return [];
+        }
         
         journal = data.map(j => ({
             id: j.id,
@@ -325,7 +354,6 @@ async function initApp() {
     renderUserFilter();
     renderAssignSelect();
     
-    // Charger depuis PostgreSQL
     await Promise.all([
         loadTasksFromAPI(),
         loadJournalFromAPI()
@@ -338,7 +366,7 @@ async function initApp() {
         if (typeof initAnimation === 'function') initAnimation();
     }, 100);
     
-    console.log('✅ App initialized avec PostgreSQL');
+    console.log('✅ App initialized (v9)');
 }
 
 // =============================================
@@ -394,12 +422,12 @@ function updateViewMode() {
         columnsView.classList.remove('hidden');
         bubblesView.classList.add('hidden');
         toggleBtn.textContent = '📊';
-        toggleBtn.title = 'Mode Bulles';
+        toggleBtn.title = 'Mode Simple (2 colonnes)';
     } else {
         columnsView.classList.add('hidden');
         bubblesView.classList.remove('hidden');
         toggleBtn.textContent = '📋';
-        toggleBtn.title = 'Mode Colonnes';
+        toggleBtn.title = 'Mode Workflow (3 colonnes)';
     }
 }
 
@@ -448,12 +476,10 @@ function renderUserFilter() {
         USERS.map(u => `<option value="${u.id}">${u.avatar} ${u.name}</option>`).join('');
 }
 
-// === NOUVEAU : Sélecteur "Assigner à" ===
 function renderAssignSelect() {
     const assignSelect = $('assign-select');
     if (!assignSelect) return;
     
-    // Option "Moi" par défaut + autres utilisateurs
     assignSelect.innerHTML = `<option value="">👤 Moi</option>` +
         USERS.filter(u => u.id !== currentUser.id).map(u => 
             `<option value="${u.id}">${u.avatar} ${u.name}</option>`
@@ -466,16 +492,24 @@ function renderAssignSelect() {
 
 async function createTask() {
     const text = $('task-input').value.trim();
-    if (!text) return;
+    if (!text) {
+        alert('Entre un titre pour la tâche');
+        return;
+    }
     
+    const description = $('task-description') ? $('task-description').value.trim() : '';
     const projectId = $('project-select').value || 'general';
     const priorityLevel = parseInt($('priority-select').value) || 2;
-    
-    // NOUVEAU : Récupérer l'utilisateur assigné (ou soi-même)
     const assignTo = $('assign-select').value || currentUser.id;
+    
+    // Désactiver le bouton pendant la création
+    const btn = $('add-task-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳...';
     
     const taskData = {
         text: text,
+        description: description,
         project: projectId,
         priority: { level: priorityLevel, label: getPriorityLabel(priorityLevel) },
         userId: assignTo,
@@ -484,11 +518,17 @@ async function createTask() {
     
     const result = await createTaskAPI(taskData);
     
-    if (result && result.length > 0) {
+    btn.disabled = false;
+    btn.textContent = '+ Créer';
+    
+    if (result && Array.isArray(result) && result.length > 0) {
         const newTask = result[0];
+        const parts = (newTask.text || '').split('\n---\n');
+        
         tasks.push({
             id: newTask.task_id,
-            text: newTask.text,
+            text: parts[0] || newTask.text,
+            description: parts[1] || '',
             status: newTask.status,
             priority: { level: newTask.priority, label: getPriorityLabel(newTask.priority) },
             project: newTask.project_id,
@@ -501,18 +541,19 @@ async function createTask() {
         renderTasks();
         renderProjectsFilter();
         
-        // NOUVEAU : Journal différent si assigné à quelqu'un d'autre
         if (assignTo !== currentUser.id) {
             await addJournalEntry('task', `📝 Assigné à ${getUserName(assignTo)}: ${text}`, 2);
         } else {
             await addJournalEntry('task', `📝 Créé: ${text}`, 2);
         }
+        
+        // Reset inputs
+        $('task-input').value = '';
+        if ($('task-description')) $('task-description').value = '';
+        $('project-select').value = '';
+        $('priority-select').value = '2';
+        $('assign-select').value = '';
     }
-    
-    $('task-input').value = '';
-    $('project-select').value = '';
-    $('priority-select').value = '2';
-    $('assign-select').value = '';
 }
 
 function renderTasks() {
@@ -534,8 +575,6 @@ function renderTasks() {
     } else {
         renderBubblesView(todo, inprogress, done);
     }
-    
-    attachTaskEvents();
 }
 
 function renderColumnsView(todo, inprogress, done) {
@@ -543,20 +582,24 @@ function renderColumnsView(todo, inprogress, done) {
     $('inprogress-count').textContent = inprogress.length;
     $('done-count').textContent = done.length;
     
-    $('todo-list').innerHTML = todo.length ? todo.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Aucune tâche</div>';
-    $('inprogress-list').innerHTML = inprogress.length ? inprogress.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Rien en cours</div>';
-    $('done-list').innerHTML = done.length ? done.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Rien terminé</div>';
+    $('todo-list').innerHTML = todo.length ? todo.map(t => renderTaskHTMLFull(t)).join('') : '<div class="empty-state">Aucune tâche</div>';
+    $('inprogress-list').innerHTML = inprogress.length ? inprogress.map(t => renderTaskHTMLFull(t)).join('') : '<div class="empty-state">Rien en cours</div>';
+    $('done-list').innerHTML = done.length ? done.map(t => renderTaskHTMLFull(t)).join('') : '<div class="empty-state">Rien terminé</div>';
+    
+    attachTaskEventsFull();
 }
 
 function renderBubblesView(todo, inprogress, done) {
     const allTodo = [...todo, ...inprogress];
-    $('bubbles-todo').innerHTML = allTodo.length ? allTodo.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Aucune tâche</div>';
-    $('bubbles-done').innerHTML = done.length ? done.map(t => renderTaskHTML(t)).join('') : '<div class="empty-state">Rien terminé</div>';
+    $('bubbles-todo').innerHTML = allTodo.length ? allTodo.map(t => renderTaskHTMLSimple(t)).join('') : '<div class="empty-state">Aucune tâche</div>';
+    $('bubbles-done').innerHTML = done.length ? done.map(t => renderTaskHTMLSimple(t)).join('') : '<div class="empty-state">Rien terminé</div>';
+    
+    attachTaskEventsSimple();
 }
 
-function renderTaskHTML(task) {
+// Vue 3 colonnes - avec boutons
+function renderTaskHTMLFull(task) {
     const project = getProject(task.project);
-    const isOwn = task.userId === currentUser.id;
     const userAvatar = getUserAvatar(task.userId);
     
     return `
@@ -567,17 +610,37 @@ function renderTaskHTML(task) {
                 <span class="task-user" title="${task.userName}">${userAvatar}</span>
             </div>
             <div class="bubble-text">${escapeHtml(task.text)}</div>
+            ${task.description ? `<div class="bubble-description">${escapeHtml(task.description)}</div>` : ''}
             <div class="task-actions">
                 ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
                 ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅ Terminé</button>` : ''}
                 ${task.status === 'todo' ? `<button class="task-action-btn complete" data-action="done">✅ Fait</button>` : ''}
+                ${task.status === 'done' ? `<button class="task-action-btn reopen" data-action="reopen">🔄 Réouvrir</button>` : ''}
                 <button class="task-action-btn delete" data-action="delete">🗑️</button>
             </div>
         </div>
     `;
 }
 
-function attachTaskEvents() {
+// Vue 2 colonnes - simple (pas de boutons, clic = toggle)
+function renderTaskHTMLSimple(task) {
+    const project = getProject(task.project);
+    const userAvatar = getUserAvatar(task.userId);
+    
+    return `
+        <div class="bubble ${task.status}" data-id="${task.id}" data-simple="true">
+            <div class="bubble-header">
+                <span class="task-project" style="background: ${project.color}20; color: ${project.color};">${project.icon}</span>
+                <span class="task-priority ${task.priority.level === 1 ? 'urgent' : ''}">${task.priority.label}</span>
+                <span class="task-user" title="${task.userName}">${userAvatar}</span>
+            </div>
+            <div class="bubble-text">${escapeHtml(task.text)}</div>
+            ${task.description ? `<div class="bubble-description">${escapeHtml(task.description)}</div>` : ''}
+        </div>
+    `;
+}
+
+function attachTaskEventsFull() {
     document.querySelectorAll('.task-action-btn').forEach(btn => {
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
@@ -590,6 +653,26 @@ function attachTaskEvents() {
             const taskId = taskEl.dataset.id;
             const action = newBtn.dataset.action;
             handleTaskAction(taskId, action);
+        });
+    });
+}
+
+function attachTaskEventsSimple() {
+    document.querySelectorAll('.bubble[data-simple="true"]').forEach(bubble => {
+        const newBubble = bubble.cloneNode(true);
+        bubble.parentNode.replaceChild(newBubble, bubble);
+        
+        newBubble.addEventListener('click', () => {
+            const taskId = newBubble.dataset.id;
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            // Toggle: todo/inprogress -> done, done -> todo
+            if (task.status === 'done') {
+                handleTaskAction(taskId, 'reopen');
+            } else {
+                handleTaskAction(taskId, 'done');
+            }
         });
     });
 }
@@ -612,6 +695,13 @@ async function handleTaskAction(taskId, action) {
         task.completedAt = new Date().toISOString();
         task.updatedAt = new Date().toISOString();
         await addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
+        
+    } else if (action === 'reopen') {
+        await updateTaskAPI(taskId, 'todo', task.priority.level);
+        task.status = 'todo';
+        task.completedAt = null;
+        task.updatedAt = new Date().toISOString();
+        await addJournalEntry('task', `🔄 Réouvert: ${task.text}`, 2);
         
     } else if (action === 'delete') {
         await deleteTaskAPI(taskId);
@@ -638,7 +728,7 @@ async function addJournalEntry(category, text, energy) {
     
     const result = await createJournalAPI(entry);
     
-    if (result && result.length > 0) {
+    if (result && Array.isArray(result) && result.length > 0) {
         const newEntry = result[0];
         journal.unshift({
             id: newEntry.id,
@@ -745,6 +835,7 @@ async function sendChatMessage() {
     } catch (e) {
         loadingDiv.remove();
         addChatMsg('Erreur de connexion', 'assistant');
+        console.error('❌ Erreur chatbot:', e);
     }
 }
 
@@ -784,6 +875,7 @@ async function processAIActions(response) {
         for (const m of [...response.matchAll(/ACTION:CREATE\|([^\n]+)/g)]) {
             const taskData = {
                 text: m[1].trim(),
+                description: '',
                 project: activeProjectFilter !== 'all' ? activeProjectFilter : 'general',
                 priority: { level: 2, label: 'Normal' },
                 userId: currentUser.id,
@@ -791,11 +883,13 @@ async function processAIActions(response) {
             };
             
             const result = await createTaskAPI(taskData);
-            if (result && result.length > 0) {
+            if (result && Array.isArray(result) && result.length > 0) {
                 const newTask = result[0];
+                const parts = (newTask.text || '').split('\n---\n');
                 tasks.push({
                     id: newTask.task_id,
-                    text: newTask.text,
+                    text: parts[0] || newTask.text,
+                    description: parts[1] || '',
                     status: newTask.status,
                     priority: { level: newTask.priority, label: getPriorityLabel(newTask.priority) },
                     project: newTask.project_id,
@@ -967,7 +1061,7 @@ function createProject() {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 ProductiveApp Starting (PostgreSQL Mode v8)...');
+    console.log('🚀 ProductiveApp Starting (v9)...');
     
     renderUserSelect();
     
@@ -1020,5 +1114,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready (PostgreSQL Mode v8)');
+    console.log('✅ ProductiveApp Ready (v9)');
 });
