@@ -314,6 +314,29 @@
             border-radius: 10px;
         }
 
+        /* === BOUTON SUPPRESSION PROJET === */
+        .chip-delete {
+            display: none;
+            margin-left: 6px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            font-size: 0.9rem;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .project-chip:hover .chip-delete {
+            display: inline-block;
+        }
+        .chip-delete:hover {
+            background: #ef4444;
+            color: white;
+            transform: scale(1.1);
+        }
+
         /* === FILTRE UTILISATEUR - Élégant === */
         .user-filter-bar {
             display: flex;
@@ -849,7 +872,7 @@
 
     <!-- ========== SCRIPTS ========== -->
     <script src="animations.js?v=9"></script>
-    <script src="app.js?v=11"></script>
+    <script src="app.js?v=11.2"></script>
 
 </body>
 </html>
