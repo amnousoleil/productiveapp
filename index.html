@@ -11,9 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- CSS segmenté -->
-    <link rel="stylesheet" href="style-base.css?v=7">
-    <link rel="stylesheet" href="style-components.css?v=7">
-    <link rel="stylesheet" href="style-themes.css?v=7">
+    <link rel="stylesheet" href="style-base.css?v=8">
+    <link rel="stylesheet" href="style-components.css?v=8">
+    <link rel="stylesheet" href="style-themes.css?v=8">
     
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -93,6 +93,9 @@
                 <option value="2">Normal</option>
                 <option value="1">🔥 Urgent</option>
                 <option value="3">Basse</option>
+            </select>
+            <select id="assign-select" title="Assigner à">
+                <option value="">👤 Moi</option>
             </select>
             <button id="add-task-btn" class="btn-primary">+</button>
         </section>
@@ -344,11 +347,16 @@
                 opacity: 0.92;
             }
         }
+
+        /* === SÉLECTEUR ASSIGNER À === */
+        #assign-select {
+            min-width: 110px;
+        }
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=7"></script>
-    <script src="app.js?v=7"></script>
+    <script src="animations.js?v=8"></script>
+    <script src="app.js?v=8"></script>
 
 </body>
 </html>
