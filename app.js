@@ -1,9 +1,9 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS v12
+// PRODUCTIVEAPP - APP.JS v13
+// + Drag & Drop tâches entre colonnes
+// + Drag & Drop projets pour réorganiser
 // + Correction automatique des notes (IA)
 // + Bouton 💡 reformulation
-// + Suppression projets depuis l'interface
-// + Modal édition agrandie avec projet/user
 // =============================================
 
 // === CONFIGURATION API ===
@@ -62,6 +62,10 @@ let activeUserFilter = 'all';
 let viewMode = localStorage.getItem('viewMode') || 'columns';
 let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
 let lastReportData = null;
+
+// Exposer globalement pour dragdrop.js
+window.tasks = tasks;
+window.projects = projects;
 
 // === DOM ===
 const $ = id => document.getElementById(id);
@@ -662,6 +666,11 @@ async function initApp() {
     // Charger les projets depuis PostgreSQL AVANT de rendre les filtres
     await loadProjectsFromAPI();
     
+    // Charger l'ordre personnalisé des projets
+    if (typeof loadProjectsOrder === 'function') {
+        loadProjectsOrder();
+    }
+    
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
@@ -672,14 +681,20 @@ async function initApp() {
         loadJournalFromAPI()
     ]);
     
+    // Mettre à jour les références globales pour dragdrop.js
+    window.tasks = tasks;
+    window.projects = projects;
+    
     renderTasks();
     renderJournal();
     
+    // Initialiser le drag & drop (chargé depuis dragdrop.js)
     setTimeout(() => {
+        if (typeof initDragAndDrop === 'function') initDragAndDrop();
         if (typeof initAnimation === 'function') initAnimation();
     }, 100);
     
-    console.log('✅ App initialized (v12)');
+    console.log('✅ App initialized (v13)');
 }
 
 // =============================================
@@ -757,6 +772,9 @@ function renderProjectsFilter() {
     
     $('count-all').textContent = totalCount;
     
+    // Mettre à jour la référence globale
+    window.projects = projects;
+    
     $('projects-filter-list').innerHTML = projects.map(p => `
         <button class="project-chip ${activeProjectFilter === p.id ? 'active' : ''}" data-project="${p.id}">
             <span class="chip-icon">${p.icon}</span>
@@ -785,6 +803,9 @@ function renderProjectsFilter() {
             deleteProject(btn.dataset.delete);
         });
     });
+    
+    // Réinitialiser le drag & drop pour les projets
+    if (typeof initProjectDragAndDrop === 'function') initProjectDragAndDrop();
 }
 
 function renderProjectSelect() {
@@ -911,6 +932,9 @@ function renderColumnsView(todo, inprogress, done) {
     $('done-list').innerHTML = done.length ? done.map(t => renderTaskHTMLFull(t)).join('') : '<div class="empty-state">Rien terminé</div>';
     
     attachTaskEventsFull();
+    
+    // Réinitialiser le drag & drop pour les nouvelles tâches
+    if (typeof initTaskDragAndDrop === 'function') initTaskDragAndDrop();
 }
 
 function renderBubblesView(todo, inprogress, done) {
@@ -919,6 +943,9 @@ function renderBubblesView(todo, inprogress, done) {
     $('bubbles-done').innerHTML = done.length ? done.map(t => renderTaskHTMLSimple(t)).join('') : '<div class="empty-state">Rien terminé</div>';
     
     attachTaskEventsSimple();
+    
+    // Réinitialiser le drag & drop pour les nouvelles tâches
+    if (typeof initTaskDragAndDrop === 'function') initTaskDragAndDrop();
 }
 
 // Vue 3 colonnes - avec boutons
