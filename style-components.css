@@ -196,6 +196,7 @@
     color: var(--text) !important;
 }
 
+/* === BOUTONS D'ACTION - CORRIGÉ === */
 .bubble-actions,
 .task-actions {
     display: flex !important;
@@ -205,7 +206,10 @@
     transition: opacity 0.2s ease !important;
 }
 
+/* CORRIGÉ: Tous les sélecteurs possibles pour le hover */
 .bubble:hover .bubble-actions,
+.bubble:hover .task-actions,
+.task-bubble:hover .bubble-actions,
 .task-bubble:hover .task-actions {
     opacity: 1 !important;
 }
@@ -234,7 +238,7 @@
     color: #ff6b6b !important;
 }
 
-/* === Boutons d'action === */
+/* === Boutons d'action - Style === */
 .task-action-btn,
 .bubble-action-btn {
     padding: 6px 12px !important;
@@ -243,6 +247,7 @@
     font-size: 0.75rem !important;
     cursor: pointer !important;
     transition: all 0.2s ease !important;
+    font-weight: 500 !important;
 }
 
 .task-action-btn.start { background: #fbbf24 !important; color: #000 !important; }
