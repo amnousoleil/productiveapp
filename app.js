@@ -1,13 +1,14 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS v9
+// PRODUCTIVEAPP - APP.JS v10
+// + API Projects (persistance PostgreSQL)
 // + Description tâches
 // + Vue 2 colonnes: clic = toggle
-// + Corrections bugs création
 // =============================================
 
 // === CONFIGURATION API ===
 const API_TASKS = 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks';
 const API_JOURNAL = 'https://n8n.srv1053121.hstgr.cloud/webhook/journal';
+const API_PROJECTS = 'https://n8n.srv1053121.hstgr.cloud/webhook/projects';
 const TENANT_ID = 'digitalgiri';
 
 // === CONFIGURATION N8N ===
@@ -219,6 +220,84 @@ async function deleteTaskAPI(taskId) {
 }
 
 // =============================================
+// API PROJECTS
+// =============================================
+
+async function loadProjectsFromAPI() {
+    try {
+        const response = await fetch(API_PROJECTS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get', tenant_id: TENANT_ID })
+        });
+        const data = await response.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+            console.log('⚠️ Aucun projet en base, utilisation des projets par défaut');
+            // Insérer les projets par défaut dans la base
+            for (const p of DEFAULT_PROJECTS) {
+                await createProjectAPI(p);
+            }
+            return DEFAULT_PROJECTS;
+        }
+        
+        projects = data.map(p => ({
+            id: p.project_id,
+            name: p.name,
+            icon: p.icon || '📁',
+            color: p.color || '#6b7280',
+            desc: p.description || p.name
+        }));
+        
+        console.log(`✅ ${projects.length} projets chargés`);
+        return projects;
+    } catch (error) {
+        console.error('❌ Erreur chargement projects:', error);
+        return DEFAULT_PROJECTS;
+    }
+}
+
+async function createProjectAPI(projectData) {
+    try {
+        const projectId = projectData.id || 'proj_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        
+        const payload = {
+            action: 'create',
+            tenant_id: TENANT_ID,
+            project_id: projectId,
+            name: projectData.name,
+            icon: projectData.icon || '📁',
+            color: projectData.color || '#6b7280',
+            description: projectData.desc || projectData.name
+        };
+        
+        console.log('📤 Création projet:', payload);
+        
+        const response = await fetch(API_PROJECTS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        const text = await response.text();
+        if (!text || text.trim() === '') {
+            return [{ project_id: projectId, ...payload }];
+        }
+        
+        try {
+            const result = JSON.parse(text);
+            console.log('✅ Projet créé:', result);
+            return Array.isArray(result) ? result : [result];
+        } catch (parseError) {
+            return [{ project_id: projectId, ...payload }];
+        }
+    } catch (error) {
+        console.error('❌ Erreur création projet:', error);
+        return null;
+    }
+}
+
+// =============================================
 // API JOURNAL
 // =============================================
 
@@ -410,6 +489,10 @@ async function initApp() {
     loadTheme();
     loadViewMode();
     initChatbotFontSize();
+    
+    // Charger les projets depuis PostgreSQL AVANT de rendre les filtres
+    await loadProjectsFromAPI();
+    
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
@@ -427,7 +510,7 @@ async function initApp() {
         if (typeof initAnimation === 'function') initAnimation();
     }, 100);
     
-    console.log('✅ App initialized (v9)');
+    console.log('✅ App initialized (v10)');
 }
 
 // =============================================
@@ -1352,7 +1435,7 @@ function closeProjectModal() {
     $('new-project-desc').value = '';
 }
 
-function createProject() {
+async function createProject() {
     const name = $('new-project-name').value.trim();
     const desc = $('new-project-desc').value.trim();
     if (!name) return;
@@ -1360,16 +1443,30 @@ function createProject() {
     const icons = ['📁', '🎯', '💡', '🚀', '⭐', '🔥', '💎', '🌟'];
     const colors = ['#e07840', '#00ff66', '#ff6b9d', '#6c8fff', '#00b4d8', '#bf6bff', '#f97316', '#4ade80'];
     
-    projects.push({
-        id: 'proj_' + Date.now(),
+    const projectData = {
         name: name,
         icon: icons[Math.floor(Math.random() * icons.length)],
         color: colors[Math.floor(Math.random() * colors.length)],
         desc: desc || name
-    });
+    };
     
-    renderProjectsFilter();
-    renderProjectSelect();
+    const result = await createProjectAPI(projectData);
+    
+    if (result && result.length > 0) {
+        const newProj = result[0];
+        projects.push({
+            id: newProj.project_id,
+            name: newProj.name,
+            icon: newProj.icon || projectData.icon,
+            color: newProj.color || projectData.color,
+            desc: newProj.description || projectData.desc
+        });
+        
+        renderProjectsFilter();
+        renderProjectSelect();
+        console.log('✅ Projet ajouté:', name);
+    }
+    
     closeProjectModal();
 }
 
@@ -1378,7 +1475,7 @@ function createProject() {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 ProductiveApp Starting (v9)...');
+    console.log('🚀 ProductiveApp Starting (v10)...');
     
     renderUserSelect();
     
@@ -1443,5 +1540,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready (v9)');
+    console.log('✅ ProductiveApp Ready (v10)');
 });
