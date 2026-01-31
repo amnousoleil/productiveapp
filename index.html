@@ -773,6 +773,114 @@
         }
         #chatbot-font-size:hover { background: rgba(255,255,255,0.2); }
 
+        /* === NOTES RÉTRACTABLES === */
+        .note-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            margin-top: 8px;
+            background: rgba(224, 120, 64, 0.15);
+            border: 1px solid rgba(224, 120, 64, 0.3);
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            color: var(--accent, #e07840);
+            transition: all 0.2s ease;
+        }
+        .note-toggle:hover {
+            background: rgba(224, 120, 64, 0.25);
+            transform: scale(1.02);
+        }
+        .note-toggle.expanded {
+            background: rgba(224, 120, 64, 0.3);
+        }
+        .note-dot {
+            font-size: 0.6rem;
+        }
+        .note-arrow {
+            font-size: 0.6rem;
+            transition: transform 0.2s ease;
+        }
+        .note-toggle.expanded .note-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .bubble-description {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: var(--text-muted, #666);
+            white-space: pre-wrap;
+            word-break: break-word;
+            border-left: 3px solid var(--accent, #e07840);
+            animation: slideDown 0.2s ease;
+        }
+        .bubble-description.hidden {
+            display: none;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                max-height: 500px;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Thèmes sombres - notes */
+        [data-theme="matrix"] .note-toggle {
+            background: rgba(0, 255, 102, 0.1);
+            border-color: rgba(0, 255, 102, 0.3);
+            color: #00ff66;
+        }
+        [data-theme="matrix"] .bubble-description {
+            background: rgba(0, 255, 102, 0.05);
+            border-left-color: #00ff66;
+            color: #aaa;
+        }
+        
+        [data-theme="midnight"] .note-toggle {
+            background: rgba(100, 130, 255, 0.1);
+            border-color: rgba(100, 130, 255, 0.3);
+            color: #6482ff;
+        }
+        [data-theme="midnight"] .bubble-description {
+            background: rgba(100, 130, 255, 0.05);
+            border-left-color: #6482ff;
+            color: #aaa;
+        }
+        
+        [data-theme="hacker"] .note-toggle {
+            background: rgba(0, 255, 0, 0.1);
+            border-color: rgba(0, 255, 0, 0.3);
+            color: #00ff00;
+        }
+        [data-theme="hacker"] .bubble-description {
+            background: rgba(0, 255, 0, 0.05);
+            border-left-color: #00ff00;
+            color: #aaa;
+        }
+        
+        [data-theme="fantasy"] .note-toggle {
+            background: rgba(191, 107, 255, 0.1);
+            border-color: rgba(191, 107, 255, 0.3);
+            color: #bf6bff;
+        }
+        [data-theme="fantasy"] .bubble-description {
+            background: rgba(191, 107, 255, 0.05);
+            border-left-color: #bf6bff;
+            color: #aaa;
+        }
+
         /* === VUE 2 COLONNES === */
         .bubbles-view .hint {
             font-size: 0.7rem;
