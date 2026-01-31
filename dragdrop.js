@@ -1,10 +1,6 @@
 // =============================================
-// PRODUCTIVEAPP - DRAGDROP.JS v2
-// Module Drag & Drop pour tâches et projets
-// - Opacité réduite
-// - Déplacement vers toutes les colonnes
-// - Réorganisation dans la même colonne
-// - Indicateurs visuels épurés
+// PRODUCTIVEAPP - DRAGDROP.JS v3
+// Module Drag & Drop avec persistance DB
 // =============================================
 
 // === STATE ===
@@ -26,11 +22,9 @@ function initDragAndDrop() {
 // =============================================
 
 function initTaskDragAndDrop() {
-    // Rendre les tâches draggables
     document.querySelectorAll('.bubble[data-id]').forEach(bubble => {
         bubble.setAttribute('draggable', 'true');
         
-        // Retirer les anciens listeners pour éviter les doublons
         bubble.removeEventListener('dragstart', handleTaskDragStart);
         bubble.removeEventListener('dragend', handleTaskDragEnd);
         bubble.removeEventListener('dragover', handleTaskBubbleDragOver);
@@ -39,13 +33,11 @@ function initTaskDragAndDrop() {
         
         bubble.addEventListener('dragstart', handleTaskDragStart);
         bubble.addEventListener('dragend', handleTaskDragEnd);
-        // Permettre le drop sur les autres bulles pour réorganiser
         bubble.addEventListener('dragover', handleTaskBubbleDragOver);
         bubble.addEventListener('dragleave', handleTaskBubbleDragLeave);
         bubble.addEventListener('drop', handleTaskBubbleDrop);
     });
     
-    // Zones de drop (colonnes et listes)
     document.querySelectorAll('.task-list, .bubbles-list').forEach(list => {
         list.removeEventListener('dragover', handleTaskDragOver);
         list.removeEventListener('dragleave', handleTaskDragLeave);
@@ -63,10 +55,8 @@ function handleTaskDragStart(e) {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', this.dataset.id);
     
-    // Ajouter une classe au body pour le style global pendant le drag
     document.body.classList.add('is-dragging-task');
     
-    // Légère réduction d'opacité (pas trop)
     setTimeout(() => {
         this.style.opacity = '0.7';
     }, 0);
@@ -79,7 +69,6 @@ function handleTaskDragEnd(e) {
     
     document.body.classList.remove('is-dragging-task');
     
-    // Nettoyer tous les indicateurs de drop
     document.querySelectorAll('.drag-over, .drag-insert-above, .drag-insert-below').forEach(el => {
         el.classList.remove('drag-over', 'drag-insert-above', 'drag-insert-below');
     });
@@ -88,31 +77,24 @@ function handleTaskDragEnd(e) {
 function handleTaskDragOver(e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
-    const list = this;
-    list.classList.add('drag-over');
+    this.classList.add('drag-over');
 }
 
 function handleTaskDragLeave(e) {
-    // Ne pas enlever si on est toujours dans la liste
     if (e.relatedTarget && this.contains(e.relatedTarget)) return;
-    
     this.classList.remove('drag-over');
 }
 
-// Drag over sur une bulle (pour insérer avant/après)
 function handleTaskBubbleDragOver(e) {
     e.preventDefault();
     e.stopPropagation();
     
     if (!draggedTask || draggedTask === this) return;
     
-    // Nettoyer les autres indicateurs
     document.querySelectorAll('.drag-insert-above, .drag-insert-below').forEach(el => {
         if (el !== this) el.classList.remove('drag-insert-above', 'drag-insert-below');
     });
     
-    // Déterminer si on est dans la moitié haute ou basse
     const rect = this.getBoundingClientRect();
     const midpoint = rect.top + rect.height / 2;
     
@@ -136,114 +118,133 @@ async function handleTaskBubbleDrop(e) {
     
     if (!draggedTask || draggedTask === this) return;
     
-    const taskId = e.dataTransfer.getData('text/plain');
+    const draggedId = e.dataTransfer.getData('text/plain');
     const targetId = this.dataset.id;
+    
+    // Déterminer si on insère avant ou après
+    const rect = this.getBoundingClientRect();
+    const insertBefore = e.clientY < rect.top + rect.height / 2;
     
     // Nettoyer les indicateurs
     this.classList.remove('drag-insert-above', 'drag-insert-below');
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     
-    // Déterminer le nouveau statut selon la colonne de la cible
+    // Déterminer le nouveau statut
     const column = this.closest('.task-column') || this.closest('.bubbles-column');
     if (!column) return;
     
     const newStatus = column.dataset.status;
     
-    // Accéder aux variables globales de app.js
-    const task = window.tasks ? window.tasks.find(t => t.id === taskId) : null;
-    if (!task) return;
-    
-    // Si le statut change, mettre à jour
-    if (task.status !== newStatus) {
-        const oldStatus = task.status;
-        task.status = newStatus;
-        task.updatedAt = new Date().toISOString();
-        
-        if (newStatus === 'done') {
-            task.completedAt = new Date().toISOString();
-            if (typeof addJournalEntry === 'function') {
-                await addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
-            }
-        } else if (oldStatus === 'done') {
-            task.completedAt = null;
-        } else if (newStatus === 'inprogress' && oldStatus === 'todo') {
-            if (typeof addJournalEntry === 'function') {
-                await addJournalEntry('task', `▶️ Commencé: ${task.text}`, 2);
-            }
-        }
-        
-        // Mettre à jour l'API
-        if (typeof updateTaskAPI === 'function') {
-            await updateTaskAPI(taskId, newStatus, task.priority.level);
-        }
-        
-        console.log(`✅ Tâche déplacée: ${task.text} → ${newStatus}`);
-    }
-    
-    // Re-render
-    if (typeof renderTasks === 'function') renderTasks();
-    if (typeof renderProjectsFilter === 'function') renderProjectsFilter();
+    // Réordonner dans le tableau et la DB
+    await reorderTask(draggedId, targetId, insertBefore, newStatus);
 }
 
+// Drop sur une liste vide ou en fin de liste
 async function handleTaskDrop(e) {
     e.preventDefault();
     
     const list = this;
     list.classList.remove('drag-over');
     
-    const taskId = e.dataTransfer.getData('text/plain');
-    if (!taskId || !draggedTask) return;
+    const draggedId = e.dataTransfer.getData('text/plain');
+    if (!draggedId || !draggedTask) return;
     
-    // Déterminer le nouveau statut selon la colonne
     const column = list.closest('.task-column') || list.closest('.bubbles-column');
     if (!column) return;
     
     const newStatus = column.dataset.status;
     
-    // Accéder aux variables globales de app.js
-    const task = window.tasks ? window.tasks.find(t => t.id === taskId) : null;
-    if (!task) return;
+    // Mettre en dernière position de cette colonne
+    await reorderTask(draggedId, null, false, newStatus);
+}
+
+// Fonction principale de réordonnancement
+async function reorderTask(draggedId, targetId, insertBefore, newStatus) {
+    if (!window.tasks) return;
     
-    // Si le statut change, mettre à jour
-    if (task.status !== newStatus) {
-        const oldStatus = task.status;
-        task.status = newStatus;
-        task.updatedAt = new Date().toISOString();
-        
-        if (newStatus === 'done') {
-            task.completedAt = new Date().toISOString();
-            if (typeof addJournalEntry === 'function') {
-                await addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
-            }
-        } else if (oldStatus === 'done') {
-            task.completedAt = null;
-            if (typeof addJournalEntry === 'function') {
-                await addJournalEntry('task', `🔄 Réouvert: ${task.text}`, 2);
-            }
-        } else if (newStatus === 'inprogress' && oldStatus === 'todo') {
-            if (typeof addJournalEntry === 'function') {
-                await addJournalEntry('task', `▶️ Commencé: ${task.text}`, 2);
-            }
-        } else if (newStatus === 'todo' && oldStatus === 'inprogress') {
-            if (typeof addJournalEntry === 'function') {
-                await addJournalEntry('task', `⏸️ Mis en pause: ${task.text}`, 2);
-            }
-        }
-        
-        // Mettre à jour l'API
-        if (typeof updateTaskAPI === 'function') {
-            await updateTaskAPI(taskId, newStatus, task.priority.level);
-        }
-        
-        console.log(`✅ Tâche déplacée: ${task.text} → ${newStatus}`);
+    const draggedTask = window.tasks.find(t => t.id === draggedId);
+    if (!draggedTask) return;
+    
+    const oldStatus = draggedTask.status;
+    
+    // Filtrer les tâches par nouveau statut
+    let tasksInColumn = window.tasks.filter(t => t.status === newStatus);
+    
+    // Si la tâche change de colonne, on la retire de l'ancienne
+    if (oldStatus !== newStatus) {
+        // Retirer de l'ancienne colonne
+        const oldColumnTasks = window.tasks.filter(t => t.status === oldStatus && t.id !== draggedId);
+        // Recalculer les positions de l'ancienne colonne
+        oldColumnTasks.forEach((t, index) => {
+            t.position = index + 1;
+        });
     }
     
-    // Nettoyer les indicateurs
-    document.querySelectorAll('.drag-insert-above, .drag-insert-below').forEach(el => {
-        el.classList.remove('drag-insert-above', 'drag-insert-below');
+    // Retirer la tâche draggée de la liste de la nouvelle colonne (si elle y était)
+    tasksInColumn = tasksInColumn.filter(t => t.id !== draggedId);
+    
+    // Trier par position actuelle
+    tasksInColumn.sort((a, b) => (a.position || 0) - (b.position || 0));
+    
+    // Trouver la nouvelle position
+    let newPosition;
+    if (targetId) {
+        const targetIndex = tasksInColumn.findIndex(t => t.id === targetId);
+        if (targetIndex !== -1) {
+            newPosition = insertBefore ? targetIndex : targetIndex + 1;
+        } else {
+            newPosition = tasksInColumn.length;
+        }
+    } else {
+        // Pas de cible = fin de liste
+        newPosition = tasksInColumn.length;
+    }
+    
+    // Insérer la tâche à la nouvelle position
+    tasksInColumn.splice(newPosition, 0, draggedTask);
+    
+    // Mettre à jour les positions de toutes les tâches de cette colonne
+    const updates = [];
+    tasksInColumn.forEach((t, index) => {
+        const newPos = index + 1;
+        if (t.position !== newPos || t.id === draggedId) {
+            t.position = newPos;
+            if (t.id === draggedId) {
+                t.status = newStatus;
+            }
+            updates.push({ id: t.id, status: t.status, position: newPos });
+        }
     });
     
-    // Re-render pour synchroniser l'état
+    // Mettre à jour la référence globale
+    window.tasks = window.tasks.map(t => {
+        const updated = tasksInColumn.find(u => u.id === t.id);
+        return updated || t;
+    });
+    
+    // Envoyer les mises à jour à l'API
+    for (const update of updates) {
+        if (typeof reorderTaskAPI === 'function') {
+            await reorderTaskAPI(update.id, update.status, update.position);
+        }
+    }
+    
+    // Ajouter au journal si changement de statut
+    if (oldStatus !== newStatus && typeof addJournalEntry === 'function') {
+        if (newStatus === 'done') {
+            draggedTask.completedAt = new Date().toISOString();
+            await addJournalEntry('win', `✅ Terminé: ${draggedTask.text}`, 3);
+        } else if (newStatus === 'inprogress' && oldStatus === 'todo') {
+            await addJournalEntry('task', `▶️ Commencé: ${draggedTask.text}`, 2);
+        } else if (newStatus === 'todo' && oldStatus === 'done') {
+            draggedTask.completedAt = null;
+            await addJournalEntry('task', `🔄 Réouvert: ${draggedTask.text}`, 2);
+        }
+    }
+    
+    console.log(`✅ Tâche réordonnée: ${draggedTask.text} → position ${draggedTask.position} (${newStatus})`);
+    
+    // Re-render
     if (typeof renderTasks === 'function') renderTasks();
     if (typeof renderProjectsFilter === 'function') renderProjectsFilter();
 }
@@ -257,7 +258,6 @@ function initProjectDragAndDrop() {
     if (!container) return;
     
     container.querySelectorAll('.project-chip[data-project]').forEach(chip => {
-        // Ne pas permettre de drag le chip "Tout"
         if (chip.dataset.project === 'all') return;
         
         chip.setAttribute('draggable', 'true');
@@ -305,7 +305,6 @@ function handleProjectDragOver(e) {
     e.preventDefault();
     if (!draggedProject || draggedProject === this) return;
     
-    // Déterminer si on est à gauche ou à droite du chip
     const rect = this.getBoundingClientRect();
     const midpoint = rect.left + rect.width / 2;
     
@@ -331,7 +330,6 @@ function handleProjectDrop(e) {
     const draggedId = draggedProject.dataset.project;
     const targetId = this.dataset.project;
     
-    // Accéder au tableau global des projets
     if (!window.projects) return;
     
     const draggedIndex = window.projects.findIndex(p => p.id === draggedId);
@@ -339,24 +337,18 @@ function handleProjectDrop(e) {
     
     if (draggedIndex === -1 || targetIndex === -1) return;
     
-    // Déterminer si on insère avant ou après
     const rect = this.getBoundingClientRect();
     const insertAfter = e.clientX > rect.left + rect.width / 2;
     
-    // Retirer le projet dragué
     const [draggedProjectData] = window.projects.splice(draggedIndex, 1);
     
-    // Trouver la nouvelle position (recalculer car l'index a changé)
     let newTargetIndex = window.projects.findIndex(p => p.id === targetId);
     if (insertAfter) newTargetIndex++;
     
-    // Insérer à la nouvelle position
     window.projects.splice(newTargetIndex, 0, draggedProjectData);
     
-    // Sauvegarder l'ordre
     saveProjectsOrder();
     
-    // Re-render
     if (typeof renderProjectsFilter === 'function') renderProjectsFilter();
     if (typeof renderProjectSelect === 'function') renderProjectSelect();
     
@@ -364,7 +356,7 @@ function handleProjectDrop(e) {
 }
 
 // =============================================
-// PERSISTENCE ORDRE PROJETS
+// PERSISTENCE ORDRE PROJETS (localStorage)
 // =============================================
 
 function saveProjectsOrder() {
@@ -380,14 +372,12 @@ function loadProjectsOrder() {
     try {
         const order = JSON.parse(saved);
         
-        // Réorganiser les projets selon l'ordre sauvegardé
         const reordered = [];
         order.forEach(id => {
             const project = window.projects.find(p => p.id === id);
             if (project) reordered.push(project);
         });
         
-        // Ajouter les projets qui ne sont pas dans l'ordre (nouveaux)
         window.projects.forEach(p => {
             if (!reordered.find(r => r.id === p.id)) {
                 reordered.push(p);
@@ -404,11 +394,11 @@ function loadProjectsOrder() {
 // EXPORT GLOBAL
 // =============================================
 
-// Rendre les fonctions accessibles globalement
 window.initDragAndDrop = initDragAndDrop;
 window.initTaskDragAndDrop = initTaskDragAndDrop;
 window.initProjectDragAndDrop = initProjectDragAndDrop;
 window.loadProjectsOrder = loadProjectsOrder;
 window.saveProjectsOrder = saveProjectsOrder;
+window.reorderTask = reorderTask;
 
-console.log('📦 dragdrop.js v2 loaded');
+console.log('📦 dragdrop.js v3 loaded');
