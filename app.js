@@ -1,8 +1,8 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS v11
-// + API Projects (persistance PostgreSQL)
+// PRODUCTIVEAPP - APP.JS v11.2
+// + Suppression projets depuis l'interface
+// + Fix compteurs projets
 // + Modal édition agrandie avec projet/user
-// + Responsive mobile
 // =============================================
 
 // === CONFIGURATION API ===
@@ -232,22 +232,28 @@ async function loadProjectsFromAPI() {
         });
         const data = await response.json();
         
-        if (!Array.isArray(data) || data.length === 0) {
-            console.log('⚠️ Aucun projet en base, utilisation des projets par défaut');
-            // Insérer les projets par défaut dans la base
-            for (const p of DEFAULT_PROJECTS) {
-                await createProjectAPI(p);
-            }
-            return DEFAULT_PROJECTS;
-        }
+        // Commencer avec les projets par défaut (pour les anciennes tâches)
+        projects = [...DEFAULT_PROJECTS];
         
-        projects = data.map(p => ({
-            id: p.project_id,
-            name: p.name,
-            icon: p.icon || '📁',
-            color: p.color || '#6b7280',
-            desc: p.description || p.name
-        }));
+        if (Array.isArray(data) && data.length > 0) {
+            // Ajouter les projets de la DB qui ne sont pas déjà dans les défauts
+            data.forEach(p => {
+                const existingIndex = projects.findIndex(proj => 
+                    proj.id === p.project_id || proj.name.toLowerCase() === p.name.toLowerCase()
+                );
+                
+                if (existingIndex === -1) {
+                    // Nouveau projet custom, on l'ajoute
+                    projects.push({
+                        id: p.project_id,
+                        name: p.name,
+                        icon: p.icon || '📁',
+                        color: p.color || '#6b7280',
+                        desc: p.description || p.name
+                    });
+                }
+            });
+        }
         
         console.log(`✅ ${projects.length} projets chargés`);
         return projects;
@@ -295,6 +301,61 @@ async function createProjectAPI(projectData) {
         console.error('❌ Erreur création projet:', error);
         return null;
     }
+}
+
+async function deleteProjectAPI(projectId) {
+    try {
+        const response = await fetch(API_PROJECTS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'delete',
+                tenant_id: TENANT_ID,
+                project_id: projectId
+            })
+        });
+        const text = await response.text();
+        console.log('✅ Projet supprimé:', text);
+        return true;
+    } catch (error) {
+        console.error('❌ Erreur suppression projet:', error);
+        return false;
+    }
+}
+
+async function deleteProject(projectId) {
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+    
+    // Vérifier si le projet contient des tâches
+    const taskCount = tasks.filter(t => t.project === projectId).length;
+    
+    if (taskCount > 0) {
+        alert(`⚠️ Impossible de supprimer "${project.name}"\n\nCe projet contient ${taskCount} tâche(s).\nDéplace-les d'abord vers un autre projet.`);
+        return;
+    }
+    
+    if (!confirm(`Supprimer le projet "${project.name}" ?`)) return;
+    
+    // Supprimer de la DB (si c'est un projet custom)
+    if (projectId.startsWith('proj_')) {
+        await deleteProjectAPI(projectId);
+    }
+    
+    // Supprimer localement
+    const index = projects.findIndex(p => p.id === projectId);
+    if (index > -1) {
+        projects.splice(index, 1);
+    }
+    
+    // Reset filtre si on était sur ce projet
+    if (activeProjectFilter === projectId) {
+        activeProjectFilter = 'all';
+    }
+    
+    renderProjectsFilter();
+    renderProjectSelect();
+    console.log('✅ Projet supprimé:', project.name);
 }
 
 // =============================================
@@ -593,15 +654,27 @@ function renderProjectsFilter() {
             <span class="chip-icon">${p.icon}</span>
             <span class="chip-name">${p.name}</span>
             <span class="chip-count">${counts[p.id] || 0}</span>
+            <span class="chip-delete" data-delete="${p.id}" title="Supprimer ce projet">×</span>
         </button>
     `).join('');
     
     document.querySelectorAll('.project-chip').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+            // Ne pas filtrer si on clique sur le bouton supprimer
+            if (e.target.classList.contains('chip-delete')) return;
+            
             document.querySelectorAll('.project-chip').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             activeProjectFilter = btn.dataset.project;
             renderTasks();
+        });
+    });
+    
+    // Boutons de suppression
+    document.querySelectorAll('.chip-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteProject(btn.dataset.delete);
         });
     });
 }
