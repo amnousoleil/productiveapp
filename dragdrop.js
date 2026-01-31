@@ -167,53 +167,38 @@ async function reorderTask(draggedId, targetId, insertBefore, newStatus) {
     
     const oldStatus = draggedTask.status;
     
-    // Filtrer les tâches par nouveau statut
-    let tasksInColumn = window.tasks.filter(t => t.status === newStatus);
-    
-    // Si la tâche change de colonne, on la retire de l'ancienne
-    if (oldStatus !== newStatus) {
-        // Retirer de l'ancienne colonne
-        const oldColumnTasks = window.tasks.filter(t => t.status === oldStatus && t.id !== draggedId);
-        // Recalculer les positions de l'ancienne colonne
-        oldColumnTasks.forEach((t, index) => {
-            t.position = index + 1;
-        });
-    }
-    
-    // Retirer la tâche draggée de la liste de la nouvelle colonne (si elle y était)
-    tasksInColumn = tasksInColumn.filter(t => t.id !== draggedId);
+    // Filtrer les tâches par nouveau statut (sans la tâche draggée)
+    let tasksInColumn = window.tasks.filter(t => t.status === newStatus && t.id !== draggedId);
     
     // Trier par position actuelle
     tasksInColumn.sort((a, b) => (a.position || 0) - (b.position || 0));
     
-    // Trouver la nouvelle position
-    let newPosition;
+    // Trouver la nouvelle position (index dans le tableau)
+    let insertIndex;
     if (targetId) {
         const targetIndex = tasksInColumn.findIndex(t => t.id === targetId);
         if (targetIndex !== -1) {
-            newPosition = insertBefore ? targetIndex : targetIndex + 1;
+            insertIndex = insertBefore ? targetIndex : targetIndex + 1;
         } else {
-            newPosition = tasksInColumn.length;
+            insertIndex = 0; // Par défaut en haut
         }
     } else {
         // Pas de cible = fin de liste
-        newPosition = tasksInColumn.length;
+        insertIndex = tasksInColumn.length;
     }
     
-    // Insérer la tâche à la nouvelle position
-    tasksInColumn.splice(newPosition, 0, draggedTask);
+    // Insérer la tâche draggée à la nouvelle position
+    tasksInColumn.splice(insertIndex, 0, draggedTask);
     
-    // Mettre à jour les positions de toutes les tâches de cette colonne
+    // Mettre à jour le statut de la tâche draggée
+    draggedTask.status = newStatus;
+    
+    // Recalculer les positions (commencer à 1)
     const updates = [];
     tasksInColumn.forEach((t, index) => {
         const newPos = index + 1;
-        if (t.position !== newPos || t.id === draggedId) {
-            t.position = newPos;
-            if (t.id === draggedId) {
-                t.status = newStatus;
-            }
-            updates.push({ id: t.id, status: t.status, position: newPos });
-        }
+        t.position = newPos;
+        updates.push({ id: t.id, status: t.status, position: newPos });
     });
     
     // Mettre à jour la référence globale
