@@ -963,6 +963,13 @@ function renderTaskHTMLFull(task) {
                 <span class="task-user" title="${task.userName}">${userAvatar}</span>
             </div>
             <div class="bubble-text">${escapeHtml(task.text)}</div>
+            ${hasDescription ? `
+                <button class="note-toggle" data-expanded="false" title="Voir les notes">
+                    <span class="note-dot">●</span>
+                    <span class="note-arrow">▼</span>
+                </button>
+                <div class="bubble-description hidden">${escapeHtml(task.description)}</div>
+            ` : ''}
             <div class="task-actions">
                 ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
                 ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅ Terminé</button>` : ''}
@@ -989,8 +996,39 @@ function renderTaskHTMLSimple(task) {
                 <span class="task-user" title="${task.userName}">${userAvatar}</span>
             </div>
             <div class="bubble-text">${escapeHtml(task.text)}</div>
+            ${hasDescription ? `
+                <button class="note-toggle" data-expanded="false" title="Voir les notes">
+                    <span class="note-dot">●</span>
+                    <span class="note-arrow">▼</span>
+                </button>
+                <div class="bubble-description hidden">${escapeHtml(task.description)}</div>
+            ` : ''}
         </div>
     `;
+}
+
+// Fonction pour dérouler/replier les notes
+function toggleNoteDisplay(btn) {
+    const bubble = btn.closest('.bubble');
+    if (!bubble) return;
+    
+    const description = bubble.querySelector('.bubble-description');
+    const arrow = btn.querySelector('.note-arrow');
+    const isExpanded = btn.dataset.expanded === 'true';
+    
+    if (isExpanded) {
+        // Replier
+        description.classList.add('hidden');
+        btn.dataset.expanded = 'false';
+        arrow.textContent = '▼';
+        btn.classList.remove('expanded');
+    } else {
+        // Déplier
+        description.classList.remove('hidden');
+        btn.dataset.expanded = 'true';
+        arrow.textContent = '▲';
+        btn.classList.add('expanded');
+    }
 }
 
 function attachTaskEventsFull() {
@@ -1023,11 +1061,19 @@ function attachTaskEventsFull() {
         });
     });
     
+    // Boutons toggle notes (point orange)
+    document.querySelectorAll('.note-toggle').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleNoteDisplay(btn);
+        });
+    });
+    
     // Clic sur la bulle = ouvre la modal aussi
     document.querySelectorAll('#columns-view .bubble').forEach(bubble => {
         bubble.addEventListener('click', (e) => {
             // Ignorer si on a cliqué sur un bouton
-            if (e.target.closest('.task-action-btn') || e.target.closest('.edit-btn')) return;
+            if (e.target.closest('.task-action-btn') || e.target.closest('.edit-btn') || e.target.closest('.note-toggle')) return;
             openEditTaskModal(bubble.dataset.id);
         });
     });
@@ -1047,11 +1093,19 @@ function attachTaskEventsSimple() {
         });
     });
     
+    // Boutons toggle notes (point orange)
+    document.querySelectorAll('.bubbles-view .note-toggle').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleNoteDisplay(btn);
+        });
+    });
+    
     // Clic sur la bulle = TOGGLE fait/à faire (mode 2 colonnes)
     document.querySelectorAll('.bubble[data-simple="true"]').forEach(bubble => {
         bubble.addEventListener('click', (e) => {
-            // Ignorer si on a cliqué sur le bouton edit
-            if (e.target.closest('.edit-btn')) return;
+            // Ignorer si on a cliqué sur le bouton edit ou note-toggle
+            if (e.target.closest('.edit-btn') || e.target.closest('.note-toggle')) return;
             
             const taskId = bubble.dataset.id;
             const task = tasks.find(t => t.id === taskId);
