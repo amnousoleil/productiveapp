@@ -5,45 +5,45 @@
 
 /* =============================================
    THEME: ACADEMIE 📚 
-   Fond sombre brun, bulles crème/beige sobres
-   Style papier sur bureau en bois
+   Fond gris ardoise, bulles beige doré chaud
+   Texte très lisible, ombres marquées
    ============================================= */
 [data-theme="academie"] {
-    --bg-primary: #1a1612;
-    --bg-secondary: #231e18;
-    --bg-tertiary: #2d2620;
-    --bg-card: rgba(205, 185, 160, 0.08);
+    --bg-primary: #2c2f33;
+    --bg-secondary: #36393f;
+    --bg-tertiary: #40444b;
+    --bg-card: rgba(218, 185, 130, 0.12);
     
-    --text: #e8e0d5;
-    --text-muted: #a89880;
+    --text: #f0ebe0;
+    --text-muted: #b8b0a0;
     
-    --accent: #c9a86c;
-    --accent-light: #dfc08a;
-    --accent-glow: rgba(201, 168, 108, 0.2);
+    --accent: #daa520;
+    --accent-light: #f0c850;
+    --accent-glow: rgba(218, 165, 32, 0.4);
     
-    --success: #8faa7a;
-    --success-glow: rgba(143, 170, 122, 0.2);
+    --success: #8faa5a;
+    --success-glow: rgba(143, 170, 90, 0.4);
     
-    --warning: #d4a855;
-    --danger: #c47a6a;
+    --warning: #e8b84a;
+    --danger: #d4644a;
     
-    --border: rgba(205, 185, 160, 0.15);
-    --border-strong: rgba(205, 185, 160, 0.3);
+    --border: rgba(218, 185, 130, 0.25);
+    --border-strong: rgba(218, 185, 130, 0.5);
     
-    /* Bulles crème/beige - style papier */
-    --bubble-bg: linear-gradient(145deg, rgba(245, 240, 230, 0.95) 0%, rgba(235, 225, 210, 0.9) 100%);
-    --bubble-border: rgba(200, 180, 150, 0.4);
-    --bubble-glow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    --bubble-text-color: #3d352a;
+    /* Bulles beige doré - très lisibles */
+    --bubble-bg: linear-gradient(145deg, #f7e8c8 0%, #e8d4a8 100%);
+    --bubble-border: #b8954a;
+    --bubble-glow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 3px 8px rgba(0, 0, 0, 0.25);
+    --bubble-text-color: #1a1510;
     
-    --bubble-inprogress-bg: linear-gradient(145deg, rgba(255, 248, 235, 0.95) 0%, rgba(250, 240, 220, 0.9) 100%);
-    --bubble-inprogress-border: rgba(201, 168, 108, 0.5);
-    --bubble-inprogress-glow: 0 2px 12px rgba(201, 168, 108, 0.2);
+    --bubble-inprogress-bg: linear-gradient(145deg, #ffe8a0 0%, #f5d878 100%);
+    --bubble-inprogress-border: #c9952a;
+    --bubble-inprogress-glow: 0 6px 24px rgba(218, 165, 32, 0.4), 0 3px 10px rgba(0, 0, 0, 0.3);
     
-    --bubble-done-bg: linear-gradient(145deg, rgba(240, 245, 235, 0.9) 0%, rgba(230, 240, 225, 0.85) 100%);
-    --bubble-done-border: rgba(143, 170, 122, 0.5);
-    --bubble-done-glow: 0 2px 8px rgba(143, 170, 122, 0.15);
-    --bubble-done-text: #5a6b50;
+    --bubble-done-bg: linear-gradient(145deg, #d8e4b8 0%, #c8d8a0 100%);
+    --bubble-done-border: #8aaa4a;
+    --bubble-done-glow: 0 6px 20px rgba(143, 170, 90, 0.35), 0 3px 8px rgba(0, 0, 0, 0.2);
+    --bubble-done-text: #2a3520;
 }
 
 /* =============================================
