@@ -1,14 +1,14 @@
 // =============================================
 // PRODUCTIVEAPP - APP.JS
-// Version API PostgreSQL
+// Version API PostgreSQL (Tasks + Journal)
 // =============================================
 
 // === CONFIGURATION API ===
-const API_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks';
+const API_TASKS = 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks';
+const API_JOURNAL = 'https://n8n.srv1053121.hstgr.cloud/webhook/journal';
 const TENANT_ID = 'digitalgiri';
 
 // === CONFIGURATION N8N ===
-const N8N_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/b44d5f39-8f25-4fb0-9fcf-d69be1ffa1a1';
 const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400-91f2-48ea-b115-26a330247dcc';
 
 // === UTILISATEURS ===
@@ -48,8 +48,8 @@ const THEMES = [
 
 // === STATE ===
 let currentUser = null;
-let tasks = []; // Chargé depuis l'API
-let journal = JSON.parse(localStorage.getItem('journal_v3')) || [];
+let tasks = [];
+let journal = [];
 let projects = DEFAULT_PROJECTS;
 
 let activeProjectFilter = 'all';
@@ -62,19 +62,18 @@ let lastReportData = null;
 const $ = id => document.getElementById(id);
 
 // =============================================
-// API POSTGRESQL
+// API TASKS
 // =============================================
 
 async function loadTasksFromAPI() {
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API_TASKS, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'get', tenant_id: TENANT_ID })
         });
         const data = await response.json();
         
-        // Convertir le format API vers le format app
         tasks = data.map(t => ({
             id: t.task_id,
             text: t.text,
@@ -88,7 +87,7 @@ async function loadTasksFromAPI() {
             completedAt: t.completed_at
         }));
         
-        console.log(`✅ ${tasks.length} tâches chargées depuis PostgreSQL`);
+        console.log(`✅ ${tasks.length} tâches chargées`);
         return tasks;
     } catch (error) {
         console.error('❌ Erreur chargement tasks:', error);
@@ -98,7 +97,7 @@ async function loadTasksFromAPI() {
 
 async function createTaskAPI(taskData) {
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API_TASKS, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -122,7 +121,7 @@ async function createTaskAPI(taskData) {
 
 async function updateTaskAPI(taskId, status, priority) {
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API_TASKS, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -144,7 +143,7 @@ async function updateTaskAPI(taskId, status, priority) {
 
 async function deleteTaskAPI(taskId) {
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API_TASKS, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -162,6 +161,65 @@ async function deleteTaskAPI(taskId) {
     }
 }
 
+// =============================================
+// API JOURNAL
+// =============================================
+
+async function loadJournalFromAPI() {
+    try {
+        const response = await fetch(API_JOURNAL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get', tenant_id: TENANT_ID })
+        });
+        const data = await response.json();
+        
+        journal = data.map(j => ({
+            id: j.id,
+            category: j.category,
+            text: j.text,
+            energy: j.energy,
+            time: new Date(j.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            date: j.created_at,
+            userId: j.user_id,
+            userName: getUserName(j.user_id)
+        }));
+        
+        console.log(`✅ ${journal.length} entrées journal chargées`);
+        return journal;
+    } catch (error) {
+        console.error('❌ Erreur chargement journal:', error);
+        return [];
+    }
+}
+
+async function createJournalAPI(entry) {
+    try {
+        const response = await fetch(API_JOURNAL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create',
+                tenant_id: TENANT_ID,
+                user_id: entry.userId,
+                category: entry.category,
+                text: entry.text,
+                energy: entry.energy
+            })
+        });
+        const result = await response.json();
+        console.log('✅ Entrée journal créée:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Erreur création journal:', error);
+        return null;
+    }
+}
+
+// =============================================
+// UTILS
+// =============================================
+
 function getPriorityLabel(level) {
     const labels = { 1: 'Urgent', 2: 'Normal', 3: 'Basse' };
     return labels[level] || 'Normal';
@@ -170,6 +228,12 @@ function getPriorityLabel(level) {
 function getUserName(userId) {
     const user = USERS.find(u => u.id === userId);
     return user ? user.name : userId;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // =============================================
@@ -255,8 +319,12 @@ async function initApp() {
     renderProjectSelect();
     renderUserFilter();
     
-    // Charger les tâches depuis PostgreSQL
-    await loadTasksFromAPI();
+    // Charger depuis PostgreSQL
+    await Promise.all([
+        loadTasksFromAPI(),
+        loadJournalFromAPI()
+    ]);
+    
     renderTasks();
     renderJournal();
     
@@ -296,7 +364,7 @@ function loadTheme() {
 }
 
 // =============================================
-// VUE MODE (Colonnes vs Bulles)
+// VUE MODE
 // =============================================
 
 function loadViewMode() {
@@ -375,32 +443,6 @@ function renderUserFilter() {
 }
 
 // =============================================
-// UTILS
-// =============================================
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function saveJournal() {
-    localStorage.setItem('journal_v3', JSON.stringify(journal));
-}
-
-async function sendToN8N(type, data) {
-    try {
-        await fetch(N8N_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type, user: currentUser.name, ...data })
-        });
-    } catch (e) {
-        console.error('N8N Error:', e);
-    }
-}
-
-// =============================================
 // TÂCHES
 // =============================================
 
@@ -419,11 +461,9 @@ async function createTask() {
         userName: currentUser.name
     };
     
-    // Créer via API
     const result = await createTaskAPI(taskData);
     
     if (result && result.length > 0) {
-        // Ajouter la tâche localement avec l'ID retourné
         const newTask = result[0];
         tasks.push({
             id: newTask.task_id,
@@ -440,8 +480,7 @@ async function createTask() {
         renderTasks();
         renderProjectsFilter();
         
-        // Journal
-        addJournalEntry('task', `📝 Créé: ${text}`, 2);
+        await addJournalEntry('task', `📝 Créé: ${text}`, 2);
     }
     
     $('task-input').value = '';
@@ -534,25 +573,22 @@ async function handleTaskAction(taskId, action) {
     const task = tasks[taskIndex];
     
     if (action === 'start') {
-        // Update via API
         await updateTaskAPI(taskId, 'inprogress', task.priority.level);
         task.status = 'inprogress';
         task.updatedAt = new Date().toISOString();
-        addJournalEntry('task', `🔄 Commencé: ${task.text}`, 2);
+        await addJournalEntry('task', `🔄 Commencé: ${task.text}`, 2);
         
     } else if (action === 'done') {
-        // Update via API
         await updateTaskAPI(taskId, 'done', task.priority.level);
         task.status = 'done';
         task.completedAt = new Date().toISOString();
         task.updatedAt = new Date().toISOString();
-        addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
+        await addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
         
     } else if (action === 'delete') {
-        // Delete via API
         await deleteTaskAPI(taskId);
         tasks.splice(taskIndex, 1);
-        addJournalEntry('task', `🗑️ Supprimé: ${task.text}`, 2);
+        await addJournalEntry('task', `🗑️ Supprimé: ${task.text}`, 2);
     }
     
     renderTasks();
@@ -563,25 +599,37 @@ async function handleTaskAction(taskId, action) {
 // JOURNAL
 // =============================================
 
-function addJournalEntry(category, text, energy) {
-    journal.unshift({
-        id: Date.now(),
+async function addJournalEntry(category, text, energy) {
+    const entry = {
         category: category,
         text: text,
         energy: energy,
-        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        date: new Date().toISOString(),
         userId: currentUser.id,
         userName: currentUser.name
-    });
-    saveJournal();
-    renderJournal();
+    };
+    
+    const result = await createJournalAPI(entry);
+    
+    if (result && result.length > 0) {
+        const newEntry = result[0];
+        journal.unshift({
+            id: newEntry.id,
+            category: newEntry.category,
+            text: newEntry.text,
+            energy: newEntry.energy,
+            time: new Date(newEntry.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            date: newEntry.created_at,
+            userId: newEntry.user_id,
+            userName: getUserName(newEntry.user_id)
+        });
+        renderJournal();
+    }
 }
 
-function createJournalEntry() {
+async function createJournalEntry() {
     const text = $('journal-input').value.trim();
     if (text) {
-        addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
+        await addJournalEntry($('journal-category').value, text, parseInt($('journal-energy').value));
         $('journal-input').value = '';
     }
 }
@@ -881,7 +929,6 @@ function createProject() {
         desc: desc || name
     });
     
-    // Pour l'instant les projets restent locaux (API projects à créer plus tard)
     renderProjectsFilter();
     renderProjectSelect();
     closeProjectModal();
@@ -894,7 +941,6 @@ function createProject() {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 ProductiveApp Starting (PostgreSQL Mode)...');
     
-    // Auth
     renderUserSelect();
     
     $('login-btn').addEventListener('click', attemptLogin);
@@ -907,21 +953,17 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     $('logout-btn').addEventListener('click', logout);
     
-    // Tasks
     $('add-task-btn').addEventListener('click', createTask);
     $('task-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createTask(); });
     
-    // View Toggle
     $('view-toggle-btn').addEventListener('click', toggleViewMode);
     
-    // User Filter
     $('user-filter-select').addEventListener('change', function() {
         activeUserFilter = $('user-filter-select').value;
         renderTasks();
         renderJournal();
     });
     
-    // Theme
     $('theme-btn').addEventListener('click', function() { $('theme-modal').classList.remove('hidden'); });
     $('close-theme-modal').addEventListener('click', function() { $('theme-modal').classList.add('hidden'); });
     $('theme-modal').addEventListener('click', function(e) { if (e.target === $('theme-modal')) $('theme-modal').classList.add('hidden'); });
@@ -931,28 +973,23 @@ document.addEventListener('DOMContentLoaded', function() {
         $('theme-name').textContent = theme.name;
     });
     
-    // Project Modal
     $('add-project-btn').addEventListener('click', openProjectModal);
     $('cancel-project').addEventListener('click', closeProjectModal);
     $('confirm-project').addEventListener('click', createProject);
     $('project-modal').addEventListener('click', function(e) { if (e.target === $('project-modal')) closeProjectModal(); });
     
-    // Journal
     $('add-journal-btn').addEventListener('click', createJournalEntry);
     $('journal-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') createJournalEntry(); });
     
-    // Report
     $('generate-report-btn').addEventListener('click', generateReport);
     $('download-pdf-btn').addEventListener('click', downloadPDF);
     
-    // Chatbot
     $('chatbot-toggle').addEventListener('click', toggleChatbot);
     $('chatbot-close').addEventListener('click', function() { $('chatbot-window').classList.add('hidden'); });
     $('chatbot-resize').addEventListener('click', toggleChatbotSize);
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     
-    // Check Session
     checkExistingSession();
     
     console.log('✅ ProductiveApp Ready (PostgreSQL Mode)');
