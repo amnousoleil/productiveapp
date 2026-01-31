@@ -1224,6 +1224,9 @@ async function saveEditTask() {
     task.userName = getUserName(newUserId);
     task.updatedAt = new Date().toISOString();
     
+    // Synchroniser la référence globale
+    window.tasks = tasks;
+    
     closeEditTaskModal();
     renderTasks();
     renderProjectsFilter();
