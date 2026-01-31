@@ -321,39 +321,40 @@
 
 /* =============================================
    THEME: MIDNIGHT 🌙
+   Lisibilité améliorée
    ============================================= */
 [data-theme="midnight"] {
-    --bg-primary: #0a0a12;
-    --bg-secondary: #12121f;
-    --bg-tertiary: #1a1a2e;
-    --bg-card: rgba(108, 143, 255, 0.1);
+    --bg-primary: #0d0d18;
+    --bg-secondary: #15152a;
+    --bg-tertiary: #1e1e3a;
+    --bg-card: rgba(108, 143, 255, 0.12);
     
-    --text: #e8eaff;
-    --text-muted: #8888bb;
+    --text: #f0f2ff;
+    --text-muted: #a0a8d0;
     
-    --accent: #6c8fff;
-    --accent-light: #8cacff;
-    --accent-glow: rgba(108, 143, 255, 0.4);
+    --accent: #7c9fff;
+    --accent-light: #a0c0ff;
+    --accent-glow: rgba(124, 159, 255, 0.45);
     
-    --success: #818cf8;
-    --success-glow: rgba(129, 140, 248, 0.4);
+    --success: #a0b0ff;
+    --success-glow: rgba(160, 176, 255, 0.4);
     
-    --warning: #a78bfa;
-    --danger: #ff6b8a;
+    --warning: #c0a0ff;
+    --danger: #ff7090;
     
-    --border: rgba(108, 143, 255, 0.2);
-    --border-strong: rgba(108, 143, 255, 0.5);
+    --border: rgba(124, 159, 255, 0.3);
+    --border-strong: rgba(124, 159, 255, 0.6);
     
-    --bubble-bg: linear-gradient(135deg, rgba(108, 143, 255, 0.2) 0%, rgba(40, 50, 100, 0.25) 100%);
-    --bubble-border: rgba(108, 143, 255, 0.5);
-    --bubble-glow: 0 8px 32px rgba(108, 143, 255, 0.3), 0 0 48px rgba(140, 172, 255, 0.15);
+    --bubble-bg: linear-gradient(135deg, rgba(124, 159, 255, 0.25) 0%, rgba(50, 60, 120, 0.3) 100%);
+    --bubble-border: rgba(124, 159, 255, 0.6);
+    --bubble-glow: 0 8px 32px rgba(124, 159, 255, 0.35), 0 0 48px rgba(160, 192, 255, 0.2);
     
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(140, 172, 255, 0.35) 0%, rgba(108, 143, 255, 0.15) 100%);
-    --bubble-inprogress-border: rgba(140, 172, 255, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(140, 172, 255, 0.5), 0 0 80px rgba(108, 143, 255, 0.3);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(160, 192, 255, 0.4) 0%, rgba(124, 159, 255, 0.2) 100%);
+    --bubble-inprogress-border: rgba(160, 192, 255, 0.9);
+    --bubble-inprogress-glow: 0 8px 50px rgba(160, 192, 255, 0.55), 0 0 80px rgba(124, 159, 255, 0.35);
     
-    --bubble-done-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.3) 0%, rgba(79, 70, 229, 0.12) 100%);
-    --bubble-done-border: rgba(99, 102, 241, 0.65);
-    --bubble-done-glow: 0 6px 20px rgba(99, 102, 241, 0.3), 0 0 30px rgba(99, 102, 241, 0.15);
-    --bubble-done-text: #818cf8;
+    --bubble-done-bg: linear-gradient(135deg, rgba(130, 140, 255, 0.35) 0%, rgba(100, 110, 240, 0.15) 100%);
+    --bubble-done-border: rgba(130, 140, 255, 0.75);
+    --bubble-done-glow: 0 6px 20px rgba(130, 140, 255, 0.35), 0 0 30px rgba(130, 140, 255, 0.2);
+    --bubble-done-text: #a0b0ff;
 }
