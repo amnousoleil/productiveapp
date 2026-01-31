@@ -1050,12 +1050,17 @@ function toggleChatbotFontSize() {
     localStorage.setItem('chatbot-font-size', chatbotFontSize);
     $('chatbot-window').dataset.font = chatbotFontSize;
     
+    // Feedback visuel
     const labels = { small: 'Petit', medium: 'Moyen', large: 'Grand', xlarge: 'Très grand' };
-    console.log('📝 Taille police:', labels[chatbotFontSize]);
+    const btn = $('chatbot-font-size');
+    btn.textContent = labels[chatbotFontSize];
+    setTimeout(() => { btn.textContent = 'Aa'; }, 1000);
 }
 
 function initChatbotFontSize() {
-    $('chatbot-window').dataset.font = chatbotFontSize;
+    if ($('chatbot-window')) {
+        $('chatbot-window').dataset.font = chatbotFontSize;
+    }
 }
 
 async function sendChatMessage() {
@@ -1427,7 +1432,12 @@ document.addEventListener('DOMContentLoaded', function() {
     $('chatbot-toggle').addEventListener('click', toggleChatbot);
     $('chatbot-close').addEventListener('click', function() { $('chatbot-window').classList.add('hidden'); });
     $('chatbot-resize').addEventListener('click', toggleChatbotSize);
-    $('chatbot-font-size').addEventListener('click', toggleChatbotFontSize);
+    if ($('chatbot-font-size')) {
+        $('chatbot-font-size').addEventListener('click', toggleChatbotFontSize);
+        // Init font size au chargement
+        const savedFont = localStorage.getItem('chatbot-font-size') || 'medium';
+        $('chatbot-window').dataset.font = savedFont;
+    }
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     
