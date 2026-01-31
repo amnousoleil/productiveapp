@@ -1,9 +1,13 @@
 // =============================================
 // PRODUCTIVEAPP - APP.JS
-// Logique principale + Webhooks N8N
+// Version API PostgreSQL
 // =============================================
 
-// === CONFIGURATION N8N (NE PAS MODIFIER) ===
+// === CONFIGURATION API ===
+const API_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks';
+const TENANT_ID = 'digitalgiri';
+
+// === CONFIGURATION N8N ===
 const N8N_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/b44d5f39-8f25-4fb0-9fcf-d69be1ffa1a1';
 const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400-91f2-48ea-b115-26a330247dcc';
 
@@ -15,17 +19,17 @@ const USERS = [
 
 // === PROJETS PAR DÉFAUT ===
 const DEFAULT_PROJECTS = [
-    { id: 'bible', name: 'Bible des Thérapeutes', icon: '📖', color: '#6c8fff', desc: 'Livre + examen pour les thérapeutes' },
-    { id: 'academie', name: 'Académie', icon: '🎓', color: '#4ade80', desc: 'Formations, abonnements mensuels, contenu' },
-    { id: 'lives', name: 'Lives Quotidiens', icon: '🎬', color: '#ff6b9d', desc: 'Contenu live daily' },
-    { id: 'entreprise', name: 'Entreprise Interne', icon: '🏢', color: '#f97316', desc: 'RH, recrutement, personnel, orga interne' },
-    { id: 'brice-evolution', name: 'Évolution Brice', icon: '👨‍🎓', color: '#00b4d8', desc: 'Suivi progression de Brice' },
-    { id: 'retraites', name: 'Retraites Spirituelles', icon: '🧘', color: '#bf6bff', desc: 'Organisation des retraites' },
-    { id: 'digital-giri', name: 'Digital Giri', icon: '💻', color: '#ffd700', desc: 'La marque, le business global' },
-    { id: 'agents-ia', name: 'Agents IA', icon: '🤖', color: '#00ff66', desc: 'Projets tech, automation, IA' },
-    { id: 'voyages', name: 'Voyages Monde', icon: '✈️', color: '#48cae4', desc: 'Déplacements, logistics internationale' },
-    { id: 'perso-maha', name: 'Perso Maha', icon: '💜', color: '#ff6b9d', desc: 'Vie personnelle' },
-    { id: 'general', name: 'Général', icon: '📋', color: '#a89078', desc: 'Tâches diverses' }
+    { id: 'bible', name: 'Bible des Thérapeutes', icon: '📖', color: '#e07840', desc: 'Livre + examen pour les thérapeutes' },
+    { id: 'academie', name: 'Académie', icon: '🎓', color: '#f5e6d3', desc: 'Formations, abonnements mensuels, contenu' },
+    { id: 'lives', name: 'Lives Quotidiens', icon: '🎥', color: '#a89078', desc: 'Contenu live daily' },
+    { id: 'entreprise', name: 'Entreprise Interne', icon: '🏢', color: '#2d2117', desc: 'RH, recrutement, personnel, orga interne' },
+    { id: 'brice', name: 'Évolution Brice', icon: '🚀', color: '#22c55e', desc: 'Suivi progression de Brice' },
+    { id: 'retraites', name: 'Retraites Spirituelles', icon: '🧘', color: '#8b5cf6', desc: 'Organisation des retraites' },
+    { id: 'digital', name: 'Digital Giri', icon: '💻', color: '#3b82f6', desc: 'La marque, le business global' },
+    { id: 'agents', name: 'Agents IA', icon: '🤖', color: '#ec4899', desc: 'Projets tech, automation, IA' },
+    { id: 'voyages', name: 'Voyages Monde', icon: '✈️', color: '#f59e0b', desc: 'Déplacements, logistics internationale' },
+    { id: 'perso', name: 'Perso Maha', icon: '🌟', color: '#fbbf24', desc: 'Vie personnelle' },
+    { id: 'general', name: 'Général', icon: '📌', color: '#6b7280', desc: 'Tâches diverses' }
 ];
 
 // === THÈMES (10 thèmes) ===
@@ -44,9 +48,9 @@ const THEMES = [
 
 // === STATE ===
 let currentUser = null;
-let tasks = JSON.parse(localStorage.getItem('tasks_v3')) || [];
+let tasks = []; // Chargé depuis l'API
 let journal = JSON.parse(localStorage.getItem('journal_v3')) || [];
-let projects = JSON.parse(localStorage.getItem('projects_v3')) || DEFAULT_PROJECTS;
+let projects = DEFAULT_PROJECTS;
 
 let activeProjectFilter = 'all';
 let activeUserFilter = 'all';
@@ -56,6 +60,117 @@ let lastReportData = null;
 
 // === DOM ELEMENTS ===
 const $ = id => document.getElementById(id);
+
+// =============================================
+// API POSTGRESQL
+// =============================================
+
+async function loadTasksFromAPI() {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get', tenant_id: TENANT_ID })
+        });
+        const data = await response.json();
+        
+        // Convertir le format API vers le format app
+        tasks = data.map(t => ({
+            id: t.task_id,
+            text: t.text,
+            status: t.status,
+            priority: { level: t.priority, label: getPriorityLabel(t.priority) },
+            project: t.project_id,
+            userId: t.user_id,
+            userName: getUserName(t.user_id),
+            createdAt: t.created_at,
+            updatedAt: t.updated_at,
+            completedAt: t.completed_at
+        }));
+        
+        console.log(`✅ ${tasks.length} tâches chargées depuis PostgreSQL`);
+        return tasks;
+    } catch (error) {
+        console.error('❌ Erreur chargement tasks:', error);
+        return [];
+    }
+}
+
+async function createTaskAPI(taskData) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'create',
+                tenant_id: TENANT_ID,
+                task_id: 'task_' + Date.now(),
+                user_id: taskData.userId,
+                project_id: taskData.project,
+                text: taskData.text,
+                priority: taskData.priority.level
+            })
+        });
+        const result = await response.json();
+        console.log('✅ Tâche créée:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Erreur création task:', error);
+        return null;
+    }
+}
+
+async function updateTaskAPI(taskId, status, priority) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'update',
+                tenant_id: TENANT_ID,
+                task_id: taskId,
+                status: status,
+                priority: priority
+            })
+        });
+        const result = await response.json();
+        console.log('✅ Tâche mise à jour:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Erreur update task:', error);
+        return null;
+    }
+}
+
+async function deleteTaskAPI(taskId) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'delete',
+                tenant_id: TENANT_ID,
+                task_id: taskId
+            })
+        });
+        const result = await response.json();
+        console.log('✅ Tâche supprimée:', result);
+        return result;
+    } catch (error) {
+        console.error('❌ Erreur delete task:', error);
+        return null;
+    }
+}
+
+function getPriorityLabel(level) {
+    const labels = { 1: 'Urgent', 2: 'Normal', 3: 'Basse' };
+    return labels[level] || 'Normal';
+}
+
+function getUserName(userId) {
+    const user = USERS.find(u => u.id === userId);
+    return user ? user.name : userId;
+}
 
 // =============================================
 // AUTHENTIFICATION
@@ -128,7 +243,7 @@ function checkExistingSession() {
 // INITIALISATION
 // =============================================
 
-function initApp() {
+async function initApp() {
     $('current-user-badge').innerHTML = `
         <span class="user-avatar">${currentUser.avatar}</span>
         <span class="user-name">${currentUser.name}</span>
@@ -139,6 +254,9 @@ function initApp() {
     renderProjectsFilter();
     renderProjectSelect();
     renderUserFilter();
+    
+    // Charger les tâches depuis PostgreSQL
+    await loadTasksFromAPI();
     renderTasks();
     renderJournal();
     
@@ -146,7 +264,7 @@ function initApp() {
         if (typeof initAnimation === 'function') initAnimation();
     }, 100);
     
-    console.log('✅ App initialized');
+    console.log('✅ App initialized avec PostgreSQL');
 }
 
 // =============================================
@@ -266,16 +384,8 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-function saveTasks() {
-    localStorage.setItem('tasks_v3', JSON.stringify(tasks));
-}
-
 function saveJournal() {
     localStorage.setItem('journal_v3', JSON.stringify(journal));
-}
-
-function saveProjects() {
-    localStorage.setItem('projects_v3', JSON.stringify(projects));
 }
 
 async function sendToN8N(type, data) {
@@ -294,36 +404,49 @@ async function sendToN8N(type, data) {
 // TÂCHES
 // =============================================
 
-function createTask() {
+async function createTask() {
     const text = $('task-input').value.trim();
     if (!text) return;
     
     const projectId = $('project-select').value || 'general';
     const priorityLevel = parseInt($('priority-select').value) || 2;
-    const priorityLabels = { 1: 'Urgent', 2: 'Normal', 3: 'Basse' };
     
-    const task = {
-        id: Date.now(),
+    const taskData = {
         text: text,
-        status: 'todo',
-        priority: { level: priorityLevel, label: priorityLabels[priorityLevel] },
         project: projectId,
+        priority: { level: priorityLevel, label: getPriorityLabel(priorityLevel) },
         userId: currentUser.id,
-        userName: currentUser.name,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        userName: currentUser.name
     };
     
-    tasks.push(task);
-    saveTasks();
-    renderTasks();
-    renderProjectsFilter();
+    // Créer via API
+    const result = await createTaskAPI(taskData);
+    
+    if (result && result.length > 0) {
+        // Ajouter la tâche localement avec l'ID retourné
+        const newTask = result[0];
+        tasks.push({
+            id: newTask.task_id,
+            text: newTask.text,
+            status: newTask.status,
+            priority: { level: newTask.priority, label: getPriorityLabel(newTask.priority) },
+            project: newTask.project_id,
+            userId: newTask.user_id,
+            userName: getUserName(newTask.user_id),
+            createdAt: newTask.created_at,
+            updatedAt: newTask.updated_at
+        });
+        
+        renderTasks();
+        renderProjectsFilter();
+        
+        // Journal
+        addJournalEntry('task', `📝 Créé: ${text}`, 2);
+    }
     
     $('task-input').value = '';
     $('project-select').value = '';
     $('priority-select').value = '2';
-    
-    sendToN8N('task', task);
 }
 
 function renderTasks() {
@@ -397,35 +520,41 @@ function attachTaskEvents() {
             const taskEl = newBtn.closest('.bubble');
             if (!taskEl) return;
             
-            const taskId = Number(taskEl.dataset.id);
+            const taskId = taskEl.dataset.id;
             const action = newBtn.dataset.action;
             handleTaskAction(taskId, action);
         });
     });
 }
 
-function handleTaskAction(taskId, action) {
+async function handleTaskAction(taskId, action) {
     const taskIndex = tasks.findIndex(t => t.id === taskId);
     if (taskIndex === -1) return;
     
     const task = tasks[taskIndex];
     
     if (action === 'start') {
+        // Update via API
+        await updateTaskAPI(taskId, 'inprogress', task.priority.level);
         task.status = 'inprogress';
-        task.startedAt = new Date().toISOString();
         task.updatedAt = new Date().toISOString();
         addJournalEntry('task', `🔄 Commencé: ${task.text}`, 2);
+        
     } else if (action === 'done') {
+        // Update via API
+        await updateTaskAPI(taskId, 'done', task.priority.level);
         task.status = 'done';
         task.completedAt = new Date().toISOString();
         task.updatedAt = new Date().toISOString();
         addJournalEntry('win', `✅ Terminé: ${task.text}`, 3);
+        
     } else if (action === 'delete') {
+        // Delete via API
+        await deleteTaskAPI(taskId);
         tasks.splice(taskIndex, 1);
         addJournalEntry('task', `🗑️ Supprimé: ${task.text}`, 2);
     }
     
-    saveTasks();
     renderTasks();
     renderProjectsFilter();
 }
@@ -535,7 +664,7 @@ async function sendChatMessage() {
         try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
         
         loadingDiv.remove();
-        aiResponse = processAIActions(aiResponse);
+        aiResponse = await processAIActions(aiResponse);
         addChatMsg(aiResponse || 'OK!', 'assistant');
     } catch (e) {
         loadingDiv.remove();
@@ -574,31 +703,49 @@ function buildAIContext() {
     return ctx;
 }
 
-function processAIActions(response) {
+async function processAIActions(response) {
     if (response.includes('ACTION:CREATE|')) {
-        [...response.matchAll(/ACTION:CREATE\|([^\n]+)/g)].forEach(m => {
-            tasks.push({
-                id: Date.now() + Math.random(),
+        for (const m of [...response.matchAll(/ACTION:CREATE\|([^\n]+)/g)]) {
+            const taskData = {
                 text: m[1].trim(),
-                status: 'todo',
-                priority: { level: 2, label: 'Normal' },
                 project: activeProjectFilter !== 'all' ? activeProjectFilter : 'general',
+                priority: { level: 2, label: 'Normal' },
                 userId: currentUser.id,
-                userName: currentUser.name,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            });
-        });
-        saveTasks(); renderTasks(); renderProjectsFilter();
+                userName: currentUser.name
+            };
+            
+            const result = await createTaskAPI(taskData);
+            if (result && result.length > 0) {
+                const newTask = result[0];
+                tasks.push({
+                    id: newTask.task_id,
+                    text: newTask.text,
+                    status: newTask.status,
+                    priority: { level: newTask.priority, label: getPriorityLabel(newTask.priority) },
+                    project: newTask.project_id,
+                    userId: newTask.user_id,
+                    userName: getUserName(newTask.user_id),
+                    createdAt: newTask.created_at,
+                    updatedAt: newTask.updated_at
+                });
+            }
+        }
+        renderTasks();
+        renderProjectsFilter();
         response = response.replace(/ACTION:CREATE\|[^\n]+/g, '') + '\n✅ Tâche créée!';
     }
     
     if (response.includes('ACTION:DONE|')) {
-        [...response.matchAll(/ACTION:DONE\|([^\n]+)/g)].forEach(m => {
+        for (const m of [...response.matchAll(/ACTION:DONE\|([^\n]+)/g)]) {
             const t = tasks.find(t => t.status !== 'done' && t.text.toLowerCase().includes(m[1].trim().toLowerCase()));
-            if (t) { t.status = 'done'; t.completedAt = new Date().toISOString(); }
-        });
-        saveTasks(); renderTasks(); renderProjectsFilter();
+            if (t) {
+                await updateTaskAPI(t.id, 'done', t.priority.level);
+                t.status = 'done';
+                t.completedAt = new Date().toISOString();
+            }
+        }
+        renderTasks();
+        renderProjectsFilter();
         response = response.replace(/ACTION:DONE\|[^\n]+/g, '') + '\n✅ Terminé!';
     }
     
@@ -734,7 +881,7 @@ function createProject() {
         desc: desc || name
     });
     
-    saveProjects();
+    // Pour l'instant les projets restent locaux (API projects à créer plus tard)
     renderProjectsFilter();
     renderProjectSelect();
     closeProjectModal();
@@ -745,7 +892,7 @@ function createProject() {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 ProductiveApp Starting...');
+    console.log('🚀 ProductiveApp Starting (PostgreSQL Mode)...');
     
     // Auth
     renderUserSelect();
@@ -808,5 +955,5 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check Session
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready');
+    console.log('✅ ProductiveApp Ready (PostgreSQL Mode)');
 });
