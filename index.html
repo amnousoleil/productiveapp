@@ -232,6 +232,7 @@
                 <span>Assistant IA</span>
             </div>
             <div class="chatbot-controls">
+                <button id="chatbot-font-size" title="Taille texte">Aa</button>
                 <button id="chatbot-resize" title="Agrandir">⤢</button>
                 <button id="chatbot-close" title="Fermer">×</button>
             </div>
@@ -341,9 +342,9 @@
             transform: translateY(-4px) scale(1.02) !important;
         }
 
-        /* Titre de la tâche - TEXTE FONCÉ LISIBLE */
+        /* Titre de la tâche - Couleur adaptée au thème */
         body .bubble .bubble-text {
-            color: #1a1a1a !important;
+            color: var(--bubble-text, #1a1a1a) !important;
             font-size: 1.05rem !important;
             line-height: 1.4 !important;
             font-weight: 600 !important;
@@ -351,7 +352,7 @@
 
         /* Description / sous-texte */
         body .bubble .bubble-description {
-            color: #444 !important;
+            color: var(--bubble-text-muted, #444) !important;
             font-size: 0.85rem !important;
             line-height: 1.4 !important;
             margin-top: 8px;
@@ -360,26 +361,129 @@
             font-style: normal;
         }
 
-        /* Bulles en cours - TEXTE FONCÉ */
+        /* Bulles en cours */
         body .bubble.inprogress {
             background: var(--bubble-inprogress-bg, linear-gradient(145deg, rgba(251, 191, 36, 0.5) 0%, rgba(249, 115, 22, 0.3) 100%)) !important;
             border: 2px solid var(--bubble-inprogress-border, rgba(251, 191, 36, 0.8)) !important;
             box-shadow: var(--bubble-inprogress-glow, 0 0 25px rgba(251, 191, 36, 0.5)) !important;
             animation: glowPulse 2.5s ease-in-out infinite !important;
         }
-        body .bubble.inprogress .bubble-text {
-            color: #1a1a1a !important;
-        }
 
-        /* Bulles terminées - TEXTE FONCÉ barré */
+        /* Bulles terminées */
         body .bubble.done {
             background: var(--bubble-done-bg, linear-gradient(145deg, rgba(34, 197, 94, 0.35) 0%, rgba(22, 163, 74, 0.2) 100%)) !important;
             border: 2px solid var(--bubble-done-border, rgba(34, 197, 94, 0.5)) !important;
         }
         body .bubble.done .bubble-text {
-            color: #1a1a1a !important;
             text-decoration: line-through !important;
             opacity: 0.6 !important;
+        }
+
+        /* === THÈMES SOMBRES - Texte clair sur bulles === */
+        [data-theme="matrix"] .bubble .bubble-text {
+            color: #00ff66 !important;
+            text-shadow: 0 0 10px rgba(0,255,102,0.5);
+        }
+        [data-theme="matrix"] .bubble.inprogress .bubble-text {
+            color: #00ff66 !important;
+        }
+        [data-theme="matrix"] .bubble.done .bubble-text {
+            color: #00cc55 !important;
+        }
+        
+        [data-theme="midnight"] .bubble .bubble-text {
+            color: #c0d0ff !important;
+        }
+        [data-theme="midnight"] .bubble.inprogress .bubble-text {
+            color: #fbbf24 !important;
+        }
+        
+        [data-theme="hacker"] .bubble .bubble-text {
+            color: #00ff00 !important;
+            text-shadow: 0 0 8px rgba(0,255,0,0.4);
+        }
+        [data-theme="hacker"] .bubble.inprogress .bubble-text {
+            color: #ffff00 !important;
+        }
+        
+        [data-theme="fantasy"] .bubble .bubble-text {
+            color: #e8d0ff !important;
+        }
+        [data-theme="fantasy"] .bubble.inprogress .bubble-text {
+            color: #fbbf24 !important;
+        }
+
+        [data-theme="ocean"] .bubble .bubble-text {
+            color: #e0f7ff !important;
+        }
+        [data-theme="ocean"] .bubble.inprogress .bubble-text {
+            color: #fbbf24 !important;
+        }
+
+        [data-theme="forest"] .bubble .bubble-text {
+            color: #d0ffe0 !important;
+        }
+        [data-theme="forest"] .bubble.inprogress .bubble-text {
+            color: #fbbf24 !important;
+        }
+
+        [data-theme="matrix"] .bubble .bubble-description,
+        [data-theme="midnight"] .bubble .bubble-description,
+        [data-theme="hacker"] .bubble .bubble-description,
+        [data-theme="fantasy"] .bubble .bubble-description,
+        [data-theme="ocean"] .bubble .bubble-description,
+        [data-theme="forest"] .bubble .bubble-description {
+            color: #aaa !important;
+        }
+        [data-theme="matrix"] .bubble {
+            background: linear-gradient(145deg, rgba(0, 255, 102, 0.15) 0%, rgba(0, 180, 70, 0.1) 100%) !important;
+            border-color: rgba(0, 255, 102, 0.4) !important;
+        }
+        [data-theme="matrix"] .bubble.inprogress {
+            background: linear-gradient(145deg, rgba(0, 255, 102, 0.3) 0%, rgba(0, 200, 80, 0.2) 100%) !important;
+            border-color: rgba(0, 255, 102, 0.7) !important;
+            box-shadow: 0 0 25px rgba(0, 255, 102, 0.4) !important;
+        }
+        [data-theme="matrix"] .bubble.done {
+            background: linear-gradient(145deg, rgba(0, 255, 102, 0.1) 0%, rgba(0, 150, 60, 0.08) 100%) !important;
+            border-color: rgba(0, 255, 102, 0.3) !important;
+        }
+
+        [data-theme="midnight"] .bubble {
+            background: linear-gradient(145deg, rgba(100, 130, 255, 0.15) 0%, rgba(80, 100, 200, 0.1) 100%) !important;
+            border-color: rgba(100, 130, 255, 0.4) !important;
+        }
+        [data-theme="midnight"] .bubble.inprogress {
+            background: linear-gradient(145deg, rgba(100, 130, 255, 0.3) 0%, rgba(80, 100, 200, 0.2) 100%) !important;
+            border-color: rgba(100, 130, 255, 0.7) !important;
+        }
+
+        [data-theme="hacker"] .bubble {
+            background: linear-gradient(145deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 200, 0, 0.05) 100%) !important;
+            border-color: rgba(0, 255, 0, 0.3) !important;
+        }
+        [data-theme="hacker"] .bubble.inprogress {
+            background: linear-gradient(145deg, rgba(0, 255, 0, 0.2) 0%, rgba(0, 200, 0, 0.15) 100%) !important;
+            border-color: rgba(0, 255, 0, 0.6) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3) !important;
+        }
+
+        [data-theme="fantasy"] .bubble {
+            background: linear-gradient(145deg, rgba(191, 107, 255, 0.2) 0%, rgba(140, 80, 200, 0.1) 100%) !important;
+            border-color: rgba(191, 107, 255, 0.4) !important;
+        }
+        [data-theme="fantasy"] .bubble.inprogress {
+            background: linear-gradient(145deg, rgba(191, 107, 255, 0.35) 0%, rgba(140, 80, 200, 0.2) 100%) !important;
+            border-color: rgba(191, 107, 255, 0.7) !important;
+            box-shadow: 0 0 25px rgba(191, 107, 255, 0.4) !important;
+        }
+
+        /* === THÈMES CLAIRS === */
+        [data-theme="bubblegum"] .bubble .bubble-text,
+        [data-theme="sunset"] .bubble .bubble-text,
+        [data-theme="academie"] .bubble .bubble-text,
+        [data-theme="desert"] .bubble .bubble-text {
+            color: #1a1a1a !important;
         }
 
         @keyframes glowPulse {
@@ -418,6 +522,29 @@
             position: absolute;
             top: -4px;
             right: -2px;
+        }
+        /* Thèmes sombres - bouton crayon clair */
+        [data-theme="matrix"] .bubble .edit-btn,
+        [data-theme="midnight"] .bubble .edit-btn,
+        [data-theme="hacker"] .bubble .edit-btn,
+        [data-theme="fantasy"] .bubble .edit-btn,
+        [data-theme="ocean"] .bubble .edit-btn,
+        [data-theme="forest"] .bubble .edit-btn {
+            background: rgba(255,255,255,0.15);
+        }
+        [data-theme="matrix"] .bubble .edit-btn:hover,
+        [data-theme="midnight"] .bubble .edit-btn:hover,
+        [data-theme="hacker"] .bubble .edit-btn:hover,
+        [data-theme="fantasy"] .bubble .edit-btn:hover,
+        [data-theme="ocean"] .bubble .edit-btn:hover,
+        [data-theme="forest"] .bubble .edit-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+        [data-theme="matrix"] .bubble .edit-btn.has-note::after {
+            color: #00ff66;
+        }
+        [data-theme="hacker"] .bubble .edit-btn.has-note::after {
+            color: #00ff00;
         }
 
         /* === MODAL TEXTAREA === */
@@ -470,6 +597,32 @@
         .modal-action-btn:hover {
             opacity: 0.9;
             transform: scale(1.02);
+        }
+
+        /* === CHATBOT FONT SIZE === */
+        .chatbot-panel[data-font="small"] .chatbot-messages {
+            font-size: 0.8rem;
+        }
+        .chatbot-panel[data-font="medium"] .chatbot-messages {
+            font-size: 0.95rem;
+        }
+        .chatbot-panel[data-font="large"] .chatbot-messages {
+            font-size: 1.1rem;
+        }
+        .chatbot-panel[data-font="xlarge"] .chatbot-messages {
+            font-size: 1.3rem;
+        }
+        #chatbot-font-size {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+        #chatbot-font-size:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         /* === VUE 2 COLONNES - Simplifiée === */
