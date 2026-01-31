@@ -1,8 +1,8 @@
 // =============================================
-// PRODUCTIVEAPP - APP.JS v10
+// PRODUCTIVEAPP - APP.JS v11
 // + API Projects (persistance PostgreSQL)
-// + Description tâches
-// + Vue 2 colonnes: clic = toggle
+// + Modal édition agrandie avec projet/user
+// + Responsive mobile
 // =============================================
 
 // === CONFIGURATION API ===
@@ -937,6 +937,18 @@ function openEditTaskModal(taskId) {
     $('edit-task-title').value = task.text;
     $('edit-task-description').value = task.description || '';
     
+    // Remplir le sélecteur de projet
+    const projectSelect = $('edit-task-project');
+    projectSelect.innerHTML = projects.map(p => 
+        `<option value="${p.id}" ${task.project === p.id ? 'selected' : ''}>${p.icon} ${p.name}</option>`
+    ).join('');
+    
+    // Remplir le sélecteur d'utilisateur
+    const userSelect = $('edit-task-user');
+    userSelect.innerHTML = USERS.map(u => 
+        `<option value="${u.id}" ${task.userId === u.id ? 'selected' : ''}>${u.avatar} ${u.name}</option>`
+    ).join('');
+    
     // Boutons d'action selon le statut
     let statusButtons = '';
     if (task.status === 'todo') {
@@ -958,7 +970,7 @@ function openEditTaskModal(taskId) {
     $('modal-status-actions').innerHTML = statusButtons;
     
     $('edit-task-modal').classList.remove('hidden');
-    $('edit-task-description').focus();
+    $('edit-task-title').focus();
 }
 
 async function modalTaskAction(taskId, action) {
@@ -977,6 +989,8 @@ async function saveEditTask() {
     const taskId = $('edit-task-id').value;
     const newTitle = $('edit-task-title').value.trim();
     const newDescription = $('edit-task-description').value.trim();
+    const newProjectId = $('edit-task-project').value;
+    const newUserId = $('edit-task-user').value;
     
     if (!newTitle) {
         alert('Le titre ne peut pas être vide');
@@ -987,15 +1001,48 @@ async function saveEditTask() {
     if (!task) return;
     
     // Mettre à jour via API
-    await updateTaskTextAPI(taskId, newTitle, newDescription);
+    await updateTaskFullAPI(taskId, newTitle, newDescription, newProjectId, newUserId);
     
     // Mettre à jour localement
     task.text = newTitle;
     task.description = newDescription;
+    task.project = newProjectId;
+    task.userId = newUserId;
+    task.userName = getUserName(newUserId);
     task.updatedAt = new Date().toISOString();
     
     closeEditTaskModal();
     renderTasks();
+    renderProjectsFilter();
+}
+
+async function updateTaskFullAPI(taskId, title, description, projectId, userId) {
+    try {
+        let fullText = title;
+        if (description && description.trim()) {
+            fullText = title + '\n---\n' + description;
+        }
+        
+        const response = await fetch(API_TASKS, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'update_full',
+                tenant_id: TENANT_ID,
+                task_id: taskId,
+                text: fullText,
+                project_id: projectId,
+                user_id: userId
+            })
+        });
+        
+        const text = await response.text();
+        console.log('✅ Tâche mise à jour complète:', text);
+        return true;
+    } catch (error) {
+        console.error('❌ Erreur update tâche:', error);
+        return false;
+    }
 }
 
 async function updateTaskTextAPI(taskId, title, description) {
@@ -1455,8 +1502,8 @@ async function createProject() {
     if (result && result.length > 0) {
         const newProj = result[0];
         projects.push({
-            id: newProj.project_id,
-            name: newProj.name,
+            id: newProj.project_id || projectData.id || ('proj_' + Date.now()),
+            name: newProj.name || projectData.name,
             icon: newProj.icon || projectData.icon,
             color: newProj.color || projectData.color,
             desc: newProj.description || projectData.desc
@@ -1464,7 +1511,7 @@ async function createProject() {
         
         renderProjectsFilter();
         renderProjectSelect();
-        console.log('✅ Projet ajouté:', name);
+        console.log('✅ Projet ajouté:', projectData.name);
     }
     
     closeProjectModal();
@@ -1475,7 +1522,7 @@ async function createProject() {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 ProductiveApp Starting (v10)...');
+    console.log('🚀 ProductiveApp Starting (v11)...');
     
     renderUserSelect();
     
@@ -1540,5 +1587,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready (v10)');
+    console.log('✅ ProductiveApp Ready (v11)');
 });
