@@ -606,7 +606,8 @@ async function createTask() {
         } else {
             await addJournalEntry('task', `📝 Créé: ${text}`, 2);
         }
-        
+    }
+    
     // Reset
     $('task-input').value = '';
     $('project-select').value = '';
