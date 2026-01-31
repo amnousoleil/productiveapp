@@ -58,6 +58,7 @@
             <h1 class="app-title">Ma Vision</h1>
             
             <div class="header-right">
+                <button id="export-btn" class="icon-btn" title="Exporter mes données">💾</button>
                 <button id="view-toggle-btn" class="icon-btn" title="Changer de vue">📊</button>
                 <button id="theme-btn" class="icon-btn" title="Thème">🎨</button>
                 <button id="logout-btn" class="icon-btn" title="Déconnexion">🚪</button>
@@ -209,11 +210,12 @@
         <div class="modal-box">
             <h3>✏️ Éditer la tâche</h3>
             <input type="text" id="edit-task-title" class="modal-input" placeholder="Titre...">
-            <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes..." rows="3"></textarea>
+            <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes..." rows="4"></textarea>
             <input type="hidden" id="edit-task-id">
+            <div class="modal-status-actions" id="modal-status-actions"></div>
             <div class="modal-actions">
-                <button id="cancel-edit-task" class="btn-secondary">Annuler</button>
-                <button id="confirm-edit-task" class="btn-primary">Enregistrer</button>
+                <button id="cancel-edit-task" class="btn-secondary">Fermer</button>
+                <button id="confirm-edit-task" class="btn-primary">💾 Enregistrer</button>
             </div>
         </div>
     </div>
@@ -405,6 +407,18 @@
         .bubble .edit-btn:hover {
             background: rgba(0,0,0,0.2);
         }
+        /* Indicateur si des notes existent */
+        .bubble .edit-btn.has-note {
+            opacity: 0.7;
+        }
+        .bubble .edit-btn.has-note::after {
+            content: '•';
+            color: #e07840;
+            font-size: 1.2rem;
+            position: absolute;
+            top: -4px;
+            right: -2px;
+        }
 
         /* === MODAL TEXTAREA === */
         .modal-textarea {
@@ -422,6 +436,40 @@
         .modal-textarea:focus {
             border-color: var(--accent);
             outline: none;
+        }
+
+        /* === MODAL STATUS ACTIONS === */
+        .modal-status-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-action-btn {
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .btn-warning {
+            background: #fbbf24;
+            color: #1a1a1a;
+        }
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .modal-action-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
         }
 
         /* === VUE 2 COLONNES - Simplifiée === */
