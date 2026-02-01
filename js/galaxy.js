@@ -32,7 +32,7 @@ const NODE_RADIUS = 60;
 const CONNECTION_THRESHOLD = 20;
 
 // === THÈMES DE FOND ===
-const THEMES = {
+const GALAXY_THEMES = {
     obsidian: {
         name: 'Obsidian',
         background: '#1e1e1e',
@@ -173,11 +173,11 @@ function renderThemeSelector() {
     const selector = document.querySelector('.galaxy-theme-selector');
     if (!selector) return;
 
-    selector.innerHTML = Object.keys(THEMES).map(key => `
+    selector.innerHTML = Object.keys(GALAXY_THEMES).map(key => `
         <button class="theme-btn ${key === currentTheme ? 'active' : ''}"
                 data-theme="${key}"
-                title="${THEMES[key].name}">
-            ${THEMES[key].name[0]}
+                title="${GALAXY_THEMES[key].name}">
+            ${GALAXY_THEMES[key].name[0]}
         </button>
     `).join('');
 
@@ -536,7 +536,7 @@ function renderGalaxy() {
     const ctx = galaxyCtx;
     const w = galaxyCanvas.width;
     const h = galaxyCanvas.height;
-    const theme = THEMES[currentTheme];
+    const theme = GALAXY_THEMES[currentTheme];
 
     // Fond
     ctx.fillStyle = theme.background;
