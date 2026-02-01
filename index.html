@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style-base.css?v=25">
-    <link rel="stylesheet" href="style-components.css?v=25">
-    <link rel="stylesheet" href="style-themes.css?v=25">
-    <link rel="stylesheet" href="style-dragdrop.css?v=25">
+    <link rel="stylesheet" href="style-base.css?v=26">
+    <link rel="stylesheet" href="style-components.css?v=26">
+    <link rel="stylesheet" href="style-themes.css?v=26">
+    <link rel="stylesheet" href="style-dragdrop.css?v=26">
 
     
     <!-- PDF export -->
@@ -183,18 +183,109 @@
 
     <!-- ========== MODALS ========== -->
     
-    <!-- Modal Thème -->
+    <!-- Modal Thème PREMIUM -->
     <div id="theme-modal" class="modal hidden">
-        <div class="modal-box">
-            <h3>🎨 Choisis ton ambiance</h3>
-            <div class="theme-slider-wrap">
-                <input type="range" id="theme-slider" min="0" max="10" value="0">
+        <div class="modal-box theme-selector-modal">
+            <h3>🎨 Sélectionne ton ambiance</h3>
+
+            <!-- Catégorie PRO / CEO -->
+            <div class="theme-category">
+                <h4 class="category-title">💼 PRO / CEO</h4>
+                <p class="category-desc">Sobres, élégants, sans distraction</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="executive">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #262626 100%);"></div>
+                        <span class="theme-name">Executive</span>
+                        <span class="theme-subtitle">Or & Anthracite</span>
+                    </div>
+                    <div class="theme-card" data-theme="corporate">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a1628 0%, #0f1e35 50%, #152842 100%);"></div>
+                        <span class="theme-name">Corporate</span>
+                        <span class="theme-subtitle">Bleu Marine</span>
+                    </div>
+                    <div class="theme-card" data-theme="minimal">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f5f5f5 100%);"></div>
+                        <span class="theme-name">Minimal</span>
+                        <span class="theme-subtitle">Apple Style</span>
+                    </div>
+                    <div class="theme-card" data-theme="slate">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1e293b 0%, #2d3b52 50%, #3d4e68 100%);"></div>
+                        <span class="theme-name">Slate</span>
+                        <span class="theme-subtitle">Ardoise</span>
+                    </div>
+                    <div class="theme-card" data-theme="obsidian">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0b0b0b 0%, #141414 50%, #1e1e1e 100%);"></div>
+                        <span class="theme-name">Obsidian</span>
+                        <span class="theme-subtitle">Premium Dark</span>
+                    </div>
+                </div>
             </div>
-            <div class="theme-preview" id="theme-name">📚 Académie</div>
+
+            <!-- Catégorie CRÉATIF / FUN -->
+            <div class="theme-category">
+                <h4 class="category-title">🎨 CRÉATIF / FUN</h4>
+                <p class="category-desc">Colorés, dynamiques, personnalisés</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="sunset">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #dc2626 0%, #f97316 50%, #fb923c 100%);"></div>
+                        <span class="theme-name">Sunset</span>
+                        <span class="theme-subtitle">Chaleureux</span>
+                    </div>
+                    <div class="theme-card" data-theme="ocean">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #051923 0%, #003554 50%, #00b4d8 100%);"></div>
+                        <span class="theme-name">Ocean</span>
+                        <span class="theme-subtitle">Apaisant</span>
+                    </div>
+                    <div class="theme-card" data-theme="forest">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #080c08 0%, #0f180f 50%, #4ade80 100%);"></div>
+                        <span class="theme-name">Forest</span>
+                        <span class="theme-subtitle">Organique</span>
+                    </div>
+                    <div class="theme-card" data-theme="bubblegum">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a0a14 0%, #2d1025 50%, #ff6b9d 100%);"></div>
+                        <span class="theme-name">Bubblegum</span>
+                        <span class="theme-subtitle">Fun & Jeune</span>
+                    </div>
+                    <div class="theme-card" data-theme="aurora">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0d14 0%, #93c5fd 30%, #c4b5fd 60%, #a7f3d0 100%);"></div>
+                        <span class="theme-name">Aurora</span>
+                        <span class="theme-subtitle">Moderne</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Catégorie GEEK / TECH -->
+            <div class="theme-category">
+                <h4 class="category-title">⚡ GEEK / TECH</h4>
+                <p class="category-desc">Futuristes, néon, effets assumés</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="matrix">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0f0a 0%, #00ff66 100%);"></div>
+                        <span class="theme-name">Matrix</span>
+                        <span class="theme-subtitle">Hacker</span>
+                    </div>
+                    <div class="theme-card" data-theme="cyberpunk">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0221 0%, #ff00ff 50%, #00ffff 100%);"></div>
+                        <span class="theme-name">Cyberpunk</span>
+                        <span class="theme-subtitle">Futuriste</span>
+                    </div>
+                    <div class="theme-card" data-theme="terminal">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #000000 0%, #001100 50%, #00ff00 100%);"></div>
+                        <span class="theme-name">Terminal</span>
+                        <span class="theme-subtitle">Old School</span>
+                    </div>
+                    <div class="theme-card" data-theme="midnight">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0d18 0%, #14142a 50%, #7c9fff 100%);"></div>
+                        <span class="theme-name">Midnight</span>
+                        <span class="theme-subtitle">Nuit Étoilée</span>
+                    </div>
+                </div>
+            </div>
+
             <button id="close-theme-modal" class="btn-secondary">Fermer</button>
         </div>
     </div>
-    
+
     <!-- Modal Nouveau Projet -->
     <div id="project-modal" class="modal hidden">
         <div class="modal-box">
@@ -890,9 +981,9 @@
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=25"></script>
-    <script src="dragdrop.js?v=25"></script>
-    <script src="app.js?v=25"></script>
+    <script src="animations.js?v=26"></script>
+    <script src="dragdrop.js?v=26"></script>
+    <script src="app.js?v=26"></script>
 
 </body>
 </html>

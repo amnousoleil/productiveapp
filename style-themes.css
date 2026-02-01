@@ -1,76 +1,472 @@
 /* =============================================
-   PRODUCTIVEAPP - THEMES CSS
-   10 thèmes avec variables et glow
+   PRODUCTIVEAPP - THEMES CSS v2.0
+   14 thèmes organisés par catégories
    ============================================= */
 
+/* ==============================================
+   CATÉGORIE 1: PRO / CEO
+   Thèmes sobres, SANS glow, SANS animations
+   Couleurs premium, lisibilité maximale
+   ============================================== */
+
 /* =============================================
-   THEME: ACADEMIE 📚 
-   Fond gris ardoise, bulles beige doré chaud
-   Texte très lisible, ombres marquées
+   THEME: EXECUTIVE
+   Dégradé noir/gris anthracite, accents dorés
+   Ultra luxe et sobre
    ============================================= */
-[data-theme="academie"] {
-    --bg-primary: #2c2f33;
-    --bg-secondary: #36393f;
-    --bg-tertiary: #40444b;
-    --bg-card: rgba(218, 185, 130, 0.12);
-    
-    --text: #f0ebe0;
-    --text-muted: #b8b0a0;
-    
-    --accent: #daa520;
-    --accent-light: #f0c850;
-    --accent-glow: rgba(218, 165, 32, 0.4);
-    
-    --success: #8faa5a;
-    --success-glow: rgba(143, 170, 90, 0.4);
-    
-    --warning: #e8b84a;
-    --danger: #d4644a;
-    
-    --border: rgba(218, 185, 130, 0.25);
-    --border-strong: rgba(218, 185, 130, 0.5);
-    
-    /* Bulles beige doré - très lisibles */
-    --bubble-bg: linear-gradient(145deg, #f7e8c8 0%, #e8d4a8 100%);
-    --bubble-border: #b8954a;
-    --bubble-glow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 3px 8px rgba(0, 0, 0, 0.25);
-    --bubble-text-color: #1a1510;
-    
-    --bubble-inprogress-bg: linear-gradient(145deg, #ffe8a0 0%, #f5d878 100%);
-    --bubble-inprogress-border: #c9952a;
-    --bubble-inprogress-glow: 0 6px 24px rgba(218, 165, 32, 0.4), 0 3px 10px rgba(0, 0, 0, 0.3);
-    
-    --bubble-done-bg: linear-gradient(145deg, #d8e4b8 0%, #c8d8a0 100%);
-    --bubble-done-border: #8aaa4a;
-    --bubble-done-glow: 0 6px 20px rgba(143, 170, 90, 0.35), 0 3px 8px rgba(0, 0, 0, 0.2);
-    --bubble-done-text: #2a3520;
+[data-theme="executive"] {
+    --bg-primary: #0d0d0d;
+    --bg-secondary: #1a1a1a;
+    --bg-tertiary: #262626;
+    --bg-card: rgba(212, 175, 55, 0.05);
+
+    --text: #f5f5f5;
+    --text-muted: #a0a0a0;
+
+    --accent: #d4af37;
+    --accent-light: #f0d975;
+    --accent-glow: rgba(212, 175, 55, 0);
+
+    --success: #5a7a4d;
+    --success-glow: rgba(90, 122, 77, 0);
+
+    --warning: #c9a554;
+    --danger: #8b4a4a;
+
+    --border: rgba(212, 175, 55, 0.15);
+    --border-strong: rgba(212, 175, 55, 0.3);
+
+    /* Bulles sobres - aucun glow */
+    --bubble-bg: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+    --bubble-border: #3a3a3a;
+    --bubble-glow: none;
+
+    --bubble-inprogress-bg: linear-gradient(145deg, #3a3a2a 0%, #2f2f1f 100%);
+    --bubble-inprogress-border: #d4af37;
+    --bubble-inprogress-glow: none;
+
+    --bubble-done-bg: linear-gradient(145deg, #2a2f2a 0%, #1f241f 100%);
+    --bubble-done-border: #5a7a4d;
+    --bubble-done-glow: none;
+    --bubble-done-text: #a0b090;
 }
 
 /* =============================================
+   THEME: CORPORATE
+   Bleu marine profond, blanc, gris
+   Style cabinet d'avocats
+   ============================================= */
+[data-theme="corporate"] {
+    --bg-primary: #0a1628;
+    --bg-secondary: #0f1e35;
+    --bg-tertiary: #152842;
+    --bg-card: rgba(100, 149, 237, 0.08);
+
+    --text: #e8eef5;
+    --text-muted: #8a9fb5;
+
+    --accent: #6495ed;
+    --accent-light: #89b4f7;
+    --accent-glow: rgba(100, 149, 237, 0);
+
+    --success: #4a7c59;
+    --success-glow: rgba(74, 124, 89, 0);
+
+    --warning: #b8934a;
+    --danger: #a65c5c;
+
+    --border: rgba(100, 149, 237, 0.2);
+    --border-strong: rgba(100, 149, 237, 0.4);
+
+    /* Bulles professionnelles - aucun glow */
+    --bubble-bg: linear-gradient(145deg, #1a2f4a 0%, #152842 100%);
+    --bubble-border: #2a4565;
+    --bubble-glow: none;
+
+    --bubble-inprogress-bg: linear-gradient(145deg, #2a4565 0%, #1f3752 100%);
+    --bubble-inprogress-border: #6495ed;
+    --bubble-inprogress-glow: none;
+
+    --bubble-done-bg: linear-gradient(145deg, #1a3a2f 0%, #152f25 100%);
+    --bubble-done-border: #4a7c59;
+    --bubble-done-glow: none;
+    --bubble-done-text: #7aa585;
+}
+
+/* =============================================
+   THEME: MINIMAL
+   Blanc pur, texte noir, touches de gris
+   Épuré Apple-style
+   ============================================= */
+[data-theme="minimal"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fafafa;
+    --bg-tertiary: #f5f5f5;
+    --bg-card: rgba(0, 0, 0, 0.03);
+
+    --text: #1a1a1a;
+    --text-muted: #6a6a6a;
+
+    --accent: #007aff;
+    --accent-light: #4da3ff;
+    --accent-glow: rgba(0, 122, 255, 0);
+
+    --success: #34c759;
+    --success-glow: rgba(52, 199, 89, 0);
+
+    --warning: #ff9500;
+    --danger: #ff3b30;
+
+    --border: rgba(0, 0, 0, 0.1);
+    --border-strong: rgba(0, 0, 0, 0.2);
+
+    /* Bulles minimalistes - aucun glow */
+    --bubble-bg: linear-gradient(145deg, #f8f8f8 0%, #f0f0f0 100%);
+    --bubble-border: #e0e0e0;
+    --bubble-glow: none;
+
+    --bubble-inprogress-bg: linear-gradient(145deg, #e8f4ff 0%, #d0e8ff 100%);
+    --bubble-inprogress-border: #007aff;
+    --bubble-inprogress-glow: none;
+
+    --bubble-done-bg: linear-gradient(145deg, #e8f5ea 0%, #d0ebd5 100%);
+    --bubble-done-border: #34c759;
+    --bubble-done-glow: none;
+    --bubble-done-text: #28a745;
+}
+
+/* =============================================
+   THEME: SLATE
+   Gris ardoise, accents bleu acier
+   Moderne et pro
+   ============================================= */
+[data-theme="slate"] {
+    --bg-primary: #1e293b;
+    --bg-secondary: #2d3b52;
+    --bg-tertiary: #3d4e68;
+    --bg-card: rgba(148, 163, 184, 0.08);
+
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+
+    --accent: #64748b;
+    --accent-light: #94a3b8;
+    --accent-glow: rgba(100, 116, 139, 0);
+
+    --success: #4d7c5a;
+    --success-glow: rgba(77, 124, 90, 0);
+
+    --warning: #a8905a;
+    --danger: #9a5a5a;
+
+    --border: rgba(148, 163, 184, 0.2);
+    --border-strong: rgba(148, 163, 184, 0.4);
+
+    /* Bulles ardoise - aucun glow */
+    --bubble-bg: linear-gradient(145deg, #2d3b52 0%, #263445 100%);
+    --bubble-border: #3d4e68;
+    --bubble-glow: none;
+
+    --bubble-inprogress-bg: linear-gradient(145deg, #3d4e68 0%, #334255 100%);
+    --bubble-inprogress-border: #64748b;
+    --bubble-inprogress-glow: none;
+
+    --bubble-done-bg: linear-gradient(145deg, #2d453b 0%, #263a32 100%);
+    --bubble-done-border: #4d7c5a;
+    --bubble-done-glow: none;
+    --bubble-done-text: #7aa585;
+}
+
+/* =============================================
+   THEME: OBSIDIAN
+   Noir profond uniforme, texte blanc cassé
+   Premium dark
+   ============================================= */
+[data-theme="obsidian"] {
+    --bg-primary: #0b0b0b;
+    --bg-secondary: #141414;
+    --bg-tertiary: #1e1e1e;
+    --bg-card: rgba(255, 255, 255, 0.03);
+
+    --text: #e3e3e3;
+    --text-muted: #8b8b8b;
+
+    --accent: #a0a0a0;
+    --accent-light: #c0c0c0;
+    --accent-glow: rgba(160, 160, 160, 0);
+
+    --success: #6b8b6b;
+    --success-glow: rgba(107, 139, 107, 0);
+
+    --warning: #b8a56b;
+    --danger: #a66b6b;
+
+    --border: rgba(255, 255, 255, 0.1);
+    --border-strong: rgba(255, 255, 255, 0.2);
+
+    /* Bulles obsidienne - aucun glow */
+    --bubble-bg: linear-gradient(145deg, #1e1e1e 0%, #181818 100%);
+    --bubble-border: #2a2a2a;
+    --bubble-glow: none;
+
+    --bubble-inprogress-bg: linear-gradient(145deg, #282828 0%, #1f1f1f 100%);
+    --bubble-inprogress-border: #a0a0a0;
+    --bubble-inprogress-glow: none;
+
+    --bubble-done-bg: linear-gradient(145deg, #1e2a1e 0%, #18211 8 100%);
+    --bubble-done-border: #6b8b6b;
+    --bubble-done-glow: none;
+    --bubble-done-text: #95b095;
+}
+
+
+/* ==============================================
+   CATÉGORIE 2: CRÉATIF / FUN
+   Thèmes avec personnalité, glow léger autorisé
+   Couleurs vives mais harmonieuses
+   ============================================== */
+
+/* =============================================
+   THEME: SUNSET 🌅
+   Orange, rose, violet - chaleureux
+   ============================================= */
+[data-theme="sunset"] {
+    --bg-primary: #1a0a05;
+    --bg-secondary: #2d1810;
+    --bg-tertiary: #4a2515;
+    --bg-card: rgba(249, 115, 22, 0.12);
+
+    --text: #ffe8d5;
+    --text-muted: #d0a070;
+
+    --accent: #f97316;
+    --accent-light: #fb923c;
+    --accent-glow: rgba(249, 115, 22, 0.3);
+
+    --success: #fbbf24;
+    --success-glow: rgba(251, 191, 36, 0.4);
+
+    --warning: #fbbf24;
+    --danger: #dc2626;
+
+    --border: rgba(249, 115, 22, 0.25);
+    --border-strong: rgba(249, 115, 22, 0.5);
+
+    /* Crimson-amber gradient - distinct from Desert */
+    --bubble-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(249, 115, 22, 0.3) 100%);
+    --bubble-border: rgba(220, 38, 38, 0.6);
+    --bubble-glow: 0 4px 20px rgba(220, 38, 38, 0.25), 0 0 30px rgba(249, 115, 22, 0.15);
+
+    /* Dynamic in-progress with crimson gradient */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 146, 60, 0.45) 0%, rgba(220, 38, 38, 0.25) 100%);
+    --bubble-inprogress-border: rgba(251, 146, 60, 0.85);
+    --bubble-inprogress-glow: 0 6px 25px rgba(251, 146, 60, 0.35), 0 0 40px rgba(220, 38, 38, 0.2);
+
+    /* Sunset golden done state */
+    --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 100%);
+    --bubble-done-border: rgba(251, 191, 36, 0.75);
+    --bubble-done-glow: 0 4px 15px rgba(251, 191, 36, 0.25), 0 0 25px rgba(245, 158, 11, 0.15);
+    --bubble-done-text: #fbbf24;
+}
+
+/* =============================================
+   THEME: OCEAN 🌊
+   Bleus profonds, turquoise - apaisant
+   ============================================= */
+[data-theme="ocean"] {
+    --bg-primary: #051923;
+    --bg-secondary: #003554;
+    --bg-tertiary: #006494;
+    --bg-card: rgba(0, 180, 216, 0.12);
+
+    --text: #e8f4f8;
+    --text-muted: #88b8d0;
+
+    --accent: #00b4d8;
+    --accent-light: #48cae4;
+    --accent-glow: rgba(0, 180, 216, 0.3);
+
+    --success: #06d6a0;
+    --success-glow: rgba(6, 214, 160, 0.3);
+
+    --warning: #ffb703;
+    --danger: #ef476f;
+
+    --border: rgba(0, 180, 216, 0.25);
+    --border-strong: rgba(0, 180, 216, 0.5);
+
+    /* Bulles océan avec glow léger */
+    --bubble-bg: linear-gradient(135deg, rgba(0, 180, 216, 0.2) 0%, rgba(0, 100, 148, 0.15) 100%);
+    --bubble-border: rgba(0, 180, 216, 0.5);
+    --bubble-glow: 0 4px 20px rgba(0, 180, 216, 0.2), 0 0 30px rgba(0, 180, 216, 0.1);
+
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(72, 202, 228, 0.35) 0%, rgba(0, 180, 216, 0.2) 100%);
+    --bubble-inprogress-border: rgba(72, 202, 228, 0.8);
+    --bubble-inprogress-glow: 0 6px 25px rgba(72, 202, 228, 0.35), 0 0 40px rgba(0, 180, 216, 0.2);
+
+    --bubble-done-bg: linear-gradient(135deg, rgba(6, 214, 160, 0.3) 0%, rgba(4, 170, 128, 0.15) 100%);
+    --bubble-done-border: rgba(6, 214, 160, 0.7);
+    --bubble-done-glow: 0 4px 15px rgba(6, 214, 160, 0.25), 0 0 25px rgba(6, 214, 160, 0.15);
+    --bubble-done-text: #06d6a0;
+}
+
+/* =============================================
+   THEME: FOREST 🌲
+   Verts naturels, tons bois - organique
+   ============================================= */
+[data-theme="forest"] {
+    --bg-primary: #080c08;
+    --bg-secondary: #0f180f;
+    --bg-tertiary: #1a2a1a;
+    --bg-card: rgba(74, 222, 128, 0.08);
+
+    --text: #e8f5e8;
+    --text-muted: #88b888;
+
+    --accent: #4ade80;
+    --accent-light: #86efac;
+    --accent-glow: rgba(74, 222, 128, 0.3);
+
+    --success: #22c55e;
+    --success-glow: rgba(34, 197, 94, 0.4);
+
+    --warning: #a3e635;
+    --danger: #ef4444;
+
+    --border: rgba(74, 222, 128, 0.2);
+    --border-strong: rgba(74, 222, 128, 0.5);
+
+    /* Multi-tone green gradient - lime/emerald/forest variety */
+    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.25) 0%, rgba(16, 185, 129, 0.15) 50%, rgba(5, 150, 105, 0.2) 100%);
+    --bubble-border: rgba(74, 222, 128, 0.5);
+    --bubble-glow: 0 4px 20px rgba(74, 222, 128, 0.2), 0 0 30px rgba(16, 185, 129, 0.1);
+
+    /* Lime boost for in-progress */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.4) 0%, rgba(74, 222, 128, 0.25) 100%);
+    --bubble-inprogress-border: rgba(163, 230, 53, 0.85);
+    --bubble-inprogress-glow: 0 6px 25px rgba(163, 230, 53, 0.35), 0 0 40px rgba(74, 222, 128, 0.2);
+
+    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
+    --bubble-done-border: rgba(34, 197, 94, 0.65);
+    --bubble-done-glow: 0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.1);
+    --bubble-done-text: #22c55e;
+}
+
+/* =============================================
+   THEME: BUBBLEGUM 🍬
+   Rose, violet pastel - fun et jeune
+   ============================================= */
+[data-theme="bubblegum"] {
+    --bg-primary: #1a0a14;
+    --bg-secondary: #2d1025;
+    --bg-tertiary: #3f1836;
+    --bg-card: rgba(255, 107, 157, 0.12);
+
+    --text: #ffe8f5;
+    --text-muted: #d090b0;
+
+    --accent: #ff6b9d;
+    --accent-light: #ff9ec4;
+    --accent-glow: rgba(255, 107, 157, 0.3);
+
+    --success: #38bdf8;
+    --success-glow: rgba(56, 189, 248, 0.4);
+
+    --warning: #ffd93d;
+    --danger: #ff6b6b;
+
+    --border: rgba(255, 107, 157, 0.25);
+    --border-strong: rgba(255, 107, 157, 0.5);
+
+    --bubble-bg: linear-gradient(135deg, rgba(255, 107, 157, 0.25) 0%, rgba(150, 50, 90, 0.15) 100%);
+    --bubble-border: rgba(255, 107, 157, 0.5);
+    --bubble-glow: 0 4px 20px rgba(255, 107, 157, 0.2), 0 0 25px rgba(255, 158, 196, 0.12);
+
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 158, 196, 0.4) 0%, rgba(255, 107, 157, 0.2) 100%);
+    --bubble-inprogress-border: rgba(255, 158, 196, 0.85);
+    --bubble-inprogress-glow: 0 6px 25px rgba(255, 158, 196, 0.3), 0 0 40px rgba(255, 107, 157, 0.18);
+
+    /* Blue done state - cotton candy harmony */
+    --bubble-done-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(14, 165, 233, 0.15) 100%);
+    --bubble-done-border: rgba(56, 189, 248, 0.7);
+    --bubble-done-glow: 0 4px 15px rgba(56, 189, 248, 0.25), 0 0 25px rgba(14, 165, 233, 0.12);
+    --bubble-done-text: #38bdf8;
+}
+
+/* =============================================
+   THEME: AURORA
+   Dégradés néon subtils - moderne et créatif
+   ============================================= */
+[data-theme="aurora"] {
+    --bg-primary: #0a0d14;
+    --bg-secondary: #151a25;
+    --bg-tertiary: #1f2736;
+    --bg-card: rgba(147, 197, 253, 0.08);
+
+    --text: #e8f0fe;
+    --text-muted: #94a3b8;
+
+    --accent: #93c5fd;
+    --accent-light: #bfdbfe;
+    --accent-glow: rgba(147, 197, 253, 0.3);
+
+    --success: #86efac;
+    --success-glow: rgba(134, 239, 172, 0.3);
+
+    --warning: #fcd34d;
+    --danger: #fca5a5;
+
+    --border: rgba(147, 197, 253, 0.2);
+    --border-strong: rgba(147, 197, 253, 0.4);
+
+    /* Aurore boréale - dégradé doux */
+    --bubble-bg: linear-gradient(135deg, rgba(147, 197, 253, 0.2) 0%, rgba(196, 181, 253, 0.15) 50%, rgba(167, 243, 208, 0.1) 100%);
+    --bubble-border: rgba(147, 197, 253, 0.4);
+    --bubble-glow: 0 4px 20px rgba(147, 197, 253, 0.15), 0 0 30px rgba(196, 181, 253, 0.1);
+
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(196, 181, 253, 0.35) 0%, rgba(147, 197, 253, 0.25) 100%);
+    --bubble-inprogress-border: rgba(196, 181, 253, 0.7);
+    --bubble-inprogress-glow: 0 6px 25px rgba(196, 181, 253, 0.3), 0 0 40px rgba(147, 197, 253, 0.15);
+
+    --bubble-done-bg: linear-gradient(135deg, rgba(134, 239, 172, 0.3) 0%, rgba(167, 243, 208, 0.15) 100%);
+    --bubble-done-border: rgba(134, 239, 172, 0.65);
+    --bubble-done-glow: 0 4px 15px rgba(134, 239, 172, 0.2), 0 0 25px rgba(167, 243, 208, 0.12);
+    --bubble-done-text: #86efac;
+}
+
+
+/* ==============================================
+   CATÉGORIE 3: GEEK / TECH
+   Thèmes pour passionnés, glow et effets assumés
+   Style tech et futuriste
+   ============================================== */
+
+/* =============================================
    THEME: MATRIX 💚
+   Vert phosphore sur noir - hacker style
    ============================================= */
 [data-theme="matrix"] {
     --bg-primary: #0a0f0a;
     --bg-secondary: #0f1a0f;
     --bg-tertiary: #152015;
     --bg-card: rgba(0, 255, 102, 0.08);
-    
+
     --text: #e0ffe0;
     --text-muted: #70b070;
-    
+
     --accent: #00ff66;
     --accent-light: #4dff8d;
     --accent-glow: rgba(0, 255, 102, 0.4);
-    
+
     --success: #00cc52;
     --success-glow: rgba(0, 204, 82, 0.4);
-    
+
     --warning: #66ff00;
     --danger: #ff3333;
-    
+
     --border: rgba(0, 255, 102, 0.2);
     --border-strong: rgba(0, 255, 102, 0.5);
-    
+
     /* Radioactive yellow-green mix - Fallout style */
     --bubble-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.25) 0%, rgba(102, 255, 0, 0.15) 100%);
     --bubble-border: rgba(0, 255, 102, 0.5);
@@ -89,382 +485,124 @@
 }
 
 /* =============================================
-   THEME: HACKER 🖤
+   THEME: CYBERPUNK
+   Violet, rose néon, bleu électrique - futuriste
    ============================================= */
-[data-theme="hacker"] {
-    --bg-primary: #000000;
-    --bg-secondary: #0a0a0a;
-    --bg-tertiary: #111111;
-    --bg-card: rgba(255, 215, 0, 0.08);
-    
-    --text: #ffffff;
-    --text-muted: #888888;
-    
-    --accent: #ffd700;
-    --accent-light: #ffe44d;
-    --accent-glow: rgba(255, 215, 0, 0.4);
-    
-    --success: #00ff88;
-    --success-glow: rgba(0, 255, 136, 0.4);
-    
-    --warning: #ffd700;
-    --danger: #ff3333;
-    
-    --border: rgba(255, 215, 0, 0.2);
-    --border-strong: rgba(255, 215, 0, 0.5);
-    
-    /* Boosted contrast and glow for prominence */
-    --bubble-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.28) 0%, rgba(30, 30, 0, 0.5) 100%);
-    --bubble-border: rgba(255, 215, 0, 0.7);
-    --bubble-glow: 0 10px 45px rgba(255, 215, 0, 0.45), 0 0 70px rgba(255, 215, 0, 0.25);
+[data-theme="cyberpunk"] {
+    --bg-primary: #0d0221;
+    --bg-secondary: #190b3a;
+    --bg-tertiary: #2a1454;
+    --bg-card: rgba(255, 0, 255, 0.08);
 
-    /* Super glow for in-progress - max visibility */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.45) 0%, rgba(200, 160, 0, 0.25) 100%);
-    --bubble-inprogress-border: rgba(255, 215, 0, 0.95);
-    --bubble-inprogress-glow: 0 12px 60px rgba(255, 215, 0, 0.65), 0 0 120px rgba(255, 215, 0, 0.4);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 180, 100, 0.1) 100%);
-    --bubble-done-border: rgba(0, 255, 136, 0.6);
-    --bubble-done-glow: 0 6px 20px rgba(0, 255, 136, 0.25), 0 0 30px rgba(0, 255, 136, 0.15);
-    --bubble-done-text: #00ff88;
-}
-
-/* =============================================
-   THEME: OCEAN 🌊
-   ============================================= */
-[data-theme="ocean"] {
-    --bg-primary: #03071e;
-    --bg-secondary: #023047;
-    --bg-tertiary: #0a4c6e;
-    --bg-card: rgba(0, 180, 216, 0.1);
-    
-    --text: #caf0f8;
-    --text-muted: #90e0ef;
-    
-    --accent: #00b4d8;
-    --accent-light: #48cae4;
-    --accent-glow: rgba(0, 180, 216, 0.4);
-    
-    --success: #06d6a0;
-    --success-glow: rgba(6, 214, 160, 0.4);
-    
-    --warning: #48cae4;
-    --danger: #ef476f;
-    
-    --border: rgba(0, 180, 216, 0.25);
-    --border-strong: rgba(0, 180, 216, 0.5);
-    
-    --bubble-bg: linear-gradient(135deg, rgba(0, 180, 216, 0.25) 0%, rgba(2, 48, 71, 0.35) 100%);
-    --bubble-border: rgba(0, 180, 216, 0.5);
-    --bubble-glow: 0 8px 32px rgba(0, 180, 216, 0.35), 0 0 48px rgba(72, 202, 228, 0.2);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(72, 202, 228, 0.35) 0%, rgba(0, 180, 216, 0.15) 100%);
-    --bubble-inprogress-border: rgba(72, 202, 228, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(72, 202, 228, 0.5), 0 0 80px rgba(0, 180, 216, 0.3);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(6, 214, 160, 0.3) 0%, rgba(6, 150, 120, 0.12) 100%);
-    --bubble-done-border: rgba(6, 214, 160, 0.65);
-    --bubble-done-glow: 0 6px 20px rgba(6, 214, 160, 0.3), 0 0 30px rgba(6, 214, 160, 0.15);
-    --bubble-done-text: #06d6a0;
-}
-
-/* =============================================
-   THEME: FANTASY 🔮
-   ============================================= */
-[data-theme="fantasy"] {
-    --bg-primary: #0d0a12;
-    --bg-secondary: #15101f;
-    --bg-tertiary: #201830;
-    --bg-card: rgba(191, 107, 255, 0.1);
-    
     --text: #f0e6ff;
-    --text-muted: #b8a0d0;
-    
-    --accent: #bf6bff;
-    --accent-light: #d08fff;
-    --accent-glow: rgba(191, 107, 255, 0.4);
-    
-    --success: #ff6bda;
-    --success-glow: rgba(255, 107, 218, 0.4);
-    
-    --warning: #ff9f6b;
-    --danger: #ff5555;
-    
-    --border: rgba(191, 107, 255, 0.25);
-    --border-strong: rgba(191, 107, 255, 0.5);
-    
-    /* Multi-color magical gradient with cyan undertone */
-    --bubble-bg: linear-gradient(135deg, rgba(191, 107, 255, 0.3) 0%, rgba(139, 92, 246, 0.15) 50%, rgba(6, 182, 212, 0.1) 100%);
-    --bubble-border: rgba(191, 107, 255, 0.5);
-    --bubble-glow: 0 10px 40px rgba(191, 107, 255, 0.45), 0 0 60px rgba(255, 107, 218, 0.3), 0 0 90px rgba(6, 182, 212, 0.15);
+    --text-muted: #b088d8;
 
-    /* Intense magical pink-violet gradient */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 107, 218, 0.45) 0%, rgba(191, 107, 255, 0.25) 50%, rgba(139, 92, 246, 0.15) 100%);
-    --bubble-inprogress-border: rgba(255, 107, 218, 0.85);
-    --bubble-inprogress-glow: 0 12px 60px rgba(255, 107, 218, 0.6), 0 0 100px rgba(191, 107, 255, 0.4), 0 0 140px rgba(6, 182, 212, 0.2);
+    --accent: #ff00ff;
+    --accent-light: #ff66ff;
+    --accent-glow: rgba(255, 0, 255, 0.5);
 
-    /* Cyan-violet magical done state */
-    --bubble-done-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(6, 182, 212, 0.2) 100%);
-    --bubble-done-border: rgba(168, 85, 247, 0.65);
-    --bubble-done-glow: 0 8px 30px rgba(168, 85, 247, 0.35), 0 0 50px rgba(6, 182, 212, 0.25);
-    --bubble-done-text: #22d3ee;
+    --success: #00ffff;
+    --success-glow: rgba(0, 255, 255, 0.5);
+
+    --warning: #ffff00;
+    --danger: #ff0080;
+
+    --border: rgba(255, 0, 255, 0.3);
+    --border-strong: rgba(255, 0, 255, 0.6);
+
+    /* Néon cyberpunk - glow intense */
+    --bubble-bg: linear-gradient(135deg, rgba(255, 0, 255, 0.25) 0%, rgba(138, 43, 226, 0.15) 100%);
+    --bubble-border: rgba(255, 0, 255, 0.6);
+    --bubble-glow: 0 8px 30px rgba(255, 0, 255, 0.4), 0 0 60px rgba(255, 0, 255, 0.25);
+
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 0, 255, 0.45) 0%, rgba(255, 105, 180, 0.3) 100%);
+    --bubble-inprogress-border: rgba(255, 0, 255, 0.9);
+    --bubble-inprogress-glow: 0 10px 50px rgba(255, 0, 255, 0.6), 0 0 100px rgba(255, 105, 180, 0.4);
+
+    --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 255, 0.35) 0%, rgba(0, 200, 200, 0.2) 100%);
+    --bubble-done-border: rgba(0, 255, 255, 0.8);
+    --bubble-done-glow: 0 8px 40px rgba(0, 255, 255, 0.5), 0 0 70px rgba(0, 255, 255, 0.3);
+    --bubble-done-text: #00ffff;
 }
 
 /* =============================================
-   THEME: DESERT 🏜️
-   Fond sable/terre, bulles orangées, done en ROUGE
+   THEME: TERMINAL
+   Vert monochrome rétro - old school dev
    ============================================= */
-[data-theme="desert"] {
-    --bg-primary: #1a1410;
-    --bg-secondary: #2d2117;
-    --bg-tertiary: #3d2e1f;
-    --bg-card: rgba(224, 120, 64, 0.08);
+[data-theme="terminal"] {
+    --bg-primary: #000000;
+    --bg-secondary: #001100;
+    --bg-tertiary: #002200;
+    --bg-card: rgba(0, 255, 0, 0.05);
 
-    --text: #f5e6d3;
-    --text-muted: #a89078;
+    --text: #00ff00;
+    --text-muted: #00aa00;
 
-    --accent: #e07840;
-    --accent-light: #f4a261;
-    --accent-glow: rgba(224, 120, 64, 0.4);
+    --accent: #00ff00;
+    --accent-light: #66ff66;
+    --accent-glow: rgba(0, 255, 0, 0.4);
 
-    --success: #ef4444;
-    --success-glow: rgba(239, 68, 68, 0.4);
+    --success: #00ff00;
+    --success-glow: rgba(0, 255, 0, 0.4);
 
-    --warning: #fbbf24;
-    --danger: #ef4444;
+    --warning: #ffff00;
+    --danger: #ff0000;
 
-    --border: rgba(224, 120, 64, 0.2);
-    --border-strong: rgba(224, 120, 64, 0.5);
+    --border: rgba(0, 255, 0, 0.3);
+    --border-strong: rgba(0, 255, 0, 0.6);
 
-    /* Bulles orangées desert */
-    --bubble-bg: linear-gradient(135deg, rgba(224, 120, 64, 0.25) 0%, rgba(180, 80, 40, 0.1) 100%);
-    --bubble-border: rgba(224, 120, 64, 0.5);
-    --bubble-glow: 0 8px 32px rgba(224, 120, 64, 0.3), 0 0 48px rgba(224, 120, 64, 0.15);
+    /* Monochrome terminal - glow rétro */
+    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 0, 0.15) 0%, rgba(0, 200, 0, 0.08) 100%);
+    --bubble-border: rgba(0, 255, 0, 0.4);
+    --bubble-glow: 0 6px 25px rgba(0, 255, 0, 0.3), 0 0 50px rgba(0, 255, 0, 0.15);
 
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(249, 115, 22, 0.15) 100%);
-    --bubble-inprogress-border: rgba(251, 191, 36, 0.7);
-    --bubble-inprogress-glow: 0 8px 40px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0, 255, 0, 0.3) 0%, rgba(0, 200, 0, 0.18) 100%);
+    --bubble-inprogress-border: rgba(0, 255, 0, 0.7);
+    --bubble-inprogress-glow: 0 8px 35px rgba(0, 255, 0, 0.5), 0 0 70px rgba(0, 255, 0, 0.3);
 
-    /* Done state - RED GLOW (harmonieux avec desert) */
-    --bubble-done-bg: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.12) 100%);
-    --bubble-done-border: rgba(239, 68, 68, 0.7);
-    --bubble-done-glow: 0 8px 35px rgba(239, 68, 68, 0.45), 0 0 60px rgba(239, 68, 68, 0.25);
-    --bubble-done-text: #ff6666;
-}
-
-/* =============================================
-   THEME: SUNSET 🌅
-   ============================================= */
-[data-theme="sunset"] {
-    --bg-primary: #1a0a05;
-    --bg-secondary: #2d1810;
-    --bg-tertiary: #4a2515;
-    --bg-card: rgba(249, 115, 22, 0.12);
-    
-    --text: #fff5eb;
-    --text-muted: #e0a080;
-    
-    --accent: #f97316;
-    --accent-light: #fb923c;
-    --accent-glow: rgba(249, 115, 22, 0.45);
-    
-    --success: #fbbf24;
-    --success-glow: rgba(251, 191, 36, 0.4);
-    
-    --warning: #fbbf24;
-    --danger: #dc2626;
-    
-    --border: rgba(249, 115, 22, 0.25);
-    --border-strong: rgba(249, 115, 22, 0.5);
-    
-    /* Crimson-amber gradient - distinct from Desert */
-    --bubble-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(249, 115, 22, 0.3) 100%);
-    --bubble-border: rgba(220, 38, 38, 0.6);
-    --bubble-glow: 0 8px 40px rgba(220, 38, 38, 0.4), 0 0 60px rgba(249, 115, 22, 0.25);
-
-    /* Dynamic in-progress with crimson gradient */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 146, 60, 0.45) 0%, rgba(220, 38, 38, 0.25) 100%);
-    --bubble-inprogress-border: rgba(251, 146, 60, 0.85);
-    --bubble-inprogress-glow: 0 10px 50px rgba(251, 146, 60, 0.55), 0 0 80px rgba(220, 38, 38, 0.35);
-
-    /* Sunset golden done state */
-    --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 100%);
-    --bubble-done-border: rgba(251, 191, 36, 0.75);
-    --bubble-done-glow: 0 8px 30px rgba(251, 191, 36, 0.4), 0 0 50px rgba(245, 158, 11, 0.2);
-    --bubble-done-text: #fbbf24;
-}
-
-/* =============================================
-   THEME: FOREST 🌲
-   ============================================= */
-[data-theme="forest"] {
-    --bg-primary: #080c08;
-    --bg-secondary: #101810;
-    --bg-tertiary: #182518;
-    --bg-card: rgba(74, 222, 128, 0.1);
-    
-    --text: #e8f5e9;
-    --text-muted: #90b090;
-    
-    --accent: #4ade80;
-    --accent-light: #6ee7a0;
-    --accent-glow: rgba(74, 222, 128, 0.4);
-    
-    --success: #22c55e;
-    --success-glow: rgba(34, 197, 94, 0.4);
-    
-    --warning: #a3e635;
-    --danger: #ef4444;
-    
-    --border: rgba(74, 222, 128, 0.2);
-    --border-strong: rgba(74, 222, 128, 0.5);
-    
-    /* Multi-tone green gradient - lime/emerald/forest variety */
-    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.25) 0%, rgba(16, 185, 129, 0.15) 50%, rgba(5, 150, 105, 0.2) 100%);
-    --bubble-border: rgba(74, 222, 128, 0.5);
-    --bubble-glow: 0 10px 35px rgba(74, 222, 128, 0.35), 0 0 60px rgba(16, 185, 129, 0.2);
-
-    /* Lime boost for in-progress */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.4) 0%, rgba(74, 222, 128, 0.25) 100%);
-    --bubble-inprogress-border: rgba(163, 230, 53, 0.85);
-    --bubble-inprogress-glow: 0 10px 55px rgba(163, 230, 53, 0.6), 0 0 90px rgba(74, 222, 128, 0.35);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
-    --bubble-done-border: rgba(34, 197, 94, 0.65);
-    --bubble-done-glow: 0 6px 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.15);
-    --bubble-done-text: #22c55e;
-}
-
-/* =============================================
-   THEME: BUBBLEGUM 🍬
-   ============================================= */
-[data-theme="bubblegum"] {
-    --bg-primary: #1a1018;
-    --bg-secondary: #2d1828;
-    --bg-tertiary: #3d2038;
-    --bg-card: rgba(255, 107, 157, 0.1);
-    
-    --text: #ffe8f5;
-    --text-muted: #d090b0;
-    
-    --accent: #ff6b9d;
-    --accent-light: #ff9ec4;
-    --accent-glow: rgba(255, 107, 157, 0.4);
-    
-    --success: #38bdf8;
-    --success-glow: rgba(56, 189, 248, 0.4);
-    
-    --warning: #ffd93d;
-    --danger: #ff6b6b;
-    
-    --border: rgba(255, 107, 157, 0.25);
-    --border-strong: rgba(255, 107, 157, 0.5);
-    
-    --bubble-bg: linear-gradient(135deg, rgba(255, 107, 157, 0.25) 0%, rgba(150, 50, 90, 0.15) 100%);
-    --bubble-border: rgba(255, 107, 157, 0.5);
-    --bubble-glow: 0 8px 32px rgba(255, 107, 157, 0.35), 0 0 48px rgba(255, 158, 196, 0.2);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 158, 196, 0.4) 0%, rgba(255, 107, 157, 0.2) 100%);
-    --bubble-inprogress-border: rgba(255, 158, 196, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(255, 158, 196, 0.5), 0 0 80px rgba(255, 107, 157, 0.3);
-    
-    /* Blue done state - cotton candy harmony */
-    --bubble-done-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(14, 165, 233, 0.15) 100%);
-    --bubble-done-border: rgba(56, 189, 248, 0.7);
-    --bubble-done-glow: 0 8px 30px rgba(56, 189, 248, 0.4), 0 0 50px rgba(14, 165, 233, 0.2);
-    --bubble-done-text: #38bdf8;
+    --bubble-done-bg: linear-gradient(135deg, rgba(0, 200, 0, 0.25) 0%, rgba(0, 150, 0, 0.12) 100%);
+    --bubble-done-border: rgba(0, 200, 0, 0.6);
+    --bubble-done-glow: 0 6px 25px rgba(0, 200, 0, 0.35), 0 0 50px rgba(0, 200, 0, 0.2);
+    --bubble-done-text: #00ff00;
 }
 
 /* =============================================
    THEME: MIDNIGHT 🌙
-   Lisibilité améliorée
+   Bleu nuit profond avec accents lumineux
    ============================================= */
 [data-theme="midnight"] {
     --bg-primary: #0d0d18;
-    --bg-secondary: #15152a;
-    --bg-tertiary: #1e1e3a;
-    --bg-card: rgba(108, 143, 255, 0.12);
-    
-    --text: #f0f2ff;
-    --text-muted: #a0a8d0;
-    
+    --bg-secondary: #14142a;
+    --bg-tertiary: #1c1c3c;
+    --bg-card: rgba(124, 159, 255, 0.08);
+
+    --text: #e0e6ff;
+    --text-muted: #8898c8;
+
     --accent: #7c9fff;
     --accent-light: #a0c0ff;
-    --accent-glow: rgba(124, 159, 255, 0.45);
-    
-    --success: #a0b0ff;
-    --success-glow: rgba(160, 176, 255, 0.4);
-    
-    --warning: #c0a0ff;
-    --danger: #ff7090;
-    
-    --border: rgba(124, 159, 255, 0.3);
-    --border-strong: rgba(124, 159, 255, 0.6);
-    
-    --bubble-bg: linear-gradient(135deg, rgba(124, 159, 255, 0.25) 0%, rgba(50, 60, 120, 0.3) 100%);
-    --bubble-border: rgba(124, 159, 255, 0.6);
-    --bubble-glow: 0 8px 32px rgba(124, 159, 255, 0.35), 0 0 48px rgba(160, 192, 255, 0.2);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(160, 192, 255, 0.4) 0%, rgba(124, 159, 255, 0.2) 100%);
-    --bubble-inprogress-border: rgba(160, 192, 255, 0.9);
-    --bubble-inprogress-glow: 0 8px 50px rgba(160, 192, 255, 0.55), 0 0 80px rgba(124, 159, 255, 0.35);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(130, 140, 255, 0.35) 0%, rgba(100, 110, 240, 0.15) 100%);
-    --bubble-done-border: rgba(130, 140, 255, 0.75);
-    --bubble-done-glow: 0 6px 20px rgba(130, 140, 255, 0.35), 0 0 30px rgba(130, 140, 255, 0.2);
-    --bubble-done-text: #a0b0ff;
-}
+    --accent-glow: rgba(124, 159, 255, 0.4);
 
-/* =============================================
-   THEME: STAR WARS ⚔️
-   Hologramme bleu + cockpit sombre
-   Sobre, classe, lisibilité maximale
-   ============================================= */
-[data-theme="starwars"] {
-    --bg-primary: #0a0d14;
-    --bg-secondary: #121821;
-    --bg-tertiary: #1a2332;
-    --bg-card: rgba(106, 170, 255, 0.08);
+    --success: #88d8a0;
+    --success-glow: rgba(136, 216, 160, 0.4);
 
-    --text: #f5f5f5;
-    --text-muted: #a0b0c8;
+    --warning: #ffcc70;
+    --danger: #ff7080;
 
-    --accent: #6aaaff;
-    --accent-light: #8ec5ff;
-    --accent-glow: rgba(106, 170, 255, 0.5);
+    --border: rgba(124, 159, 255, 0.25);
+    --border-strong: rgba(124, 159, 255, 0.5);
 
-    --success: #7dd3fc;
-    --success-glow: rgba(125, 211, 252, 0.4);
+    /* Minuit étoilé - glow doux */
+    --bubble-bg: linear-gradient(135deg, rgba(124, 159, 255, 0.2) 0%, rgba(100, 130, 220, 0.12) 100%);
+    --bubble-border: rgba(124, 159, 255, 0.5);
+    --bubble-glow: 0 6px 25px rgba(124, 159, 255, 0.25), 0 0 40px rgba(124, 159, 255, 0.15);
 
-    --warning: #fbbf24;
-    --danger: #ff4444;
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(160, 192, 255, 0.35) 0%, rgba(124, 159, 255, 0.22) 100%);
+    --bubble-inprogress-border: rgba(160, 192, 255, 0.8);
+    --bubble-inprogress-glow: 0 8px 35px rgba(160, 192, 255, 0.4), 0 0 60px rgba(124, 159, 255, 0.25);
 
-    --border: rgba(106, 170, 255, 0.25);
-    --border-strong: rgba(106, 170, 255, 0.6);
-
-    /* Bulles - hologramme bleu sobre */
-    --bubble-bg: linear-gradient(135deg, rgba(106, 170, 255, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
-    --bubble-border: rgba(106, 170, 255, 0.5);
-    --bubble-glow: 0 6px 25px rgba(106, 170, 255, 0.3), 0 0 40px rgba(59, 130, 246, 0.15);
-
-    /* En cours - glow bleu intense */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(125, 211, 252, 0.25) 0%, rgba(106, 170, 255, 0.15) 100%);
-    --bubble-inprogress-border: rgba(125, 211, 252, 0.8);
-    --bubble-inprogress-glow: 0 6px 30px rgba(125, 211, 252, 0.5), 0 0 60px rgba(106, 170, 255, 0.3);
-
-    /* Terminé - glow cyan/turquoise */
-    --bubble-done-bg: linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%);
-    --bubble-done-border: rgba(34, 211, 238, 0.7);
-    --bubble-done-glow: 0 6px 25px rgba(34, 211, 238, 0.4), 0 0 50px rgba(6, 182, 212, 0.2);
-    --bubble-done-text: #ffffff;
-}
-
-/* === FIX LISIBILITÉ TEXTE === */
-.bubble-text,
-.task-text,
-.bubble.done .bubble-text,
-.task-bubble.done .task-text,
-.bubble.inprogress .bubble-text,
-.task-bubble.inprogress .task-text {
-    color: #ffffff !important;
+    --bubble-done-bg: linear-gradient(135deg, rgba(136, 216, 160, 0.3) 0%, rgba(100, 180, 130, 0.15) 100%);
+    --bubble-done-border: rgba(136, 216, 160, 0.7);
+    --bubble-done-glow: 0 6px 25px rgba(136, 216, 160, 0.3), 0 0 40px rgba(136, 216, 160, 0.18);
+    --bubble-done-text: #88d8a0;
 }

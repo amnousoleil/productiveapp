@@ -38,20 +38,32 @@ const DEFAULT_PROJECTS = [
     { id: 'general', name: 'Général', icon: '📌', color: '#6b7280', desc: 'Tâches diverses' }
 ];
 
-// === THÈMES ===
-const THEMES = [
-    { id: 'hacker', name: '🖤 Hacker', color: '#ffd700' },
-    { id: 'starwars', name: '⚔️ Star Wars', color: '#6aaaff' },
-    { id: 'midnight', name: '🌙 Midnight', color: '#7c9fff' },
-    { id: 'ocean', name: '🌊 Océan', color: '#00b4d8' },
-    { id: 'matrix', name: '💚 Matrix', color: '#00ff66' },
-    { id: 'forest', name: '🌲 Forest', color: '#4ade80' },
-    { id: 'academie', name: '📚 Académie', color: '#daa520' },
-    { id: 'desert', name: '🏜️ Désert', color: '#e07840' },
-    { id: 'sunset', name: '🌅 Sunset', color: '#f97316' },
-    { id: 'bubblegum', name: '🍬 Bubblegum', color: '#ff6b9d' },
-    { id: 'fantasy', name: '🔮 Fantasy', color: '#bf6bff' }
-];
+// === THÈMES v2.0 - Organisés par catégories ===
+const THEMES = {
+    pro: [
+        { id: 'executive', name: 'Executive', color: '#d4af37', category: 'PRO/CEO' },
+        { id: 'corporate', name: 'Corporate', color: '#6495ed', category: 'PRO/CEO' },
+        { id: 'minimal', name: 'Minimal', color: '#007aff', category: 'PRO/CEO' },
+        { id: 'slate', name: 'Slate', color: '#64748b', category: 'PRO/CEO' },
+        { id: 'obsidian', name: 'Obsidian', color: '#a0a0a0', category: 'PRO/CEO' }
+    ],
+    creative: [
+        { id: 'sunset', name: 'Sunset', color: '#f97316', category: 'CRÉATIF/FUN' },
+        { id: 'ocean', name: 'Ocean', color: '#00b4d8', category: 'CRÉATIF/FUN' },
+        { id: 'forest', name: 'Forest', color: '#4ade80', category: 'CRÉATIF/FUN' },
+        { id: 'bubblegum', name: 'Bubblegum', color: '#ff6b9d', category: 'CRÉATIF/FUN' },
+        { id: 'aurora', name: 'Aurora', color: '#93c5fd', category: 'CRÉATIF/FUN' }
+    ],
+    geek: [
+        { id: 'matrix', name: 'Matrix', color: '#00ff66', category: 'GEEK/TECH' },
+        { id: 'cyberpunk', name: 'Cyberpunk', color: '#ff00ff', category: 'GEEK/TECH' },
+        { id: 'terminal', name: 'Terminal', color: '#00ff00', category: 'GEEK/TECH' },
+        { id: 'midnight', name: 'Midnight', color: '#7c9fff', category: 'GEEK/TECH' }
+    ]
+};
+
+// Liste plate pour compatibilité
+const ALL_THEMES = [...THEMES.pro, ...THEMES.creative, ...THEMES.geek];
 
 // === STATE ===
 let currentUser = null;
@@ -760,26 +772,24 @@ async function initApp() {
 // =============================================
 
 function setTheme(themeId) {
-    if (themeId === 'desert') {
-        document.documentElement.removeAttribute('data-theme');
-    } else {
-        document.documentElement.setAttribute('data-theme', themeId);
-    }
+    // Tous les thèmes utilisent data-theme maintenant (pas de thème par défaut)
+    document.documentElement.setAttribute('data-theme', themeId);
     localStorage.setItem('theme', themeId);
-    
+
     if (typeof resetAnimationForTheme === 'function') {
         resetAnimationForTheme();
     }
 }
 
 function loadTheme() {
-    const saved = localStorage.getItem('theme') || 'academie';
+    const saved = localStorage.getItem('theme') || 'executive'; // Executive par défaut
     setTheme(saved);
-    
-    const idx = THEMES.findIndex(t => t.id === saved);
-    if (idx !== -1) {
-        $('theme-slider').value = idx;
-        $('theme-name').textContent = THEMES[idx].name;
+
+    // Marquer la carte active si le modal est ouvert
+    const activeCard = document.querySelector(`.theme-card[data-theme="${saved}"]`);
+    if (activeCard) {
+        document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+        activeCard.classList.add('active');
     }
 }
 
@@ -1882,13 +1892,28 @@ document.addEventListener('DOMContentLoaded', function() {
         renderJournal();
     });
     
-    $('theme-btn').addEventListener('click', function() { $('theme-modal').classList.remove('hidden'); });
+    // === NOUVEAU SÉLECTEUR DE THÈMES ===
+    $('theme-btn').addEventListener('click', function() {
+        $('theme-modal').classList.remove('hidden');
+        // Marquer le thème actif
+        const currentTheme = localStorage.getItem('theme') || 'executive';
+        document.querySelectorAll('.theme-card').forEach(card => {
+            card.classList.toggle('active', card.dataset.theme === currentTheme);
+        });
+    });
     $('close-theme-modal').addEventListener('click', function() { $('theme-modal').classList.add('hidden'); });
     $('theme-modal').addEventListener('click', function(e) { if (e.target === $('theme-modal')) $('theme-modal').classList.add('hidden'); });
-    $('theme-slider').addEventListener('input', function() {
-        const theme = THEMES[parseInt($('theme-slider').value)];
-        setTheme(theme.id);
-        $('theme-name').textContent = theme.name;
+
+    // Gérer les clics sur les cartes de thèmes
+    document.querySelectorAll('.theme-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const themeId = this.dataset.theme;
+            setTheme(themeId);
+
+            // Marquer la carte comme active
+            document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+        });
     });
     
     $('add-project-btn').addEventListener('click', openProjectModal);
