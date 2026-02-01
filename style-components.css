@@ -91,19 +91,34 @@
     cursor: pointer !important;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
-    animation: popIn 0.3s ease !important;
-    
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+
     /* Style par défaut - À faire (utilise variables du thème) */
     background: var(--bubble-bg) !important;
     border: 2px solid var(--bubble-border) !important;
     box-shadow: var(--bubble-glow) !important;
 }
 
+/* Floating animation pour tous sauf Académie */
+[data-theme]:not([data-theme="academie"]) .bubble:not(.inprogress):not(.done),
+[data-theme]:not([data-theme="academie"]) .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               floating 3s ease-in-out infinite !important;
+}
+
 .bubble:hover,
 .task-bubble:hover {
-    transform: translateY(-5px) scale(1.02) !important;
+    transform: translateY(-8px) scale(1.03) !important;
     box-shadow: var(--bubble-glow) !important;
-    filter: brightness(1.1) !important;
+    filter: brightness(1.15) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Hover amélioré pour tous sauf Académie - rotation subtile */
+[data-theme]:not([data-theme="academie"]) .bubble:hover,
+[data-theme]:not([data-theme="academie"]) .task-bubble:hover {
+    transform: translateY(-10px) scale(1.05) rotate(1deg) !important;
+    filter: brightness(1.2) drop-shadow(0 0 20px var(--accent)) !important;
 }
 
 /* === État En Cours - Glow Pulsant (utilise variables du thème) === */
@@ -112,7 +127,14 @@
     background: var(--bubble-inprogress-bg) !important;
     border: 2px solid var(--bubble-inprogress-border) !important;
     box-shadow: var(--bubble-inprogress-glow) !important;
-    animation: popIn 0.3s ease, glowPulse 2s ease-in-out infinite !important;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+/* Pulse intense pour tous sauf Académie */
+[data-theme]:not([data-theme="academie"]) .bubble.inprogress,
+[data-theme]:not([data-theme="academie"]) .task-bubble.inprogress {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               glowPulse 1.5s ease-in-out infinite !important;
 }
 
 .bubble.inprogress .bubble-text,
@@ -130,11 +152,25 @@
     opacity: 1 !important;
 }
 
+/* Celebration animation au moment de compléter (tous sauf Académie) */
+[data-theme]:not([data-theme="academie"]) .bubble.done,
+[data-theme]:not([data-theme="academie"]) .task-bubble.done {
+    animation: celebrate 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
 .bubble.done:hover,
 .task-bubble.done:hover {
-    transform: translateY(-6px) scale(1.03) !important;
+    transform: translateY(-8px) scale(1.05) !important;
     box-shadow: var(--bubble-done-glow) !important;
-    filter: brightness(1.15) !important;
+    filter: brightness(1.2) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Hover amélioré pour done (tous sauf Académie) */
+[data-theme]:not([data-theme="academie"]) .bubble.done:hover,
+[data-theme]:not([data-theme="academie"]) .task-bubble.done:hover {
+    transform: translateY(-10px) scale(1.06) rotate(-1deg) !important;
+    filter: brightness(1.25) drop-shadow(0 0 25px var(--success)) !important;
 }
 
 .bubble.done .bubble-text,
@@ -149,13 +185,84 @@
     opacity: 0.9 !important;
 }
 
-/* === Animation Glow Pulsant (utilise variables du thème) === */
+/* === Animations améliorées (tous thèmes sauf Académie) === */
+
+/* Glow Pulse - plus dynamique avec scale et brightness */
 @keyframes glowPulse {
     0%, 100% {
         filter: brightness(1);
+        transform: scale(1);
     }
     50% {
-        filter: brightness(1.2);
+        filter: brightness(1.25);
+        transform: scale(1.02);
+    }
+}
+
+/* Floating subtle pour bulles au repos */
+@keyframes floating {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+/* PopIn amélioré - plus dynamique */
+@keyframes popIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.05) translateY(-5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Celebration pour tâches complétées */
+@keyframes celebrate {
+    0% {
+        transform: scale(1) rotate(0deg);
+    }
+    25% {
+        transform: scale(1.1) rotate(-5deg);
+    }
+    50% {
+        transform: scale(1.15) rotate(5deg);
+    }
+    75% {
+        transform: scale(1.05) rotate(-2deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Shimmer effect pour bulles done */
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}
+
+/* Slide in pour les boutons d'action */
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
@@ -192,6 +299,14 @@
 .task-bubble:hover .bubble-actions,
 .task-bubble:hover .task-actions {
     opacity: 1 !important;
+}
+
+/* Slide in animé pour boutons (tous sauf Académie) */
+[data-theme]:not([data-theme="academie"]) .bubble:hover .bubble-actions,
+[data-theme]:not([data-theme="academie"]) .bubble:hover .task-actions,
+[data-theme]:not([data-theme="academie"]) .task-bubble:hover .bubble-actions,
+[data-theme]:not([data-theme="academie"]) .task-bubble:hover .task-actions {
+    animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards !important;
 }
 
 /* === Tags projet/priorité === */
