@@ -667,14 +667,21 @@ function escapeHtml(text) {
 function renderUserSelect() {
     const grid = $('user-select-grid');
     if (!grid) return;
-    
+
     grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
-            <img src="${user.loginImg}" class="user-avatar-img-login" alt="${user.name}">
+            <div class="avatar-orbit-container">
+                <div class="orbit-particle"></div>
+                <div class="orbit-particle"></div>
+                <div class="orbit-particle"></div>
+                <div class="orbit-particle"></div>
+                <div class="orbit-particle"></div>
+                <img src="${user.loginImg}" class="user-avatar-img-login" alt="${user.name}">
+            </div>
             <span class="user-name-select">${user.name}</span>
         </button>
     `).join('');
-    
+
     grid.querySelectorAll('.user-select-btn').forEach(btn => {
         btn.addEventListener('click', () => selectUser(btn.dataset.userid));
     });
