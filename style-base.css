@@ -156,27 +156,37 @@ body {
 .login-screen::after {
     content: '';
     position: absolute;
-    right: -10%;
-    top: 50%;
+    right: 5%;
+    top: 42%;
     transform: translateY(-50%);
-    width: 50%;
-    height: 110%;
-    background: url('maha-giri-master.jpg') center/cover no-repeat;
-    opacity: 0.15;
-    filter: blur(1px) brightness(1.1);
-    mask-image: linear-gradient(to left, rgba(0,0,0,0.8) 0%, transparent 70%);
-    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.8) 0%, transparent 70%);
+    width: 45%;
+    height: 100%;
+    background: url('maha-giri-master.jpg') right center/contain no-repeat;
+    opacity: 0.28;
+    filter: blur(0.5px) brightness(1.2);
+    mask-image:
+        radial-gradient(ellipse 60% 50% at 70% 45%,
+            rgba(0,0,0,0.95) 0%,
+            rgba(0,0,0,0.8) 30%,
+            rgba(0,0,0,0.4) 60%,
+            transparent 85%);
+    -webkit-mask-image:
+        radial-gradient(ellipse 60% 50% at 70% 45%,
+            rgba(0,0,0,0.95) 0%,
+            rgba(0,0,0,0.8) 30%,
+            rgba(0,0,0,0.4) 60%,
+            transparent 85%);
     animation: masterGlow 8s ease-in-out infinite;
 }
 
 @keyframes masterGlow {
     0%, 100% {
-        opacity: 0.12;
-        filter: blur(1px) brightness(1.1);
+        opacity: 0.25;
+        filter: blur(0.5px) brightness(1.15);
     }
     50% {
-        opacity: 0.18;
-        filter: blur(0.5px) brightness(1.2);
+        opacity: 0.32;
+        filter: blur(0.3px) brightness(1.25);
     }
 }
 
