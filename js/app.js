@@ -2294,8 +2294,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showProfile(currentProfileIndex + 1, 'right');
     });
 
-    // Afficher le premier profil (Maha = index 0) plus tôt
-    setTimeout(() => showProfile(0), 2800);
+    // Afficher le premier profil (Maha = index 0) - sync avec carrousel à 2.5s
+    setTimeout(() => showProfile(0), 3000);
     $('logout-btn').addEventListener('click', logout);
     $('export-btn').addEventListener('click', exportData);
     
