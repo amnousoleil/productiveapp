@@ -24,6 +24,8 @@ let mouseY = 0;
 let isEditingText = false;
 let currentTheme = 'obsidian';
 let showHelp = false;
+let currentShape = 'circle'; // circle, rect, diamond, text
+let contextMenuPos = null; // {x, y, screenX, screenY}
 
 // === CONSTANTES ===
 const MIN_ZOOM = 0.3;
@@ -31,6 +33,14 @@ const MAX_ZOOM = 3;
 const ZOOM_SPEED = 0.1;
 const NODE_RADIUS = 60;
 const CONNECTION_THRESHOLD = 20;
+
+// === FORMES DISPONIBLES ===
+const SHAPES = [
+    { id: 'circle', name: 'Cercle', icon: '●' },
+    { id: 'rect', name: 'Rectangle', icon: '▭' },
+    { id: 'diamond', name: 'Losange', icon: '◆' },
+    { id: 'text', name: 'Texte libre', icon: 'T' }
+];
 
 // === THÈMES DE FOND ===
 const GALAXY_THEMES = {
@@ -108,12 +118,14 @@ function createGalaxyOverlay() {
             <button class="galaxy-tool-btn galaxy-help-btn" id="galaxy-help-btn" title="Aide & Raccourcis">ℹ️</button>
         </div>
         <div class="galaxy-toolbar-center">
+            <div class="galaxy-shape-selector"></div>
             <div class="galaxy-color-palette"></div>
             <div class="galaxy-theme-selector"></div>
         </div>
         <div class="galaxy-toolbar-right">
+            <button class="galaxy-tool-btn" id="galaxy-export-png-btn" title="Exporter PNG">📸</button>
             <button class="galaxy-tool-btn" id="galaxy-clear-btn" title="Tout effacer">🗑️</button>
-            <button class="galaxy-tool-btn" id="galaxy-export-btn" title="Exporter">💾</button>
+            <button class="galaxy-tool-btn" id="galaxy-export-btn" title="Exporter JSON">💾</button>
             <button class="galaxy-close-btn" id="galaxy-close-btn" title="Fermer (Échap)">✕</button>
         </div>
     `;
@@ -130,6 +142,7 @@ function createGalaxyOverlay() {
     galaxyCtx = canvas.getContext('2d');
 
     resizeGalaxyCanvas();
+    renderShapeSelector();
     renderColorPalette();
     renderThemeSelector();
 }
@@ -150,6 +163,27 @@ function generateStars() {
             opacity: Math.random() * 0.5 + 0.3
         });
     }
+}
+
+function renderShapeSelector() {
+    const selector = document.querySelector('.galaxy-shape-selector');
+    if (!selector) return;
+
+    selector.innerHTML = SHAPES.map(shape => `
+        <button class="shape-btn ${shape.id === currentShape ? 'active' : ''}"
+                data-shape="${shape.id}"
+                title="${shape.name}">
+            ${shape.icon}
+        </button>
+    `).join('');
+
+    selector.querySelectorAll('.shape-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentShape = btn.dataset.shape;
+            selector.querySelectorAll('.shape-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
 }
 
 function renderColorPalette() {
@@ -203,11 +237,13 @@ function setupGalaxyEvents() {
     const closeBtn = document.getElementById('galaxy-close-btn');
     const clearBtn = document.getElementById('galaxy-clear-btn');
     const exportBtn = document.getElementById('galaxy-export-btn');
+    const exportPngBtn = document.getElementById('galaxy-export-png-btn');
     const helpBtn = document.getElementById('galaxy-help-btn');
 
     closeBtn.addEventListener('click', closeGalaxyView);
     clearBtn.addEventListener('click', clearAllNodes);
     exportBtn.addEventListener('click', exportToJSON);
+    exportPngBtn.addEventListener('click', exportToPNG);
     helpBtn.addEventListener('click', toggleHelp);
 
     document.addEventListener('keydown', handleKeyDown);
@@ -268,6 +304,12 @@ async function handleKeyDown(e) {
 }
 
 function handleCanvasMouseDown(e) {
+    // Gérer le menu contextuel en priorité
+    if (contextMenuPos) {
+        handleContextMenuClick(e);
+        return;
+    }
+
     const rect = galaxyCanvas.getBoundingClientRect();
     const x = (e.clientX - rect.left - panOffsetX) / zoom;
     const y = (e.clientY - rect.top - panOffsetY) / zoom;
@@ -379,7 +421,22 @@ function handleCanvasWheel(e) {
 
 function handleCanvasRightClick(e) {
     e.preventDefault();
-    // Désactivé - Utiliser double-clic à la place
+
+    const rect = galaxyCanvas.getBoundingClientRect();
+    const x = (e.clientX - rect.left - panOffsetX) / zoom;
+    const y = (e.clientY - rect.top - panOffsetY) / zoom;
+
+    // Si on clique sur un node, ne pas afficher le menu
+    const node = getNodeAt(x, y);
+    if (node) return;
+
+    // Afficher le menu contextuel radial
+    contextMenuPos = {
+        x: x,
+        y: y,
+        screenX: e.clientX - rect.left,
+        screenY: e.clientY - rect.top
+    };
 }
 
 async function handleCanvasDoubleClick(e) {
@@ -401,13 +458,16 @@ async function handleCanvasDoubleClick(e) {
 // LOGIQUE MÉTIER
 // =============================================
 
-async function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0]) {
+async function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0], shape = null) {
     const node = {
         id: `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         x,
         y,
         text,
-        color
+        color,
+        shape: shape || currentShape, // circle, rect, diamond, text
+        width: currentShape === 'rect' ? 120 : NODE_RADIUS * 2,
+        height: currentShape === 'rect' ? 80 : NODE_RADIUS * 2
     };
 
     galaxyNodes.push(node);
@@ -416,7 +476,7 @@ async function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0]) {
     // Sauvegarder en API
     await saveNodeToAPI(node, 'create');
 
-    console.log('✨ Nœud créé:', node.text);
+    console.log('✨ Nœud créé:', node.text, `(${node.shape})`);
     return node;
 }
 
@@ -445,10 +505,33 @@ async function createConnection(nodeA, nodeB) {
 function getNodeAt(x, y) {
     for (let i = galaxyNodes.length - 1; i >= 0; i--) {
         const node = galaxyNodes[i];
-        const dist = Math.hypot(x - node.x, y - node.y);
 
-        if (dist <= NODE_RADIUS) {
-            return node;
+        if (node.shape === 'circle') {
+            const dist = Math.hypot(x - node.x, y - node.y);
+            if (dist <= NODE_RADIUS) return node;
+        } else if (node.shape === 'rect') {
+            const halfW = (node.width || 120) / 2;
+            const halfH = (node.height || 80) / 2;
+            if (x >= node.x - halfW && x <= node.x + halfW &&
+                y >= node.y - halfH && y <= node.y + halfH) {
+                return node;
+            }
+        } else if (node.shape === 'diamond') {
+            // Test diamond (losange) avec distance Manhattan
+            const size = NODE_RADIUS;
+            const dx = Math.abs(x - node.x);
+            const dy = Math.abs(y - node.y);
+            if (dx / size + dy / size <= 1) {
+                return node;
+            }
+        } else if (node.shape === 'text') {
+            // Zone de hit pour texte libre (rectangle invisible autour)
+            const textWidth = node.text.length * 8; // Approximation
+            const textHeight = 20;
+            if (x >= node.x - 5 && x <= node.x + textWidth + 5 &&
+                y >= node.y - textHeight && y <= node.y + 5) {
+                return node;
+            }
         }
     }
     return null;
@@ -556,7 +639,63 @@ function exportToJSON() {
     a.click();
 
     URL.revokeObjectURL(url);
-    console.log('💾 Exporté');
+    console.log('💾 Exporté JSON');
+}
+
+async function exportToPNG() {
+    if (!galaxyCanvas) return;
+
+    try {
+        // Convertir le canvas en blob PNG
+        const blob = await new Promise(resolve => galaxyCanvas.toBlob(resolve, 'image/png'));
+
+        // Télécharger localement
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `galaxy-view-${Date.now()}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        console.log('📸 PNG exporté localement');
+
+        // Sauvegarder dans la base de données via API
+        await saveScreenshotToAPI(blob);
+    } catch (e) {
+        console.error('❌ Erreur export PNG:', e);
+    }
+}
+
+async function saveScreenshotToAPI(blob) {
+    try {
+        // Convertir le blob en base64
+        const reader = new FileReader();
+        const base64 = await new Promise((resolve, reject) => {
+            reader.onloadend = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        // Envoyer à l'API N8N
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'saveScreenshot',
+                user_id: window.currentUser?.id || 'maha',
+                screenshot: base64,
+                timestamp: new Date().toISOString(),
+                nodes_count: galaxyNodes.length,
+                connections_count: galaxyConnections.length
+            })
+        });
+
+        if (response.ok) {
+            console.log('💾 Screenshot sauvegardé en base de données');
+        }
+    } catch (e) {
+        console.error('❌ Erreur sauvegarde screenshot:', e);
+    }
 }
 
 // =============================================
@@ -632,6 +771,16 @@ function renderGalaxy() {
         drawTemporaryConnection(ctx);
     }
 
+    // Mini-map
+    if (galaxyNodes.length > 0) {
+        drawMiniMap(ctx, w, h, theme);
+    }
+
+    // Menu contextuel
+    if (contextMenuPos) {
+        drawContextMenu(ctx, contextMenuPos.screenX, contextMenuPos.screenY, theme);
+    }
+
     requestAnimationFrame(renderGalaxy);
 }
 
@@ -704,6 +853,28 @@ function drawConnections(ctx) {
             ctx.stroke();
 
             ctx.shadowBlur = 0;
+
+            // Flèche directionnelle à l'extrémité
+            const angle = Math.atan2(toNode.y - fromNode.y, toNode.x - fromNode.x);
+            const arrowSize = 12;
+
+            // Point de la flèche (légèrement avant le centre du node destination)
+            const arrowX = toNode.x - Math.cos(angle) * (NODE_RADIUS * 0.7);
+            const arrowY = toNode.y - Math.sin(angle) * (NODE_RADIUS * 0.7);
+
+            ctx.save();
+            ctx.translate(arrowX, arrowY);
+            ctx.rotate(angle);
+
+            ctx.fillStyle = toNode.color;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(-arrowSize, -arrowSize / 2);
+            ctx.lineTo(-arrowSize, arrowSize / 2);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
         }
     });
 }
@@ -712,118 +883,205 @@ function drawNodes(ctx, theme) {
     galaxyNodes.forEach(node => {
         const isSelected = selectedNodes.includes(node);
 
-        // Glow externe (plus prononcé)
-        const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, NODE_RADIUS + 25);
-        glowGradient.addColorStop(0, node.color + 'cc');
-        glowGradient.addColorStop(0.3, node.color + '66');
-        glowGradient.addColorStop(1, node.color + '00');
-
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, NODE_RADIUS + 25, 0, Math.PI * 2);
-        ctx.fillStyle = glowGradient;
-        ctx.fill();
-
-        // Ombre portée
-        ctx.shadowColor = node.color + '99';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 5;
-
-        // Fond glassmorphism avec gradient
-        const bgGradient = ctx.createRadialGradient(
-            node.x - NODE_RADIUS * 0.3,
-            node.y - NODE_RADIUS * 0.3,
-            0,
-            node.x,
-            node.y,
-            NODE_RADIUS
-        );
-
-        const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
-        if (isDark) {
-            bgGradient.addColorStop(0, 'rgba(40, 40, 50, 0.95)');
-            bgGradient.addColorStop(1, 'rgba(20, 20, 30, 0.9)');
-        } else {
-            bgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
-            bgGradient.addColorStop(1, 'rgba(245, 245, 250, 0.95)');
+        // Dispatch selon la forme
+        if (node.shape === 'circle' || !node.shape) {
+            drawCircleNode(ctx, theme, node, isSelected);
+        } else if (node.shape === 'rect') {
+            drawRectNode(ctx, theme, node, isSelected);
+        } else if (node.shape === 'diamond') {
+            drawDiamondNode(ctx, theme, node, isSelected);
+        } else if (node.shape === 'text') {
+            drawTextNode(ctx, theme, node, isSelected);
         }
-
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = bgGradient;
-        ctx.fill();
-
-        // Bordure avec gradient
-        const borderGradient = ctx.createLinearGradient(
-            node.x - NODE_RADIUS,
-            node.y - NODE_RADIUS,
-            node.x + NODE_RADIUS,
-            node.y + NODE_RADIUS
-        );
-        borderGradient.addColorStop(0, node.color);
-        borderGradient.addColorStop(0.5, node.color + 'dd');
-        borderGradient.addColorStop(1, node.color);
-
-        ctx.strokeStyle = borderGradient;
-        ctx.lineWidth = isSelected ? 5 : 3;
-        ctx.stroke();
-
-        ctx.shadowBlur = 0;
-        ctx.shadowOffsetY = 0;
-
-        // Reflet glassmorphism (shine)
-        const shineGradient = ctx.createRadialGradient(
-            node.x - NODE_RADIUS * 0.4,
-            node.y - NODE_RADIUS * 0.4,
-            0,
-            node.x,
-            node.y,
-            NODE_RADIUS
-        );
-        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-        shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = shineGradient;
-        ctx.fill();
-
-        // Texte avec ombre
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 3;
-        ctx.fillStyle = theme.text;
-        ctx.font = 'bold 15px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Texte multi-lignes si trop long
-        const maxWidth = NODE_RADIUS * 1.6;
-        const words = node.text.split(' ');
-        let line = '';
-        let lines = [];
-
-        words.forEach(word => {
-            const testLine = line + word + ' ';
-            const metrics = ctx.measureText(testLine);
-            if (metrics.width > maxWidth && line !== '') {
-                lines.push(line);
-                line = word + ' ';
-            } else {
-                line = testLine;
-            }
-        });
-        lines.push(line);
-
-        const lineHeight = 18;
-        const startY = node.y - ((lines.length - 1) * lineHeight) / 2;
-
-        lines.forEach((line, i) => {
-            ctx.fillText(line.trim(), node.x, startY + i * lineHeight);
-        });
-
-        ctx.shadowBlur = 0;
     });
+}
+
+function drawCircleNode(ctx, theme, node, isSelected) {
+    // Glow externe
+    const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, NODE_RADIUS + 25);
+    glowGradient.addColorStop(0, node.color + 'cc');
+    glowGradient.addColorStop(0.3, node.color + '66');
+    glowGradient.addColorStop(1, node.color + '00');
+
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, NODE_RADIUS + 25, 0, Math.PI * 2);
+    ctx.fillStyle = glowGradient;
+    ctx.fill();
+
+    // Ombre portée
+    ctx.shadowColor = node.color + '99';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 5;
+
+    // Fond glassmorphism
+    const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
+    const bgGradient = ctx.createRadialGradient(
+        node.x - NODE_RADIUS * 0.3,
+        node.y - NODE_RADIUS * 0.3,
+        0,
+        node.x,
+        node.y,
+        NODE_RADIUS
+    );
+    if (isDark) {
+        bgGradient.addColorStop(0, 'rgba(40, 40, 50, 0.95)');
+        bgGradient.addColorStop(1, 'rgba(20, 20, 30, 0.9)');
+    } else {
+        bgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
+        bgGradient.addColorStop(1, 'rgba(245, 245, 250, 0.95)');
+    }
+
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = bgGradient;
+    ctx.fill();
+
+    // Bordure
+    ctx.strokeStyle = node.color;
+    ctx.lineWidth = isSelected ? 5 : 3;
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Reflet shine
+    const shineGradient = ctx.createRadialGradient(
+        node.x - NODE_RADIUS * 0.4,
+        node.y - NODE_RADIUS * 0.4,
+        0,
+        node.x,
+        node.y,
+        NODE_RADIUS
+    );
+    shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+    shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+    shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
+    ctx.fillStyle = shineGradient;
+    ctx.fill();
+
+    // Texte
+    drawNodeText(ctx, theme, node, NODE_RADIUS * 1.6);
+}
+
+function drawRectNode(ctx, theme, node, isSelected) {
+    const w = node.width || 120;
+    const h = node.height || 80;
+    const x = node.x - w / 2;
+    const y = node.y - h / 2;
+
+    // Ombre
+    ctx.shadowColor = node.color + '99';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 5;
+
+    // Fond
+    const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
+    ctx.fillStyle = isDark ? 'rgba(40, 40, 50, 0.95)' : 'rgba(255, 255, 255, 0.98)';
+    ctx.fillRect(x, y, w, h);
+
+    // Bordure
+    ctx.strokeStyle = node.color;
+    ctx.lineWidth = isSelected ? 5 : 3;
+    ctx.strokeRect(x, y, w, h);
+
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Texte
+    drawNodeText(ctx, theme, node, w - 20);
+}
+
+function drawDiamondNode(ctx, theme, node, isSelected) {
+    const size = NODE_RADIUS;
+
+    // Ombre
+    ctx.shadowColor = node.color + '99';
+    ctx.shadowBlur = 20;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 5;
+
+    // Fond
+    const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
+    ctx.fillStyle = isDark ? 'rgba(40, 40, 50, 0.95)' : 'rgba(255, 255, 255, 0.98)';
+
+    ctx.beginPath();
+    ctx.moveTo(node.x, node.y - size);
+    ctx.lineTo(node.x + size, node.y);
+    ctx.lineTo(node.x, node.y + size);
+    ctx.lineTo(node.x - size, node.y);
+    ctx.closePath();
+    ctx.fill();
+
+    // Bordure
+    ctx.strokeStyle = node.color;
+    ctx.lineWidth = isSelected ? 5 : 3;
+    ctx.stroke();
+
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Texte
+    drawNodeText(ctx, theme, node, size * 1.4);
+}
+
+function drawTextNode(ctx, theme, node, isSelected) {
+    // Texte libre sans forme
+    ctx.save();
+    ctx.font = 'bold 18px Inter, sans-serif';
+    ctx.fillStyle = theme.text;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+
+    // Fond semi-transparent si sélectionné
+    if (isSelected) {
+        const metrics = ctx.measureText(node.text);
+        ctx.fillStyle = 'rgba(251, 191, 36, 0.2)';
+        ctx.fillRect(node.x - 5, node.y - 20, metrics.width + 10, 25);
+    }
+
+    ctx.fillStyle = theme.text;
+    ctx.fillText(node.text, node.x, node.y - 15);
+    ctx.restore();
+}
+
+function drawNodeText(ctx, theme, node, maxWidth) {
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+    ctx.shadowBlur = 3;
+    ctx.fillStyle = theme.text;
+    ctx.font = 'bold 15px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    // Texte multi-lignes
+    const words = node.text.split(' ');
+    let line = '';
+    let lines = [];
+
+    words.forEach(word => {
+        const testLine = line + word + ' ';
+        const metrics = ctx.measureText(testLine);
+        if (metrics.width > maxWidth && line !== '') {
+            lines.push(line);
+            line = word + ' ';
+        } else {
+            line = testLine;
+        }
+    });
+    lines.push(line);
+
+    const lineHeight = 18;
+    const startY = node.y - ((lines.length - 1) * lineHeight) / 2;
+
+    lines.forEach((line, i) => {
+        ctx.fillText(line.trim(), node.x, startY + i * lineHeight);
+    });
+
+    ctx.shadowBlur = 0;
 }
 
 function drawTemporaryConnection(ctx) {
@@ -879,6 +1137,172 @@ function drawWelcomeMessage(ctx, w, h, theme) {
     ctx.fillText('👉 Double-clique n\'importe où pour créer ta première bulle !', centerX, centerY + 280);
 
     ctx.globalAlpha = 1;
+}
+
+function drawMiniMap(ctx, canvasW, canvasH, theme) {
+    if (galaxyNodes.length === 0) return;
+
+    const miniW = 200;
+    const miniH = 150;
+    const padding = 20;
+    const x = canvasW - miniW - padding;
+    const y = canvasH - miniH - padding;
+
+    // Calculer la bounding box de tous les nodes
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+
+    galaxyNodes.forEach(node => {
+        minX = Math.min(minX, node.x);
+        minY = Math.min(minY, node.y);
+        maxX = Math.max(maxX, node.x);
+        maxY = Math.max(maxY, node.y);
+    });
+
+    // Ajouter une marge
+    const margin = 200;
+    minX -= margin;
+    minY -= margin;
+    maxX += margin;
+    maxY += margin;
+
+    const worldW = maxX - minX;
+    const worldH = maxY - minY;
+
+    // Fond de la mini-map
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(x, y, miniW, miniH);
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, miniW, miniH);
+
+    // Dessiner les nodes en miniature
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(x, y, miniW, miniH);
+    ctx.clip();
+
+    galaxyNodes.forEach(node => {
+        const miniX = x + ((node.x - minX) / worldW) * miniW;
+        const miniY = y + ((node.y - minY) / worldH) * miniH;
+
+        ctx.fillStyle = node.color;
+        ctx.beginPath();
+        ctx.arc(miniX, miniY, 3, 0, Math.PI * 2);
+        ctx.fill();
+    });
+
+    // Rectangle de la vue actuelle
+    const viewX = x + ((-panOffsetX / zoom - minX) / worldW) * miniW;
+    const viewY = y + ((-panOffsetY / zoom - minY) / worldH) * miniH;
+    const viewW = (canvasW / zoom / worldW) * miniW;
+    const viewH = (canvasH / zoom / worldH) * miniH;
+
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(viewX, viewY, viewW, viewH);
+
+    ctx.restore();
+}
+
+function drawContextMenu(ctx, x, y, theme) {
+    const radius = 80;
+    const btnRadius = 30;
+
+    // Fond semi-transparent
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.beginPath();
+    ctx.arc(x, y, radius + 20, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dessiner les options en cercle
+    SHAPES.forEach((shape, i) => {
+        const angle = (Math.PI * 2 / SHAPES.length) * i - Math.PI / 2;
+        const btnX = x + Math.cos(angle) * radius;
+        const btnY = y + Math.sin(angle) * radius;
+
+        // Bouton
+        ctx.fillStyle = 'rgba(40, 40, 50, 0.95)';
+        ctx.beginPath();
+        ctx.arc(btnX, btnY, btnRadius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bordure
+        ctx.strokeStyle = COLORS[i % COLORS.length];
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Icône
+        ctx.fillStyle = theme.text;
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(shape.icon, btnX, btnY);
+
+        // Label
+        ctx.fillStyle = theme.text;
+        ctx.font = '12px sans-serif';
+        ctx.fillText(shape.name, btnX, btnY + btnRadius + 15);
+    });
+
+    // Centre "Annuler"
+    ctx.fillStyle = 'rgba(60, 60, 70, 0.95)';
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = theme.text;
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✕', x, y);
+}
+
+function handleContextMenuClick(e) {
+    if (!contextMenuPos) return;
+
+    const rect = galaxyCanvas.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    const centerX = contextMenuPos.screenX;
+    const centerY = contextMenuPos.screenY;
+    const radius = 80;
+    const btnRadius = 30;
+
+    // Vérifier clic sur bouton central (annuler)
+    const distCenter = Math.hypot(clickX - centerX, clickY - centerY);
+    if (distCenter <= 20) {
+        contextMenuPos = null;
+        return;
+    }
+
+    // Vérifier clic sur une option
+    let selectedShape = null;
+    SHAPES.forEach((shape, i) => {
+        const angle = (Math.PI * 2 / SHAPES.length) * i - Math.PI / 2;
+        const btnX = centerX + Math.cos(angle) * radius;
+        const btnY = centerY + Math.sin(angle) * radius;
+
+        const dist = Math.hypot(clickX - btnX, clickY - btnY);
+        if (dist <= btnRadius) {
+            selectedShape = shape.id;
+        }
+    });
+
+    if (selectedShape) {
+        // Créer un node avec la forme sélectionnée
+        createNode(contextMenuPos.x, contextMenuPos.y, 'Nouvelle idée', COLORS[0], selectedShape);
+        contextMenuPos = null;
+    } else {
+        // Clic en dehors = annuler
+        contextMenuPos = null;
+    }
 }
 
 // =============================================
