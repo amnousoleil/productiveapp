@@ -364,6 +364,6 @@
 .bubble.done .bubble-text,
 .task-bubble.done .task-text,
 .bubble.inprogress .bubble-text,
-.task-bubble.inprogress .bubble-text {
+.task-bubble.inprogress .task-text {
     color: #ffffff !important;
 }
