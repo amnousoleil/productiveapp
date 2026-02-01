@@ -1538,14 +1538,104 @@ function initChatbotFontSize() {
     }
 }
 
+// =============================================
+// COMMANDES LOCALES CHATBOT (Option B - Frontend)
+// =============================================
+
+async function handleLocalCommands(message) {
+    const msg = message.toLowerCase();
+
+    // Commande : Supprimer les doublons
+    if (msg.match(/supprim.*(doublon|duplicate|double)/i) || msg.includes('nettoie')) {
+        await handleDeleteDuplicates();
+        return true;
+    }
+
+    // Commande : Compter tâches urgentes
+    if (msg.match(/combien.*(urgent|priorit)/i)) {
+        const urgent = tasks.filter(t => t.status !== 'done' && t.priority.level === 1);
+        const urgentList = urgent.map(t => `- ${t.text}`).join('\n');
+        addChatMsg(`🔥 Tu as **${urgent.length} tâche(s) urgente(s)** :\n\n${urgentList || 'Aucune'}`, 'assistant');
+        return true;
+    }
+
+    // Commande : Compter tâches en cours
+    if (msg.match(/combien.*(en cours|progress)/i)) {
+        const inProgress = tasks.filter(t => t.status === 'inprogress');
+        const list = inProgress.map(t => `- ${t.text}`).join('\n');
+        addChatMsg(`🔄 Tu as **${inProgress.length} tâche(s) en cours** :\n\n${list || 'Aucune'}`, 'assistant');
+        return true;
+    }
+
+    // Commande : Stats globales
+    if (msg.match(/stats|statistiques|résumé|bilan/i)) {
+        const todo = tasks.filter(t => t.status === 'todo').length;
+        const inProgress = tasks.filter(t => t.status === 'inprogress').length;
+        const done = tasks.filter(t => t.status === 'done').length;
+        const urgent = tasks.filter(t => t.status !== 'done' && t.priority.level === 1).length;
+        const total = tasks.length;
+
+        addChatMsg(`📊 **Statistiques de tes tâches** :\n\n` +
+            `📋 À faire : ${todo}\n` +
+            `🔄 En cours : ${inProgress}\n` +
+            `✅ Terminé : ${done}\n` +
+            `🔥 Urgent : ${urgent}\n` +
+            `📌 Total : ${total}`, 'assistant');
+        return true;
+    }
+
+    return false; // Pas de commande locale détectée
+}
+
+async function handleDeleteDuplicates() {
+    const seen = new Map(); // Map<"text|project", Task>
+    const duplicates = [];
+
+    // Identifier les doublons (même texte + même projet)
+    tasks.forEach(t => {
+        const key = `${t.text.toLowerCase().trim()}|${t.project}`;
+        if (seen.has(key)) {
+            duplicates.push(t);
+        } else {
+            seen.set(key, t);
+        }
+    });
+
+    if (duplicates.length === 0) {
+        addChatMsg('✅ Aucun doublon trouvé ! Tes tâches sont nickel.', 'assistant');
+        return;
+    }
+
+    // Supprimer les doublons via l'API
+    let deleted = 0;
+    for (const dup of duplicates) {
+        await deleteTaskAPI(dup.id);
+        tasks = tasks.filter(t => t.id !== dup.id);
+        deleted++;
+    }
+
+    renderTasks();
+    renderProjectsFilter();
+
+    const dupList = duplicates.slice(0, 5).map(d => `- ${d.text}`).join('\n');
+    const moreText = duplicates.length > 5 ? `\n... et ${duplicates.length - 5} autres` : '';
+
+    addChatMsg(`🗑️ **${deleted} doublon(s) supprimé(s)** :\n\n${dupList}${moreText}`, 'assistant');
+}
+
 async function sendChatMessage() {
     const message = $('chatbot-input').value.trim();
     if (!message) return;
-    
+
     addChatMsg(message, 'user');
     $('chatbot-input').value = '';
+
+    // ✨ Détection locale des commandes AVANT N8N (Option B - Frontend)
+    const localHandled = await handleLocalCommands(message);
+    if (localHandled) return; // Commande traitée localement, on skip N8N
+
     const loadingDiv = addChatMsg('Réflexion...', 'assistant loading');
-    
+
     try {
         const context = buildAIContext();
         const response = await fetch(CHATBOT_WEBHOOK_URL, {
@@ -1553,10 +1643,10 @@ async function sendChatMessage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message, context, user: currentUser.name, userId: currentUser.id })
         });
-        
+
         let aiResponse = await response.text();
         try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
-        
+
         loadingDiv.remove();
         aiResponse = await processAIActions(aiResponse);
         addChatMsg(aiResponse || 'OK!', 'assistant');
