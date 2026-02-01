@@ -161,32 +161,33 @@ body {
     transform: translateY(-50%);
     width: 45%;
     height: 100%;
-    background: url('../assets/images/avatars/maha-giri-master.jpg') right center/contain no-repeat;
-    opacity: 0.28;
-    filter: blur(0.5px) brightness(1.2);
+    background: url('/assets/images/avatars/maha-giri-master.jpg') right center/contain no-repeat;
+    opacity: 0.45;
+    filter: blur(0.3px) brightness(1.3);
     mask-image:
         radial-gradient(ellipse 60% 50% at 70% 45%,
-            rgba(0,0,0,0.95) 0%,
-            rgba(0,0,0,0.8) 30%,
-            rgba(0,0,0,0.4) 60%,
+            rgba(0,0,0,1) 0%,
+            rgba(0,0,0,0.9) 30%,
+            rgba(0,0,0,0.5) 60%,
             transparent 85%);
     -webkit-mask-image:
         radial-gradient(ellipse 60% 50% at 70% 45%,
-            rgba(0,0,0,0.95) 0%,
-            rgba(0,0,0,0.8) 30%,
-            rgba(0,0,0,0.4) 60%,
+            rgba(0,0,0,1) 0%,
+            rgba(0,0,0,0.9) 30%,
+            rgba(0,0,0,0.5) 60%,
             transparent 85%);
     animation: masterGlow 8s ease-in-out infinite;
+    z-index: 1;
 }
 
 @keyframes masterGlow {
     0%, 100% {
-        opacity: 0.25;
-        filter: blur(0.5px) brightness(1.15);
+        opacity: 0.40;
+        filter: blur(0.3px) brightness(1.25);
     }
     50% {
-        opacity: 0.32;
-        filter: blur(0.3px) brightness(1.25);
+        opacity: 0.50;
+        filter: blur(0.2px) brightness(1.4);
     }
 }
 
