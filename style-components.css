@@ -336,21 +336,35 @@
 
 .theme-slider-wrap input[type="range"] {
     width: 100%;
-    height: 8px;
-    border-radius: 4px;
-    background: var(--bg-tertiary);
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(to right,
+        #ffd700 0%, #ffd700 9%,      /* Hacker */
+        #6aaaff 9%, #6aaaff 18%,     /* Star Wars */
+        #7c9fff 18%, #7c9fff 27%,    /* Midnight */
+        #00b4d8 27%, #00b4d8 36%,    /* Ocean */
+        #00ff66 36%, #00ff66 45%,    /* Matrix */
+        #4ade80 45%, #4ade80 54%,    /* Forest */
+        #daa520 54%, #daa520 63%,    /* Academie */
+        #e07840 63%, #e07840 72%,    /* Desert */
+        #f97316 72%, #f97316 81%,    /* Sunset */
+        #ff6b9d 81%, #ff6b9d 90%,    /* Bubblegum */
+        #bf6bff 90%, #bf6bff 100%    /* Fantasy */
+    );
     outline: none;
     -webkit-appearance: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .theme-slider-wrap input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: var(--accent);
+    background: #ffffff;
+    border: 3px solid #000000;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 0 2px #ffffff;
     transition: var(--transition-normal);
 }
 

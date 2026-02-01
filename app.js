@@ -40,17 +40,17 @@ const DEFAULT_PROJECTS = [
 
 // === THÈMES ===
 const THEMES = [
-    { id: 'academie', name: '📚 Académie' },
-    { id: 'desert', name: '🏜️ Désert' },
-    { id: 'matrix', name: '💚 Matrix' },
-    { id: 'bubblegum', name: '🍬 Bubblegum' },
-    { id: 'midnight', name: '🌙 Midnight' },
-    { id: 'ocean', name: '🌊 Océan' },
-    { id: 'fantasy', name: '🔮 Fantasy' },
-    { id: 'sunset', name: '🌅 Sunset' },
-    { id: 'forest', name: '🌲 Forest' },
-    { id: 'hacker', name: '🖤 Hacker' },
-    { id: 'starwars', name: '⚔️ Star Wars' }
+    { id: 'hacker', name: '🖤 Hacker', color: '#ffd700' },
+    { id: 'starwars', name: '⚔️ Star Wars', color: '#6aaaff' },
+    { id: 'midnight', name: '🌙 Midnight', color: '#7c9fff' },
+    { id: 'ocean', name: '🌊 Océan', color: '#00b4d8' },
+    { id: 'matrix', name: '💚 Matrix', color: '#00ff66' },
+    { id: 'forest', name: '🌲 Forest', color: '#4ade80' },
+    { id: 'academie', name: '📚 Académie', color: '#daa520' },
+    { id: 'desert', name: '🏜️ Désert', color: '#e07840' },
+    { id: 'sunset', name: '🌅 Sunset', color: '#f97316' },
+    { id: 'bubblegum', name: '🍬 Bubblegum', color: '#ff6b9d' },
+    { id: 'fantasy', name: '🔮 Fantasy', color: '#bf6bff' }
 ];
 
 // === STATE ===
