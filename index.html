@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style-base.css?v=20">
-    <link rel="stylesheet" href="style-components.css?v=20">
-    <link rel="stylesheet" href="style-themes.css?v=20">
-    <link rel="stylesheet" href="style-dragdrop.css?v=20">
+    <link rel="stylesheet" href="style-base.css?v=21">
+    <link rel="stylesheet" href="style-components.css?v=21">
+    <link rel="stylesheet" href="style-themes.css?v=21">
+    <link rel="stylesheet" href="style-dragdrop.css?v=21">
 
     
     <!-- PDF export -->
@@ -478,11 +478,17 @@
             box-shadow: 0 0 25px rgba(191, 107, 255, 0.4) !important;
         }
 
-        /* Texte blanc forcé pour TOUS les thèmes */
-        [data-theme="bubblegum"] .bubble .bubble-text,
-        [data-theme="sunset"] .bubble .bubble-text,
+        /* Texte NOIR sur thèmes CLAIRS pour lisibilité */
         [data-theme="academie"] .bubble .bubble-text,
         [data-theme="desert"] .bubble .bubble-text {
+            color: #1a1a1a !important;
+            font-weight: 600 !important;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.3) !important;
+        }
+
+        /* Texte blanc sur thèmes sombres */
+        [data-theme="bubblegum"] .bubble .bubble-text,
+        [data-theme="sunset"] .bubble .bubble-text {
             color: #ffffff !important;
         }
 
@@ -884,9 +890,9 @@
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=20"></script>
-    <script src="dragdrop.js?v=20"></script>
-    <script src="app.js?v=20"></script>
+    <script src="animations.js?v=21"></script>
+    <script src="dragdrop.js?v=21"></script>
+    <script src="app.js?v=21"></script>
 
 </body>
 </html>

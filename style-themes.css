@@ -71,17 +71,20 @@
     --border: rgba(0, 255, 102, 0.2);
     --border-strong: rgba(0, 255, 102, 0.5);
     
-    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.2) 0%, rgba(0, 80, 40, 0.3) 100%);
+    /* Radioactive yellow-green mix - Fallout style */
+    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.25) 0%, rgba(102, 255, 0, 0.15) 100%);
     --bubble-border: rgba(0, 255, 102, 0.5);
-    --bubble-glow: 0 8px 32px rgba(0, 255, 102, 0.3), 0 0 48px rgba(0, 255, 102, 0.15);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.35) 0%, rgba(0, 200, 80, 0.15) 100%);
-    --bubble-inprogress-border: rgba(0, 255, 102, 0.8);
-    --bubble-inprogress-glow: 0 8px 50px rgba(0, 255, 102, 0.5), 0 0 80px rgba(0, 255, 102, 0.3);
-    
+    --bubble-glow: 0 10px 40px rgba(0, 255, 102, 0.4), 0 0 70px rgba(102, 255, 0, 0.25), 0 0 100px rgba(255, 255, 0, 0.1);
+
+    /* Intense radioactive pulse for in-progress */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(102, 255, 0, 0.4) 0%, rgba(0, 255, 102, 0.2) 100%);
+    --bubble-inprogress-border: rgba(102, 255, 0, 0.8);
+    --bubble-inprogress-glow: 0 10px 60px rgba(102, 255, 0, 0.6), 0 0 100px rgba(0, 255, 102, 0.4), 0 0 140px rgba(255, 255, 0, 0.15);
+
+    /* Done with yellow radioactive undertone */
     --bubble-done-bg: linear-gradient(135deg, rgba(0, 180, 80, 0.25) 0%, rgba(0, 120, 60, 0.1) 100%);
     --bubble-done-border: rgba(0, 180, 80, 0.6);
-    --bubble-done-glow: 0 6px 20px rgba(0, 180, 80, 0.25), 0 0 30px rgba(0, 180, 80, 0.15);
+    --bubble-done-glow: 0 8px 30px rgba(0, 180, 80, 0.35), 0 0 50px rgba(102, 255, 0, 0.2);
     --bubble-done-text: #00ff66;
 }
 
@@ -110,13 +113,15 @@
     --border: rgba(255, 215, 0, 0.2);
     --border-strong: rgba(255, 215, 0, 0.5);
     
-    --bubble-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
-    --bubble-border: rgba(255, 215, 0, 0.5);
-    --bubble-glow: 0 8px 32px rgba(255, 215, 0, 0.3), 0 0 48px rgba(255, 215, 0, 0.15);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(200, 160, 0, 0.15) 100%);
-    --bubble-inprogress-border: rgba(255, 215, 0, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(255, 215, 0, 0.5), 0 0 100px rgba(255, 215, 0, 0.3);
+    /* Boosted contrast and glow for prominence */
+    --bubble-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.28) 0%, rgba(30, 30, 0, 0.5) 100%);
+    --bubble-border: rgba(255, 215, 0, 0.7);
+    --bubble-glow: 0 10px 45px rgba(255, 215, 0, 0.45), 0 0 70px rgba(255, 215, 0, 0.25);
+
+    /* Super glow for in-progress - max visibility */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.45) 0%, rgba(200, 160, 0, 0.25) 100%);
+    --bubble-inprogress-border: rgba(255, 215, 0, 0.95);
+    --bubble-inprogress-glow: 0 12px 60px rgba(255, 215, 0, 0.65), 0 0 120px rgba(255, 215, 0, 0.4);
     
     --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 180, 100, 0.1) 100%);
     --bubble-done-border: rgba(0, 255, 136, 0.6);
@@ -188,18 +193,63 @@
     --border: rgba(191, 107, 255, 0.25);
     --border-strong: rgba(191, 107, 255, 0.5);
     
-    --bubble-bg: linear-gradient(135deg, rgba(191, 107, 255, 0.25) 0%, rgba(100, 50, 150, 0.2) 100%);
+    /* Multi-color magical gradient with cyan undertone */
+    --bubble-bg: linear-gradient(135deg, rgba(191, 107, 255, 0.3) 0%, rgba(139, 92, 246, 0.15) 50%, rgba(6, 182, 212, 0.1) 100%);
     --bubble-border: rgba(191, 107, 255, 0.5);
-    --bubble-glow: 0 8px 32px rgba(191, 107, 255, 0.35), 0 0 48px rgba(255, 107, 218, 0.2);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 107, 218, 0.35) 0%, rgba(191, 107, 255, 0.15) 100%);
+    --bubble-glow: 0 10px 40px rgba(191, 107, 255, 0.45), 0 0 60px rgba(255, 107, 218, 0.3), 0 0 90px rgba(6, 182, 212, 0.15);
+
+    /* Intense magical pink-violet gradient */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 107, 218, 0.45) 0%, rgba(191, 107, 255, 0.25) 50%, rgba(139, 92, 246, 0.15) 100%);
     --bubble-inprogress-border: rgba(255, 107, 218, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(255, 107, 218, 0.5), 0 0 80px rgba(191, 107, 255, 0.3);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(139, 92, 246, 0.12) 100%);
+    --bubble-inprogress-glow: 0 12px 60px rgba(255, 107, 218, 0.6), 0 0 100px rgba(191, 107, 255, 0.4), 0 0 140px rgba(6, 182, 212, 0.2);
+
+    /* Cyan-violet magical done state */
+    --bubble-done-bg: linear-gradient(135deg, rgba(168, 85, 247, 0.35) 0%, rgba(6, 182, 212, 0.2) 100%);
     --bubble-done-border: rgba(168, 85, 247, 0.65);
-    --bubble-done-glow: 0 6px 20px rgba(168, 85, 247, 0.3), 0 0 30px rgba(168, 85, 247, 0.15);
-    --bubble-done-text: #a855f7;
+    --bubble-done-glow: 0 8px 30px rgba(168, 85, 247, 0.35), 0 0 50px rgba(6, 182, 212, 0.25);
+    --bubble-done-text: #22d3ee;
+}
+
+/* =============================================
+   THEME: DESERT 🏜️
+   Fond sable/terre, bulles orangées, done en ROUGE
+   ============================================= */
+[data-theme="desert"] {
+    --bg-primary: #1a1410;
+    --bg-secondary: #2d2117;
+    --bg-tertiary: #3d2e1f;
+    --bg-card: rgba(224, 120, 64, 0.08);
+
+    --text: #f5e6d3;
+    --text-muted: #a89078;
+
+    --accent: #e07840;
+    --accent-light: #f4a261;
+    --accent-glow: rgba(224, 120, 64, 0.4);
+
+    --success: #ef4444;
+    --success-glow: rgba(239, 68, 68, 0.4);
+
+    --warning: #fbbf24;
+    --danger: #ef4444;
+
+    --border: rgba(224, 120, 64, 0.2);
+    --border-strong: rgba(224, 120, 64, 0.5);
+
+    /* Bulles orangées desert */
+    --bubble-bg: linear-gradient(135deg, rgba(224, 120, 64, 0.25) 0%, rgba(180, 80, 40, 0.1) 100%);
+    --bubble-border: rgba(224, 120, 64, 0.5);
+    --bubble-glow: 0 8px 32px rgba(224, 120, 64, 0.3), 0 0 48px rgba(224, 120, 64, 0.15);
+
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(249, 115, 22, 0.15) 100%);
+    --bubble-inprogress-border: rgba(251, 191, 36, 0.7);
+    --bubble-inprogress-glow: 0 8px 40px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.2);
+
+    /* Done state - RED GLOW (harmonieux avec desert) */
+    --bubble-done-bg: linear-gradient(135deg, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.12) 100%);
+    --bubble-done-border: rgba(239, 68, 68, 0.7);
+    --bubble-done-glow: 0 8px 35px rgba(239, 68, 68, 0.45), 0 0 60px rgba(239, 68, 68, 0.25);
+    --bubble-done-text: #ff6666;
 }
 
 /* =============================================
@@ -227,17 +277,20 @@
     --border: rgba(249, 115, 22, 0.25);
     --border-strong: rgba(249, 115, 22, 0.5);
     
-    --bubble-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(180, 60, 20, 0.15) 100%);
-    --bubble-border: rgba(249, 115, 22, 0.55);
-    --bubble-glow: 0 6px 25px rgba(249, 115, 22, 0.3), 0 0 40px rgba(251, 191, 36, 0.15);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%);
-    --bubble-inprogress-border: rgba(251, 191, 36, 0.85);
-    --bubble-inprogress-glow: 0 6px 35px rgba(251, 191, 36, 0.4), 0 0 60px rgba(249, 115, 22, 0.25);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(200, 150, 30, 0.1) 100%);
-    --bubble-done-border: rgba(251, 191, 36, 0.65);
-    --bubble-done-glow: 0 6px 20px rgba(251, 191, 36, 0.3), 0 0 30px rgba(251, 191, 36, 0.15);
+    /* Crimson-amber gradient - distinct from Desert */
+    --bubble-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(249, 115, 22, 0.3) 100%);
+    --bubble-border: rgba(220, 38, 38, 0.6);
+    --bubble-glow: 0 8px 40px rgba(220, 38, 38, 0.4), 0 0 60px rgba(249, 115, 22, 0.25);
+
+    /* Dynamic in-progress with crimson gradient */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 146, 60, 0.45) 0%, rgba(220, 38, 38, 0.25) 100%);
+    --bubble-inprogress-border: rgba(251, 146, 60, 0.85);
+    --bubble-inprogress-glow: 0 10px 50px rgba(251, 146, 60, 0.55), 0 0 80px rgba(220, 38, 38, 0.35);
+
+    /* Sunset golden done state */
+    --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 100%);
+    --bubble-done-border: rgba(251, 191, 36, 0.75);
+    --bubble-done-glow: 0 8px 30px rgba(251, 191, 36, 0.4), 0 0 50px rgba(245, 158, 11, 0.2);
     --bubble-done-text: #fbbf24;
 }
 
@@ -266,13 +319,15 @@
     --border: rgba(74, 222, 128, 0.2);
     --border-strong: rgba(74, 222, 128, 0.5);
     
-    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(30, 80, 40, 0.25) 100%);
+    /* Multi-tone green gradient - lime/emerald/forest variety */
+    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.25) 0%, rgba(16, 185, 129, 0.15) 50%, rgba(5, 150, 105, 0.2) 100%);
     --bubble-border: rgba(74, 222, 128, 0.5);
-    --bubble-glow: 0 8px 32px rgba(74, 222, 128, 0.3), 0 0 48px rgba(34, 197, 94, 0.15);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.35) 0%, rgba(74, 222, 128, 0.15) 100%);
+    --bubble-glow: 0 10px 35px rgba(74, 222, 128, 0.35), 0 0 60px rgba(16, 185, 129, 0.2);
+
+    /* Lime boost for in-progress */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.4) 0%, rgba(74, 222, 128, 0.25) 100%);
     --bubble-inprogress-border: rgba(163, 230, 53, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(163, 230, 53, 0.5), 0 0 80px rgba(74, 222, 128, 0.3);
+    --bubble-inprogress-glow: 0 10px 55px rgba(163, 230, 53, 0.6), 0 0 90px rgba(74, 222, 128, 0.35);
     
     --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
     --bubble-done-border: rgba(34, 197, 94, 0.65);
@@ -296,8 +351,8 @@
     --accent-light: #ff9ec4;
     --accent-glow: rgba(255, 107, 157, 0.4);
     
-    --success: #a8e6cf;
-    --success-glow: rgba(168, 230, 207, 0.4);
+    --success: #38bdf8;
+    --success-glow: rgba(56, 189, 248, 0.4);
     
     --warning: #ffd93d;
     --danger: #ff6b6b;
@@ -313,10 +368,11 @@
     --bubble-inprogress-border: rgba(255, 158, 196, 0.85);
     --bubble-inprogress-glow: 0 8px 50px rgba(255, 158, 196, 0.5), 0 0 80px rgba(255, 107, 157, 0.3);
     
-    --bubble-done-bg: linear-gradient(135deg, rgba(168, 230, 207, 0.35) 0%, rgba(134, 239, 172, 0.15) 100%);
-    --bubble-done-border: rgba(168, 230, 207, 0.7);
-    --bubble-done-glow: 0 6px 20px rgba(168, 230, 207, 0.3), 0 0 30px rgba(168, 230, 207, 0.15);
-    --bubble-done-text: #86efac;
+    /* Blue done state - cotton candy harmony */
+    --bubble-done-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(14, 165, 233, 0.15) 100%);
+    --bubble-done-border: rgba(56, 189, 248, 0.7);
+    --bubble-done-glow: 0 8px 30px rgba(56, 189, 248, 0.4), 0 0 50px rgba(14, 165, 233, 0.2);
+    --bubble-done-text: #38bdf8;
 }
 
 /* =============================================
