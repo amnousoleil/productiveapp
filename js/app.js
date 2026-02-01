@@ -649,13 +649,14 @@ function getUserName(userId) {
     return user ? user.name : userId;
 }
 
-function getUserAvatar(userId, asImg = false) {
+function getUserAvatar(userId) {
     const user = USERS.find(u => u.id === userId);
-    const avatar = user ? user.avatar : '👤';
-    if (asImg && user) {
-        return `<img src="${avatar}" class="user-avatar-img" alt="${user.name}">`;
+    if (!user) return '👤';
+    // Si c'est une URL, retourner une balise img
+    if (user.avatar.startsWith('http')) {
+        return `<img src="${user.avatar}" class="user-avatar-img" alt="${user.name}">`;
     }
-    return avatar;
+    return user.avatar;
 }
 
 function escapeHtml(text) {
