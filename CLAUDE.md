@@ -83,12 +83,37 @@
 
 | Composant | Version | Dernière modif |
 |-----------|---------|----------------|
-| **CSS** | v41 | Bugs #3-5 corrigés |
-| **JS app.js** | v34 | Chatbot local implémenté |
+| **CSS** | v44 | Bouton Gyrophare URGENT |
+| **JS app.js** | v36 | Tri par priorité |
 | **JS dragdrop.js** | v30 | Bug #1 corrigé (fluidité) |
-| **index.html** | 401 lignes | Architecture v2.0 |
-| **Architecture** | v2.0 | Modulaire professionnelle |
-| **Git tag** | v2.2-chatbot-local | Stable + chatbot local |
+| **index.html** | 418 lignes | + Bouton Gyrophare |
+| **Architecture** | v2.3 | + Filtre priorité |
+| **Git tag** | v2.3-gyrophare | Stable + tri urgent |
+
+---
+
+## 🚨 NOUVELLE FONCTIONNALITÉ : Bouton Gyrophare URGENT (2026-02-01)
+
+### Description
+Bouton avec icône gyrophare rouge à côté du sélecteur utilisateur. Permet de **trier instantanément toutes les tâches par priorité** (urgentes en premier).
+
+### Emplacement
+`user-filter-bar` → après le `<select id="user-filter-select">`
+
+### Comportement
+- **Clic** : Active/désactive le tri par priorité
+- **Actif** : Glow rouge + rotation gyrophare + particules feu follet
+- **Tri** : Priorité 1 (Urgent) → 2 (Normal) → 3 (Basse)
+
+### Fichiers modifiés
+- `index.html:121-124` - Bouton HTML avec image gyrophare
+- `css/style-overrides.css` - Styles + animations (gyroGlow, gyroSpin, firefly)
+- `js/app.js:77` - Variable `urgentFilterActive`
+- `js/app.js:989-996` - Tri dans `renderTasks()`
+- `js/app.js:2025-2030` - Event listener
+
+### Commit
+`c75ad5c` - Bouton Gyrophare URGENT - Tri par priorité
 
 ---
 
