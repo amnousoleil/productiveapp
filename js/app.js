@@ -901,9 +901,10 @@ function renderUserFilter() {
     const options = $('user-filter-options');
     if (!options) return;
 
+    const teamAvatar = 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png';
     options.innerHTML = `
         <div class="custom-select-option active" data-value="all">
-            <span class="option-emoji">👥</span>
+            <img src="${teamAvatar}" alt="All">
             <span>Tout le monde</span>
         </div>
         ${USERS.map(u => `
@@ -933,8 +934,9 @@ function selectUserFilter(value) {
     });
 
     // Update l'affichage du bouton
+    const teamAvatar = 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png';
     if (value === 'all') {
-        btn.querySelector('.select-avatar').innerHTML = '👥';
+        btn.querySelector('.select-avatar').innerHTML = `<img src="${teamAvatar}" alt="All">`;
         btn.querySelector('.select-text').textContent = 'Tout le monde';
     } else {
         const user = USERS.find(u => u.id === value);
