@@ -1731,6 +1731,210 @@ async function sendChatMessage() {
     }
 }
 
+// =============================================
+// CHATBOT MÉDIA - Micro, Caméra, Fichiers
+// =============================================
+
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+// Initialiser les boutons média
+function initChatMediaButtons() {
+    const micBtn = $('chat-mic-btn');
+    const cameraBtn = $('chat-camera-btn');
+    const fileBtn = $('chat-file-btn');
+    const cameraInput = $('chat-camera-input');
+    const fileInput = $('chat-file-input');
+
+    if (!micBtn) return;
+
+    // Micro : toggle enregistrement
+    micBtn.addEventListener('click', toggleAudioRecording);
+
+    // Caméra : ouvre sélecteur
+    cameraBtn.addEventListener('click', () => cameraInput.click());
+    cameraInput.addEventListener('change', handleImageSelect);
+
+    // Fichier : ouvre sélecteur
+    fileBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', handleFileSelect);
+}
+
+// Toggle enregistrement audio
+async function toggleAudioRecording() {
+    const micBtn = $('chat-mic-btn');
+
+    if (isRecording) {
+        // Arrêter l'enregistrement
+        mediaRecorder.stop();
+        micBtn.classList.remove('recording');
+        isRecording = false;
+    } else {
+        // Démarrer l'enregistrement
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) audioChunks.push(e.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                stream.getTracks().forEach(track => track.stop());
+                await sendAudioMessage(audioBlob);
+            };
+
+            mediaRecorder.start();
+            micBtn.classList.add('recording');
+            isRecording = true;
+        } catch (err) {
+            console.error('❌ Erreur micro:', err);
+            addChatMsg('❌ Impossible d\'accéder au micro', 'assistant');
+        }
+    }
+}
+
+// Envoyer audio en base64
+async function sendAudioMessage(audioBlob) {
+    const base64 = await blobToBase64(audioBlob);
+
+    // Afficher preview
+    addChatMsg('🎙️ Audio envoyé...', 'user');
+    const loadingDiv = addChatMsg('Analyse audio...', 'assistant loading');
+
+    try {
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'audio',
+                audio: base64,
+                mimeType: 'audio/webm',
+                user: currentUser.name,
+                userId: currentUser.id,
+                context: buildAIContext()
+            })
+        });
+
+        let aiResponse = await response.text();
+        try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
+
+        loadingDiv.remove();
+        addChatMsg(aiResponse || 'Audio reçu !', 'assistant');
+    } catch (e) {
+        loadingDiv.remove();
+        addChatMsg('❌ Erreur envoi audio', 'assistant');
+        console.error('❌ Erreur envoi audio:', e);
+    }
+}
+
+// Gérer sélection image
+async function handleImageSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const base64 = await fileToBase64(file);
+
+    // Afficher preview
+    const previewDiv = document.createElement('div');
+    previewDiv.className = 'chat-msg user media-preview';
+    previewDiv.innerHTML = `<img src="${base64}" alt="Photo">`;
+    $('chatbot-messages').appendChild(previewDiv);
+    $('chatbot-messages').scrollTop = $('chatbot-messages').scrollHeight;
+
+    const loadingDiv = addChatMsg('Analyse image...', 'assistant loading');
+
+    try {
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'image',
+                image: base64,
+                mimeType: file.type,
+                fileName: file.name,
+                user: currentUser.name,
+                userId: currentUser.id,
+                context: buildAIContext()
+            })
+        });
+
+        let aiResponse = await response.text();
+        try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
+
+        loadingDiv.remove();
+        addChatMsg(aiResponse || 'Image reçue !', 'assistant');
+    } catch (e) {
+        loadingDiv.remove();
+        addChatMsg('❌ Erreur envoi image', 'assistant');
+        console.error('❌ Erreur envoi image:', e);
+    }
+
+    e.target.value = ''; // Reset input
+}
+
+// Gérer sélection fichier
+async function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const base64 = await fileToBase64(file);
+
+    addChatMsg(`📎 Fichier: ${file.name}`, 'user');
+    const loadingDiv = addChatMsg('Analyse fichier...', 'assistant loading');
+
+    try {
+        const response = await fetch(CHATBOT_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'file',
+                file: base64,
+                mimeType: file.type,
+                fileName: file.name,
+                user: currentUser.name,
+                userId: currentUser.id,
+                context: buildAIContext()
+            })
+        });
+
+        let aiResponse = await response.text();
+        try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
+
+        loadingDiv.remove();
+        addChatMsg(aiResponse || 'Fichier reçu !', 'assistant');
+    } catch (e) {
+        loadingDiv.remove();
+        addChatMsg('❌ Erreur envoi fichier', 'assistant');
+        console.error('❌ Erreur envoi fichier:', e);
+    }
+
+    e.target.value = ''; // Reset input
+}
+
+// Convertir Blob en base64
+function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+// Convertir File en base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 function buildAIContext() {
     const todo = tasks.filter(t => t.status === 'todo');
     const inProgress = tasks.filter(t => t.status === 'inprogress');
@@ -2413,6 +2617,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
+    initChatMediaButtons(); // Init boutons média WhatsApp
 
     // === GALAXY VIEW - Init lazy (au premier clic) ===
     let galaxyInitialized = false;
