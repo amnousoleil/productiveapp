@@ -94,52 +94,68 @@
     animation: popIn 0.3s ease !important;
     
     /* Style par défaut - À faire */
-    background: var(--bubble-bg, linear-gradient(145deg, rgba(224, 120, 64, 0.2) 0%, rgba(180, 80, 40, 0.1) 100%)) !important;
-    border: 2px solid var(--bubble-border, rgba(224, 120, 64, 0.4)) !important;
-    box-shadow: var(--bubble-glow, 0 4px 20px rgba(224, 120, 64, 0.2)) !important;
-    color: var(--bubble-text-color, #ffffff) !important;
+    background: linear-gradient(145deg, rgba(224, 120, 64, 0.2) 0%, rgba(180, 80, 40, 0.1) 100%) !important;
+    border: 2px solid rgba(224, 120, 64, 0.4) !important;
+    box-shadow: 
+        0 4px 20px rgba(224, 120, 64, 0.2),
+        0 0 30px rgba(224, 120, 64, 0.1) !important;
 }
 
 .bubble:hover,
 .task-bubble:hover {
     transform: translateY(-5px) scale(1.02) !important;
+    box-shadow: 
+        0 10px 40px rgba(224, 120, 64, 0.35),
+        0 0 50px rgba(224, 120, 64, 0.2) !important;
 }
 
 /* === État En Cours - Glow Orange/Jaune Pulsant === */
 .bubble.inprogress,
 .task-bubble.inprogress {
-    background: var(--bubble-inprogress-bg, linear-gradient(145deg, rgba(251, 191, 36, 0.35) 0%, rgba(249, 115, 22, 0.2) 100%)) !important;
-    border: 2px solid var(--bubble-inprogress-border, rgba(251, 191, 36, 0.7)) !important;
-    box-shadow: var(--bubble-inprogress-glow, 0 0 20px rgba(251, 191, 36, 0.5)) !important;
+    background: linear-gradient(145deg, rgba(251, 191, 36, 0.35) 0%, rgba(249, 115, 22, 0.2) 100%) !important;
+    border: 2px solid rgba(251, 191, 36, 0.7) !important;
+    box-shadow: 
+        0 0 20px rgba(251, 191, 36, 0.5),
+        0 0 40px rgba(251, 191, 36, 0.3),
+        0 8px 30px rgba(251, 191, 36, 0.4) !important;
     animation: popIn 0.3s ease, glowPulseOrange 2s ease-in-out infinite !important;
 }
 
 .bubble.inprogress .bubble-text,
 .task-bubble.inprogress .task-text {
-    color: var(--bubble-text-color, #ffffff) !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
 }
 
 /* === État Terminé - MEGA GLOW VERT === */
 .bubble.done,
 .task-bubble.done {
-    background: var(--bubble-done-bg, linear-gradient(145deg, rgba(34, 197, 94, 0.45) 0%, rgba(22, 163, 74, 0.25) 100%)) !important;
-    border: 3px solid var(--bubble-done-border, rgba(34, 197, 94, 0.8)) !important;
-    box-shadow: var(--bubble-done-glow, 0 0 25px rgba(34, 197, 94, 0.7)) !important;
+    background: linear-gradient(145deg, rgba(34, 197, 94, 0.45) 0%, rgba(22, 163, 74, 0.25) 100%) !important;
+    border: 3px solid rgba(34, 197, 94, 0.8) !important;
+    box-shadow: 
+        0 0 25px rgba(34, 197, 94, 0.7),
+        0 0 50px rgba(34, 197, 94, 0.4),
+        0 0 75px rgba(34, 197, 94, 0.2),
+        0 8px 35px rgba(34, 197, 94, 0.5) !important;
     opacity: 1 !important;
 }
 
 .bubble.done:hover,
 .task-bubble.done:hover {
     transform: translateY(-6px) scale(1.03) !important;
+    box-shadow: 
+        0 0 35px rgba(34, 197, 94, 0.9),
+        0 0 70px rgba(34, 197, 94, 0.6),
+        0 0 100px rgba(34, 197, 94, 0.3),
+        0 15px 50px rgba(34, 197, 94, 0.7) !important;
 }
 
 .bubble.done .bubble-text,
 .task-bubble.done .task-text {
     text-decoration: line-through !important;
-    color: var(--bubble-done-text, #ffffff) !important;
+    color: #ffffff !important;
     text-shadow: none !important;
-    opacity: 1 !important;
+    opacity: 0.85 !important;
 }
 
 .bubble.done .bubble-header,
@@ -177,7 +193,7 @@
 .task-text {
     font-size: 0.95rem !important;
     line-height: 1.5 !important;
-    color: var(--bubble-text-color, #ffffff) !important;
+    color: var(--text) !important;
 }
 
 /* === BOUTONS D'ACTION - CORRIGÉ === */
