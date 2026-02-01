@@ -99,59 +99,7 @@
     box-shadow: var(--bubble-glow) !important;
 }
 
-/* Animations spécifiques par thème */
-[data-theme="desert"] .bubble:not(.inprogress):not(.done),
-[data-theme="desert"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               desertLuxe 2.5s ease-in-out infinite !important;
-}
-
-[data-theme="sunset"] .bubble:not(.inprogress):not(.done),
-[data-theme="sunset"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               sunsetIntense 1.8s ease-in-out infinite !important;
-}
-
-[data-theme="fantasy"] .bubble:not(.inprogress):not(.done),
-[data-theme="fantasy"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               fantasySparkle 2.2s ease-in-out infinite !important;
-}
-
-[data-theme="bubblegum"] .bubble:not(.inprogress):not(.done),
-[data-theme="bubblegum"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               bubblegumBubbles 1.2s ease-in-out infinite !important;
-}
-
-[data-theme="ocean"] .bubble:not(.inprogress):not(.done),
-[data-theme="ocean"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               oceanWaves 2.8s ease-in-out infinite !important;
-}
-
-[data-theme="midnight"] .bubble:not(.inprogress):not(.done),
-[data-theme="midnight"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               midnightAurora 2.5s ease-in-out infinite !important;
-}
-
-[data-theme="starwars"] .bubble:not(.inprogress):not(.done),
-[data-theme="starwars"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               starwarsMeteor 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite !important;
-}
-
-/* Floating générique pour les autres thèmes */
-[data-theme="hacker"] .bubble:not(.inprogress):not(.done),
-[data-theme="hacker"] .task-bubble:not(.inprogress):not(.done),
-[data-theme="matrix"] .bubble:not(.inprogress):not(.done),
-[data-theme="matrix"] .task-bubble:not(.inprogress):not(.done),
-[data-theme="forest"] .bubble:not(.inprogress):not(.done),
-[data-theme="forest"] .task-bubble:not(.inprogress):not(.done) {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               floating 3s ease-in-out infinite !important;
-}
+/* Pas d'animations permanentes sur les notes - effet pro */
 
 .bubble:hover,
 .task-bubble:hover {
@@ -177,12 +125,7 @@
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
 }
 
-/* Pulse intense pour tous sauf Académie */
-[data-theme]:not([data-theme="academie"]) .bubble.inprogress,
-[data-theme]:not([data-theme="academie"]) .task-bubble.inprogress {
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
-               glowPulse 1.5s ease-in-out infinite !important;
-}
+/* Pas d'animation pulse - on garde le pro */
 
 .bubble.inprogress .bubble-text,
 .task-bubble.inprogress .task-text {
@@ -1027,5 +970,72 @@
         height: 80vh;
         right: 10px;
         bottom: 10px;
+    }
+}
+
+/* =============================================
+   EFFETS VISUELS DE FOND - AU SURVOL UNIQUEMENT
+   Professionnel et optimisé
+   ============================================= */
+
+/* FOREST - Feuilles qui tombent avec vent variable */
+[data-theme="forest"] .app-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+[data-theme="forest"] .app-container:hover::before {
+    opacity: 1;
+    background-image: 
+        radial-gradient(2px 2px at 20% 30%, #4ade80 50%, transparent 50%),
+        radial-gradient(2px 2px at 60% 70%, #fbbf24 50%, transparent 50%),
+        radial-gradient(3px 3px at 50% 50%, #ef4444 50%, transparent 50%),
+        radial-gradient(2px 2px at 80% 10%, #f97316 50%, transparent 50%),
+        radial-gradient(2px 2px at 90% 60%, #a855f7 50%, transparent 50%),
+        radial-gradient(3px 3px at 15% 80%, #00bfff 50%, transparent 50%),
+        radial-gradient(2px 2px at 35% 20%, #22c55e 50%, transparent 50%);
+    background-size: 200% 200%;
+    background-position: 50% 0%;
+    animation: fallingLeaves 15s linear infinite;
+}
+
+/* Animation feuilles avec vent variable */
+@keyframes fallingLeaves {
+    0% {
+        background-position: 
+            20% -20%, 60% -10%, 50% -30%, 
+            80% -15%, 90% -25%, 15% -20%, 35% -10%;
+    }
+    30% {
+        background-position: 
+            25% 40%, 55% 30%, 48% 50%, 
+            85% 35%, 88% 45%, 18% 40%, 32% 30%;
+        transform: translateX(20px);
+    }
+    50% {
+        background-position: 
+            22% 60%, 58% 50%, 52% 70%, 
+            82% 55%, 92% 65%, 14% 60%, 38% 50%;
+        transform: translateX(-15px);
+    }
+    80% {
+        background-position: 
+            28% 90%, 52% 80%, 55% 100%, 
+            78% 85%, 95% 95%, 20% 90%, 30% 80%;
+        transform: translateX(10px);
+    }
+    100% {
+        background-position: 
+            30% 120%, 50% 110%, 60% 130%, 
+            75% 115%, 100% 125%, 25% 120%, 28% 110%;
+        transform: translateX(0);
     }
 }

@@ -76,10 +76,10 @@
     --bubble-border: rgba(0, 255, 102, 0.5);
     --bubble-glow: 0 10px 40px rgba(0, 255, 102, 0.4), 0 0 70px rgba(102, 255, 0, 0.25), 0 0 100px rgba(255, 255, 0, 0.1);
 
-    /* Intense radioactive pulse for in-progress - BOOST */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(102, 255, 0, 0.55) 0%, rgba(0, 255, 102, 0.35) 100%);
-    --bubble-inprogress-border: rgba(102, 255, 0, 0.95);
-    --bubble-inprogress-glow: 0 12px 70px rgba(102, 255, 0, 0.8), 0 0 120px rgba(0, 255, 102, 0.6), 0 0 160px rgba(255, 255, 0, 0.3);
+    /* Intense radioactive pulse for in-progress - ULTRA BOOST */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(102, 255, 0, 0.7) 0%, rgba(0, 255, 102, 0.5) 100%);
+    --bubble-inprogress-border: rgba(102, 255, 0, 1);
+    --bubble-inprogress-glow: 0 15px 90px rgba(102, 255, 0, 1), 0 0 150px rgba(0, 255, 102, 0.8), 0 0 200px rgba(255, 255, 0, 0.5);
 
     /* Done with yellow radioactive undertone */
     --bubble-done-bg: linear-gradient(135deg, rgba(0, 180, 80, 0.25) 0%, rgba(0, 120, 60, 0.1) 100%);
