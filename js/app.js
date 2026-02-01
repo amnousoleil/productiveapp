@@ -2073,13 +2073,13 @@ function createFireBubbles() {
         loginScreen.appendChild(container);
     }
 
-    // Couleurs de feu
+    // Couleurs bleues divines et violettes (boules de feu mystiques)
     const fireColors = [
-        'radial-gradient(circle, #ff6b35 0%, #ff4500 50%, #ff0000 100%)',
-        'radial-gradient(circle, #ffd700 0%, #ff8c00 50%, #ff4500 100%)',
-        'radial-gradient(circle, #ff8c00 0%, #ff6347 50%, #dc143c 100%)',
-        'radial-gradient(circle, #ffaa00 0%, #ff6600 50%, #ff3300 100%)',
-        'radial-gradient(circle, #fff176 0%, #ffb300 50%, #ff6f00 100%)'
+        'radial-gradient(circle, #00d4ff 0%, #0099cc 50%, #006699 100%)',
+        'radial-gradient(circle, #9966ff 0%, #7733ff 50%, #5500cc 100%)',
+        'radial-gradient(circle, #cc66ff 0%, #9933ff 50%, #6600cc 100%)',
+        'radial-gradient(circle, #66ccff 0%, #3399ff 50%, #0066cc 100%)',
+        'radial-gradient(circle, #bf7fff 0%, #9933ff 50%, #7700cc 100%)'
     ];
 
     function spawnFireBubble() {
@@ -2098,7 +2098,11 @@ function createFireBubbles() {
 
         // Couleur aléatoire
         bubble.style.background = fireColors[Math.floor(Math.random() * fireColors.length)];
-        bubble.style.boxShadow = `0 0 ${size/2}px rgba(255, 100, 0, 0.6), 0 0 ${size}px rgba(255, 50, 0, 0.3)`;
+        // Glow bleu/violet mystique
+        const isBlue = Math.random() > 0.5;
+        const glowColor = isBlue ? 'rgba(0, 150, 255, 0.7)' : 'rgba(150, 50, 255, 0.7)';
+        const glowColor2 = isBlue ? 'rgba(0, 100, 200, 0.4)' : 'rgba(100, 0, 200, 0.4)';
+        bubble.style.boxShadow = `0 0 ${size/2}px ${glowColor}, 0 0 ${size}px ${glowColor2}, 0 0 ${size*1.5}px ${glowColor2}`;
 
         // Direction aléatoire
         const goRight = Math.random() > 0.5;
@@ -2265,15 +2269,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.style.opacity = '1';
                 btn.style.transform = 'scale(1.1)';
 
-                // Animation de slide selon direction
+                // Animation selon direction
+                btn.style.animation = 'none';
+                btn.offsetHeight; // Force reflow
                 if (direction === 'right') {
-                    btn.style.animation = 'none';
-                    btn.offsetHeight;
                     btn.style.animation = 'slideInFromRight 0.4s ease-out forwards';
                 } else if (direction === 'left') {
-                    btn.style.animation = 'none';
-                    btn.offsetHeight;
                     btn.style.animation = 'slideInFromLeft 0.4s ease-out forwards';
+                } else {
+                    // Initial : belle entrée avec cardReveal
+                    btn.style.animation = 'cardReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
                 }
             } else {
                 btn.style.display = 'none';
@@ -2289,8 +2294,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showProfile(currentProfileIndex + 1, 'right');
     });
 
-    // Afficher le premier profil après l'animation initiale
-    setTimeout(() => showProfile(0), 4500);
+    // Afficher le premier profil (Maha = index 0) plus tôt
+    setTimeout(() => showProfile(0), 2800);
     $('logout-btn').addEventListener('click', logout);
     $('export-btn').addEventListener('click', exportData);
     
