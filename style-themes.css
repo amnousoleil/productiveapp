@@ -87,41 +87,43 @@
 
 /* =============================================
    THEME: HACKER 🖤
+   Pure terminal vibes - noir profond, vert phosphore
    ============================================= */
 [data-theme="hacker"] {
     --bg-primary: #000000;
-    --bg-secondary: #0a0a0a;
-    --bg-tertiary: #111111;
-    --bg-card: rgba(255, 215, 0, 0.08);
+    --bg-secondary: #050505;
+    --bg-tertiary: #0a0a0a;
+    --bg-card: rgba(0, 255, 0, 0.05);
     
-    --text: #ffffff;
-    --text-muted: #888888;
+    --text: #00ff00;
+    --text-muted: #008800;
     
-    --accent: #ffd700;
-    --accent-light: #ffe44d;
-    --accent-glow: rgba(255, 215, 0, 0.4);
+    --accent: #00ff00;
+    --accent-light: #33ff33;
+    --accent-glow: rgba(0, 255, 0, 0.5);
     
-    --success: #00ff88;
-    --success-glow: rgba(0, 255, 136, 0.4);
+    --success: #00ff00;
+    --success-glow: rgba(0, 255, 0, 0.4);
     
-    --warning: #ffd700;
-    --danger: #ff3333;
+    --warning: #ffff00;
+    --danger: #ff0000;
     
-    --border: rgba(255, 215, 0, 0.2);
-    --border-strong: rgba(255, 215, 0, 0.5);
+    --border: rgba(0, 255, 0, 0.3);
+    --border-strong: rgba(0, 255, 0, 0.6);
     
-    --bubble-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(0, 0, 0, 0.4) 100%);
-    --bubble-border: rgba(255, 215, 0, 0.5);
-    --bubble-glow: 0 8px 32px rgba(255, 215, 0, 0.3), 0 0 48px rgba(255, 215, 0, 0.15);
+    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 50, 0, 0.2) 100%);
+    --bubble-border: rgba(0, 255, 0, 0.4);
+    --bubble-glow: 0 0 20px rgba(0, 255, 0, 0.3), 0 0 40px rgba(0, 255, 0, 0.1);
+    --bubble-text-color: #00ff00;
     
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 215, 0, 0.35) 0%, rgba(200, 160, 0, 0.15) 100%);
-    --bubble-inprogress-border: rgba(255, 215, 0, 0.85);
-    --bubble-inprogress-glow: 0 8px 50px rgba(255, 215, 0, 0.5), 0 0 100px rgba(255, 215, 0, 0.3);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0, 255, 0, 0.2) 0%, rgba(0, 100, 0, 0.15) 100%);
+    --bubble-inprogress-border: rgba(0, 255, 0, 0.7);
+    --bubble-inprogress-glow: 0 0 30px rgba(0, 255, 0, 0.5), 0 0 60px rgba(0, 255, 0, 0.2);
     
-    --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 136, 0.25) 0%, rgba(0, 180, 100, 0.1) 100%);
-    --bubble-done-border: rgba(0, 255, 136, 0.6);
-    --bubble-done-glow: 0 6px 20px rgba(0, 255, 136, 0.25), 0 0 30px rgba(0, 255, 136, 0.15);
-    --bubble-done-text: #00ff88;
+    --bubble-done-bg: linear-gradient(135deg, rgba(0, 200, 0, 0.15) 0%, rgba(0, 80, 0, 0.1) 100%);
+    --bubble-done-border: rgba(0, 200, 0, 0.5);
+    --bubble-done-glow: 0 0 15px rgba(0, 200, 0, 0.3), 0 0 30px rgba(0, 200, 0, 0.1);
+    --bubble-done-text: #00dd00;
 }
 
 /* =============================================
@@ -230,6 +232,7 @@
     --bubble-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.3) 0%, rgba(180, 60, 20, 0.15) 100%);
     --bubble-border: rgba(249, 115, 22, 0.55);
     --bubble-glow: 0 6px 25px rgba(249, 115, 22, 0.3), 0 0 40px rgba(251, 191, 36, 0.15);
+    --bubble-text-color: #ffffff;
     
     --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.4) 0%, rgba(249, 115, 22, 0.2) 100%);
     --bubble-inprogress-border: rgba(251, 191, 36, 0.85);
@@ -238,7 +241,7 @@
     --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.3) 0%, rgba(200, 150, 30, 0.1) 100%);
     --bubble-done-border: rgba(251, 191, 36, 0.65);
     --bubble-done-glow: 0 6px 20px rgba(251, 191, 36, 0.3), 0 0 30px rgba(251, 191, 36, 0.15);
-    --bubble-done-text: #fbbf24;
+    --bubble-done-text: #ffffff;
 }
 
 /* =============================================
@@ -266,18 +269,19 @@
     --border: rgba(74, 222, 128, 0.2);
     --border-strong: rgba(74, 222, 128, 0.5);
     
-    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(30, 80, 40, 0.25) 100%);
+    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.25) 0%, rgba(30, 80, 40, 0.3) 100%);
     --bubble-border: rgba(74, 222, 128, 0.5);
     --bubble-glow: 0 8px 32px rgba(74, 222, 128, 0.3), 0 0 48px rgba(34, 197, 94, 0.15);
+    --bubble-text-color: #ffffff;
     
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.35) 0%, rgba(74, 222, 128, 0.15) 100%);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.4) 0%, rgba(74, 222, 128, 0.2) 100%);
     --bubble-inprogress-border: rgba(163, 230, 53, 0.85);
     --bubble-inprogress-glow: 0 8px 50px rgba(163, 230, 53, 0.5), 0 0 80px rgba(74, 222, 128, 0.3);
     
-    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
+    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.35) 0%, rgba(20, 150, 70, 0.15) 100%);
     --bubble-done-border: rgba(34, 197, 94, 0.65);
     --bubble-done-glow: 0 6px 20px rgba(34, 197, 94, 0.3), 0 0 30px rgba(34, 197, 94, 0.15);
-    --bubble-done-text: #22c55e;
+    --bubble-done-text: #ffffff;
 }
 
 /* =============================================
@@ -308,6 +312,7 @@
     --bubble-bg: linear-gradient(135deg, rgba(255, 107, 157, 0.25) 0%, rgba(150, 50, 90, 0.15) 100%);
     --bubble-border: rgba(255, 107, 157, 0.5);
     --bubble-glow: 0 8px 32px rgba(255, 107, 157, 0.35), 0 0 48px rgba(255, 158, 196, 0.2);
+    --bubble-text-color: #ffffff;
     
     --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 158, 196, 0.4) 0%, rgba(255, 107, 157, 0.2) 100%);
     --bubble-inprogress-border: rgba(255, 158, 196, 0.85);
@@ -316,7 +321,7 @@
     --bubble-done-bg: linear-gradient(135deg, rgba(168, 230, 207, 0.35) 0%, rgba(134, 239, 172, 0.15) 100%);
     --bubble-done-border: rgba(168, 230, 207, 0.7);
     --bubble-done-glow: 0 6px 20px rgba(168, 230, 207, 0.3), 0 0 30px rgba(168, 230, 207, 0.15);
-    --bubble-done-text: #86efac;
+    --bubble-done-text: #ffffff;
 }
 
 /* =============================================
