@@ -99,9 +99,56 @@
     box-shadow: var(--bubble-glow) !important;
 }
 
-/* Floating animation pour tous sauf Académie */
-[data-theme]:not([data-theme="academie"]) .bubble:not(.inprogress):not(.done),
-[data-theme]:not([data-theme="academie"]) .task-bubble:not(.inprogress):not(.done) {
+/* Animations spécifiques par thème */
+[data-theme="desert"] .bubble:not(.inprogress):not(.done),
+[data-theme="desert"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               desertLuxe 2.5s ease-in-out infinite !important;
+}
+
+[data-theme="sunset"] .bubble:not(.inprogress):not(.done),
+[data-theme="sunset"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               sunsetIntense 1.8s ease-in-out infinite !important;
+}
+
+[data-theme="fantasy"] .bubble:not(.inprogress):not(.done),
+[data-theme="fantasy"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               fantasySparkle 2.2s ease-in-out infinite !important;
+}
+
+[data-theme="bubblegum"] .bubble:not(.inprogress):not(.done),
+[data-theme="bubblegum"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               bubblegumBubbles 1.2s ease-in-out infinite !important;
+}
+
+[data-theme="ocean"] .bubble:not(.inprogress):not(.done),
+[data-theme="ocean"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               oceanWaves 2.8s ease-in-out infinite !important;
+}
+
+[data-theme="midnight"] .bubble:not(.inprogress):not(.done),
+[data-theme="midnight"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               midnightAurora 2.5s ease-in-out infinite !important;
+}
+
+[data-theme="starwars"] .bubble:not(.inprogress):not(.done),
+[data-theme="starwars"] .task-bubble:not(.inprogress):not(.done) {
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+               starwarsMeteor 3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite !important;
+}
+
+/* Floating générique pour les autres thèmes */
+[data-theme="hacker"] .bubble:not(.inprogress):not(.done),
+[data-theme="hacker"] .task-bubble:not(.inprogress):not(.done),
+[data-theme="matrix"] .bubble:not(.inprogress):not(.done),
+[data-theme="matrix"] .task-bubble:not(.inprogress):not(.done),
+[data-theme="forest"] .bubble:not(.inprogress):not(.done),
+[data-theme="forest"] .task-bubble:not(.inprogress):not(.done) {
     animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
                floating 3s ease-in-out infinite !important;
 }
@@ -114,11 +161,11 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Hover amélioré pour tous sauf Académie - rotation subtile */
+/* Hover amélioré pour tous sauf Académie - rotation subtile ET glow modéré */
 [data-theme]:not([data-theme="academie"]) .bubble:hover,
 [data-theme]:not([data-theme="academie"]) .task-bubble:hover {
     transform: translateY(-10px) scale(1.05) rotate(1deg) !important;
-    filter: brightness(1.2) drop-shadow(0 0 20px var(--accent)) !important;
+    filter: brightness(1.2) drop-shadow(0 0 12px var(--accent)) !important;
 }
 
 /* === État En Cours - Glow Pulsant (utilise variables du thème) === */
@@ -166,11 +213,11 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Hover amélioré pour done (tous sauf Académie) */
+/* Hover amélioré pour done (tous sauf Académie) - glow modéré */
 [data-theme]:not([data-theme="academie"]) .bubble.done:hover,
 [data-theme]:not([data-theme="academie"]) .task-bubble.done:hover {
     transform: translateY(-10px) scale(1.06) rotate(-1deg) !important;
-    filter: brightness(1.25) drop-shadow(0 0 25px var(--success)) !important;
+    filter: brightness(1.25) drop-shadow(0 0 15px var(--success)) !important;
 }
 
 .bubble.done .bubble-text,
@@ -263,6 +310,159 @@
     100% {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+/* === ANIMATIONS SPÉCIFIQUES PAR THÈME === */
+
+/* DESERT - Particules de sable dorées luxe */
+@keyframes desertLuxe {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: brightness(1) drop-shadow(0 0 15px rgba(224, 120, 64, 0.6));
+    }
+    25% {
+        transform: translateY(-6px) scale(1.03) rotate(2deg);
+        filter: brightness(1.3) drop-shadow(0 0 25px rgba(224, 120, 64, 0.8));
+    }
+    50% {
+        transform: translateY(-3px) scale(1.05);
+        filter: brightness(1.4) drop-shadow(0 0 30px rgba(224, 120, 64, 1));
+    }
+    75% {
+        transform: translateY(-6px) scale(1.03) rotate(-2deg);
+        filter: brightness(1.3) drop-shadow(0 0 25px rgba(224, 120, 64, 0.8));
+    }
+}
+
+/* SUNSET - Pulse intense coucher de soleil */
+@keyframes sunsetIntense {
+    0%, 100% {
+        transform: scale(1);
+        filter: brightness(1.1) drop-shadow(0 0 20px rgba(220, 38, 38, 0.7));
+    }
+    50% {
+        transform: scale(1.08);
+        filter: brightness(1.5) drop-shadow(0 0 40px rgba(249, 115, 22, 1));
+    }
+}
+
+/* FANTASY - Sparkles magiques intenses */
+@keyframes fantasySparkle {
+    0%, 100% {
+        transform: translateY(0) scale(1) rotate(0deg);
+        filter: brightness(1.2) drop-shadow(0 0 25px rgba(191, 107, 255, 0.8)) hue-rotate(0deg);
+    }
+    33% {
+        transform: translateY(-5px) scale(1.06) rotate(3deg);
+        filter: brightness(1.5) drop-shadow(0 0 35px rgba(255, 107, 218, 1)) hue-rotate(15deg);
+    }
+    66% {
+        transform: translateY(-3px) scale(1.04) rotate(-3deg);
+        filter: brightness(1.4) drop-shadow(0 0 30px rgba(6, 182, 212, 0.9)) hue-rotate(-15deg);
+    }
+}
+
+/* BUBBLEGUM - Bulles rapides et grosses */
+@keyframes bubblegumBubbles {
+    0% {
+        transform: scale(1) translateY(0);
+        filter: brightness(1.1);
+    }
+    15% {
+        transform: scale(1.15) translateY(-8px);
+        filter: brightness(1.3);
+    }
+    30% {
+        transform: scale(1.08) translateY(-4px);
+        filter: brightness(1.2);
+    }
+    45% {
+        transform: scale(1.18) translateY(-10px);
+        filter: brightness(1.4);
+    }
+    60% {
+        transform: scale(1.05) translateY(-3px);
+        filter: brightness(1.15);
+    }
+    75% {
+        transform: scale(1.12) translateY(-6px);
+        filter: brightness(1.25);
+    }
+    90% {
+        transform: scale(1.03) translateY(-2px);
+        filter: brightness(1.1);
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        filter: brightness(1.1);
+    }
+}
+
+/* OCEAN - Vagues dansantes */
+@keyframes oceanWaves {
+    0%, 100% {
+        transform: translateX(0) translateY(0) scaleX(1);
+        filter: brightness(1.1);
+    }
+    25% {
+        transform: translateX(-8px) translateY(-4px) scaleX(1.1);
+        filter: brightness(1.3);
+    }
+    50% {
+        transform: translateX(8px) translateY(-2px) scaleX(0.95);
+        filter: brightness(1.4);
+    }
+    75% {
+        transform: translateX(-5px) translateY(-3px) scaleX(1.05);
+        filter: brightness(1.25);
+    }
+}
+
+/* MIDNIGHT - Aurore boréale */
+@keyframes midnightAurora {
+    0%, 100% {
+        transform: translateY(0) scaleY(1);
+        filter: brightness(1.1) hue-rotate(0deg) drop-shadow(0 0 20px rgba(124, 159, 255, 0.7));
+    }
+    33% {
+        transform: translateY(-5px) scaleY(1.05);
+        filter: brightness(1.35) hue-rotate(10deg) drop-shadow(0 0 30px rgba(160, 192, 255, 0.9));
+    }
+    66% {
+        transform: translateY(-2px) scaleY(1.03);
+        filter: brightness(1.3) hue-rotate(-10deg) drop-shadow(0 0 25px rgba(192, 160, 255, 0.8));
+    }
+}
+
+/* STAR WARS - Météorites/Boules de feu */
+@keyframes starwarsMeteor {
+    0% {
+        transform: translateX(-20px) translateY(-30px) rotate(-45deg) scale(0.8);
+        filter: brightness(2) drop-shadow(0 0 30px rgba(255, 140, 0, 1));
+        opacity: 0;
+    }
+    20% {
+        transform: translateX(-5px) translateY(-10px) rotate(-30deg) scale(1.1);
+        filter: brightness(2.5) drop-shadow(0 0 40px rgba(255, 100, 0, 1)) drop-shadow(0 0 60px rgba(255, 50, 0, 0.8));
+        opacity: 1;
+    }
+    40% {
+        transform: translateX(5px) translateY(0px) rotate(-20deg) scale(1);
+        filter: brightness(1.8) drop-shadow(0 0 35px rgba(255, 120, 0, 0.9));
+    }
+    60% {
+        transform: translateX(8px) translateY(5px) rotate(-15deg) scale(0.95);
+        filter: brightness(1.5) drop-shadow(0 0 25px rgba(255, 140, 0, 0.7));
+    }
+    80% {
+        transform: translateX(12px) translateY(10px) rotate(-10deg) scale(0.9);
+        filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 160, 0, 0.5));
+    }
+    100% {
+        transform: translateX(15px) translateY(15px) rotate(-5deg) scale(0.85);
+        filter: brightness(1) drop-shadow(0 0 10px rgba(255, 180, 0, 0.3));
+        opacity: 0.8;
     }
 }
 
