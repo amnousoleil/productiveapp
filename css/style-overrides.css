@@ -654,14 +654,16 @@ body .bubble.done .bubble-text {
     100% { opacity: 1; transform: translateY(0); }
 }
 
-/* === CARROUSEL UTILISATEURS === */
+/* === CARROUSEL UTILISATEURS - PIÉDESTAL === */
 .user-carousel {
     display: flex;
     align-items: center;
-    gap: 15px;
-    margin-top: 20px;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
     opacity: 0;
     animation: carouselAppear 1s ease 3.5s forwards;
+    position: relative;
 }
 
 @keyframes carouselAppear {
@@ -670,69 +672,119 @@ body .bubble.done .bubble-text {
 }
 
 .carousel-arrow {
-    width: 45px;
-    height: 45px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    border: 2px solid rgba(224, 120, 64, 0.4);
-    background: rgba(0, 0, 0, 0.3);
-    color: rgba(255, 200, 100, 0.8);
-    font-size: 1.8rem;
+    border: 2px solid rgba(255, 200, 100, 0.3);
+    background: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 200, 100, 0.7);
+    font-size: 2rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    z-index: 10;
 }
 
 .carousel-arrow:hover {
-    background: rgba(224, 120, 64, 0.3);
-    border-color: rgba(224, 120, 64, 0.8);
+    background: rgba(224, 120, 64, 0.4);
+    border-color: rgba(255, 200, 100, 0.8);
     color: #fff;
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(224, 120, 64, 0.4);
+    transform: scale(1.15);
+    box-shadow: 0 0 25px rgba(255, 200, 100, 0.5);
 }
 
-/* Grille utilisateurs - Scroll horizontal */
+/* Conteneur piédestal - UN SEUL profil visible */
 .user-select-grid {
     display: flex !important;
-    gap: 20px !important;
-    padding: 20px 10px !important;
-    overflow-x: auto !important;
+    gap: 0 !important;
+    padding: 30px !important;
+    overflow: hidden !important;
     scroll-behavior: smooth;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    flex: 1;
+    width: 220px !important;
+    justify-content: center;
+    position: relative;
 }
 
-.user-select-grid::-webkit-scrollbar {
-    display: none;
+/* Particules dorées autour du piédestal */
+.user-select-grid::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background-image:
+        radial-gradient(3px 3px at 20% 20%, rgba(255, 215, 0, 0.8) 0%, transparent 100%),
+        radial-gradient(2px 2px at 80% 30%, rgba(255, 200, 100, 0.6) 0%, transparent 100%),
+        radial-gradient(3px 3px at 70% 80%, rgba(255, 180, 80, 0.7) 0%, transparent 100%),
+        radial-gradient(2px 2px at 30% 70%, rgba(255, 215, 0, 0.5) 0%, transparent 100%),
+        radial-gradient(2px 2px at 50% 10%, rgba(255, 200, 100, 0.6) 0%, transparent 100%),
+        radial-gradient(3px 3px at 10% 50%, rgba(255, 180, 80, 0.4) 0%, transparent 100%);
+    animation: sparkleFloat 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
 }
 
-/* Boutons utilisateurs avec animation d'entrée */
+@keyframes sparkleFloat {
+    0%, 100% { opacity: 0.6; transform: translateY(0) scale(1); }
+    50% { opacity: 1; transform: translateY(-10px) scale(1.1); }
+}
+
+/* Profil sur piédestal avec ZOOM */
 .user-select-btn {
-    min-width: 150px !important;
+    min-width: 180px !important;
     flex-shrink: 0 !important;
     opacity: 0;
-    animation: cardReveal 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-    transform-style: preserve-3d;
+    animation: cardReveal 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    transform: scale(1.1);
+    position: relative;
+    z-index: 5;
+    box-shadow:
+        0 0 40px rgba(255, 200, 100, 0.3),
+        0 0 80px rgba(255, 180, 80, 0.15),
+        0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 .user-select-btn:nth-child(1) { animation-delay: 4s; }
-.user-select-btn:nth-child(2) { animation-delay: 4.3s; }
-.user-select-btn:nth-child(3) { animation-delay: 4.6s; }
+.user-select-btn:nth-child(2) { animation-delay: 4s; }
+.user-select-btn:nth-child(3) { animation-delay: 4s; }
 
 @keyframes cardReveal {
     0% {
         opacity: 0;
-        transform: translateY(40px) scale(0.8);
-        filter: blur(8px);
+        transform: translateY(50px) scale(0.6);
+        filter: blur(15px);
+    }
+    60% {
+        filter: blur(3px);
     }
     100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0) scale(1.1);
         filter: blur(0);
     }
+}
+
+/* Halo doré autour du profil actif */
+.user-select-btn::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: radial-gradient(ellipse at center, rgba(255, 200, 100, 0.15) 0%, transparent 70%);
+    border-radius: 20px;
+    z-index: -1;
+    animation: haloGlow 2s ease-in-out infinite;
+}
+
+@keyframes haloGlow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
 }
 
 /* Effet shimmer final */
@@ -743,8 +795,9 @@ body .bubble.done .bubble-text {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 200, 100, 0.3), transparent);
-    animation: shimmer 1.5s ease 5.5s;
+    background: linear-gradient(90deg, transparent, rgba(255, 200, 100, 0.4), transparent);
+    animation: shimmer 2s ease 5.5s;
+    border-radius: 16px;
 }
 
 @keyframes shimmer {

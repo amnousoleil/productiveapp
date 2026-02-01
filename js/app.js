@@ -2069,14 +2069,39 @@ document.addEventListener('DOMContentLoaded', function() {
         currentUser = null;
     });
 
-    // Carrousel navigation
-    const grid = $('user-select-grid');
+    // Carrousel navigation - UN SEUL profil visible
+    let currentProfileIndex = 0;
+    const profileButtons = () => document.querySelectorAll('.user-select-btn');
+
+    function showProfile(index) {
+        const buttons = profileButtons();
+        if (buttons.length === 0) return;
+
+        // Boucler
+        if (index < 0) index = buttons.length - 1;
+        if (index >= buttons.length) index = 0;
+        currentProfileIndex = index;
+
+        // Cacher tous, afficher le courant avec animation
+        buttons.forEach((btn, i) => {
+            if (i === index) {
+                btn.style.display = 'flex';
+                btn.style.animation = 'cardReveal 0.6s ease forwards';
+            } else {
+                btn.style.display = 'none';
+            }
+        });
+    }
+
     $('carousel-prev').addEventListener('click', () => {
-        grid.scrollBy({ left: -180, behavior: 'smooth' });
+        showProfile(currentProfileIndex - 1);
     });
     $('carousel-next').addEventListener('click', () => {
-        grid.scrollBy({ left: 180, behavior: 'smooth' });
+        showProfile(currentProfileIndex + 1);
     });
+
+    // Afficher le premier profil après l'animation initiale
+    setTimeout(() => showProfile(0), 4500);
     $('logout-btn').addEventListener('click', logout);
     $('export-btn').addEventListener('click', exportData);
     
