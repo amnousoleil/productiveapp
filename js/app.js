@@ -74,7 +74,13 @@ let projects = DEFAULT_PROJECTS;
 
 let activeProjectFilter = 'all';
 let activeUserFilter = 'all';
-let urgentFilterActive = false;
+let priorityFilterMode = 'off'; // off -> urgent -> normal -> zen -> off
+const GYRO_IMAGES = {
+    off: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png',
+    urgent: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png',
+    normal: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa8fb04267_ChatGPTImage1f%C3%A9vr.202620_25_30.png',
+    zen: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa94e3a225_3ced8da8-b8c7-4a26-9fd0-feb9a7715dae.png'
+};
 let viewMode = localStorage.getItem('viewMode') || 'columns';
 let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
 let lastReportData = null;
@@ -986,13 +992,10 @@ function renderTasks() {
         filtered = filtered.filter(t => t.userId === activeUserFilter);
     }
 
-    // Tri par priorité si mode urgent activé (1=urgent, 2=normal, 3=basse)
-    if (urgentFilterActive) {
-        filtered = [...filtered].sort((a, b) => {
-            const pA = a.priority?.level || 2;
-            const pB = b.priority?.level || 2;
-            return pA - pB; // 1 en premier, puis 2, puis 3
-        });
+    // Tri/Filtre par priorité selon le mode gyrophare
+    if (priorityFilterMode !== 'off') {
+        const targetPriority = { urgent: 1, normal: 2, zen: 3 }[priorityFilterMode];
+        filtered = filtered.filter(t => (t.priority?.level || 2) === targetPriority);
     }
 
     const todo = filtered.filter(t => t.status === 'todo');
@@ -2030,10 +2033,21 @@ document.addEventListener('DOMContentLoaded', function() {
         renderJournal();
     });
 
-    // === BOUTON URGENT (Gyrophare) ===
+    // === BOUTON GYROPHARE (3 modes: urgent/normal/zen) ===
     $('urgent-filter-btn').addEventListener('click', function() {
-        urgentFilterActive = !urgentFilterActive;
-        this.classList.toggle('active', urgentFilterActive);
+        const modes = ['off', 'urgent', 'normal', 'zen'];
+        const currentIndex = modes.indexOf(priorityFilterMode);
+        priorityFilterMode = modes[(currentIndex + 1) % modes.length];
+
+        // Update button state
+        this.classList.remove('active', 'mode-urgent', 'mode-normal', 'mode-zen');
+        if (priorityFilterMode !== 'off') {
+            this.classList.add('active', 'mode-' + priorityFilterMode);
+        }
+
+        // Update image
+        this.querySelector('.gyrophare-icon').src = GYRO_IMAGES[priorityFilterMode];
+
         renderTasks();
     });
 

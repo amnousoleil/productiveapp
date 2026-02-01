@@ -158,19 +158,68 @@
 .urgent-filter-btn:hover .gyrophare-icon {
     filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.8));
 }
-.urgent-filter-btn.active {
+/* Mode URGENT (Rouge) */
+.urgent-filter-btn.mode-urgent {
     background: radial-gradient(circle, rgba(239, 68, 68, 0.3) 0%, rgba(220, 38, 38, 0.15) 100%);
     border-color: #ef4444;
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3), 0 0 60px rgba(239, 68, 68, 0.15);
-    animation: gyroGlow 1.2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3);
+    animation: gyroGlowRed 1.2s ease-in-out infinite;
 }
-.urgent-filter-btn.active .gyrophare-icon {
+.urgent-filter-btn.mode-urgent .gyrophare-icon {
     animation: gyroSpin 0.8s linear infinite;
     filter: drop-shadow(0 0 12px rgba(239, 68, 68, 1)) drop-shadow(0 0 25px rgba(255, 100, 100, 0.8));
 }
-@keyframes gyroGlow {
+.urgent-filter-btn.mode-urgent .urgent-particles::before,
+.urgent-filter-btn.mode-urgent .urgent-particles::after {
+    background: radial-gradient(circle, #ff6b6b 0%, transparent 70%);
+}
+@keyframes gyroGlowRed {
     0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), 0 0 40px rgba(239, 68, 68, 0.3); }
-    50% { box-shadow: 0 0 35px rgba(239, 68, 68, 0.8), 0 0 60px rgba(239, 68, 68, 0.5), 0 0 80px rgba(255, 100, 100, 0.3); }
+    50% { box-shadow: 0 0 35px rgba(239, 68, 68, 0.8), 0 0 60px rgba(239, 68, 68, 0.5); }
+}
+
+/* Mode NORMAL (Bleu) */
+.urgent-filter-btn.mode-normal {
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, rgba(37, 99, 235, 0.15) 100%);
+    border-color: #3b82f6;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3);
+    animation: gyroGlowBlue 1.2s ease-in-out infinite;
+}
+.urgent-filter-btn.mode-normal .gyrophare-icon {
+    animation: gyroSpin 1s linear infinite;
+    filter: drop-shadow(0 0 12px rgba(59, 130, 246, 1)) drop-shadow(0 0 25px rgba(100, 150, 255, 0.8));
+}
+.urgent-filter-btn.mode-normal .urgent-particles::before,
+.urgent-filter-btn.mode-normal .urgent-particles::after {
+    background: radial-gradient(circle, #60a5fa 0%, transparent 70%);
+}
+@keyframes gyroGlowBlue {
+    0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.3); }
+    50% { box-shadow: 0 0 35px rgba(59, 130, 246, 0.8), 0 0 60px rgba(59, 130, 246, 0.5); }
+}
+
+/* Mode ZEN (Blanc) */
+.urgent-filter-btn.mode-zen {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, rgba(200, 200, 200, 0.15) 100%);
+    border-color: #e5e5e5;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 40px rgba(255, 255, 255, 0.3);
+    animation: gyroGlowWhite 1.5s ease-in-out infinite;
+}
+.urgent-filter-btn.mode-zen .gyrophare-icon {
+    animation: gyroFloat 2s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 1)) drop-shadow(0 0 25px rgba(220, 220, 255, 0.8));
+}
+.urgent-filter-btn.mode-zen .urgent-particles::before,
+.urgent-filter-btn.mode-zen .urgent-particles::after {
+    background: radial-gradient(circle, #ffffff 0%, transparent 70%);
+}
+@keyframes gyroGlowWhite {
+    0%, 100% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.2); }
+    50% { box-shadow: 0 0 30px rgba(255, 255, 255, 0.7), 0 0 50px rgba(255, 255, 255, 0.4); }
+}
+@keyframes gyroFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 @keyframes gyroSpin {
     0% { transform: rotate(0deg); }
