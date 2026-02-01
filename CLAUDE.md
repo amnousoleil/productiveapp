@@ -57,7 +57,7 @@
 
 ## 🎨 Système de thèmes
 
-### 10 thèmes disponibles
+### 11 thèmes disponibles
 1. **Desert** (défaut) - Orange/sable
 2. **Academie** 📚 - Gris ardoise + beige doré
 3. **Matrix** 💚 - Vert néon Matrix
@@ -68,6 +68,7 @@
 8. **Forest** 🌲 - Vert forêt
 9. **Bubblegum** 🍬 - Rose bonbon
 10. **Midnight** 🌙 - Bleu nuit
+11. **Star Wars** ⚔️ - Hologramme bleu + cockpit sombre (NEW 2026-02-01)
 
 ### Variables CSS par thème
 Chaque thème définit ses propres variables dans `style-themes.css` :
@@ -130,6 +131,20 @@ Chaque thème définit ses propres variables dans `style-themes.css` :
 - `86131a1` - Fix texte blanc bulles v15 - corrige sélecteur CSS
 
 **Versioning CSS** : Passé de v=13 → v=15
+
+### 2026-02-01 : Création thème Star Wars
+
+**Contexte** : Test de fonctionnement du système de thèmes + vérification que le texte blanc s'applique bien
+
+**Caractéristiques** :
+- Palette : Bleu hologramme (#6aaaff) + cockpit sombre (#0a0d14)
+- Inspiration : Hologrammes Star Wars + thème Obsidian (sobre et classe)
+- Accessibilité : Texte off-white (#f5f5f5) au lieu de blanc pur pour éviter la fatigue oculaire ([source](https://www.tech-rz.com/blog/dark-mode-design-best-practices-in-2026/))
+- Bulles : Glow bleu sobre avec texte blanc garanti (#ffffff)
+
+**Commit** : `À venir` - Ajoute thème Star Wars + v16
+
+**Versioning CSS** : Passé à v=16
 
 ---
 

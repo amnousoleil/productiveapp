@@ -358,6 +358,51 @@
     --bubble-done-glow: 0 6px 20px rgba(130, 140, 255, 0.35), 0 0 30px rgba(130, 140, 255, 0.2);
     --bubble-done-text: #a0b0ff;
 }
+
+/* =============================================
+   THEME: STAR WARS ⚔️
+   Hologramme bleu + cockpit sombre
+   Sobre, classe, lisibilité maximale
+   ============================================= */
+[data-theme="starwars"] {
+    --bg-primary: #0a0d14;
+    --bg-secondary: #121821;
+    --bg-tertiary: #1a2332;
+    --bg-card: rgba(106, 170, 255, 0.08);
+
+    --text: #f5f5f5;
+    --text-muted: #a0b0c8;
+
+    --accent: #6aaaff;
+    --accent-light: #8ec5ff;
+    --accent-glow: rgba(106, 170, 255, 0.5);
+
+    --success: #7dd3fc;
+    --success-glow: rgba(125, 211, 252, 0.4);
+
+    --warning: #fbbf24;
+    --danger: #ff4444;
+
+    --border: rgba(106, 170, 255, 0.25);
+    --border-strong: rgba(106, 170, 255, 0.6);
+
+    /* Bulles - hologramme bleu sobre */
+    --bubble-bg: linear-gradient(135deg, rgba(106, 170, 255, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%);
+    --bubble-border: rgba(106, 170, 255, 0.5);
+    --bubble-glow: 0 6px 25px rgba(106, 170, 255, 0.3), 0 0 40px rgba(59, 130, 246, 0.15);
+
+    /* En cours - glow bleu intense */
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(125, 211, 252, 0.25) 0%, rgba(106, 170, 255, 0.15) 100%);
+    --bubble-inprogress-border: rgba(125, 211, 252, 0.8);
+    --bubble-inprogress-glow: 0 6px 30px rgba(125, 211, 252, 0.5), 0 0 60px rgba(106, 170, 255, 0.3);
+
+    /* Terminé - glow cyan/turquoise */
+    --bubble-done-bg: linear-gradient(135deg, rgba(34, 211, 238, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%);
+    --bubble-done-border: rgba(34, 211, 238, 0.7);
+    --bubble-done-glow: 0 6px 25px rgba(34, 211, 238, 0.4), 0 0 50px rgba(6, 182, 212, 0.2);
+    --bubble-done-text: #ffffff;
+}
+
 /* === FIX LISIBILITÉ TEXTE === */
 .bubble-text,
 .task-text,
