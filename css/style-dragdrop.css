@@ -7,18 +7,21 @@
 .bubble[draggable="true"] {
     cursor: grab;
     user-select: none;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
 }
 
 .bubble[draggable="true"]:active {
     cursor: grabbing;
 }
 
-/* Tâche en cours de drag - légère */
+/* Tâche en cours de drag - opacité maintenue, fluidité maximale */
 .bubble.dragging {
-    opacity: 0.7 !important;
-    transform: scale(0.98) !important;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
+    opacity: 0.95 !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3) !important;
     z-index: 1000;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: grabbing !important;
 }
 
 /* Zone de drop active - subtile */
@@ -79,8 +82,11 @@
 
 /* Projet en cours de drag */
 .project-chip.dragging-project {
-    opacity: 0.6 !important;
-    transform: scale(0.95) !important;
+    opacity: 0.95 !important;
+    transform: scale(1.02) !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25) !important;
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    cursor: grabbing !important;
 }
 
 /* Indicateur insertion à gauche - ligne verticale */

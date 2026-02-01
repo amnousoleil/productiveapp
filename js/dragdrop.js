@@ -24,28 +24,37 @@ function initDragAndDrop() {
 function initTaskDragAndDrop() {
     document.querySelectorAll('.bubble[data-id]').forEach(bubble => {
         bubble.setAttribute('draggable', 'true');
-        
+
         bubble.removeEventListener('dragstart', handleTaskDragStart);
         bubble.removeEventListener('dragend', handleTaskDragEnd);
         bubble.removeEventListener('dragover', handleTaskBubbleDragOver);
         bubble.removeEventListener('dragleave', handleTaskBubbleDragLeave);
         bubble.removeEventListener('drop', handleTaskBubbleDrop);
-        
+
         bubble.addEventListener('dragstart', handleTaskDragStart);
         bubble.addEventListener('dragend', handleTaskDragEnd);
         bubble.addEventListener('dragover', handleTaskBubbleDragOver);
         bubble.addEventListener('dragleave', handleTaskBubbleDragLeave);
         bubble.addEventListener('drop', handleTaskBubbleDrop);
     });
-    
+
     document.querySelectorAll('.task-list, .bubbles-list').forEach(list => {
         list.removeEventListener('dragover', handleTaskDragOver);
         list.removeEventListener('dragleave', handleTaskDragLeave);
         list.removeEventListener('drop', handleTaskDrop);
-        
+
         list.addEventListener('dragover', handleTaskDragOver);
         list.addEventListener('dragleave', handleTaskDragLeave);
         list.addEventListener('drop', handleTaskDrop);
+    });
+
+    // Ajouter gestion drop sur colonnes headers (pour drop en première position)
+    document.querySelectorAll('.task-column, .bubbles-column').forEach(column => {
+        column.removeEventListener('dragover', handleColumnDragOver);
+        column.removeEventListener('drop', handleColumnDrop);
+
+        column.addEventListener('dragover', handleColumnDragOver);
+        column.addEventListener('drop', handleColumnDrop);
     });
 }
 
@@ -54,21 +63,18 @@ function handleTaskDragStart(e) {
     this.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', this.dataset.id);
-    
+
     document.body.classList.add('is-dragging-task');
-    
-    setTimeout(() => {
-        this.style.opacity = '0.7';
-    }, 0);
+
+    // L'opacité est maintenant gérée par CSS (.dragging) pour plus de fluidité
 }
 
 function handleTaskDragEnd(e) {
     this.classList.remove('dragging');
-    this.style.opacity = '';
     draggedTask = null;
-    
+
     document.body.classList.remove('is-dragging-task');
-    
+
     document.querySelectorAll('.drag-over, .drag-insert-above, .drag-insert-below').forEach(el => {
         el.classList.remove('drag-over', 'drag-insert-above', 'drag-insert-below');
     });
@@ -109,6 +115,28 @@ function handleTaskBubbleDragOver(e) {
 
 function handleTaskBubbleDragLeave(e) {
     this.classList.remove('drag-insert-above', 'drag-insert-below');
+}
+
+// Gestion drag over sur colonne (pour drop en première position)
+function handleColumnDragOver(e) {
+    if (!draggedTask) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+}
+
+// Drop sur une colonne entière (insère en première position)
+async function handleColumnDrop(e) {
+    if (!draggedTask) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const draggedId = e.dataTransfer.getData('text/plain');
+    const column = this;
+    const newStatus = column.dataset.status;
+
+    // Drop en première position de cette colonne
+    await reorderTask(draggedId, null, true, newStatus);
 }
 
 // Drop sur une bulle spécifique (réorganisation)
@@ -183,8 +211,14 @@ async function reorderTask(draggedId, targetId, insertBefore, newStatus) {
             insertIndex = 0; // Par défaut en haut
         }
     } else {
-        // Pas de cible = fin de liste
-        insertIndex = tasksInColumn.length;
+        // Pas de cible spécifique
+        if (insertBefore) {
+            // insertBefore = true + pas de cible = première position
+            insertIndex = 0;
+        } else {
+            // insertBefore = false + pas de cible = dernière position
+            insertIndex = tasksInColumn.length;
+        }
     }
     
     // Insérer la tâche draggée à la nouvelle position
@@ -266,21 +300,18 @@ function handleProjectDragStart(e) {
     this.classList.add('dragging-project');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', this.dataset.project);
-    
+
     document.body.classList.add('is-dragging-project');
-    
-    setTimeout(() => {
-        this.style.opacity = '0.6';
-    }, 0);
+
+    // L'opacité est maintenant gérée par CSS (.dragging-project) pour plus de fluidité
 }
 
 function handleProjectDragEnd(e) {
     this.classList.remove('dragging-project');
-    this.style.opacity = '';
     draggedProject = null;
-    
+
     document.body.classList.remove('is-dragging-project');
-    
+
     document.querySelectorAll('.project-chip').forEach(chip => {
         chip.classList.remove('drag-over-project', 'drag-over-project-left', 'drag-over-project-right');
     });
