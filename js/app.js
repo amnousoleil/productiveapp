@@ -1586,6 +1586,7 @@ function buildAIContext() {
 - ACTION:START|texte → Commencer une tâche
 - ACTION:PRIORITY|texte|1 → Mettre en urgent (1=urgent, 2=normal, 3=basse)
 - ACTION:REOPEN|texte → Réouvrir une tâche terminée
+- ACTION:DELETE_DUPLICATES → Supprimer les tâches en double
 
 `;
     
@@ -1702,7 +1703,37 @@ async function processAIActions(response) {
             }
         }
     }
-    
+
+    // ACTION:DELETE_DUPLICATES - Supprimer les tâches en double
+    if (response.includes('ACTION:DELETE_DUPLICATES')) {
+        const seen = new Map(); // Map<"text|project", Task>
+        const duplicates = [];
+
+        // Identifier les doublons (même texte + même projet)
+        tasks.forEach(t => {
+            const key = `${t.text.toLowerCase().trim()}|${t.project}`;
+            if (seen.has(key)) {
+                // C'est un doublon, on garde le premier et supprime celui-ci
+                duplicates.push(t);
+            } else {
+                seen.set(key, t);
+            }
+        });
+
+        // Supprimer les doublons via l'API
+        for (const dup of duplicates) {
+            await deleteTaskAPI(dup.id);
+            tasks = tasks.filter(t => t.id !== dup.id);
+            actionsPerformed.push(`🗑️ Doublon supprimé: ${dup.text}`);
+        }
+
+        if (duplicates.length === 0) {
+            actionsPerformed.push(`✅ Aucun doublon trouvé`);
+        } else {
+            actionsPerformed.push(`✅ ${duplicates.length} doublon(s) supprimé(s)`);
+        }
+    }
+
     // Si des actions ont été effectuées
     if (actionsPerformed.length > 0) {
         renderTasks();
