@@ -27,6 +27,9 @@ let roughCanvas = null; // Instance Rough.js pour style hand-drawn
 let showHelp = false;
 let currentShape = 'circle'; // circle, rect, diamond, text
 let contextMenuPos = null; // {x, y, screenX, screenY}
+let isSelectingRect = false; // Rectangle de sélection Excalidraw
+let selectRectStart = { x: 0, y: 0 };
+let selectRectEnd = { x: 0, y: 0 };
 
 // === CONSTANTES ===
 const MIN_ZOOM = 0.3;
@@ -107,25 +110,20 @@ function createGalaxyOverlay() {
     overlay.id = 'galaxy-overlay';
     overlay.className = 'galaxy-overlay hidden';
 
-    // Toolbar en haut
+    // Toolbar style Excalidraw horizontal
     const toolbar = document.createElement('div');
     toolbar.className = 'galaxy-toolbar';
     toolbar.innerHTML = `
-        <div class="galaxy-toolbar-left">
-            <span class="galaxy-title">✨ Galaxy View</span>
-            <button class="galaxy-tool-btn galaxy-help-btn" id="galaxy-help-btn" title="Aide & Raccourcis">ℹ️</button>
-        </div>
-        <div class="galaxy-toolbar-center">
-            <div class="galaxy-shape-selector"></div>
-            <div class="galaxy-color-palette"></div>
-            <div class="galaxy-theme-selector"></div>
-        </div>
-        <div class="galaxy-toolbar-right">
-            <button class="galaxy-tool-btn" id="galaxy-export-png-btn" title="Exporter PNG">📸</button>
-            <button class="galaxy-tool-btn" id="galaxy-clear-btn" title="Tout effacer">🗑️</button>
-            <button class="galaxy-tool-btn" id="galaxy-export-btn" title="Exporter JSON">💾</button>
-            <button class="galaxy-close-btn" id="galaxy-close-btn" title="Fermer (Échap)">✕</button>
-        </div>
+        <span class="galaxy-title">✨ Galaxy View</span>
+        <div class="toolbar-separator"></div>
+        <div class="galaxy-shape-selector"></div>
+        <div class="toolbar-separator"></div>
+        <div class="galaxy-color-palette"></div>
+        <div class="toolbar-separator"></div>
+        <button class="galaxy-tool-btn" id="galaxy-export-png-btn" title="Exporter PNG">📸</button>
+        <button class="galaxy-tool-btn" id="galaxy-clear-btn" title="Tout effacer">🗑️</button>
+        <button class="galaxy-tool-btn galaxy-help-btn" id="galaxy-help-btn" title="Aide">ℹ️</button>
+        <button class="galaxy-close-btn" id="galaxy-close-btn" title="Fermer (Échap)">✕</button>
     `;
 
     const canvas = document.createElement('canvas');
@@ -308,12 +306,6 @@ async function handleKeyDown(e) {
 }
 
 function handleCanvasMouseDown(e) {
-    // Gérer le menu contextuel en priorité
-    if (contextMenuPos) {
-        handleContextMenuClick(e);
-        return;
-    }
-
     const rect = galaxyCanvas.getBoundingClientRect();
     const x = (e.clientX - rect.left - panOffsetX) / zoom;
     const y = (e.clientY - rect.top - panOffsetY) / zoom;
@@ -345,15 +337,15 @@ function handleCanvasMouseDown(e) {
             dragStartY = y;
         }
     } else {
-        // Déselectionner si pas de Shift
+        // Clic sur fond vide
         if (!e.shiftKey) {
             selectedNodes = [];
         }
 
-        // Pan
-        isPanning = true;
-        dragStartX = e.clientX - panOffsetX;
-        dragStartY = e.clientY - panOffsetY;
+        // Rectangle de sélection Excalidraw (au lieu de pan)
+        isSelectingRect = true;
+        selectRectStart = { x, y };
+        selectRectEnd = { x, y };
     }
 }
 
@@ -374,9 +366,9 @@ function handleCanvasMouseMove(e) {
         dragStartX = mouseX;
         dragStartY = mouseY;
         // Sauvegarde sera faite au mouseUp
-    } else if (isPanning) {
-        panOffsetX = e.clientX - dragStartX;
-        panOffsetY = e.clientY - dragStartY;
+    } else if (isSelectingRect) {
+        // Mettre à jour le rectangle de sélection
+        selectRectEnd = { x: mouseX, y: mouseY };
     }
 }
 
@@ -393,6 +385,32 @@ async function handleCanvasMouseUp(e) {
         }
     }
 
+    // Rectangle de sélection terminé - sélectionner les nodes dedans
+    if (isSelectingRect) {
+        const minX = Math.min(selectRectStart.x, selectRectEnd.x);
+        const maxX = Math.max(selectRectStart.x, selectRectEnd.x);
+        const minY = Math.min(selectRectStart.y, selectRectEnd.y);
+        const maxY = Math.max(selectRectStart.y, selectRectEnd.y);
+
+        // Sélectionner tous les nodes dans le rectangle
+        const nodesInRect = galaxyNodes.filter(node => {
+            return node.x >= minX && node.x <= maxX &&
+                   node.y >= minY && node.y <= maxY;
+        });
+
+        if (e.shiftKey) {
+            // Ajouter à la sélection existante
+            nodesInRect.forEach(node => {
+                if (!selectedNodes.includes(node)) {
+                    selectedNodes.push(node);
+                }
+            });
+        } else {
+            // Nouvelle sélection
+            selectedNodes = nodesInRect;
+        }
+    }
+
     // Sauvegarder les nodes après un drag
     if (isDragging && selectedNodes.length > 0) {
         for (const node of selectedNodes) {
@@ -401,7 +419,7 @@ async function handleCanvasMouseUp(e) {
     }
 
     isDragging = false;
-    isPanning = false;
+    isSelectingRect = false;
     isCreatingConnection = false;
     connectionStart = null;
 }
@@ -425,22 +443,8 @@ function handleCanvasWheel(e) {
 
 function handleCanvasRightClick(e) {
     e.preventDefault();
-
-    const rect = galaxyCanvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left - panOffsetX) / zoom;
-    const y = (e.clientY - rect.top - panOffsetY) / zoom;
-
-    // Si on clique sur un node, ne pas afficher le menu
-    const node = getNodeAt(x, y);
-    if (node) return;
-
-    // Afficher le menu contextuel radial
-    contextMenuPos = {
-        x: x,
-        y: y,
-        screenX: e.clientX - rect.left,
-        screenY: e.clientY - rect.top
-    };
+    // Menu contextuel radial désactivé pour style Excalidraw
+    // Double-clic pour créer des nodes à la place
 }
 
 async function handleCanvasDoubleClick(e) {
@@ -714,39 +718,9 @@ function renderGalaxy() {
     const h = galaxyCanvas.height;
     const theme = GALAXY_THEMES[currentTheme];
 
-    // Fond avec gradient atmosphérique
-    const bgGradient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
-
-    // Couleurs selon le thème
-    if (theme.background === '#0a0a0f') {
-        // Dark theme - Nuit étoilée
-        bgGradient.addColorStop(0, '#1a1a2e');
-        bgGradient.addColorStop(0.5, '#0f0f1e');
-        bgGradient.addColorStop(1, '#050508');
-    } else if (theme.background === '#1e1e1e') {
-        // Obsidian
-        bgGradient.addColorStop(0, '#2a2a2a');
-        bgGradient.addColorStop(0.5, '#1e1e1e');
-        bgGradient.addColorStop(1, '#121212');
-    } else if (theme.background === '#faf8f3') {
-        // Crème
-        bgGradient.addColorStop(0, '#ffffff');
-        bgGradient.addColorStop(0.5, '#faf8f3');
-        bgGradient.addColorStop(1, '#f0ede5');
-    } else {
-        // Blanc
-        bgGradient.addColorStop(0, '#ffffff');
-        bgGradient.addColorStop(0.5, '#f8f9fa');
-        bgGradient.addColorStop(1, '#e9ecef');
-    }
-
-    ctx.fillStyle = bgGradient;
+    // Fond blanc pur style Excalidraw
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, w, h);
-
-    // Grid (optionnel)
-    if (theme.grid) {
-        drawGrid(ctx, w, h, theme.grid);
-    }
 
     ctx.save();
     ctx.translate(panOffsetX, panOffsetY);
@@ -775,14 +749,9 @@ function renderGalaxy() {
         drawTemporaryConnection(ctx);
     }
 
-    // Mini-map
-    if (galaxyNodes.length > 0) {
-        drawMiniMap(ctx, w, h, theme);
-    }
-
-    // Menu contextuel
-    if (contextMenuPos) {
-        drawContextMenu(ctx, contextMenuPos.screenX, contextMenuPos.screenY, theme);
+    // Rectangle de sélection Excalidraw
+    if (isSelectingRect) {
+        drawSelectionRectangle(ctx);
     }
 
     requestAnimationFrame(renderGalaxy);
@@ -1059,6 +1028,24 @@ function drawTemporaryConnection(ctx) {
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+function drawSelectionRectangle(ctx) {
+    const x = Math.min(selectRectStart.x, selectRectEnd.x);
+    const y = Math.min(selectRectStart.y, selectRectEnd.y);
+    const w = Math.abs(selectRectEnd.x - selectRectStart.x);
+    const h = Math.abs(selectRectEnd.y - selectRectStart.y);
+
+    // Fond bleu semi-transparent
+    ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
+    ctx.fillRect(x, y, w, h);
+
+    // Bordure pointillée bleue Excalidraw
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 5]);
+    ctx.strokeRect(x, y, w, h);
     ctx.setLineDash([]);
 }
 
