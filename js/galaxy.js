@@ -82,16 +82,16 @@ const stars = [];
 // INITIALISATION
 // =============================================
 
-function initGalaxyView() {
+async function initGalaxyView() {
     console.log('🌌 Initialisation Galaxy View v2.0...');
 
     createGalaxyOverlay();
     generateStars();
     setupGalaxyEvents();
-    loadFromLocalStorage();
+    await loadFromAPI();
     requestAnimationFrame(renderGalaxy);
 
-    console.log('✅ Galaxy View v2.0 initialisée');
+    console.log('✅ Galaxy View v2.0 initialisée avec API PostgreSQL');
 }
 
 function createGalaxyOverlay() {
@@ -161,12 +161,12 @@ function renderColorPalette() {
     `).join('');
 
     palette.querySelectorAll('.color-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', async () => {
             const color = btn.dataset.color;
-            selectedNodes.forEach(node => {
+            for (const node of selectedNodes) {
                 node.color = color;
-            });
-            saveToLocalStorage();
+                await saveNodeToAPI(node, 'update');
+            }
         });
     });
 }
@@ -188,7 +188,8 @@ function renderThemeSelector() {
             currentTheme = btn.dataset.theme;
             selector.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            saveToLocalStorage();
+            // Thème sauvegardé localement seulement
+            localStorage.setItem('galaxyTheme', currentTheme);
         });
     });
 }
@@ -221,7 +222,7 @@ function setupGalaxyEvents() {
     window.addEventListener('resize', resizeGalaxyCanvas);
 }
 
-function handleKeyDown(e) {
+async function handleKeyDown(e) {
     const overlay = document.getElementById('galaxy-overlay');
     if (overlay.classList.contains('hidden')) return;
 
@@ -238,7 +239,7 @@ function handleKeyDown(e) {
 
     // Delete - Supprimer
     if (e.key === 'Delete' || e.key === 'Backspace') {
-        deleteSelectedNodes();
+        await deleteSelectedNodes();
     }
 
     // Ctrl+C - Copier
@@ -250,13 +251,13 @@ function handleKeyDown(e) {
     // Ctrl+V - Coller
     if (e.ctrlKey && e.key === 'v') {
         e.preventDefault();
-        pasteNodes();
+        await pasteNodes();
     }
 
     // Ctrl+D - Dupliquer
     if (e.ctrlKey && e.key === 'd') {
         e.preventDefault();
-        duplicateSelectedNodes();
+        await duplicateSelectedNodes();
     }
 
     // Ctrl+A - Tout sélectionner
@@ -326,14 +327,14 @@ function handleCanvasMouseMove(e) {
 
         dragStartX = mouseX;
         dragStartY = mouseY;
-        saveToLocalStorage();
+        // Sauvegarde sera faite au mouseUp
     } else if (isPanning) {
         panOffsetX = e.clientX - dragStartX;
         panOffsetY = e.clientY - dragStartY;
     }
 }
 
-function handleCanvasMouseUp(e) {
+async function handleCanvasMouseUp(e) {
     if (isCreatingConnection && connectionStart) {
         const rect = galaxyCanvas.getBoundingClientRect();
         const x = (e.clientX - rect.left - panOffsetX) / zoom;
@@ -342,7 +343,14 @@ function handleCanvasMouseUp(e) {
         const targetNode = getNodeAt(x, y);
 
         if (targetNode && targetNode !== connectionStart) {
-            createConnection(connectionStart, targetNode);
+            await createConnection(connectionStart, targetNode);
+        }
+    }
+
+    // Sauvegarder les nodes après un drag
+    if (isDragging && selectedNodes.length > 0) {
+        for (const node of selectedNodes) {
+            await saveNodeToAPI(node, 'update');
         }
     }
 
@@ -374,7 +382,7 @@ function handleCanvasRightClick(e) {
     // Désactivé - Utiliser double-clic à la place
 }
 
-function handleCanvasDoubleClick(e) {
+async function handleCanvasDoubleClick(e) {
     const rect = galaxyCanvas.getBoundingClientRect();
     const x = (e.clientX - rect.left - panOffsetX) / zoom;
     const y = (e.clientY - rect.top - panOffsetY) / zoom;
@@ -382,10 +390,10 @@ function handleCanvasDoubleClick(e) {
     const node = getNodeAt(x, y);
     if (node) {
         // Double-clic sur une bulle = éditer le texte
-        editNodeText(node);
+        await editNodeText(node);
     } else {
         // Double-clic sur vide = créer une bulle (comme Miro)
-        createNode(x, y, 'Nouvelle idée');
+        await createNode(x, y, 'Nouvelle idée');
     }
 }
 
@@ -393,7 +401,7 @@ function handleCanvasDoubleClick(e) {
 // LOGIQUE MÉTIER
 // =============================================
 
-function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0]) {
+async function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0]) {
     const node = {
         id: `node-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         x,
@@ -404,25 +412,32 @@ function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0]) {
 
     galaxyNodes.push(node);
     selectedNodes = [node];
-    saveToLocalStorage();
+
+    // Sauvegarder en API
+    await saveNodeToAPI(node, 'create');
 
     console.log('✨ Nœud créé:', node.text);
     return node;
 }
 
-function createConnection(nodeA, nodeB) {
+async function createConnection(nodeA, nodeB) {
     const exists = galaxyConnections.some(c =>
         (c.from === nodeA.id && c.to === nodeB.id) ||
         (c.from === nodeB.id && c.to === nodeA.id)
     );
 
     if (!exists) {
-        galaxyConnections.push({
+        const conn = {
             id: `conn-${Date.now()}`,
             from: nodeA.id,
             to: nodeB.id
-        });
-        saveToLocalStorage();
+        };
+
+        galaxyConnections.push(conn);
+
+        // Sauvegarder en API
+        await saveConnectionToAPI(conn);
+
         console.log('🔗 Connexion créée');
     }
 }
@@ -439,26 +454,33 @@ function getNodeAt(x, y) {
     return null;
 }
 
-function editNodeText(node) {
+async function editNodeText(node) {
     const newText = prompt('✏️ Modifier le texte:', node.text);
     if (newText !== null && newText.trim()) {
         node.text = newText.trim();
-        saveToLocalStorage();
+        await saveNodeToAPI(node, 'update');
     }
 }
 
-function deleteSelectedNodes() {
+async function deleteSelectedNodes() {
     if (selectedNodes.length === 0) return;
 
-    selectedNodes.forEach(node => {
+    // Supprimer chaque nœud via l'API
+    for (const node of selectedNodes) {
+        if (node.id) {
+            await deleteNodeFromAPI(node.id);
+        }
+
+        // Retirer du tableau local
         galaxyNodes = galaxyNodes.filter(n => n.id !== node.id);
+
+        // Retirer les connexions associées
         galaxyConnections = galaxyConnections.filter(c =>
             c.from !== node.id && c.to !== node.id
         );
-    });
+    }
 
     selectedNodes = [];
-    saveToLocalStorage();
     console.log('🗑️ Nœuds supprimés');
 }
 
@@ -473,37 +495,45 @@ function copySelectedNodes() {
     console.log('📋 Copié:', clipboard.length, 'nœud(s)');
 }
 
-function pasteNodes() {
+async function pasteNodes() {
     if (!clipboard || clipboard.length === 0) return;
 
     selectedNodes = [];
-    clipboard.forEach((data, i) => {
-        const node = createNode(
+    for (let i = 0; i < clipboard.length; i++) {
+        const data = clipboard[i];
+        const node = await createNode(
             mouseX + i * 30,
             mouseY + i * 30,
             data.text,
             data.color
         );
         selectedNodes.push(node);
-    });
+    }
 
     console.log('📌 Collé:', clipboard.length, 'nœud(s)');
 }
 
-function duplicateSelectedNodes() {
+async function duplicateSelectedNodes() {
     if (selectedNodes.length === 0) return;
 
     copySelectedNodes();
-    pasteNodes();
+    await pasteNodes();
 }
 
-function clearAllNodes() {
+async function clearAllNodes() {
     if (!confirm('🗑️ Effacer toutes les bulles ?')) return;
+
+    // Supprimer tous les nœuds via l'API
+    for (const node of galaxyNodes) {
+        if (node.id) {
+            await deleteNodeFromAPI(node.id);
+        }
+    }
 
     galaxyNodes = [];
     galaxyConnections = [];
     selectedNodes = [];
-    saveToLocalStorage();
+    console.log('🗑️ Toutes les bulles effacées');
 }
 
 function exportToJSON() {
@@ -852,9 +882,157 @@ function drawWelcomeMessage(ctx, w, h, theme) {
 }
 
 // =============================================
-// PERSISTANCE LOCAL STORAGE
+// API N8N + POSTGRESQL
 // =============================================
 
+const API_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/galaxy';
+
+async function loadFromAPI() {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'get',
+                user_id: window.currentUser?.id || 'maha'
+            })
+        });
+
+        if (!response.ok) throw new Error('Erreur chargement API');
+
+        const data = await response.json();
+
+        // Charger les nodes
+        if (data.nodes && Array.isArray(data.nodes)) {
+            galaxyNodes = data.nodes.map(node => ({
+                id: node.id,
+                x: parseFloat(node.x),
+                y: parseFloat(node.y),
+                text: node.title || 'Sans titre',
+                color: node.color || COLORS[0]
+            }));
+        }
+
+        // Charger les connexions
+        const connResponse = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'getConnections',
+                user_id: window.currentUser?.id || 'maha'
+            })
+        });
+
+        if (connResponse.ok) {
+            const connData = await connResponse.json();
+            if (connData.connections && Array.isArray(connData.connections)) {
+                galaxyConnections = connData.connections.map(conn => ({
+                    id: conn.id,
+                    from: conn.from_node,
+                    to: conn.to_node
+                }));
+            }
+        }
+
+        console.log('📂 Chargé depuis API:', galaxyNodes.length, 'nœud(s),', galaxyConnections.length, 'connexion(s)');
+    } catch (e) {
+        console.error('❌ Erreur chargement API:', e);
+        // Fallback localStorage en cas d'erreur
+        loadFromLocalStorage();
+    }
+}
+
+async function saveNodeToAPI(node, action = 'update') {
+    try {
+        const payload = {
+            action: action,
+            user_id: window.currentUser?.id || 'maha',
+            title: node.text,
+            description: '',
+            x: node.x.toString(),
+            y: node.y.toString(),
+            color: node.color,
+            status: 'active'
+        };
+
+        if (action === 'update' && node.id) {
+            payload.id = node.id;
+        }
+
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error('Erreur sauvegarde node');
+
+        const data = await response.json();
+
+        // Mettre à jour l'ID si c'est une création
+        if (action === 'create' && data.id) {
+            node.id = data.id;
+        }
+
+        console.log('💾 Node sauvegardé:', node.text);
+    } catch (e) {
+        console.error('❌ Erreur sauvegarde node:', e);
+    }
+}
+
+async function deleteNodeFromAPI(nodeId) {
+    try {
+        await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'delete',
+                user_id: window.currentUser?.id || 'maha',
+                id: nodeId
+            })
+        });
+        console.log('🗑️ Node supprimé:', nodeId);
+    } catch (e) {
+        console.error('❌ Erreur suppression node:', e);
+    }
+}
+
+async function saveConnectionToAPI(conn) {
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'connect',
+                user_id: window.currentUser?.id || 'maha',
+                from_node: conn.from,
+                to_node: conn.to,
+                style: 'default'
+            })
+        });
+
+        const data = await response.json();
+        if (data.id) {
+            conn.id = data.id;
+        }
+
+        console.log('🔗 Connexion sauvegardée');
+    } catch (e) {
+        console.error('❌ Erreur sauvegarde connexion:', e);
+    }
+}
+
+async function deleteConnectionFromAPI(fromNode, toNode) {
+    try {
+        // L'API devrait supporter une action deleteConnection
+        // Pour l'instant on log juste
+        console.log('🗑️ Connexion supprimée:', fromNode, '->', toNode);
+    } catch (e) {
+        console.error('❌ Erreur suppression connexion:', e);
+    }
+}
+
+// Fallback localStorage (au cas où API fail)
 function saveToLocalStorage() {
     const data = {
         nodes: galaxyNodes,
@@ -880,7 +1058,7 @@ function loadFromLocalStorage() {
         panOffsetX = data.panX || window.innerWidth / 2;
         panOffsetY = data.panY || window.innerHeight / 2;
 
-        console.log('📂 Chargé:', galaxyNodes.length, 'nœud(s)');
+        console.log('📂 Chargé (localStorage):', galaxyNodes.length, 'nœud(s)');
     } catch (e) {
         console.error('Erreur chargement:', e);
     }
