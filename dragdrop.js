@@ -3,7 +3,6 @@
 // Module Drag & Drop avec persistance DB
 // =============================================
 
-
 // === STATE ===
 let draggedTask = null;
 let draggedProject = null;
