@@ -18,9 +18,9 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 
 // === UTILISATEURS ===
 const USERS = [
-    { id: 'maha', name: 'Maha Giri', avatar: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f029ae_ChatGPTImage1f%C3%A9vr.202611_03_13.png', password: 'Autopdutop63.G+htrhs7', role: 'team' },
-    { id: 'team', name: 'Team', avatar: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png', password: null, role: 'shared' }
+    { id: 'maha', name: 'Maha Giri', avatar: '👑', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
+    { id: 'brice', name: 'Brice', avatar: '🚀', password: 'Autopdutop63.G+htrhs7', role: 'team' },
+    { id: 'team', name: 'Team', avatar: '👥', password: null, role: 'shared' }
 ];
 
 // === PROJETS PAR DÉFAUT ===
@@ -651,12 +651,7 @@ function getUserName(userId) {
 
 function getUserAvatar(userId) {
     const user = USERS.find(u => u.id === userId);
-    if (!user) return '👤';
-    // Si c'est une URL, retourner une balise img
-    if (user.avatar.startsWith('http')) {
-        return `<img src="${user.avatar}" class="user-avatar-img" alt="${user.name}">`;
-    }
-    return user.avatar;
+    return user ? user.avatar : '👤';
 }
 
 function escapeHtml(text) {
@@ -675,7 +670,7 @@ function renderUserSelect() {
     
     grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
-            <img src="${user.avatar}" class="user-avatar-img-big" alt="${user.name}">
+            <span class="user-avatar-big">${user.avatar}</span>
             <span class="user-name-select">${user.name}</span>
         </button>
     `).join('');
@@ -902,15 +897,14 @@ function renderUserFilter() {
     const options = $('user-filter-options');
     if (!options) return;
 
-    const teamAvatar = 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png';
     options.innerHTML = `
         <div class="custom-select-option active" data-value="all">
-            <img src="${teamAvatar}" alt="All">
+            <span class="option-emoji">👥</span>
             <span>Tout le monde</span>
         </div>
         ${USERS.map(u => `
             <div class="custom-select-option" data-value="${u.id}">
-                <img src="${u.avatar}" alt="${u.name}">
+                <span class="option-emoji">${u.avatar}</span>
                 <span>${u.name}</span>
             </div>
         `).join('')}
@@ -935,14 +929,13 @@ function selectUserFilter(value) {
     });
 
     // Update l'affichage du bouton
-    const teamAvatar = 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png';
     if (value === 'all') {
-        btn.querySelector('.select-avatar').innerHTML = `<img src="${teamAvatar}" alt="All">`;
+        btn.querySelector('.select-avatar').textContent = '👥';
         btn.querySelector('.select-text').textContent = 'Tout le monde';
     } else {
         const user = USERS.find(u => u.id === value);
         if (user) {
-            btn.querySelector('.select-avatar').innerHTML = `<img src="${user.avatar}" alt="${user.name}">`;
+            btn.querySelector('.select-avatar').textContent = user.avatar;
             btn.querySelector('.select-text').textContent = user.name;
         }
     }
