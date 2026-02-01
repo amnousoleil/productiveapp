@@ -225,10 +225,10 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Hover amélioré pour tous sauf Académie - rotation subtile ET glow modéré */
+/* Hover amélioré pour tous sauf Académie - glow modéré, PAS de rotation */
 [data-theme]:not([data-theme="academie"]) .bubble:hover,
 [data-theme]:not([data-theme="academie"]) .task-bubble:hover {
-    transform: translateY(-10px) scale(1.05) rotate(1deg) !important;
+    transform: translateY(-10px) scale(1.05) !important;
     filter: brightness(1.2) drop-shadow(0 0 12px var(--accent)) !important;
 }
 
@@ -284,10 +284,10 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-/* Hover amélioré pour done (tous sauf Académie) - glow modéré */
+/* Hover amélioré pour done (tous sauf Académie) - glow modéré, PAS de rotation */
 [data-theme]:not([data-theme="academie"]) .bubble.done:hover,
 [data-theme]:not([data-theme="academie"]) .task-bubble.done:hover {
-    transform: translateY(-10px) scale(1.06) rotate(-1deg) !important;
+    transform: translateY(-10px) scale(1.06) !important;
     filter: brightness(1.25) drop-shadow(0 0 15px var(--success)) !important;
 }
 
@@ -355,22 +355,22 @@
     }
 }
 
-/* Celebration pour tâches complétées */
+/* Celebration pour tâches complétées - PAS de rotation */
 @keyframes celebrate {
     0% {
-        transform: scale(1) rotate(0deg);
+        transform: scale(1);
     }
     25% {
-        transform: scale(1.1) rotate(-5deg);
+        transform: scale(1.1);
     }
     50% {
-        transform: scale(1.15) rotate(5deg);
+        transform: scale(1.15);
     }
     75% {
-        transform: scale(1.05) rotate(-2deg);
+        transform: scale(1.05);
     }
     100% {
-        transform: scale(1) rotate(0deg);
+        transform: scale(1);
     }
 }
 
@@ -398,14 +398,14 @@
 
 /* === ANIMATIONS SPÉCIFIQUES PAR THÈME === */
 
-/* DESERT - Particules de sable dorées luxe */
+/* DESERT - Particules de sable dorées luxe - PAS de rotation */
 @keyframes desertLuxe {
     0%, 100% {
         transform: translateY(0) scale(1);
         filter: brightness(1) drop-shadow(0 0 15px rgba(224, 120, 64, 0.6));
     }
     25% {
-        transform: translateY(-6px) scale(1.03) rotate(2deg);
+        transform: translateY(-6px) scale(1.03);
         filter: brightness(1.3) drop-shadow(0 0 25px rgba(224, 120, 64, 0.8));
     }
     50% {
@@ -413,7 +413,7 @@
         filter: brightness(1.4) drop-shadow(0 0 30px rgba(224, 120, 64, 1));
     }
     75% {
-        transform: translateY(-6px) scale(1.03) rotate(-2deg);
+        transform: translateY(-6px) scale(1.03);
         filter: brightness(1.3) drop-shadow(0 0 25px rgba(224, 120, 64, 0.8));
     }
 }
@@ -430,18 +430,18 @@
     }
 }
 
-/* FANTASY - Sparkles magiques intenses */
+/* FANTASY - Sparkles magiques intenses - PAS de rotation */
 @keyframes fantasySparkle {
     0%, 100% {
-        transform: translateY(0) scale(1) rotate(0deg);
+        transform: translateY(0) scale(1);
         filter: brightness(1.2) drop-shadow(0 0 25px rgba(191, 107, 255, 0.8)) hue-rotate(0deg);
     }
     33% {
-        transform: translateY(-5px) scale(1.06) rotate(3deg);
+        transform: translateY(-5px) scale(1.06);
         filter: brightness(1.5) drop-shadow(0 0 35px rgba(255, 107, 218, 1)) hue-rotate(15deg);
     }
     66% {
-        transform: translateY(-3px) scale(1.04) rotate(-3deg);
+        transform: translateY(-3px) scale(1.04);
         filter: brightness(1.4) drop-shadow(0 0 30px rgba(6, 182, 212, 0.9)) hue-rotate(-15deg);
     }
 }
