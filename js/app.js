@@ -2095,14 +2095,19 @@ document.addEventListener('DOMContentLoaded', function() {
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
 
-    // === GALAXY VIEW ===
-    if (typeof initGalaxyView === 'function') {
-        initGalaxyView();
-
-        const galaxyIcon = $('galaxy-icon');
-        if (galaxyIcon) {
-            galaxyIcon.addEventListener('click', openGalaxyView);
-        }
+    // === GALAXY VIEW - Init lazy (au premier clic) ===
+    let galaxyInitialized = false;
+    const galaxyIcon = $('galaxy-icon');
+    if (galaxyIcon) {
+        galaxyIcon.addEventListener('click', () => {
+            if (!galaxyInitialized && typeof initGalaxyView === 'function') {
+                initGalaxyView();
+                galaxyInitialized = true;
+            }
+            if (typeof openGalaxyView === 'function') {
+                openGalaxyView();
+            }
+        });
     }
 
     // === EFFET DIVIN - PARTICULES DORÉES ===
