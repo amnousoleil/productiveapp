@@ -45,7 +45,8 @@ const THEMES = {
         { id: 'corporate', name: 'Corporate', color: '#6495ed', category: 'PRO/CEO' },
         { id: 'minimal', name: 'Minimal', color: '#007aff', category: 'PRO/CEO' },
         { id: 'slate', name: 'Slate', color: '#64748b', category: 'PRO/CEO' },
-        { id: 'obsidian', name: 'Obsidian', color: '#a0a0a0', category: 'PRO/CEO' }
+        { id: 'obsidian', name: 'Obsidian', color: '#a0a0a0', category: 'PRO/CEO' },
+        { id: 'academie', name: 'Académie', color: '#daa520', category: 'PRO/CEO' }
     ],
     creative: [
         { id: 'sunset', name: 'Sunset', color: '#f97316', category: 'CRÉATIF/FUN' },

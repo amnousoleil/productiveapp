@@ -120,19 +120,64 @@
     --border: rgba(0, 0, 0, 0.1);
     --border-strong: rgba(0, 0, 0, 0.2);
 
-    /* Bulles minimalistes - aucun glow */
+    /* Bulles minimalistes - aucun glow, TEXTE NOIR */
     --bubble-bg: linear-gradient(145deg, #f8f8f8 0%, #f0f0f0 100%);
     --bubble-border: #e0e0e0;
     --bubble-glow: none;
+    --bubble-text-color: #1a1a1a;
 
     --bubble-inprogress-bg: linear-gradient(145deg, #e8f4ff 0%, #d0e8ff 100%);
     --bubble-inprogress-border: #007aff;
     --bubble-inprogress-glow: none;
+    --bubble-inprogress-text: #1a1a1a;
 
     --bubble-done-bg: linear-gradient(145deg, #e8f5ea 0%, #d0ebd5 100%);
     --bubble-done-border: #34c759;
     --bubble-done-glow: none;
-    --bubble-done-text: #28a745;
+    --bubble-done-text: #1a1a1a;
+}
+
+/* =============================================
+   THEME: ACADÉMIE 📚
+   Gris ardoise, bulles beige doré - lisible
+   ============================================= */
+[data-theme="academie"] {
+    --bg-primary: #2c2f33;
+    --bg-secondary: #36393f;
+    --bg-tertiary: #40444b;
+    --bg-card: rgba(218, 185, 130, 0.12);
+
+    --text: #f0ebe0;
+    --text-muted: #b8b0a0;
+
+    --accent: #daa520;
+    --accent-light: #f0c850;
+    --accent-glow: rgba(218, 165, 32, 0);
+
+    --success: #8faa5a;
+    --success-glow: rgba(143, 170, 90, 0);
+
+    --warning: #e8b84a;
+    --danger: #d4644a;
+
+    --border: rgba(218, 185, 130, 0.25);
+    --border-strong: rgba(218, 185, 130, 0.5);
+
+    /* Bulles beige doré - très lisibles, aucun glow */
+    --bubble-bg: linear-gradient(145deg, #f7e8c8 0%, #e8d4a8 100%);
+    --bubble-border: #b8954a;
+    --bubble-glow: none;
+    --bubble-text-color: #1a1510;
+
+    --bubble-inprogress-bg: linear-gradient(145deg, #ffe8a0 0%, #f5d878 100%);
+    --bubble-inprogress-border: #c9952a;
+    --bubble-inprogress-glow: none;
+    --bubble-inprogress-text: #1a1510;
+
+    --bubble-done-bg: linear-gradient(145deg, #d8e4b8 0%, #c8d8a0 100%);
+    --bubble-done-border: #8aaa4a;
+    --bubble-done-glow: none;
+    --bubble-done-text: #2a3520;
 }
 
 /* =============================================

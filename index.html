@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style-base.css?v=26">
-    <link rel="stylesheet" href="style-components.css?v=26">
-    <link rel="stylesheet" href="style-themes.css?v=26">
-    <link rel="stylesheet" href="style-dragdrop.css?v=26">
+    <link rel="stylesheet" href="style-base.css?v=27">
+    <link rel="stylesheet" href="style-components.css?v=27">
+    <link rel="stylesheet" href="style-themes.css?v=27">
+    <link rel="stylesheet" href="style-dragdrop.css?v=27">
 
     
     <!-- PDF export -->
@@ -217,6 +217,11 @@
                         <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0b0b0b 0%, #141414 50%, #1e1e1e 100%);"></div>
                         <span class="theme-name">Obsidian</span>
                         <span class="theme-subtitle">Premium Dark</span>
+                    </div>
+                    <div class="theme-card" data-theme="academie">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #2c2f33 0%, #36393f 50%, #f7e8c8 100%);"></div>
+                        <span class="theme-name">Académie</span>
+                        <span class="theme-subtitle">Beige Doré</span>
                     </div>
                 </div>
             </div>
@@ -570,8 +575,18 @@
         }
 
         /* Texte NOIR sur thèmes CLAIRS pour lisibilité */
+        [data-theme="minimal"] .bubble .bubble-text,
+        [data-theme="minimal"] .bubble.inprogress .bubble-text,
+        [data-theme="minimal"] .bubble.done .bubble-text,
+        [data-theme="minimal"] .task-bubble .task-text,
+        [data-theme="minimal"] .task-bubble.inprogress .task-text,
+        [data-theme="minimal"] .task-bubble.done .task-text,
         [data-theme="academie"] .bubble .bubble-text,
-        [data-theme="desert"] .bubble .bubble-text {
+        [data-theme="academie"] .bubble.inprogress .bubble-text,
+        [data-theme="academie"] .bubble.done .bubble-text,
+        [data-theme="academie"] .task-bubble .task-text,
+        [data-theme="academie"] .task-bubble.inprogress .task-text,
+        [data-theme="academie"] .task-bubble.done .task-text {
             color: #1a1a1a !important;
             font-weight: 600 !important;
             text-shadow: 0 1px 2px rgba(255,255,255,0.3) !important;
@@ -981,9 +996,9 @@
     </style>
 
     <!-- ========== SCRIPTS ========== -->
-    <script src="animations.js?v=26"></script>
-    <script src="dragdrop.js?v=26"></script>
-    <script src="app.js?v=26"></script>
+    <script src="animations.js?v=27"></script>
+    <script src="dragdrop.js?v=27"></script>
+    <script src="app.js?v=27"></script>
 
 </body>
 </html>
