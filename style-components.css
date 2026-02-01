@@ -123,7 +123,7 @@
 
 .bubble.inprogress .bubble-text,
 .task-bubble.inprogress .task-text {
-    color: #fbbf24 !important;
+    color: #ffffff !important;
     font-weight: 600 !important;
 }
 
@@ -153,7 +153,7 @@
 .bubble.done .bubble-text,
 .task-bubble.done .task-text {
     text-decoration: line-through !important;
-    color: #4ade80 !important;
+    color: #ffffff !important;
     text-shadow: 0 0 15px rgba(74, 222, 128, 0.6) !important;
     opacity: 1 !important;
 }
@@ -193,7 +193,7 @@
 .task-text {
     font-size: 0.95rem !important;
     line-height: 1.5 !important;
-    color: var(--text) !important;
+    color: #ffffff !important;
 }
 
 /* === BOUTONS D'ACTION - CORRIGÉ === */
