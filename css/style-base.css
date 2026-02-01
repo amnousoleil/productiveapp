@@ -161,7 +161,7 @@ body {
     transform: translateY(-50%);
     width: 45%;
     height: 100%;
-    background: url('maha-giri-master.jpg') right center/contain no-repeat;
+    background: url('../assets/images/maha-giri-master.jpg') right center/contain no-repeat;
     opacity: 0.28;
     filter: blur(0.5px) brightness(1.2);
     mask-image:
