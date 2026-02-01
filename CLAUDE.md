@@ -1,8 +1,8 @@
 # 🤖 CLAUDE.md - ProductiveApp Documentation
 
-> **Dernière mise à jour** : 2026-02-01
-> **Version** : 2.2.0
-> **Statut** : ✅ Production - Tous bugs corrigés + Architecture modulaire + Chatbot local
+> **Dernière mise à jour** : 2026-02-01 21:15
+> **Version** : 2.4.0
+> **Statut** : ✅ Production STABLE - Gyrophare 3 modes + Avatars images + UI Premium
 
 ---
 
@@ -64,31 +64,32 @@
 
 **Ordre de chargement CSS** (IMPORTANT) :
 ```html
-<link rel="stylesheet" href="css/style-base.css?v=41">
-<link rel="stylesheet" href="css/style-components.css?v=41">
-<link rel="stylesheet" href="css/style-themes.css?v=41">
-<link rel="stylesheet" href="css/style-dragdrop.css?v=41">
-<link rel="stylesheet" href="css/style-overrides.css?v=41">  <!-- Doit être EN DERNIER -->
+<link rel="stylesheet" href="css/style-base.css?v=46">
+<link rel="stylesheet" href="css/style-components.css?v=46">
+<link rel="stylesheet" href="css/style-themes.css?v=46">
+<link rel="stylesheet" href="css/style-dragdrop.css?v=46">
+<link rel="stylesheet" href="css/style-overrides.css?v=52">  <!-- Doit être EN DERNIER -->
 ```
 
 **Scripts chargés** :
 ```html
 <script src="js/dragdrop.js?v=30"></script>
-<script src="js/app.js?v=34"></script>
+<script src="js/app.js?v=40"></script>
 ```
 
 ---
 
-## 🎯 Versions actuelles (2026-02-01)
+## 🎯 Versions actuelles (2026-02-01 21:15)
 
 | Composant | Version | Dernière modif |
 |-----------|---------|----------------|
-| **CSS** | v45 | Gyrophare 3 modes |
-| **JS app.js** | v37 | Filtre priorité 3 modes |
-| **JS dragdrop.js** | v30 | Bug #1 corrigé (fluidité) |
-| **index.html** | 418 lignes | + Bouton Gyrophare |
-| **Architecture** | v2.3 | + Filtre priorité |
-| **Git tag** | v2.3-gyrophare | Stable + tri urgent |
+| **CSS overrides** | v52 | Avatars + Selects premium |
+| **CSS base/components** | v46 | Stable |
+| **JS app.js** | v40 | Avatars images + Dropdown custom |
+| **JS dragdrop.js** | v30 | Stable |
+| **index.html** | 418 lignes | Dropdown user + Gyrophare |
+| **Architecture** | v2.4 | STABLE |
+| **Git commit** | 6b0e350 | Fix avatars bulles |
 
 ---
 
@@ -120,6 +121,41 @@ Bouton avec icône gyrophare rouge à côté du sélecteur utilisateur. Permet d
 
 ### Commit
 `c75ad5c` - Bouton Gyrophare URGENT - Tri par priorité
+
+---
+
+## 👤 AVATARS IMAGES PERSONNALISÉS (Session 2026-02-01)
+
+### URLs des avatars
+- **Maha** : `697fae4f07fb8_ChatGPTImage...png` (couronne roi)
+- **Brice** : `697fae4f029ae_ChatGPTImage...png`
+- **Team** : `697fafd36f577_ChatGPTImage...png`
+
+### Implémentation
+- `USERS[]` dans app.js contient les URLs au lieu d'emojis
+- `getUserAvatar()` détecte les URLs et retourne `<img>` automatiquement
+- Dropdown custom pour filtre utilisateur (remplace select natif)
+- Images visibles dans : login, dropdown filtre, bulles tâches
+
+### Fichiers
+- `js/app.js` : USERS, getUserAvatar(), renderUserFilter(), selectUserFilter()
+- `css/style-overrides.css` : .user-avatar-img, .custom-user-select, .custom-select-*
+
+---
+
+## 🎨 UI PREMIUM (Session 2026-02-01)
+
+### Selects améliorés
+- Fond sombre (#1a1a1f) pour dropdown options
+- Flèche SVG custom orange
+- Border-radius 12px, transitions smooth
+
+### Favicon
+- Boule dorée (logo) comme favicon
+
+### Supprimé
+- Bouton reformulation (bugué)
+- Glow doré sur avatars (rendu bizarre)
 
 ---
 
