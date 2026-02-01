@@ -25,6 +25,12 @@ const GalaxyView = {
     dragStart: { x: 0, y: 0 },
     selectedBubble: null,
     hoveredBubble: null,
+    isConnectMode: false, // Ctrl pressed - méduse connection mode
+    connectionStart: null, // Bubble to connect from
+
+    // Filters & Search
+    activeFilters: new Set(), // Set of active category filters
+    searchQuery: '',
 
     // Data
     bubbles: [],
@@ -229,13 +235,48 @@ function setupEventListeners() {
     document.getElementById('galaxy-view-pearls').addEventListener('click', showPearlNecklace);
     document.getElementById('pearl-section-close').addEventListener('click', hidePearlNecklace);
 
+    // Search
+    const searchInput = document.getElementById('galaxy-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            updateSearch(e.target.value);
+        });
+    }
+
+    // Category filters
+    document.querySelectorAll('.galaxy-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const category = btn.dataset.category;
+            toggleFilter(category);
+        });
+    });
+
+    // Import/Export
+    const importBtn = document.getElementById('galaxy-import-kanban');
+    const exportBtn = document.getElementById('galaxy-export-kanban');
+    if (importBtn) importBtn.addEventListener('click', importFromKanban);
+    if (exportBtn) exportBtn.addEventListener('click', exportToKanban);
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (!overlay.classList.contains('active')) return;
 
+        // Enable connection mode with Ctrl
+        if (e.key === 'Control') {
+            GalaxyView.isConnectMode = true;
+            canvas.style.cursor = 'crosshair';
+        }
+
         if (e.key === 'Escape') {
-            overlay.classList.remove('active');
-            saveGalaxyData();
+            // Cancel connection mode
+            if (GalaxyView.isConnectMode) {
+                GalaxyView.isConnectMode = false;
+                GalaxyView.connectionStart = null;
+                canvas.style.cursor = 'grab';
+            } else {
+                overlay.classList.remove('active');
+                saveGalaxyData();
+            }
         } else if (e.key === '+' || e.key === '=') {
             zoomCamera(1.2);
         } else if (e.key === '-') {
@@ -244,6 +285,23 @@ function setupEventListeners() {
             GalaxyView.camera.x = 0;
             GalaxyView.camera.y = 0;
             GalaxyView.camera.zoom = 1;
+        } else if (e.key === 'f' || e.key === 'F') {
+            // Focus on search
+            const searchInput = document.getElementById('galaxy-search-input');
+            if (searchInput) searchInput.focus();
+        } else if (e.key === 'Delete' && GalaxyView.selectedBubble) {
+            // Delete selected bubble
+            deleteBubble(GalaxyView.selectedBubble);
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'Control') {
+            GalaxyView.isConnectMode = false;
+            GalaxyView.connectionStart = null;
+            if (overlay.classList.contains('active')) {
+                canvas.style.cursor = 'grab';
+            }
         }
     });
 }
@@ -261,6 +319,24 @@ function onCanvasMouseDown(e) {
     for (let i = GalaxyView.bubbles.length - 1; i >= 0; i--) {
         const bubble = GalaxyView.bubbles[i];
         if (bubble.contains(worldPos.x, worldPos.y)) {
+
+            // MÉDUSE MODE: Connect bubbles with Ctrl+Click
+            if (GalaxyView.isConnectMode || e.ctrlKey) {
+                if (!GalaxyView.connectionStart) {
+                    // First bubble selected
+                    GalaxyView.connectionStart = bubble;
+                    playSound('bubble-create');
+                } else if (GalaxyView.connectionStart.id !== bubble.id) {
+                    // Second bubble - create connection
+                    createConnection(GalaxyView.connectionStart, bubble);
+                    GalaxyView.connectionStart = null;
+                } else {
+                    // Same bubble - cancel
+                    GalaxyView.connectionStart = null;
+                }
+                return;
+            }
+
             GalaxyView.selectedBubble = bubble;
             GalaxyView.dragStart = { x: worldPos.x - bubble.x, y: worldPos.y - bubble.y };
             return;
@@ -394,6 +470,192 @@ function toggleBubbleCompletion(bubble) {
     }
 
     saveGalaxyData();
+}
+
+function createConnection(bubble1, bubble2) {
+    // Check if connection already exists
+    const exists = GalaxyView.connections.some(conn =>
+        (conn.from === bubble1.id && conn.to === bubble2.id) ||
+        (conn.from === bubble2.id && conn.to === bubble1.id)
+    );
+
+    if (exists) {
+        alert('Ces bulles sont déjà connectées!');
+        return;
+    }
+
+    // Create bidirectional connection (parent-child méduse system)
+    GalaxyView.connections.push({
+        from: bubble1.id,
+        to: bubble2.id
+    });
+
+    // Update bubble relationships
+    bubble1.children.push(bubble2.id);
+    bubble2.parent = bubble1.id;
+
+    playSound('victory');
+    saveGalaxyData();
+}
+
+function deleteBubble(bubble) {
+    if (!confirm(`Supprimer la bulle "${bubble.title}" ?`)) return;
+
+    // Remove from bubbles array
+    GalaxyView.bubbles = GalaxyView.bubbles.filter(b => b.id !== bubble.id);
+
+    // Remove from pearls if completed
+    GalaxyView.pearls = GalaxyView.pearls.filter(p => p.id !== bubble.id);
+
+    // Remove all connections involving this bubble
+    GalaxyView.connections = GalaxyView.connections.filter(conn =>
+        conn.from !== bubble.id && conn.to !== bubble.id
+    );
+
+    // Update parent-child relationships
+    for (let b of GalaxyView.bubbles) {
+        b.children = b.children.filter(id => id !== bubble.id);
+        if (b.parent === bubble.id) b.parent = null;
+    }
+
+    GalaxyView.selectedBubble = null;
+    saveGalaxyData();
+}
+
+// ========== KANBAN IMPORT/EXPORT ==========
+function importFromKanban() {
+    // Get tasks from localStorage (ProductiveApp Kanban data)
+    const kanbanData = localStorage.getItem('appState');
+    if (!kanbanData) {
+        alert('Aucune donnée Kanban trouvée');
+        return;
+    }
+
+    try {
+        const appState = JSON.parse(kanbanData);
+        const tasks = appState.tasks || [];
+
+        let imported = 0;
+        const spacing = 200;
+        let row = 0;
+        let col = 0;
+
+        tasks.forEach((task, index) => {
+            // Check if bubble already exists
+            const exists = GalaxyView.bubbles.some(b => b.title === task.text);
+            if (exists) return;
+
+            // Map Kanban status to Galaxy category
+            let category = 'personal';
+            if (task.text.toLowerCase().includes('créat') || task.text.toLowerCase().includes('design')) {
+                category = 'creative';
+            } else if (task.text.toLowerCase().includes('work') || task.text.toLowerCase().includes('projet')) {
+                category = 'professional';
+            } else if (task.text.toLowerCase().includes('important') || task.text.toLowerCase().includes('urgent')) {
+                category = 'important';
+            }
+
+            // Create bubble in grid layout
+            const x = (col - 2) * spacing;
+            const y = (row - 2) * spacing;
+
+            const bubble = new GalaxyBubble(x, y, task.text, category);
+            bubble.completed = task.status === 'done';
+
+            GalaxyView.bubbles.push(bubble);
+
+            if (bubble.completed) {
+                GalaxyView.pearls.push({
+                    id: bubble.id,
+                    title: bubble.title,
+                    category: bubble.category,
+                    color: bubble.color,
+                    completedAt: new Date().toISOString()
+                });
+            }
+
+            imported++;
+            col++;
+            if (col >= 5) {
+                col = 0;
+                row++;
+            }
+        });
+
+        alert(`✅ ${imported} tâches importées du Kanban!`);
+        saveGalaxyData();
+    } catch (error) {
+        console.error('Import error:', error);
+        alert('Erreur lors de l\'importation');
+    }
+}
+
+function exportToKanban() {
+    // Export Galaxy bubbles to Kanban format
+    const kanbanData = localStorage.getItem('appState');
+    let appState = kanbanData ? JSON.parse(kanbanData) : { tasks: [], user: 'Maha' };
+
+    let exported = 0;
+
+    GalaxyView.bubbles.forEach(bubble => {
+        // Check if task already exists in Kanban
+        const exists = appState.tasks.some(t => t.text === bubble.title);
+        if (exists) return;
+
+        // Create Kanban task
+        appState.tasks.push({
+            id: Date.now() + Math.random(),
+            text: bubble.title,
+            status: bubble.completed ? 'done' : 'todo',
+            timestamp: new Date().toISOString()
+        });
+
+        exported++;
+    });
+
+    localStorage.setItem('appState', JSON.stringify(appState));
+    alert(`✅ ${exported} bulles exportées vers le Kanban!`);
+}
+
+// ========== FILTERS & SEARCH ==========
+function toggleFilter(category) {
+    if (GalaxyView.activeFilters.has(category)) {
+        GalaxyView.activeFilters.delete(category);
+    } else {
+        GalaxyView.activeFilters.add(category);
+    }
+    updateFilterButtons();
+}
+
+function updateFilterButtons() {
+    const filterButtons = document.querySelectorAll('.galaxy-filter-btn');
+    filterButtons.forEach(btn => {
+        const category = btn.dataset.category;
+        if (GalaxyView.activeFilters.has(category)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function updateSearch(query) {
+    GalaxyView.searchQuery = query.toLowerCase();
+}
+
+function bubbleMatchesFilters(bubble) {
+    // If no filters active, show all
+    if (GalaxyView.activeFilters.size === 0 && !GalaxyView.searchQuery) {
+        return true;
+    }
+
+    // Check category filter
+    let categoryMatch = GalaxyView.activeFilters.size === 0 || GalaxyView.activeFilters.has(bubble.category);
+
+    // Check search query
+    let searchMatch = !GalaxyView.searchQuery || bubble.title.toLowerCase().includes(GalaxyView.searchQuery);
+
+    return categoryMatch && searchMatch;
 }
 
 // ========== XP SYSTEM ==========
@@ -567,10 +829,28 @@ function animate() {
     // Draw connections (méduse system)
     drawConnections();
 
-    // Update and draw bubbles
+    // Update and draw bubbles (only those matching filters)
     for (let bubble of GalaxyView.bubbles) {
         bubble.update();
-        bubble.draw(ctx, camera);
+
+        // Only draw if matches filters/search
+        if (bubbleMatchesFilters(bubble)) {
+            bubble.draw(ctx, camera);
+        }
+    }
+
+    // Draw connection indicator if in connect mode
+    if (GalaxyView.connectionStart && GalaxyView.isConnectMode) {
+        const x = (GalaxyView.connectionStart.x - camera.x) * camera.zoom + GalaxyView.width / 2;
+        const y = (GalaxyView.connectionStart.y - camera.y) * camera.zoom + GalaxyView.height / 2;
+
+        ctx.strokeStyle = GalaxyView.connectionStart.color + 'AA';
+        ctx.lineWidth = 3;
+        ctx.setLineDash([10, 5]);
+        ctx.beginPath();
+        ctx.arc(x, y, GalaxyView.connectionStart.radius * camera.zoom + 10, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
     }
 
     // Draw particles
