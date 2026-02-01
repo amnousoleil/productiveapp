@@ -521,49 +521,6 @@ body .bubble.done .bubble-text {
     padding: 14px 16px;
 }
 
-/* === TEXTAREA AVEC BOUTON REFORMULATION 💡 === */
-.textarea-with-reformulate {
-    position: relative;
-    margin-bottom: 16px;
-}
-.textarea-with-reformulate .modal-textarea {
-    margin-bottom: 0;
-    padding-right: 55px;
-}
-.reformulate-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 42px;
-    height: 42px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
-    cursor: pointer;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.4);
-    color: white;
-}
-.reformulate-btn::after {
-    content: '✨';
-}
-.reformulate-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.6);
-}
-.reformulate-btn:disabled {
-    opacity: 0.5;
-    cursor: wait;
-    transform: none;
-}
-.reformulate-btn:disabled::after {
-    content: '⏳';
-}
-
 /* === MODAL TEXTAREA === */
 .modal-textarea {
     width: 100%;
