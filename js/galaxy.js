@@ -22,7 +22,7 @@ let connectionStart = null;
 let mouseX = 0;
 let mouseY = 0;
 let isEditingText = false;
-let currentTheme = 'white'; // Thème blanc Excalidraw
+let currentTheme = 'dark'; // Thème nuit étoilée sombre
 let roughCanvas = null; // Instance Rough.js pour style hand-drawn
 let showHelp = false;
 let currentShape = 'circle'; // circle, rect, diamond, text
@@ -30,13 +30,15 @@ let contextMenuPos = null; // {x, y, screenX, screenY}
 let isSelectingRect = false; // Rectangle de sélection Excalidraw
 let selectRectStart = { x: 0, y: 0 };
 let selectRectEnd = { x: 0, y: 0 };
+let linkMode = false; // Mode création de liens activé
+let linkModeStart = null; // Première bulle sélectionnée en mode link
 
 // === CONSTANTES ===
 const MIN_ZOOM = 0.3;
 const MAX_ZOOM = 3;
 const ZOOM_SPEED = 0.1;
 const NODE_RADIUS = 60;
-const CONNECTION_THRESHOLD = 20;
+const CONNECTION_THRESHOLD = 5; // Réduit de 20 → 5px pour faciliter le drag
 
 // === FORMES DISPONIBLES ===
 const SHAPES = [
@@ -120,6 +122,7 @@ function createGalaxyOverlay() {
         <div class="toolbar-separator"></div>
         <div class="galaxy-color-palette"></div>
         <div class="toolbar-separator"></div>
+        <button class="galaxy-tool-btn" id="galaxy-link-mode-btn" title="Mode Connexion (L)">🔗</button>
         <button class="galaxy-tool-btn" id="galaxy-export-png-btn" title="Exporter PNG">📸</button>
         <button class="galaxy-tool-btn" id="galaxy-clear-btn" title="Tout effacer">🗑️</button>
         <button class="galaxy-tool-btn galaxy-help-btn" id="galaxy-help-btn" title="Aide">ℹ️</button>
@@ -241,12 +244,14 @@ function setupGalaxyEvents() {
     const exportBtn = document.getElementById('galaxy-export-btn');
     const exportPngBtn = document.getElementById('galaxy-export-png-btn');
     const helpBtn = document.getElementById('galaxy-help-btn');
+    const linkModeBtn = document.getElementById('galaxy-link-mode-btn');
 
     closeBtn.addEventListener('click', closeGalaxyView);
     clearBtn.addEventListener('click', clearAllNodes);
-    exportBtn.addEventListener('click', exportToJSON);
+    if (exportBtn) exportBtn.addEventListener('click', exportToJSON);
     exportPngBtn.addEventListener('click', exportToPNG);
     helpBtn.addEventListener('click', toggleHelp);
+    linkModeBtn.addEventListener('click', toggleLinkMode);
 
     document.addEventListener('keydown', handleKeyDown);
 
@@ -268,8 +273,15 @@ async function handleKeyDown(e) {
 
     // Échap - Fermer ou déselectionner
     if (e.key === 'Escape') {
-        if (selectedNodes.length > 0) {
+        if (linkMode && linkModeStart) {
+            // Annuler le mode link en cours
+            linkModeStart = null;
             selectedNodes = [];
+        } else if (selectedNodes.length > 0) {
+            selectedNodes = [];
+        } else if (linkMode) {
+            // Désactiver le mode link
+            toggleLinkMode();
         } else {
             closeGalaxyView();
         }
@@ -303,6 +315,35 @@ async function handleKeyDown(e) {
         e.preventDefault();
         selectedNodes = [...galaxyNodes];
     }
+
+    // L - Toggle Link Mode
+    if (e.key === 'l' || e.key === 'L') {
+        toggleLinkMode();
+    }
+}
+
+function toggleLinkMode() {
+    linkMode = !linkMode;
+    linkModeStart = null;
+    selectedNodes = [];
+
+    // Mettre à jour le style du bouton
+    const linkBtn = document.getElementById('galaxy-link-mode-btn');
+    if (linkBtn) {
+        if (linkMode) {
+            linkBtn.classList.add('active');
+            linkBtn.style.background = 'rgba(59, 130, 246, 0.3)';
+            linkBtn.style.borderColor = '#3b82f6';
+            linkBtn.style.color = '#60a5fa';
+            console.log('🔗 Mode Link ACTIVÉ - Cliquez sur 2 bulles pour les connecter');
+        } else {
+            linkBtn.classList.remove('active');
+            linkBtn.style.background = '';
+            linkBtn.style.borderColor = '';
+            linkBtn.style.color = '';
+            console.log('🔗 Mode Link DÉSACTIVÉ');
+        }
+    }
 }
 
 function handleCanvasMouseDown(e) {
@@ -312,6 +353,34 @@ function handleCanvasMouseDown(e) {
 
     const node = getNodeAt(x, y);
 
+    // MODE LINK ACTIVÉ - Logique spéciale pour créer des connexions
+    if (linkMode) {
+        if (node) {
+            if (!linkModeStart) {
+                // Premier clic : sélectionner la bulle de départ
+                linkModeStart = node;
+                selectedNodes = [node];
+                console.log('🔗 Mode Link - Bulle 1 sélectionnée:', node.text);
+            } else if (linkModeStart !== node) {
+                // Deuxième clic : créer la connexion
+                createConnection(linkModeStart, node);
+                console.log('🔗 Mode Link - Connexion créée !');
+                linkModeStart = null;
+                selectedNodes = [];
+            } else {
+                // Clic sur la même bulle : annuler
+                linkModeStart = null;
+                selectedNodes = [];
+            }
+        } else {
+            // Clic sur fond vide : annuler
+            linkModeStart = null;
+            selectedNodes = [];
+        }
+        return; // Ne pas continuer la logique normale
+    }
+
+    // MODE NORMAL (pas de link mode)
     if (node) {
         // Sélection multiple avec Shift
         if (e.shiftKey) {
@@ -326,16 +395,10 @@ function handleCanvasMouseDown(e) {
             }
         }
 
-        // Vérifier si on clique sur le bord pour créer une connexion
-        const dist = Math.hypot(x - node.x, y - node.y);
-        if (dist > NODE_RADIUS - CONNECTION_THRESHOLD) {
-            isCreatingConnection = true;
-            connectionStart = node;
-        } else {
-            isDragging = true;
-            dragStartX = x;
-            dragStartY = y;
-        }
+        // Activer le drag (plus de détection de bord pour les connexions)
+        isDragging = true;
+        dragStartX = x;
+        dragStartY = y;
     } else {
         // Clic sur fond vide
         if (!e.shiftKey) {
@@ -413,9 +476,12 @@ async function handleCanvasMouseUp(e) {
 
     // Sauvegarder les nodes après un drag
     if (isDragging && selectedNodes.length > 0) {
+        console.log('📍 Sauvegarde après drag - Positions:', selectedNodes.map(n => `${n.text}: (${Math.round(n.x)}, ${Math.round(n.y)})`));
         for (const node of selectedNodes) {
             await saveNodeToAPI(node, 'update');
         }
+        // Sauvegarder aussi en localStorage (fallback si API fail)
+        saveToLocalStorage();
     }
 
     isDragging = false;
@@ -484,6 +550,9 @@ async function createNode(x, y, text = 'Nouvelle idée', color = COLORS[0], shap
     // Sauvegarder en API
     await saveNodeToAPI(node, 'create');
 
+    // Sauvegarder en localStorage
+    saveToLocalStorage();
+
     console.log('✨ Nœud créé:', node.text, `(${node.shape})`);
     return node;
 }
@@ -505,6 +574,9 @@ async function createConnection(nodeA, nodeB) {
 
         // Sauvegarder en API
         await saveConnectionToAPI(conn);
+
+        // Sauvegarder en localStorage
+        saveToLocalStorage();
 
         console.log('🔗 Connexion créée');
     }
@@ -550,6 +622,7 @@ async function editNodeText(node) {
     if (newText !== null && newText.trim()) {
         node.text = newText.trim();
         await saveNodeToAPI(node, 'update');
+        saveToLocalStorage();
     }
 }
 
@@ -572,6 +645,7 @@ async function deleteSelectedNodes() {
     }
 
     selectedNodes = [];
+    saveToLocalStorage();
     console.log('🗑️ Nœuds supprimés');
 }
 
@@ -739,8 +813,8 @@ function renderGalaxy() {
 
     ctx.restore();
 
-    // Message d'aide si activé ou si vide
-    if (showHelp || galaxyNodes.length === 0) {
+    // Message d'aide si activé (désactivé auto pour galaxyNodes.length === 0)
+    if (showHelp) {
         drawWelcomeMessage(ctx, w, h, theme);
     }
 
@@ -808,42 +882,52 @@ function drawConnections(ctx) {
         const toNode = galaxyNodes.find(n => n.id === conn.to);
 
         if (fromNode && toNode) {
-            // Style Excalidraw - ligne hand-drawn simple
-            if (roughCanvas) {
-                const options = {
-                    roughness: 0.8,
-                    strokeWidth: 2,
-                    stroke: '#94a3b8' // Gris pour les connexions
-                };
+            // Calculer le point de contrôle pour une courbe de Bézier
+            const midX = (fromNode.x + toNode.x) / 2;
+            const midY = (fromNode.y + toNode.y) / 2;
 
-                roughCanvas.line(fromNode.x, fromNode.y, toNode.x, toNode.y, options);
-            } else {
-                // Fallback sans Rough.js
-                ctx.beginPath();
-                ctx.moveTo(fromNode.x, fromNode.y);
-                ctx.lineTo(toNode.x, toNode.y);
-                ctx.strokeStyle = '#94a3b8';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-            }
+            // Décalage perpendiculaire pour créer la courbe
+            const dx = toNode.x - fromNode.x;
+            const dy = toNode.y - fromNode.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const curvature = Math.min(dist * 0.2, 50); // Courbure proportionnelle à la distance
 
-            // Flèche directionnelle à l'extrémité (simplified)
-            const angle = Math.atan2(toNode.y - fromNode.y, toNode.x - fromNode.x);
-            const arrowSize = 10;
+            // Point de contrôle perpendiculaire au milieu
+            const controlX = midX - (dy / dist) * curvature;
+            const controlY = midY + (dx / dist) * curvature;
 
-            // Point de la flèche
-            const arrowX = toNode.x - Math.cos(angle) * (NODE_RADIUS * 0.7);
-            const arrowY = toNode.y - Math.sin(angle) * (NODE_RADIUS * 0.7);
+            // Dessiner la courbe de Bézier
+            ctx.beginPath();
+            ctx.moveTo(fromNode.x, fromNode.y);
+            ctx.quadraticCurveTo(controlX, controlY, toNode.x, toNode.y);
+            ctx.strokeStyle = '#60a5fa'; // Bleu pour les connexions (plus visible)
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // Calculer l'angle à l'extrémité de la courbe pour la flèche
+            // On utilise une approximation basée sur les derniers pixels de la courbe
+            const t = 0.95; // Position sur la courbe (0 à 1)
+            const prevX = (1-t)*(1-t)*fromNode.x + 2*(1-t)*t*controlX + t*t*toNode.x;
+            const prevY = (1-t)*(1-t)*fromNode.y + 2*(1-t)*t*controlY + t*t*toNode.y;
+            const angle = Math.atan2(toNode.y - prevY, toNode.x - prevX);
+
+            const arrowSize = 12;
+
+            // Point de la flèche (légèrement avant le nœud cible)
+            const arrowX = toNode.x - Math.cos(angle) * (NODE_RADIUS * 0.6);
+            const arrowY = toNode.y - Math.sin(angle) * (NODE_RADIUS * 0.6);
 
             ctx.save();
             ctx.translate(arrowX, arrowY);
             ctx.rotate(angle);
 
-            ctx.fillStyle = '#64748b';
+            // Flèche stylée
+            ctx.fillStyle = '#60a5fa';
             ctx.beginPath();
             ctx.moveTo(0, 0);
-            ctx.lineTo(-arrowSize, -arrowSize / 2);
-            ctx.lineTo(-arrowSize, arrowSize / 2);
+            ctx.lineTo(-arrowSize, -arrowSize / 2.5);
+            ctx.lineTo(-arrowSize * 0.7, 0);
+            ctx.lineTo(-arrowSize, arrowSize / 2.5);
             ctx.closePath();
             ctx.fill();
 
@@ -855,6 +939,25 @@ function drawConnections(ctx) {
 function drawNodes(ctx, theme) {
     galaxyNodes.forEach(node => {
         const isSelected = selectedNodes.includes(node);
+        const isLinkStart = linkModeStart === node;
+
+        // Effet glow pour la bulle de départ en mode link
+        if (isLinkStart) {
+            ctx.save();
+            ctx.shadowColor = '#60a5fa';
+            ctx.shadowBlur = 30;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+
+            // Cercle de pulsation
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, NODE_RADIUS + 15, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(96, 165, 250, 0.5)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            ctx.restore();
+        }
 
         // Dispatch selon la forme
         if (node.shape === 'circle' || !node.shape) {
@@ -873,7 +976,7 @@ function drawCircleNode(ctx, theme, node, isSelected) {
     // Style Excalidraw - cercle hand-drawn avec Rough.js
     if (roughCanvas) {
         const options = {
-            roughness: 0.8,
+            roughness: 0,
             strokeWidth: isSelected ? 3 : 2,
             stroke: node.color,
             fill: '#ffffff',
@@ -905,7 +1008,7 @@ function drawRectNode(ctx, theme, node, isSelected) {
     // Style Excalidraw - rectangle hand-drawn avec Rough.js
     if (roughCanvas) {
         const options = {
-            roughness: 0.8,
+            roughness: 0,
             strokeWidth: isSelected ? 3 : 2,
             stroke: node.color,
             fill: '#ffffff',
@@ -932,7 +1035,7 @@ function drawDiamondNode(ctx, theme, node, isSelected) {
     // Style Excalidraw - losange hand-drawn avec Rough.js
     if (roughCanvas) {
         const options = {
-            roughness: 0.8,
+            roughness: 0,
             strokeWidth: isSelected ? 3 : 2,
             stroke: node.color,
             fill: '#ffffff',
@@ -1415,12 +1518,11 @@ function saveToLocalStorage() {
     const data = {
         nodes: galaxyNodes,
         connections: galaxyConnections,
-        theme: currentTheme,
-        zoom,
-        panX: panOffsetX,
-        panY: panOffsetY
+        theme: currentTheme
+        // Ne plus sauvegarder zoom/pan pour toujours commencer centré
     };
     localStorage.setItem('galaxyView', JSON.stringify(data));
+    console.log('💾 Sauvegardé en localStorage:', galaxyNodes.length, 'nodes');
 }
 
 function loadFromLocalStorage() {
@@ -1431,12 +1533,16 @@ function loadFromLocalStorage() {
         const data = JSON.parse(saved);
         galaxyNodes = data.nodes || [];
         galaxyConnections = data.connections || [];
-        currentTheme = data.theme || 'obsidian';
-        zoom = data.zoom || 1;
-        panOffsetX = data.panX || window.innerWidth / 2;
-        panOffsetY = data.panY || window.innerHeight / 2;
 
-        console.log('📂 Chargé (localStorage):', galaxyNodes.length, 'nœud(s)');
+        // FORCER le thème dark (ignorer localStorage)
+        currentTheme = 'dark';
+
+        // Reset zoom et pan pour toujours commencer centré
+        zoom = 1;
+        panOffsetX = window.innerWidth / 2;
+        panOffsetY = window.innerHeight / 2;
+
+        console.log('📂 Chargé (localStorage):', galaxyNodes.length, 'nœud(s)', '- Thème:', currentTheme);
     } catch (e) {
         console.error('Erreur chargement:', e);
     }
