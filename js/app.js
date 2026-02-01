@@ -2073,7 +2073,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentProfileIndex = 0;
     const profileButtons = () => document.querySelectorAll('.user-select-btn');
 
-    function showProfile(index) {
+    // direction: 'right' = vers la droite (next), 'left' = vers la gauche (prev), 'initial' = première apparition
+    function showProfile(index, direction = 'initial') {
         const buttons = profileButtons();
         if (buttons.length === 0) return;
 
@@ -2082,11 +2083,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (index >= buttons.length) index = 0;
         currentProfileIndex = index;
 
-        // Cacher tous, afficher le courant avec animation
+        // Choisir l'animation selon la direction
+        let animationName = 'cardReveal'; // Par défaut pour l'initial
+        if (direction === 'right') {
+            animationName = 'slideInFromRight';
+        } else if (direction === 'left') {
+            animationName = 'slideInFromLeft';
+        }
+
+        // Cacher tous, afficher le courant avec animation directionnelle
         buttons.forEach((btn, i) => {
             if (i === index) {
                 btn.style.display = 'flex';
-                btn.style.animation = 'cardReveal 0.6s ease forwards';
+                // Reset animation pour permettre re-trigger
+                btn.style.animation = 'none';
+                btn.offsetHeight; // Force reflow
+                btn.style.animation = `${animationName} 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`;
             } else {
                 btn.style.display = 'none';
             }
@@ -2094,10 +2106,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     $('carousel-prev').addEventListener('click', () => {
-        showProfile(currentProfileIndex - 1);
+        showProfile(currentProfileIndex - 1, 'left');
     });
     $('carousel-next').addEventListener('click', () => {
-        showProfile(currentProfileIndex + 1);
+        showProfile(currentProfileIndex + 1, 'right');
     });
 
     // Afficher le premier profil après l'animation initiale
