@@ -2251,6 +2251,133 @@
     text-align: center;
 }
 
+/* === RESPONSIVE GALAXY VIEW === */
+@media (max-width: 768px) {
+    /* Header adjustments */
+    .galaxy-view-header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+
+    .galaxy-view-title {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .galaxy-view-title h2 {
+        font-size: 1.4rem;
+    }
+
+    .galaxy-view-xp {
+        min-width: 100%;
+    }
+
+    /* Toolbar mobile layout */
+    .galaxy-toolbar {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+    }
+
+    .galaxy-search-input {
+        min-width: 100%;
+        font-size: 0.85rem;
+    }
+
+    .galaxy-filters {
+        justify-content: center;
+    }
+
+    .galaxy-sync {
+        flex-direction: column;
+    }
+
+    .galaxy-hint {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+
+    /* Controls adjustment */
+    .galaxy-controls {
+        bottom: 20px;
+        right: 20px;
+        gap: 8px;
+    }
+
+    .galaxy-control-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.2rem;
+    }
+
+    /* Quick actions mobile */
+    .galaxy-quick-actions {
+        bottom: 20px;
+        left: 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .galaxy-action-btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+
+    .action-icon {
+        font-size: 1.1rem;
+    }
+
+    .action-label {
+        display: none; /* Hide labels on very small screens */
+    }
+
+    /* Modal adjustments */
+    .galaxy-bubble-modal-content {
+        min-width: 90%;
+        padding: 20px;
+    }
+
+    /* Pearl section mobile */
+    .pearl-section-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .pearl-section-header h3 {
+        font-size: 1.4rem;
+    }
+
+    .pearl-legend {
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Very small screens */
+    .galaxy-view-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.3rem;
+    }
+
+    .galaxy-filter-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 1.1rem;
+    }
+
+    .action-label {
+        display: none !important;
+    }
+
+    .galaxy-toolbar {
+        gap: 10px;
+    }
+}
+
 /* Responsive theme selector */
 @media (max-width: 768px) {
     .theme-grid {
