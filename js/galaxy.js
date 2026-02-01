@@ -541,8 +541,33 @@ function renderGalaxy() {
     const h = galaxyCanvas.height;
     const theme = GALAXY_THEMES[currentTheme];
 
-    // Fond
-    ctx.fillStyle = theme.background;
+    // Fond avec gradient atmosphérique
+    const bgGradient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
+
+    // Couleurs selon le thème
+    if (theme.background === '#0a0a0f') {
+        // Dark theme - Nuit étoilée
+        bgGradient.addColorStop(0, '#1a1a2e');
+        bgGradient.addColorStop(0.5, '#0f0f1e');
+        bgGradient.addColorStop(1, '#050508');
+    } else if (theme.background === '#1e1e1e') {
+        // Obsidian
+        bgGradient.addColorStop(0, '#2a2a2a');
+        bgGradient.addColorStop(0.5, '#1e1e1e');
+        bgGradient.addColorStop(1, '#121212');
+    } else if (theme.background === '#faf8f3') {
+        // Crème
+        bgGradient.addColorStop(0, '#ffffff');
+        bgGradient.addColorStop(0.5, '#faf8f3');
+        bgGradient.addColorStop(1, '#f0ede5');
+    } else {
+        // Blanc
+        bgGradient.addColorStop(0, '#ffffff');
+        bgGradient.addColorStop(0.5, '#f8f9fa');
+        bgGradient.addColorStop(1, '#e9ecef');
+    }
+
+    ctx.fillStyle = bgGradient;
     ctx.fillRect(0, 0, w, h);
 
     // Grid (optionnel)
@@ -583,9 +608,10 @@ function renderGalaxy() {
 function drawGrid(ctx, w, h, color) {
     const gridSize = 50;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    ctx.globalAlpha = 0.3;
+    ctx.lineWidth = 0.5;
+    ctx.globalAlpha = 0.15;
 
+    // Lignes verticales
     for (let x = 0; x < w; x += gridSize) {
         ctx.beginPath();
         ctx.moveTo(x, 0);
@@ -593,11 +619,23 @@ function drawGrid(ctx, w, h, color) {
         ctx.stroke();
     }
 
+    // Lignes horizontales
     for (let y = 0; y < h; y += gridSize) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(w, y);
         ctx.stroke();
+    }
+
+    // Points aux intersections pour effet plus élégant
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.25;
+    for (let x = 0; x < w; x += gridSize) {
+        for (let y = 0; y < h; y += gridSize) {
+            ctx.beginPath();
+            ctx.arc(x, y, 1, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
     ctx.globalAlpha = 1;
@@ -618,12 +656,24 @@ function drawConnections(ctx) {
         const toNode = galaxyNodes.find(n => n.id === conn.to);
 
         if (fromNode && toNode) {
+            // Glow de la connexion
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = 'rgba(100, 130, 255, 0.6)';
+
+            // Ligne principale avec gradient
+            const gradient = ctx.createLinearGradient(fromNode.x, fromNode.y, toNode.x, toNode.y);
+            gradient.addColorStop(0, fromNode.color + 'aa');
+            gradient.addColorStop(0.5, 'rgba(100, 130, 255, 0.5)');
+            gradient.addColorStop(1, toNode.color + 'aa');
+
             ctx.beginPath();
             ctx.moveTo(fromNode.x, fromNode.y);
             ctx.lineTo(toNode.x, toNode.y);
-            ctx.strokeStyle = 'rgba(100, 130, 255, 0.4)';
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 3;
             ctx.stroke();
+
+            ctx.shadowBlur = 0;
         }
     });
 }
@@ -632,31 +682,117 @@ function drawNodes(ctx, theme) {
     galaxyNodes.forEach(node => {
         const isSelected = selectedNodes.includes(node);
 
-        // Glow
-        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, NODE_RADIUS + 10);
-        gradient.addColorStop(0, node.color + '80');
-        gradient.addColorStop(1, node.color + '00');
+        // Glow externe (plus prononcé)
+        const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, NODE_RADIUS + 25);
+        glowGradient.addColorStop(0, node.color + 'cc');
+        glowGradient.addColorStop(0.3, node.color + '66');
+        glowGradient.addColorStop(1, node.color + '00');
 
         ctx.beginPath();
-        ctx.arc(node.x, node.y, NODE_RADIUS + 10, 0, Math.PI * 2);
-        ctx.fillStyle = gradient;
+        ctx.arc(node.x, node.y, NODE_RADIUS + 25, 0, Math.PI * 2);
+        ctx.fillStyle = glowGradient;
         ctx.fill();
 
-        // Cercle principal
+        // Ombre portée
+        ctx.shadowColor = node.color + '99';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 5;
+
+        // Fond glassmorphism avec gradient
+        const bgGradient = ctx.createRadialGradient(
+            node.x - NODE_RADIUS * 0.3,
+            node.y - NODE_RADIUS * 0.3,
+            0,
+            node.x,
+            node.y,
+            NODE_RADIUS
+        );
+
+        const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
+        if (isDark) {
+            bgGradient.addColorStop(0, 'rgba(40, 40, 50, 0.95)');
+            bgGradient.addColorStop(1, 'rgba(20, 20, 30, 0.9)');
+        } else {
+            bgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
+            bgGradient.addColorStop(1, 'rgba(245, 245, 250, 0.95)');
+        }
+
         ctx.beginPath();
         ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
-        ctx.fillStyle = theme.background === '#0a0a0f' ? 'rgba(10, 10, 15, 0.9)' : 'rgba(255, 255, 255, 0.95)';
+        ctx.fillStyle = bgGradient;
         ctx.fill();
-        ctx.strokeStyle = node.color;
+
+        // Bordure avec gradient
+        const borderGradient = ctx.createLinearGradient(
+            node.x - NODE_RADIUS,
+            node.y - NODE_RADIUS,
+            node.x + NODE_RADIUS,
+            node.y + NODE_RADIUS
+        );
+        borderGradient.addColorStop(0, node.color);
+        borderGradient.addColorStop(0.5, node.color + 'dd');
+        borderGradient.addColorStop(1, node.color);
+
+        ctx.strokeStyle = borderGradient;
         ctx.lineWidth = isSelected ? 5 : 3;
         ctx.stroke();
 
-        // Texte
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+
+        // Reflet glassmorphism (shine)
+        const shineGradient = ctx.createRadialGradient(
+            node.x - NODE_RADIUS * 0.4,
+            node.y - NODE_RADIUS * 0.4,
+            0,
+            node.x,
+            node.y,
+            NODE_RADIUS
+        );
+        shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
+        shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
+        shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = shineGradient;
+        ctx.fill();
+
+        // Texte avec ombre
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 3;
         ctx.fillStyle = theme.text;
-        ctx.font = '14px Inter, sans-serif';
+        ctx.font = 'bold 15px Inter, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(node.text, node.x, node.y);
+
+        // Texte multi-lignes si trop long
+        const maxWidth = NODE_RADIUS * 1.6;
+        const words = node.text.split(' ');
+        let line = '';
+        let lines = [];
+
+        words.forEach(word => {
+            const testLine = line + word + ' ';
+            const metrics = ctx.measureText(testLine);
+            if (metrics.width > maxWidth && line !== '') {
+                lines.push(line);
+                line = word + ' ';
+            } else {
+                line = testLine;
+            }
+        });
+        lines.push(line);
+
+        const lineHeight = 18;
+        const startY = node.y - ((lines.length - 1) * lineHeight) / 2;
+
+        lines.forEach((line, i) => {
+            ctx.fillText(line.trim(), node.x, startY + i * lineHeight);
+        });
+
+        ctx.shadowBlur = 0;
     });
 }
 
