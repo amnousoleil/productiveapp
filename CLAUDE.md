@@ -83,8 +83,8 @@
 
 | Composant | Version | Dernière modif |
 |-----------|---------|----------------|
-| **CSS** | v44 | Bouton Gyrophare URGENT |
-| **JS app.js** | v36 | Tri par priorité |
+| **CSS** | v45 | Gyrophare 3 modes |
+| **JS app.js** | v37 | Filtre priorité 3 modes |
 | **JS dragdrop.js** | v30 | Bug #1 corrigé (fluidité) |
 | **index.html** | 418 lignes | + Bouton Gyrophare |
 | **Architecture** | v2.3 | + Filtre priorité |
@@ -100,10 +100,16 @@ Bouton avec icône gyrophare rouge à côté du sélecteur utilisateur. Permet d
 ### Emplacement
 `user-filter-bar` → après le `<select id="user-filter-select">`
 
-### Comportement
-- **Clic** : Active/désactive le tri par priorité
-- **Actif** : Glow rouge + rotation gyrophare + particules feu follet
-- **Tri** : Priorité 1 (Urgent) → 2 (Normal) → 3 (Basse)
+### Comportement (3 modes)
+- **Clic 1** : Mode URGENT (Rouge) - Filtre priorité 1
+- **Clic 2** : Mode NORMAL (Bleu) - Filtre priorité 2
+- **Clic 3** : Mode ZEN (Blanc) - Filtre priorité 3
+- **Clic 4** : Désactivé (retour normal)
+
+### Images gyrophare
+- Rouge: `697fa2efd9d54_gyrophare.png`
+- Bleu: `697fa8fb04267_ChatGPTImage...png`
+- Blanc: `697fa94e3a225_3ced8da8...png`
 
 ### Fichiers modifiés
 - `index.html:121-124` - Bouton HTML avec image gyrophare
