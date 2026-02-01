@@ -1893,8 +1893,32 @@ document.addEventListener('DOMContentLoaded', function() {
         renderJournal();
     });
     
+    // === MENU DROPDOWN TOGGLE ===
+    const menuToggleBtn = $('menu-toggle-btn');
+    const menuDropdown = $('menu-dropdown');
+
+    menuToggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        menuDropdown.classList.toggle('active');
+    });
+
+    // Fermer le menu si on clique à l'extérieur
+    document.addEventListener('click', function(e) {
+        if (!menuToggleBtn.contains(e.target) && !menuDropdown.contains(e.target)) {
+            menuDropdown.classList.remove('active');
+        }
+    });
+
+    // Fermer le menu après un clic sur un item
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+            menuDropdown.classList.remove('active');
+        });
+    });
+
     // === NOUVEAU SÉLECTEUR DE THÈMES ===
-    $('theme-btn').addEventListener('click', function() {
+    $('theme-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
         $('theme-modal').classList.remove('hidden');
         // Marquer le thème actif
         const currentTheme = localStorage.getItem('theme') || 'executive';
