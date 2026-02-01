@@ -18,9 +18,9 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 
 // === UTILISATEURS ===
 const USERS = [
-    { id: 'maha', name: 'Maha Giri', avatar: '👑', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: '🚀', password: 'Autopdutop63.G+htrhs7', role: 'team' },
-    { id: 'team', name: 'Team', avatar: '👥', password: null, role: 'shared' }
+    { id: 'maha', name: 'Maha Giri', avatar: '👑', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
+    { id: 'brice', name: 'Brice', avatar: '🚀', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f029ae_ChatGPTImage1f%C3%A9vr.202611_03_13.png', password: 'Autopdutop63.G+htrhs7', role: 'team' },
+    { id: 'team', name: 'Team', avatar: '👥', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png', password: null, role: 'shared' }
 ];
 
 // === PROJETS PAR DÉFAUT ===
@@ -670,7 +670,7 @@ function renderUserSelect() {
     
     grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
-            <span class="user-avatar-big">${user.avatar}</span>
+            <img src="${user.loginImg}" class="user-avatar-img-login" alt="${user.name}">
             <span class="user-name-select">${user.name}</span>
         </button>
     `).join('');

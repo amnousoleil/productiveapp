@@ -589,27 +589,19 @@ body .bubble.done .bubble-text {
     padding: 14px 16px;
 }
 
-/* === AVATARS IMAGES === */
-.user-avatar-img {
-    width: 24px;
-    height: 24px;
+/* === AVATARS IMAGES LOGIN === */
+.user-avatar-img-login {
+    width: 90px;
+    height: 90px;
     border-radius: 50%;
     object-fit: cover;
     transition: all 0.3s ease;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 15px rgba(255, 200, 100, 0.5));
 }
-.user-avatar-img:hover {
+.user-select-btn:hover .user-avatar-img-login {
     transform: scale(1.1);
-}
-.user-avatar-img-big {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-    transition: all 0.3s ease;
-    margin-bottom: 8px;
-}
-.user-select-btn:hover .user-avatar-img-big {
-    transform: scale(1.08);
+    filter: drop-shadow(0 0 25px rgba(255, 200, 100, 0.8));
 }
 
 /* === MODAL TEXTAREA === */
