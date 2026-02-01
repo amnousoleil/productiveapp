@@ -13,7 +13,7 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="style-base.css?v=36">
-    <link rel="stylesheet" href="style-components.css?v=36">
+    <link rel="stylesheet" href="style-components.css?v=37">
     <link rel="stylesheet" href="style-themes.css?v=36">
     <link rel="stylesheet" href="style-dragdrop.css?v=36">
 
@@ -58,6 +58,10 @@
                     <span class="user-avatar">👤</span>
                     <span class="user-name">User</span>
                 </div>
+                <!-- Icône Galaxy View -->
+                <button id="galaxy-view-btn" class="galaxy-view-btn" title="Galaxy View - Vue révolutionnaire">
+                    👁️
+                </button>
             </div>
             
             <h1 class="app-title">Ma Vision</h1>
@@ -1019,12 +1023,106 @@
         .bubbles-view .task-actions { display: none !important; }
     </style>
 
+    <!-- ========== GALAXY VIEW OVERLAY ========== -->
+    <div id="galaxy-view-overlay" class="galaxy-view-overlay">
+        <!-- Header with close button and XP -->
+        <div class="galaxy-view-header">
+            <div class="galaxy-view-title">
+                <span class="galaxy-icon">🌌</span>
+                <h2>Galaxy View</h2>
+                <span class="galaxy-subtitle">Vue Révolutionnaire</span>
+            </div>
+            <div class="galaxy-view-xp">
+                <div class="xp-bar-container">
+                    <div class="xp-bar" id="galaxy-xp-bar"></div>
+                </div>
+                <div class="xp-info">
+                    <span class="xp-level" id="galaxy-xp-level">Niveau 1</span>
+                    <span class="xp-points" id="galaxy-xp-points">0 / 100 XP</span>
+                </div>
+            </div>
+            <button id="galaxy-view-close" class="galaxy-view-close" title="Fermer">✕</button>
+        </div>
+
+        <!-- Main canvas area -->
+        <div class="galaxy-canvas-container">
+            <canvas id="galaxy-canvas" class="galaxy-canvas"></canvas>
+
+            <!-- Zoom/Pan controls -->
+            <div class="galaxy-controls">
+                <button id="galaxy-zoom-in" class="galaxy-control-btn" title="Zoom avant">+</button>
+                <button id="galaxy-zoom-reset" class="galaxy-control-btn" title="Réinitialiser">⊙</button>
+                <button id="galaxy-zoom-out" class="galaxy-control-btn" title="Zoom arrière">−</button>
+            </div>
+
+            <!-- Quick actions -->
+            <div class="galaxy-quick-actions">
+                <button id="galaxy-add-bubble" class="galaxy-action-btn" title="Ajouter une bulle">
+                    <span class="action-icon">+</span>
+                    <span class="action-label">Nouvelle bulle</span>
+                </button>
+                <button id="galaxy-view-pearls" class="galaxy-action-btn" title="Voir les victoires">
+                    <span class="action-icon">📿</span>
+                    <span class="action-label">Collier de perles</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pearl Necklace Section (hidden by default) -->
+        <div id="galaxy-pearl-section" class="galaxy-pearl-section">
+            <div class="pearl-section-header">
+                <h3>🎊 Collier de Perles - Tes Victoires</h3>
+                <button id="pearl-section-close" class="pearl-close-btn">Retour au Galaxy</button>
+            </div>
+            <div class="pearl-necklace-container">
+                <svg id="pearl-necklace-svg" class="pearl-necklace-svg"></svg>
+            </div>
+            <div class="pearl-legend">
+                <div class="pearl-legend-item">
+                    <span class="pearl-dot pearl-blue"></span>
+                    <span>Tâches créatives</span>
+                </div>
+                <div class="pearl-legend-item">
+                    <span class="pearl-dot pearl-green"></span>
+                    <span>Tâches professionnelles</span>
+                </div>
+                <div class="pearl-legend-item">
+                    <span class="pearl-dot pearl-purple"></span>
+                    <span>Tâches personnelles</span>
+                </div>
+                <div class="pearl-legend-item">
+                    <span class="pearl-dot pearl-gold"></span>
+                    <span>Tâches importantes</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bubble creation modal -->
+        <div id="galaxy-bubble-modal" class="galaxy-bubble-modal">
+            <div class="galaxy-bubble-modal-content">
+                <h3>Créer une nouvelle bulle</h3>
+                <input type="text" id="galaxy-bubble-title" class="galaxy-input" placeholder="Titre de la bulle..." />
+                <select id="galaxy-bubble-category" class="galaxy-select">
+                    <option value="creative">🎨 Créatif</option>
+                    <option value="professional">💼 Professionnel</option>
+                    <option value="personal">🏠 Personnel</option>
+                    <option value="important">⭐ Important</option>
+                </select>
+                <div class="galaxy-modal-actions">
+                    <button id="galaxy-bubble-create" class="galaxy-modal-btn primary">Créer</button>
+                    <button id="galaxy-bubble-cancel" class="galaxy-modal-btn secondary">Annuler</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ========== SCRIPTS ========== -->
     <!-- DISABLED: animations.js disabled to avoid duplicate particle effects
     <script src="animations.js?v=28"></script>
     -->
     <script src="dragdrop.js?v=29"></script>
     <script src="app.js?v=31"></script>
+    <script src="galaxy-view.js?v=1"></script>
 
 </body>
 </html>
