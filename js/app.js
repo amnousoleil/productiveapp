@@ -898,8 +898,57 @@ function getProject(projectId) {
 }
 
 function renderUserFilter() {
-    $('user-filter-select').innerHTML = '<option value="all">👥 Tout le monde</option>' +
-        USERS.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
+    const options = $('user-filter-options');
+    if (!options) return;
+
+    options.innerHTML = `
+        <div class="custom-select-option active" data-value="all">
+            <span class="option-emoji">👥</span>
+            <span>Tout le monde</span>
+        </div>
+        ${USERS.map(u => `
+            <div class="custom-select-option" data-value="${u.id}">
+                <img src="${u.avatar}" alt="${u.name}">
+                <span>${u.name}</span>
+            </div>
+        `).join('')}
+    `;
+
+    // Event listeners pour les options
+    options.querySelectorAll('.custom-select-option').forEach(opt => {
+        opt.addEventListener('click', () => selectUserFilter(opt.dataset.value));
+    });
+}
+
+function selectUserFilter(value) {
+    activeUserFilter = value;
+
+    // Update le bouton
+    const btn = $('user-filter-btn');
+    const options = $('user-filter-options');
+
+    // Trouver l'option sélectionnée
+    options.querySelectorAll('.custom-select-option').forEach(opt => {
+        opt.classList.toggle('active', opt.dataset.value === value);
+    });
+
+    // Update l'affichage du bouton
+    if (value === 'all') {
+        btn.querySelector('.select-avatar').innerHTML = '👥';
+        btn.querySelector('.select-text').textContent = 'Tout le monde';
+    } else {
+        const user = USERS.find(u => u.id === value);
+        if (user) {
+            btn.querySelector('.select-avatar').innerHTML = `<img src="${user.avatar}" alt="${user.name}">`;
+            btn.querySelector('.select-text').textContent = user.name;
+        }
+    }
+
+    // Fermer le dropdown
+    $('user-filter-dropdown').classList.remove('open');
+
+    renderTasks();
+    renderJournal();
 }
 
 function renderAssignSelect() {
@@ -2031,10 +2080,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     $('view-toggle-btn').addEventListener('click', toggleViewMode);
     
-    $('user-filter-select').addEventListener('change', function() {
-        activeUserFilter = $('user-filter-select').value;
-        renderTasks();
-        renderJournal();
+    // === DROPDOWN USER FILTER CUSTOM ===
+    $('user-filter-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        $('user-filter-dropdown').classList.toggle('open');
+    });
+    document.addEventListener('click', function(e) {
+        if (!$('user-filter-dropdown').contains(e.target)) {
+            $('user-filter-dropdown').classList.remove('open');
+        }
     });
 
     // === BOUTON GYROPHARE (3 modes: urgent/normal/zen) ===

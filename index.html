@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="css/style-components.css?v=46">
     <link rel="stylesheet" href="css/style-themes.css?v=46">
     <link rel="stylesheet" href="css/style-dragdrop.css?v=46">
-    <link rel="stylesheet" href="css/style-overrides.css?v=50">
+    <link rel="stylesheet" href="css/style-overrides.css?v=51">
     <link rel="stylesheet" href="css/galaxy.css?v=10">
 
 
@@ -115,9 +115,14 @@
         <!-- FILTRE UTILISATEUR - Discret -->
         <div class="user-filter-bar">
             <label>Voir :</label>
-            <select id="user-filter-select">
-                <option value="all">👥 Tout le monde</option>
-            </select>
+            <div class="custom-user-select" id="user-filter-dropdown">
+                <button class="custom-select-btn" id="user-filter-btn">
+                    <span class="select-avatar">👥</span>
+                    <span class="select-text">Tout le monde</span>
+                    <span class="select-arrow">▼</span>
+                </button>
+                <div class="custom-select-options" id="user-filter-options"></div>
+            </div>
             <button id="urgent-filter-btn" class="urgent-filter-btn" title="Organiser par priorité - Urgents en premier">
                 <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png" alt="Urgent" class="gyrophare-icon">
                 <div class="urgent-particles"></div>
@@ -412,7 +417,7 @@
     -->
     <script src="js/dragdrop.js?v=30"></script>
     <script src="js/galaxy.js?v=21"></script>
-    <script src="js/app.js?v=38"></script>
+    <script src="js/app.js?v=39"></script>
 
 </body>
 </html>

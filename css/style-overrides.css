@@ -158,34 +158,104 @@
     font-size: 0.85rem;
     color: var(--text-muted);
 }
-.user-filter-bar select {
-    padding: 8px 32px 8px 14px;
+/* === CUSTOM USER SELECT DROPDOWN === */
+.custom-user-select {
+    position: relative;
+}
+.custom-select-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
     border-radius: 12px;
     border: 2px solid rgba(224, 120, 64, 0.3);
     background-color: #1a1a1f;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%23e07840' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 10px;
     color: #ffffff;
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
-.user-filter-bar select:hover {
+.custom-select-btn:hover {
     background-color: #252528;
     border-color: var(--accent);
     box-shadow: 0 4px 15px rgba(224, 120, 64, 0.25);
 }
-.user-filter-bar select option {
-    background: #1a1a1f !important;
-    color: #ffffff !important;
-    padding: 10px;
+.custom-select-btn .select-avatar {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.custom-select-btn .select-avatar img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.6));
+}
+.custom-select-btn .select-arrow {
+    font-size: 0.7rem;
+    color: var(--accent);
+    transition: transform 0.2s;
+}
+.custom-user-select.open .select-arrow {
+    transform: rotate(180deg);
+}
+.custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    min-width: 100%;
+    background: #1a1a1f;
+    border: 2px solid rgba(224, 120, 64, 0.3);
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+}
+.custom-user-select.open .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.custom-select-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #ffffff;
+    font-weight: 500;
+}
+.custom-select-option:first-child {
+    border-radius: 10px 10px 0 0;
+}
+.custom-select-option:last-child {
+    border-radius: 0 0 10px 10px;
+}
+.custom-select-option:hover {
+    background: rgba(224, 120, 64, 0.2);
+}
+.custom-select-option.active {
+    background: rgba(224, 120, 64, 0.3);
+}
+.custom-select-option img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.6));
+}
+.custom-select-option .option-emoji {
+    font-size: 1.1rem;
 }
 
 /* === BOUTON URGENT (Gyrophare) === */
