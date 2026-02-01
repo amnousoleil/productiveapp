@@ -74,6 +74,7 @@ let projects = DEFAULT_PROJECTS;
 
 let activeProjectFilter = 'all';
 let activeUserFilter = 'all';
+let urgentFilterActive = false;
 let viewMode = localStorage.getItem('viewMode') || 'columns';
 let chatbotLarge = localStorage.getItem('chatbot-large') === 'true';
 let lastReportData = null;
@@ -977,15 +978,23 @@ async function createTask() {
 
 function renderTasks() {
     let filtered = tasks;
-    
+
     if (activeProjectFilter !== 'all') {
         filtered = filtered.filter(t => t.project === activeProjectFilter);
     }
     if (activeUserFilter !== 'all') {
         filtered = filtered.filter(t => t.userId === activeUserFilter);
     }
-    
-    // Pas de tri par priorité - on garde l'ordre personnalisé du tableau
+
+    // Tri par priorité si mode urgent activé (1=urgent, 2=normal, 3=basse)
+    if (urgentFilterActive) {
+        filtered = [...filtered].sort((a, b) => {
+            const pA = a.priority?.level || 2;
+            const pB = b.priority?.level || 2;
+            return pA - pB; // 1 en premier, puis 2, puis 3
+        });
+    }
+
     const todo = filtered.filter(t => t.status === 'todo');
     const inprogress = filtered.filter(t => t.status === 'inprogress');
     const done = filtered.filter(t => t.status === 'done').slice(0, 20);
@@ -2020,7 +2029,14 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTasks();
         renderJournal();
     });
-    
+
+    // === BOUTON URGENT (Gyrophare) ===
+    $('urgent-filter-btn').addEventListener('click', function() {
+        urgentFilterActive = !urgentFilterActive;
+        this.classList.toggle('active', urgentFilterActive);
+        renderTasks();
+    });
+
     // === MENU DROPDOWN TOGGLE ===
     const menuToggleBtn = $('menu-toggle-btn');
     const menuDropdown = $('menu-dropdown');
