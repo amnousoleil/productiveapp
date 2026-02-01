@@ -417,11 +417,103 @@ function closeGalaxyView() {
 }
 
 // =============================================
+// EFFET DIVIN - PARTICULES DORÉES
+// =============================================
+
+function initDivineParticles() {
+    const iconContainer = document.getElementById('galaxy-icon');
+    if (!iconContainer) return;
+
+    let particleInterval = null;
+
+    function createDivineParticle() {
+        const particle = document.createElement('div');
+        particle.className = 'divine-particle';
+
+        // Position aléatoire autour de l'icône
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 15 + Math.random() * 10;
+        const startX = Math.cos(angle) * distance;
+        const startY = Math.sin(angle) * distance;
+
+        // Position finale (s'éloigne)
+        const endX = Math.cos(angle) * (distance + 30);
+        const endY = Math.sin(angle) * (distance + 30);
+
+        particle.style.cssText = `
+            position: absolute;
+            width: ${2 + Math.random() * 3}px;
+            height: ${2 + Math.random() * 3}px;
+            background: radial-gradient(circle, rgba(255, 215, 0, ${0.8 + Math.random() * 0.2}), rgba(218, 165, 32, 0.4));
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(${startX}px, ${startY}px);
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: 0 0 4px rgba(255, 215, 0, 0.6);
+        `;
+
+        iconContainer.appendChild(particle);
+
+        // Animation
+        const duration = 1500 + Math.random() * 1000;
+        const startTime = performance.now();
+
+        function animate(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            if (progress < 1) {
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentX = startX + (endX - startX) * easeOut;
+                const currentY = startY + (endY - startY) * easeOut;
+                const opacity = 1 - progress;
+
+                particle.style.transform = `translate(${currentX}px, ${currentY}px)`;
+                particle.style.opacity = opacity;
+
+                requestAnimationFrame(animate);
+            } else {
+                particle.remove();
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    // Démarrer les particules au hover
+    iconContainer.addEventListener('mouseenter', () => {
+        if (!particleInterval) {
+            // Burst initial
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => createDivineParticle(), i * 50);
+            }
+
+            // Particules continues
+            particleInterval = setInterval(() => {
+                createDivineParticle();
+            }, 200);
+        }
+    });
+
+    iconContainer.addEventListener('mouseleave', () => {
+        if (particleInterval) {
+            clearInterval(particleInterval);
+            particleInterval = null;
+        }
+    });
+
+    console.log('✨ Effet divin initialisé');
+}
+
+// =============================================
 // EXPORT GLOBAL
 // =============================================
 
 window.openGalaxyView = openGalaxyView;
 window.closeGalaxyView = closeGalaxyView;
 window.initGalaxyView = initGalaxyView;
+window.initDivineParticles = initDivineParticles;
 
 console.log('📦 galaxy.js v1.0 loaded');

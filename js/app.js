@@ -2105,6 +2105,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // === EFFET DIVIN - PARTICULES DORÉES ===
+    if (typeof initDivineParticles === 'function') {
+        initDivineParticles();
+    }
+
     checkExistingSession();
     
     console.log('✅ ProductiveApp Ready (v12)');

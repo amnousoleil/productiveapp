@@ -68,24 +68,141 @@
     transform: scale(0.95);
 }
 
-/* === ICÔNE GALAXY DANS HEADER === */
-.galaxy-icon {
-    width: 28px;
-    height: 28px;
+/* === ICÔNE GALAXY DANS HEADER - ŒIL D'HORUS === */
+.galaxy-icon-container {
+    position: relative;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-    opacity: 0.85;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.galaxy-icon:hover {
-    transform: scale(1.1);
-    filter: drop-shadow(0 4px 12px rgba(100, 130, 255, 0.6));
+.galaxy-icon {
+    width: 32px;
+    height: 32px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 6px rgba(218, 165, 32, 0.4));
+    opacity: 0.9;
+    z-index: 2;
+}
+
+.galaxy-icon-container:hover .galaxy-icon {
+    transform: scale(1.15);
+    filter: drop-shadow(0 6px 20px rgba(218, 165, 32, 0.8)) brightness(1.2);
     opacity: 1;
 }
 
-.galaxy-icon:active {
+.galaxy-icon-container:active .galaxy-icon {
     transform: scale(0.95);
+}
+
+/* === PARTICULES DIVINES DORÉES === */
+.divine-particles {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.galaxy-icon-container:hover .divine-particles {
+    opacity: 1;
+}
+
+.divine-particles::before,
+.divine-particles::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+    animation: divineGlow 2s ease-in-out infinite;
+}
+
+.divine-particles::after {
+    animation-delay: 1s;
+}
+
+/* Particules individuelles */
+.galaxy-icon-container::before,
+.galaxy-icon-container::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.9), rgba(218, 165, 32, 0.6));
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.galaxy-icon-container:hover::before {
+    animation: particle1 2s ease-out infinite;
+}
+
+.galaxy-icon-container:hover::after {
+    animation: particle2 2.5s ease-out infinite;
+}
+
+/* Animations particules */
+@keyframes divineGlow {
+    0%, 100% {
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.6;
+    }
+}
+
+@keyframes particle1 {
+    0% {
+        top: 50%;
+        left: 50%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.8;
+    }
+    100% {
+        top: 20%;
+        left: 70%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes particle2 {
+    0% {
+        top: 50%;
+        left: 50%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    25% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0.7;
+    }
+    100% {
+        top: 80%;
+        left: 30%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.8);
+    }
 }
 
 /* === RESPONSIVE === */
