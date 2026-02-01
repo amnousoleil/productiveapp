@@ -671,11 +671,7 @@ function renderUserSelect() {
     grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
             <div class="avatar-orbit-container">
-                <div class="orbit-particle"></div>
-                <div class="orbit-particle"></div>
-                <div class="orbit-particle"></div>
-                <div class="orbit-particle"></div>
-                <div class="orbit-particle"></div>
+                <div class="fire-breath-container"></div>
                 <img src="${user.loginImg}" class="user-avatar-img-login" alt="${user.name}">
             </div>
             <span class="user-name-select">${user.name}</span>
@@ -685,6 +681,9 @@ function renderUserSelect() {
     grid.querySelectorAll('.user-select-btn').forEach(btn => {
         btn.addEventListener('click', () => selectUser(btn.dataset.userid));
     });
+
+    // Lancer le système de particules de souffle
+    initFireBreathParticles();
 }
 
 function selectUser(userId) {
@@ -2123,6 +2122,105 @@ function createFireBubbles() {
     for (let i = 0; i < 5; i++) {
         setTimeout(spawnFireBubble, i * 300);
     }
+}
+
+// =============================================
+// PARTICULES SOUFFLE DE FEU (autour avatar)
+// =============================================
+
+function initFireBreathParticles() {
+    const containers = document.querySelectorAll('.fire-breath-container');
+    if (containers.length === 0) return;
+
+    const fireColors = [
+        '#ffd700', '#ffaa00', '#ff8c00', '#ff6b35',
+        '#ff4500', '#ff6347', '#ffb300', '#fff176'
+    ];
+
+    // Créer une vague de particules
+    function createBreathWave(container) {
+        const particleCount = 8 + Math.floor(Math.random() * 6); // 8-14 particules par vague
+        const startAngle = Math.random() * 360;
+
+        for (let i = 0; i < particleCount; i++) {
+            setTimeout(() => {
+                createBreathParticle(container, startAngle + (i * 15), fireColors);
+            }, i * 40); // Légère cascade
+        }
+    }
+
+    // Créer une particule de souffle
+    function createBreathParticle(container, startAngle, colors) {
+        const particle = document.createElement('div');
+        particle.className = 'breath-particle';
+
+        // Taille aléatoire
+        const size = 3 + Math.random() * 5;
+        particle.style.width = size + 'px';
+        particle.style.height = size + 'px';
+
+        // Couleur aléatoire
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.background = `radial-gradient(circle, ${color} 0%, transparent 70%)`;
+        particle.style.boxShadow = `0 0 ${size * 2}px ${color}, 0 0 ${size * 4}px ${color}80`;
+
+        // Position de départ (centre)
+        particle.style.left = '50%';
+        particle.style.top = '50%';
+        particle.style.transform = 'translate(-50%, -50%)';
+
+        container.appendChild(particle);
+
+        // Animation en courbe harmonique
+        const duration = 1500 + Math.random() * 1000;
+        const radius = 50 + Math.random() * 30; // Rayon d'orbite
+        const rotations = 0.8 + Math.random() * 0.6; // Tours partiels
+        const angleRad = (startAngle * Math.PI) / 180;
+
+        let startTime = null;
+
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const progress = (timestamp - startTime) / duration;
+
+            if (progress >= 1) {
+                particle.remove();
+                return;
+            }
+
+            // Courbe en spirale harmonique
+            const currentAngle = angleRad + (progress * rotations * Math.PI * 2);
+            const currentRadius = radius * (0.3 + progress * 0.7);
+            const x = Math.cos(currentAngle) * currentRadius;
+            const y = Math.sin(currentAngle) * currentRadius;
+
+            // Opacité : monte puis descend
+            const opacity = progress < 0.2 ? progress * 5 : (1 - progress) * 1.25;
+
+            particle.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`;
+            particle.style.opacity = Math.min(1, opacity);
+
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    // Lancer des vagues périodiquement pour chaque conteneur visible
+    function breathCycle() {
+        containers.forEach(container => {
+            const btn = container.closest('.user-select-btn');
+            if (btn && btn.style.display !== 'none') {
+                createBreathWave(container);
+            }
+        });
+    }
+
+    // Démarrer après un délai (laisser l'animation d'entrée)
+    setTimeout(() => {
+        breathCycle();
+        setInterval(breathCycle, 2500); // Nouvelle vague toutes les 2.5s
+    }, 4500);
 }
 
 // =============================================
