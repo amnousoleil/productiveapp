@@ -19,7 +19,8 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 // === UTILISATEURS ===
 const USERS = [
     { id: 'maha', name: 'Maha Giri', avatar: '👑', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: '🚀', password: 'Autopdutop63.G+htrhs7', role: 'team' }
+    { id: 'brice', name: 'Brice', avatar: '🚀', password: 'Autopdutop63.G+htrhs7', role: 'team' },
+    { id: 'team', name: 'Team', avatar: '👥', password: null, role: 'shared' }
 ];
 
 // === PROJETS PAR DÉFAUT ===
@@ -88,21 +89,54 @@ async function correctText(text, mode = 'fix') {
         
         const data = await response.json();
         
-        // Extraire le texte corrigé de la réponse
-        if (data && data.output) {
-            return data.output;
-        } else if (data && data.text) {
-            return data.text;
-        } else if (Array.isArray(data) && data.length > 0) {
-            // Si c'est un array, chercher le contenu texte
-            const firstItem = data[0];
-            if (firstItem.output) return firstItem.output;
-            if (firstItem.text) return firstItem.text;
-            if (firstItem.content) return firstItem.content;
-            // Si c'est un message OpenAI
-            if (firstItem.message && firstItem.message.content) return firstItem.message.content;
-        } else if (typeof data === 'string') {
-            return data;
+        console.log('📝 Réponse correction brute:', data);
+        
+        // Fonction récursive pour extraire le texte
+        function extractText(obj) {
+            if (typeof obj === 'string') return obj;
+            if (!obj) return null;
+            
+            // Chercher dans les clés communes
+            if (obj.output && typeof obj.output === 'string') return obj.output;
+            if (obj.text && typeof obj.text === 'string') return obj.text;
+            if (obj.content && typeof obj.content === 'string') return obj.content;
+            if (obj.message && typeof obj.message === 'string') return obj.message;
+            if (obj.result && typeof obj.result === 'string') return obj.result;
+            
+            // OpenAI format
+            if (obj.message && obj.message.content) return obj.message.content;
+            if (obj.choices && obj.choices[0] && obj.choices[0].message) {
+                return obj.choices[0].message.content;
+            }
+            
+            // Si c'est un objet avec une seule clé string
+            const keys = Object.keys(obj);
+            for (const key of keys) {
+                if (typeof obj[key] === 'string' && obj[key].length > 5) {
+                    return obj[key];
+                }
+            }
+            
+            // Chercher récursivement dans les sous-objets
+            for (const key of keys) {
+                if (typeof obj[key] === 'object') {
+                    const found = extractText(obj[key]);
+                    if (found) return found;
+                }
+            }
+            
+            return null;
+        }
+        
+        // Si c'est un array, chercher dans le premier élément
+        if (Array.isArray(data)) {
+            if (data.length > 0) {
+                const result = extractText(data[0]);
+                if (result) return result;
+            }
+        } else {
+            const result = extractText(data);
+            if (result) return result;
         }
         
         console.log('⚠️ Format réponse correction inattendu:', data);
@@ -585,7 +619,7 @@ async function createJournalAPI(entry) {
 // =============================================
 
 function getPriorityLabel(level) {
-    const labels = { 1: 'Urgent', 2: 'Normal', 3: 'Basse' };
+    const labels = { 1: '🔥 Urgent', 2: 'Normal', 3: '💤 Zen' };
     return labels[level] || 'Normal';
 }
 
@@ -894,7 +928,8 @@ async function createTask() {
         const newTask = result[0];
         const parts = (newTask.text || '').split('\n---\n');
         
-        tasks.push({
+        // Ajouter en HAUT du tableau (unshift au lieu de push)
+        tasks.unshift({
             id: newTask.task_id,
             text: parts[0] || newTask.text,
             description: parts[1] || '',
@@ -903,9 +938,13 @@ async function createTask() {
             project: newTask.project_id,
             userId: newTask.user_id,
             userName: getUserName(newTask.user_id),
+            position: 0, // Position 0 = tout en haut
             createdAt: newTask.created_at,
             updatedAt: newTask.updated_at
         });
+        
+        // Mettre à jour la référence globale
+        window.tasks = tasks;
         
         renderTasks();
         renderProjectsFilter();
@@ -995,10 +1034,10 @@ function renderTaskHTMLFull(task) {
                 <div class="bubble-description hidden">${escapeHtml(task.description)}</div>
             ` : ''}
             <div class="task-actions">
-                ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️ Commencer</button>` : ''}
-                ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅ Terminé</button>` : ''}
-                ${task.status === 'todo' ? `<button class="task-action-btn complete" data-action="done">✅ Fait</button>` : ''}
-                ${task.status === 'done' ? `<button class="task-action-btn reopen" data-action="reopen">🔄 Réouvrir</button>` : ''}
+                ${task.status === 'todo' ? `<button class="task-action-btn start" data-action="start">▶️</button>` : ''}
+                ${task.status === 'inprogress' ? `<button class="task-action-btn complete" data-action="done">✅</button>` : ''}
+                ${task.status === 'todo' ? `<button class="task-action-btn complete" data-action="done">✓</button>` : ''}
+                ${task.status === 'done' ? `<button class="task-action-btn reopen" data-action="reopen">↩️</button>` : ''}
                 <button class="task-action-btn delete" data-action="delete">🗑️</button>
             </div>
         </div>
