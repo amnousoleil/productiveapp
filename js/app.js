@@ -2052,13 +2052,83 @@ async function createProject() {
 }
 
 // =============================================
+// BULLES DE FEU TRAVERSANTES (Login screen)
+// =============================================
+
+function createFireBubbles() {
+    const loginScreen = $('login-screen');
+    if (!loginScreen) return;
+
+    // Créer le conteneur
+    let container = document.querySelector('.fire-bubbles-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'fire-bubbles-container';
+        loginScreen.appendChild(container);
+    }
+
+    // Couleurs de feu
+    const fireColors = [
+        'radial-gradient(circle, #ff6b35 0%, #ff4500 50%, #ff0000 100%)',
+        'radial-gradient(circle, #ffd700 0%, #ff8c00 50%, #ff4500 100%)',
+        'radial-gradient(circle, #ff8c00 0%, #ff6347 50%, #dc143c 100%)',
+        'radial-gradient(circle, #ffaa00 0%, #ff6600 50%, #ff3300 100%)',
+        'radial-gradient(circle, #fff176 0%, #ffb300 50%, #ff6f00 100%)'
+    ];
+
+    function spawnFireBubble() {
+        if (loginScreen.classList.contains('hidden')) return;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'fire-bubble';
+
+        // Taille aléatoire
+        const size = 15 + Math.random() * 35;
+        bubble.style.width = size + 'px';
+        bubble.style.height = size + 'px';
+
+        // Position Y aléatoire
+        bubble.style.top = (10 + Math.random() * 80) + '%';
+
+        // Couleur aléatoire
+        bubble.style.background = fireColors[Math.floor(Math.random() * fireColors.length)];
+        bubble.style.boxShadow = `0 0 ${size/2}px rgba(255, 100, 0, 0.6), 0 0 ${size}px rgba(255, 50, 0, 0.3)`;
+
+        // Direction aléatoire
+        const goRight = Math.random() > 0.5;
+        bubble.style.left = goRight ? '0' : 'auto';
+        bubble.style.right = goRight ? 'auto' : '0';
+        bubble.style.animationName = goRight ? 'fireBubbleTraverse' : 'fireBubbleTraverseReverse';
+
+        // Durée aléatoire
+        const duration = 6 + Math.random() * 8;
+        bubble.style.animationDuration = duration + 's';
+
+        container.appendChild(bubble);
+
+        // Supprimer après animation
+        setTimeout(() => bubble.remove(), duration * 1000);
+    }
+
+    // Spawner des bulles régulièrement
+    setInterval(spawnFireBubble, 800);
+    // Quelques bulles au démarrage
+    for (let i = 0; i < 5; i++) {
+        setTimeout(spawnFireBubble, i * 300);
+    }
+}
+
+// =============================================
 // EVENT LISTENERS
 // =============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 ProductiveApp Starting (v12)...');
-    
+
     renderUserSelect();
+
+    // === BULLES DE FEU TRAVERSANTES ===
+    createFireBubbles();
     
     $('login-btn').addEventListener('click', attemptLogin);
     $('login-password').addEventListener('keypress', function(e) { if (e.key === 'Enter') attemptLogin(); });
@@ -2083,24 +2153,26 @@ document.addEventListener('DOMContentLoaded', function() {
         if (index >= buttons.length) index = 0;
         currentProfileIndex = index;
 
-        // Choisir l'animation selon la direction
-        let animationName = 'cardReveal'; // Par défaut pour l'initial
-        if (direction === 'right') {
-            animationName = 'slideInFromRight';
-        } else if (direction === 'left') {
-            animationName = 'slideInFromLeft';
-        }
-
-        // Cacher tous, afficher le courant avec animation directionnelle
+        // Afficher le profil sélectionné, cacher les autres
         buttons.forEach((btn, i) => {
             if (i === index) {
                 btn.style.display = 'flex';
-                // Reset animation pour permettre re-trigger
-                btn.style.animation = 'none';
-                btn.offsetHeight; // Force reflow
-                btn.style.animation = `${animationName} 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards`;
+                btn.style.opacity = '1';
+                btn.style.transform = 'scale(1.1)';
+
+                // Animation de slide selon direction
+                if (direction === 'right') {
+                    btn.style.animation = 'none';
+                    btn.offsetHeight;
+                    btn.style.animation = 'slideInFromRight 0.4s ease-out forwards';
+                } else if (direction === 'left') {
+                    btn.style.animation = 'none';
+                    btn.offsetHeight;
+                    btn.style.animation = 'slideInFromLeft 0.4s ease-out forwards';
+                }
             } else {
                 btn.style.display = 'none';
+                btn.style.opacity = '0';
             }
         });
     }
