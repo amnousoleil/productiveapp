@@ -1276,13 +1276,17 @@ function openEditTaskModal(taskId) {
     
     // Remplir le sélecteur de projet
     const projectSelect = $('edit-task-project');
-    projectSelect.innerHTML = projects.map(p => 
+    projectSelect.innerHTML = projects.map(p =>
         `<option value="${p.id}" ${task.project === p.id ? 'selected' : ''}>${p.icon} ${p.name}</option>`
     ).join('');
-    
+
+    // Remplir le sélecteur de priorité
+    const prioritySelect = $('edit-task-priority');
+    prioritySelect.value = task.priority || '2';
+
     // Remplir le sélecteur d'utilisateur
     const userSelect = $('edit-task-user');
-    userSelect.innerHTML = USERS.map(u => 
+    userSelect.innerHTML = USERS.map(u =>
         `<option value="${u.id}" ${task.userId === u.id ? 'selected' : ''}>${u.avatar} ${u.name}</option>`
     ).join('');
     
@@ -1332,36 +1336,38 @@ async function saveEditTask() {
     const newTitle = $('edit-task-title').value.trim();
     const newDescription = $('edit-task-description').value.trim();
     const newProjectId = $('edit-task-project').value;
+    const newPriority = parseInt($('edit-task-priority').value);
     const newUserId = $('edit-task-user').value;
-    
+
     if (!newTitle) {
         alert('Le titre ne peut pas être vide');
         return;
     }
-    
+
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
-    
+
     // Mettre à jour via API
-    await updateTaskFullAPI(taskId, newTitle, newDescription, newProjectId, newUserId);
-    
+    await updateTaskFullAPI(taskId, newTitle, newDescription, newProjectId, newPriority, newUserId);
+
     // Mettre à jour localement
     task.text = newTitle;
     task.description = newDescription;
     task.project = newProjectId;
+    task.priority = newPriority;
     task.userId = newUserId;
     task.userName = getUserName(newUserId);
     task.updatedAt = new Date().toISOString();
-    
+
     // Synchroniser la référence globale
     window.tasks = tasks;
-    
+
     closeEditTaskModal();
     renderTasks();
     renderProjectsFilter();
 }
 
-async function updateTaskFullAPI(taskId, title, description, projectId, userId) {
+async function updateTaskFullAPI(taskId, title, description, projectId, priority, userId) {
     try {
         let fullText = title;
         if (description && description.trim()) {
@@ -1377,6 +1383,7 @@ async function updateTaskFullAPI(taskId, title, description, projectId, userId) 
                 task_id: taskId,
                 text: fullText,
                 project_id: projectId,
+                priority: priority,
                 user_id: userId
             })
         });
