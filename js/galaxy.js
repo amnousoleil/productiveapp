@@ -23,6 +23,7 @@ let mouseX = 0;
 let mouseY = 0;
 let isEditingText = false;
 let currentTheme = 'obsidian';
+let showHelp = false;
 
 // === CONSTANTES ===
 const MIN_ZOOM = 0.3;
@@ -104,6 +105,7 @@ function createGalaxyOverlay() {
     toolbar.innerHTML = `
         <div class="galaxy-toolbar-left">
             <span class="galaxy-title">✨ Galaxy View</span>
+            <button class="galaxy-tool-btn galaxy-help-btn" id="galaxy-help-btn" title="Aide & Raccourcis">ℹ️</button>
         </div>
         <div class="galaxy-toolbar-center">
             <div class="galaxy-color-palette"></div>
@@ -200,10 +202,12 @@ function setupGalaxyEvents() {
     const closeBtn = document.getElementById('galaxy-close-btn');
     const clearBtn = document.getElementById('galaxy-clear-btn');
     const exportBtn = document.getElementById('galaxy-export-btn');
+    const helpBtn = document.getElementById('galaxy-help-btn');
 
     closeBtn.addEventListener('click', closeGalaxyView);
     clearBtn.addEventListener('click', clearAllNodes);
     exportBtn.addEventListener('click', exportToJSON);
+    helpBtn.addEventListener('click', toggleHelp);
 
     document.addEventListener('keydown', handleKeyDown);
 
@@ -367,12 +371,7 @@ function handleCanvasWheel(e) {
 
 function handleCanvasRightClick(e) {
     e.preventDefault();
-
-    const rect = galaxyCanvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left - panOffsetX) / zoom;
-    const y = (e.clientY - rect.top - panOffsetY) / zoom;
-
-    createNode(x, y, 'Nouvelle idée');
+    // Désactivé - Utiliser double-clic à la place
 }
 
 function handleCanvasDoubleClick(e) {
@@ -382,7 +381,11 @@ function handleCanvasDoubleClick(e) {
 
     const node = getNodeAt(x, y);
     if (node) {
+        // Double-clic sur une bulle = éditer le texte
         editNodeText(node);
+    } else {
+        // Double-clic sur vide = créer une bulle (comme Miro)
+        createNode(x, y, 'Nouvelle idée');
     }
 }
 
@@ -564,8 +567,8 @@ function renderGalaxy() {
 
     ctx.restore();
 
-    // Message d'accueil si vide
-    if (galaxyNodes.length === 0) {
+    // Message d'aide si activé ou si vide
+    if (showHelp || galaxyNodes.length === 0) {
         drawWelcomeMessage(ctx, w, h, theme);
     }
 
@@ -689,14 +692,14 @@ function drawWelcomeMessage(ctx, w, h, theme) {
     ctx.globalAlpha = 0.9;
 
     const instructions = [
-        '🖱️ Clic droit : Créer une bulle',
+        '🖱️ Double-clic sur vide : Créer une bulle',
+        '✏️ Double-clic sur bulle : Éditer le texte',
         '🎨 Shift + Clic : Sélectionner plusieurs bulles',
-        '✏️ Double-clic : Éditer le texte',
-        '🔗 Alt + Clic : Créer une connexion',
+        '🖐️ Glisser bulle : Déplacer une bulle',
         '📋 Ctrl+C / Ctrl+V : Copier / Coller',
         '🗑️ Delete : Supprimer la sélection',
         '🔍 Molette : Zoom',
-        '🖐️ Glisser : Déplacer la vue'
+        '🖐️ Glisser fond : Déplacer la vue'
     ];
 
     instructions.forEach((instruction, i) => {
@@ -707,7 +710,7 @@ function drawWelcomeMessage(ctx, w, h, theme) {
     ctx.font = 'italic 20px sans-serif';
     ctx.fillStyle = '#fbbf24';
     ctx.globalAlpha = 0.8;
-    ctx.fillText('👉 Fais un clic droit pour commencer !', centerX, centerY + 280);
+    ctx.fillText('👉 Double-clique n\'importe où pour créer ta première bulle !', centerX, centerY + 280);
 
     ctx.globalAlpha = 1;
 }
@@ -767,6 +770,11 @@ function closeGalaxyView() {
         selectedNodes = [];
         console.log('🌌 Galaxy View fermée');
     }
+}
+
+function toggleHelp() {
+    showHelp = !showHelp;
+    console.log('ℹ️ Aide:', showHelp ? 'affichée' : 'masquée');
 }
 
 // =============================================
