@@ -152,31 +152,79 @@ body {
     overflow: hidden;
 }
 
-/* Particules d'étoiles */
+/* Image du Maître Maha Giri - effet divin */
+.login-screen::after {
+    content: '';
+    position: absolute;
+    right: -10%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50%;
+    height: 110%;
+    background: url('maha-giri-master.jpg') center/cover no-repeat;
+    opacity: 0.15;
+    filter: blur(1px) brightness(1.1);
+    mask-image: linear-gradient(to left, rgba(0,0,0,0.8) 0%, transparent 70%);
+    -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.8) 0%, transparent 70%);
+    animation: masterGlow 8s ease-in-out infinite;
+}
+
+@keyframes masterGlow {
+    0%, 100% {
+        opacity: 0.12;
+        filter: blur(1px) brightness(1.1);
+    }
+    50% {
+        opacity: 0.18;
+        filter: blur(0.5px) brightness(1.2);
+    }
+}
+
+/* Rayons de soleil divins */
 .login-screen::before {
     content: '';
     position: absolute;
     inset: 0;
     background-image:
+        /* Rayons dorés */
+        conic-gradient(from 45deg at 85% 50%,
+            transparent 0deg,
+            rgba(255, 215, 0, 0.03) 10deg,
+            transparent 20deg,
+            transparent 40deg,
+            rgba(255, 215, 0, 0.05) 50deg,
+            transparent 60deg,
+            transparent 80deg,
+            rgba(255, 215, 0, 0.04) 90deg,
+            transparent 100deg,
+            transparent 120deg,
+            rgba(255, 215, 0, 0.03) 130deg,
+            transparent 140deg,
+            transparent 160deg,
+            rgba(255, 215, 0, 0.05) 170deg,
+            transparent 180deg
+        ),
+        /* Particules d'étoiles */
         radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.3), transparent),
         radial-gradient(2px 2px at 60% 70%, rgba(255,255,255,0.2), transparent),
         radial-gradient(1px 1px at 50% 50%, rgba(224,120,64,0.4), transparent),
         radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.2), transparent),
         radial-gradient(2px 2px at 90% 60%, rgba(255,255,255,0.15), transparent),
         radial-gradient(1px 1px at 30% 80%, rgba(224,120,64,0.3), transparent);
-    background-size: 200% 200%;
+    background-size: 150% 150%, 200% 200%, 200% 200%, 200% 200%, 200% 200%, 200% 200%, 200% 200%;
     background-position: 50% 50%;
-    animation: starfield 60s ease-in-out infinite;
-    opacity: 0.6;
+    animation: divineLight 60s ease-in-out infinite;
+    opacity: 0.7;
+    z-index: 1;
 }
 
-@keyframes starfield {
+@keyframes divineLight {
     0%, 100% {
-        background-position: 0% 0%, 100% 100%, 50% 50%, 100% 0%, 0% 100%, 50% 50%;
+        background-position: 50% 50%, 0% 0%, 100% 100%, 50% 50%, 100% 0%, 0% 100%, 50% 50%;
         opacity: 0.6;
     }
     50% {
-        background-position: 100% 100%, 0% 0%, 80% 20%, 20% 80%, 60% 40%, 90% 10%;
+        background-position: 60% 50%, 100% 100%, 0% 0%, 80% 20%, 20% 80%, 60% 40%, 90% 10%;
         opacity: 0.8;
     }
 }
@@ -197,6 +245,7 @@ body {
     width: 90%;
     animation: containerEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
+    z-index: 10;
 }
 
 .login-container::before {
