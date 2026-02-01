@@ -358,3 +358,12 @@
     --bubble-done-glow: 0 6px 20px rgba(130, 140, 255, 0.35), 0 0 30px rgba(130, 140, 255, 0.2);
     --bubble-done-text: #a0b0ff;
 }
+/* === FIX LISIBILITÉ TEXTE === */
+.bubble-text,
+.task-text,
+.bubble.done .bubble-text,
+.task-bubble.done .task-text,
+.bubble.inprogress .bubble-text,
+.task-bubble.inprogress .bubble-text {
+    color: #ffffff !important;
+}
