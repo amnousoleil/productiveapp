@@ -2112,5 +2112,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     checkExistingSession();
     
-    console.log('✅ ProductiveApp Ready (v12)');
+    console.log('✅ ProductiveApp Ready (v13 - Galaxy v2.0)');
 });
