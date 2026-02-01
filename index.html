@@ -12,10 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style-base.css?v=16">
-    <link rel="stylesheet" href="style-components.css?v=16">
-    <link rel="stylesheet" href="style-themes.css?v=16">
-    <link rel="stylesheet" href="style-dragdrop.css?v=16">
+    <link rel="stylesheet" href="style-base.css?v=17">
+    <link rel="stylesheet" href="style-components.css?v=17">
+    <link rel="stylesheet" href="style-themes.css?v=17">
+    <link rel="stylesheet" href="style-dragdrop.css?v=17">
 
     
     <!-- PDF export -->
@@ -387,7 +387,7 @@
         }
 
         body .bubble .bubble-text {
-            color: var(--bubble-text, #1a1a1a) !important;
+            color: #ffffff !important;
             font-size: 1.05rem !important;
             line-height: 1.4 !important;
             font-weight: 600 !important;
@@ -419,31 +419,12 @@
             opacity: 0.6 !important;
         }
 
-        /* === THÈMES SOMBRES === */
-        [data-theme="matrix"] .bubble .bubble-text {
-            color: #00ff66 !important;
-            text-shadow: 0 0 10px rgba(0,255,102,0.5);
+        /* === TEXTE BLANC PARTOUT === */
+        .bubble .bubble-text,
+        .bubble.inprogress .bubble-text,
+        .bubble.done .bubble-text {
+            color: #ffffff !important;
         }
-        [data-theme="matrix"] .bubble.inprogress .bubble-text { color: #00ff66 !important; }
-        [data-theme="matrix"] .bubble.done .bubble-text { color: #00cc55 !important; }
-        
-        [data-theme="midnight"] .bubble .bubble-text { color: #c0d0ff !important; }
-        [data-theme="midnight"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
-        
-        [data-theme="hacker"] .bubble .bubble-text {
-            color: #00ff00 !important;
-            text-shadow: 0 0 8px rgba(0,255,0,0.4);
-        }
-        [data-theme="hacker"] .bubble.inprogress .bubble-text { color: #ffff00 !important; }
-        
-        [data-theme="fantasy"] .bubble .bubble-text { color: #e8d0ff !important; }
-        [data-theme="fantasy"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
-
-        [data-theme="ocean"] .bubble .bubble-text { color: #e0f7ff !important; }
-        [data-theme="ocean"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
-
-        [data-theme="forest"] .bubble .bubble-text { color: #d0ffe0 !important; }
-        [data-theme="forest"] .bubble.inprogress .bubble-text { color: #fbbf24 !important; }
 
         [data-theme="matrix"] .bubble .bubble-description,
         [data-theme="midnight"] .bubble .bubble-description,

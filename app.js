@@ -49,7 +49,8 @@ const THEMES = [
     { id: 'fantasy', name: '🔮 Fantasy' },
     { id: 'sunset', name: '🌅 Sunset' },
     { id: 'forest', name: '🌲 Forest' },
-    { id: 'hacker', name: '🖤 Hacker' }
+    { id: 'hacker', name: '🖤 Hacker' },
+    { id: 'starwars', name: '⚔️ Star Wars' }
 ];
 
 // === STATE ===
