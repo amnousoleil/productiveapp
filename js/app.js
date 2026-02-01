@@ -2068,6 +2068,15 @@ document.addEventListener('DOMContentLoaded', function() {
         $('login-error').textContent = '';
         currentUser = null;
     });
+
+    // Carrousel navigation
+    const grid = $('user-select-grid');
+    $('carousel-prev').addEventListener('click', () => {
+        grid.scrollBy({ left: -180, behavior: 'smooth' });
+    });
+    $('carousel-next').addEventListener('click', () => {
+        grid.scrollBy({ left: 180, behavior: 'smooth' });
+    });
     $('logout-btn').addEventListener('click', logout);
     $('export-btn').addEventListener('click', exportData);
     
