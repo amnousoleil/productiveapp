@@ -1,0 +1,119 @@
+/* =============================================
+   PRODUCTIVEAPP - GALAXY.CSS v1.0
+   Styles pour Galaxy View
+   ============================================= */
+
+/* === OVERLAY === */
+.galaxy-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #0a0a0f;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.galaxy-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* === CANVAS === */
+.galaxy-canvas {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+}
+
+.galaxy-canvas:active {
+    cursor: grabbing;
+}
+
+/* === BOUTON FERMETURE === */
+.galaxy-close-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 300;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10001;
+}
+
+.galaxy-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(100, 130, 255, 0.5);
+}
+
+.galaxy-close-btn:active {
+    transform: scale(0.95);
+}
+
+/* === ICÔNE GALAXY DANS HEADER === */
+.galaxy-icon {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    opacity: 0.85;
+}
+
+.galaxy-icon:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 4px 12px rgba(100, 130, 255, 0.6));
+    opacity: 1;
+}
+
+.galaxy-icon:active {
+    transform: scale(0.95);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .galaxy-close-btn {
+        width: 40px;
+        height: 40px;
+        top: 16px;
+        right: 16px;
+        font-size: 20px;
+    }
+
+    .galaxy-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* === ANIMATIONS === */
+@keyframes galaxyFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.galaxy-overlay:not(.hidden) {
+    animation: galaxyFadeIn 0.3s ease;
+}

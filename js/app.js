@@ -2094,7 +2094,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
-    
+
+    // === GALAXY VIEW ===
+    if (typeof initGalaxyView === 'function') {
+        initGalaxyView();
+
+        const galaxyIcon = $('galaxy-icon');
+        if (galaxyIcon) {
+            galaxyIcon.addEventListener('click', openGalaxyView);
+        }
+    }
+
     checkExistingSession();
     
     console.log('✅ ProductiveApp Ready (v12)');
