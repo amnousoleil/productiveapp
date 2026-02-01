@@ -562,12 +562,17 @@ function renderGalaxy() {
     // Nœuds
     drawNodes(ctx, theme);
 
+    ctx.restore();
+
+    // Message d'accueil si vide
+    if (galaxyNodes.length === 0) {
+        drawWelcomeMessage(ctx, w, h, theme);
+    }
+
     // Connexion temporaire
     if (isCreatingConnection && connectionStart) {
         drawTemporaryConnection(ctx);
     }
-
-    ctx.restore();
 
     requestAnimationFrame(renderGalaxy);
 }
@@ -661,6 +666,50 @@ function drawTemporaryConnection(ctx) {
     ctx.setLineDash([5, 5]);
     ctx.stroke();
     ctx.setLineDash([]);
+}
+
+function drawWelcomeMessage(ctx, w, h, theme) {
+    const centerX = w / 2;
+    const centerY = h / 2;
+
+    // Fond semi-transparent
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Titre principal
+    ctx.font = 'bold 48px sans-serif';
+    ctx.fillStyle = theme.text;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✨ Bienvenue dans Galaxy View', centerX, centerY - 120);
+
+    // Instructions
+    ctx.font = '24px sans-serif';
+    ctx.fillStyle = theme.text;
+    ctx.globalAlpha = 0.9;
+
+    const instructions = [
+        '🖱️ Clic droit : Créer une bulle',
+        '🎨 Shift + Clic : Sélectionner plusieurs bulles',
+        '✏️ Double-clic : Éditer le texte',
+        '🔗 Alt + Clic : Créer une connexion',
+        '📋 Ctrl+C / Ctrl+V : Copier / Coller',
+        '🗑️ Delete : Supprimer la sélection',
+        '🔍 Molette : Zoom',
+        '🖐️ Glisser : Déplacer la vue'
+    ];
+
+    instructions.forEach((instruction, i) => {
+        ctx.fillText(instruction, centerX, centerY - 20 + i * 35);
+    });
+
+    // Message d'encouragement
+    ctx.font = 'italic 20px sans-serif';
+    ctx.fillStyle = '#fbbf24';
+    ctx.globalAlpha = 0.8;
+    ctx.fillText('👉 Fais un clic droit pour commencer !', centerX, centerY + 280);
+
+    ctx.globalAlpha = 1;
 }
 
 // =============================================
