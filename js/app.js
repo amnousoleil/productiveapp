@@ -18,9 +18,9 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 
 // === UTILISATEURS ===
 const USERS = [
-    { id: 'maha', name: 'Maha Giri', avatar: '👑', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: '🚀', password: 'Autopdutop63.G+htrhs7', role: 'team' },
-    { id: 'team', name: 'Team', avatar: '👥', password: null, role: 'shared' }
+    { id: 'maha', name: 'Maha Giri', avatar: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
+    { id: 'brice', name: 'Brice', avatar: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f029ae_ChatGPTImage1f%C3%A9vr.202611_03_13.png', password: 'Autopdutop63.G+htrhs7', role: 'team' },
+    { id: 'team', name: 'Team', avatar: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png', password: null, role: 'shared' }
 ];
 
 // === PROJETS PAR DÉFAUT ===
@@ -649,9 +649,13 @@ function getUserName(userId) {
     return user ? user.name : userId;
 }
 
-function getUserAvatar(userId) {
+function getUserAvatar(userId, asImg = false) {
     const user = USERS.find(u => u.id === userId);
-    return user ? user.avatar : '👤';
+    const avatar = user ? user.avatar : '👤';
+    if (asImg && user) {
+        return `<img src="${avatar}" class="user-avatar-img" alt="${user.name}">`;
+    }
+    return avatar;
 }
 
 function escapeHtml(text) {
@@ -670,7 +674,7 @@ function renderUserSelect() {
     
     grid.innerHTML = USERS.map(user => `
         <button class="user-select-btn" data-userid="${user.id}">
-            <span class="user-avatar-big">${user.avatar}</span>
+            <img src="${user.avatar}" class="user-avatar-img-big" alt="${user.name}">
             <span class="user-name-select">${user.name}</span>
         </button>
     `).join('');
@@ -895,7 +899,7 @@ function getProject(projectId) {
 
 function renderUserFilter() {
     $('user-filter-select').innerHTML = '<option value="all">👥 Tout le monde</option>' +
-        USERS.map(u => `<option value="${u.id}">${u.avatar} ${u.name}</option>`).join('');
+        USERS.map(u => `<option value="${u.id}">${u.name}</option>`).join('');
 }
 
 function renderAssignSelect() {
@@ -903,8 +907,8 @@ function renderAssignSelect() {
     if (!assignSelect) return;
     
     assignSelect.innerHTML = `<option value="">👤 Moi</option>` +
-        USERS.filter(u => u.id !== currentUser.id).map(u => 
-            `<option value="${u.id}">${u.avatar} ${u.name}</option>`
+        USERS.filter(u => u.id !== currentUser.id).map(u =>
+            `<option value="${u.id}">${u.name}</option>`
         ).join('');
 }
 
@@ -1299,7 +1303,7 @@ function openEditTaskModal(taskId) {
     // Remplir le sélecteur d'utilisateur
     const userSelect = $('edit-task-user');
     userSelect.innerHTML = USERS.map(u =>
-        `<option value="${u.id}" ${task.userId === u.id ? 'selected' : ''}>${u.avatar} ${u.name}</option>`
+        `<option value="${u.id}" ${task.userId === u.id ? 'selected' : ''}>${u.name}</option>`
     ).join('');
     
     // Boutons d'action selon le statut
