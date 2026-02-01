@@ -22,7 +22,8 @@ let connectionStart = null;
 let mouseX = 0;
 let mouseY = 0;
 let isEditingText = false;
-let currentTheme = 'obsidian';
+let currentTheme = 'white'; // Thème blanc Excalidraw
+let roughCanvas = null; // Instance Rough.js pour style hand-drawn
 let showHelp = false;
 let currentShape = 'circle'; // circle, rect, diamond, text
 let contextMenuPos = null; // {x, y, screenX, screenY}
@@ -71,18 +72,15 @@ const GALAXY_THEMES = {
     }
 };
 
-// === COULEURS DISPONIBLES ===
+// === COULEURS DISPONIBLES (palette Excalidraw simplifiée) ===
 const COLORS = [
-    '#e07840', // Desert orange
-    '#00ff66', // Matrix green
-    '#6482ff', // Midnight blue
-    '#bf6bff', // Fantasy purple
-    '#ff6b9d', // Bubblegum pink
-    '#fbbf24', // Golden yellow
-    '#10b981', // Emerald
-    '#ef4444', // Red
-    '#8b5cf6', // Violet
-    '#06b6d4'  // Cyan
+    '#1e1e1e', // Noir
+    '#e03131', // Rouge
+    '#2f9e44', // Vert
+    '#1971c2', // Bleu
+    '#f08c00', // Orange
+    '#ae3ec9', // Violet
+    '#0c8599', // Cyan
 ];
 
 // === ÉTOILES (pour thème dark) ===
@@ -140,6 +138,12 @@ function createGalaxyOverlay() {
 
     galaxyCanvas = canvas;
     galaxyCtx = canvas.getContext('2d');
+
+    // Initialiser Rough.js pour style hand-drawn Excalidraw
+    if (typeof rough !== 'undefined') {
+        roughCanvas = rough.canvas(canvas);
+        console.log('✅ Rough.js initialisé - style hand-drawn activé');
+    }
 
     resizeGalaxyCanvas();
     renderShapeSelector();
@@ -835,30 +839,30 @@ function drawConnections(ctx) {
         const toNode = galaxyNodes.find(n => n.id === conn.to);
 
         if (fromNode && toNode) {
-            // Glow de la connexion
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = 'rgba(100, 130, 255, 0.6)';
+            // Style Excalidraw - ligne hand-drawn simple
+            if (roughCanvas) {
+                const options = {
+                    roughness: 0.8,
+                    strokeWidth: 2,
+                    stroke: '#94a3b8' // Gris pour les connexions
+                };
 
-            // Ligne principale avec gradient
-            const gradient = ctx.createLinearGradient(fromNode.x, fromNode.y, toNode.x, toNode.y);
-            gradient.addColorStop(0, fromNode.color + 'aa');
-            gradient.addColorStop(0.5, 'rgba(100, 130, 255, 0.5)');
-            gradient.addColorStop(1, toNode.color + 'aa');
+                roughCanvas.line(fromNode.x, fromNode.y, toNode.x, toNode.y, options);
+            } else {
+                // Fallback sans Rough.js
+                ctx.beginPath();
+                ctx.moveTo(fromNode.x, fromNode.y);
+                ctx.lineTo(toNode.x, toNode.y);
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
 
-            ctx.beginPath();
-            ctx.moveTo(fromNode.x, fromNode.y);
-            ctx.lineTo(toNode.x, toNode.y);
-            ctx.strokeStyle = gradient;
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            ctx.shadowBlur = 0;
-
-            // Flèche directionnelle à l'extrémité
+            // Flèche directionnelle à l'extrémité (simplified)
             const angle = Math.atan2(toNode.y - fromNode.y, toNode.x - fromNode.x);
-            const arrowSize = 12;
+            const arrowSize = 10;
 
-            // Point de la flèche (légèrement avant le centre du node destination)
+            // Point de la flèche
             const arrowX = toNode.x - Math.cos(angle) * (NODE_RADIUS * 0.7);
             const arrowY = toNode.y - Math.sin(angle) * (NODE_RADIUS * 0.7);
 
@@ -866,7 +870,7 @@ function drawConnections(ctx) {
             ctx.translate(arrowX, arrowY);
             ctx.rotate(angle);
 
-            ctx.fillStyle = toNode.color;
+            ctx.fillStyle = '#64748b';
             ctx.beginPath();
             ctx.moveTo(0, 0);
             ctx.lineTo(-arrowSize, -arrowSize / 2);
@@ -897,71 +901,27 @@ function drawNodes(ctx, theme) {
 }
 
 function drawCircleNode(ctx, theme, node, isSelected) {
-    // Glow externe
-    const glowGradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, NODE_RADIUS + 25);
-    glowGradient.addColorStop(0, node.color + 'cc');
-    glowGradient.addColorStop(0.3, node.color + '66');
-    glowGradient.addColorStop(1, node.color + '00');
+    // Style Excalidraw - cercle hand-drawn avec Rough.js
+    if (roughCanvas) {
+        const options = {
+            roughness: 0.8,
+            strokeWidth: isSelected ? 3 : 2,
+            stroke: node.color,
+            fill: '#ffffff',
+            fillStyle: 'solid'
+        };
 
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, NODE_RADIUS + 25, 0, Math.PI * 2);
-    ctx.fillStyle = glowGradient;
-    ctx.fill();
-
-    // Ombre portée
-    ctx.shadowColor = node.color + '99';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 5;
-
-    // Fond glassmorphism
-    const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
-    const bgGradient = ctx.createRadialGradient(
-        node.x - NODE_RADIUS * 0.3,
-        node.y - NODE_RADIUS * 0.3,
-        0,
-        node.x,
-        node.y,
-        NODE_RADIUS
-    );
-    if (isDark) {
-        bgGradient.addColorStop(0, 'rgba(40, 40, 50, 0.95)');
-        bgGradient.addColorStop(1, 'rgba(20, 20, 30, 0.9)');
+        roughCanvas.circle(node.x, node.y, NODE_RADIUS * 2, options);
     } else {
-        bgGradient.addColorStop(0, 'rgba(255, 255, 255, 0.98)');
-        bgGradient.addColorStop(1, 'rgba(245, 245, 250, 0.95)');
+        // Fallback sans Rough.js
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = isSelected ? 3 : 2;
+        ctx.stroke();
     }
-
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = bgGradient;
-    ctx.fill();
-
-    // Bordure
-    ctx.strokeStyle = node.color;
-    ctx.lineWidth = isSelected ? 5 : 3;
-    ctx.stroke();
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-
-    // Reflet shine
-    const shineGradient = ctx.createRadialGradient(
-        node.x - NODE_RADIUS * 0.4,
-        node.y - NODE_RADIUS * 0.4,
-        0,
-        node.x,
-        node.y,
-        NODE_RADIUS
-    );
-    shineGradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)');
-    shineGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
-    shineGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, NODE_RADIUS, 0, Math.PI * 2);
-    ctx.fillStyle = shineGradient;
-    ctx.fill();
 
     // Texte
     drawNodeText(ctx, theme, node, NODE_RADIUS * 1.6);
@@ -973,24 +933,25 @@ function drawRectNode(ctx, theme, node, isSelected) {
     const x = node.x - w / 2;
     const y = node.y - h / 2;
 
-    // Ombre
-    ctx.shadowColor = node.color + '99';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 5;
+    // Style Excalidraw - rectangle hand-drawn avec Rough.js
+    if (roughCanvas) {
+        const options = {
+            roughness: 0.8,
+            strokeWidth: isSelected ? 3 : 2,
+            stroke: node.color,
+            fill: '#ffffff',
+            fillStyle: 'solid'
+        };
 
-    // Fond
-    const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
-    ctx.fillStyle = isDark ? 'rgba(40, 40, 50, 0.95)' : 'rgba(255, 255, 255, 0.98)';
-    ctx.fillRect(x, y, w, h);
-
-    // Bordure
-    ctx.strokeStyle = node.color;
-    ctx.lineWidth = isSelected ? 5 : 3;
-    ctx.strokeRect(x, y, w, h);
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
+        roughCanvas.rectangle(x, y, w, h, options);
+    } else {
+        // Fallback sans Rough.js
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x, y, w, h);
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = isSelected ? 3 : 2;
+        ctx.strokeRect(x, y, w, h);
+    }
 
     // Texte
     drawNodeText(ctx, theme, node, w - 20);
@@ -999,31 +960,38 @@ function drawRectNode(ctx, theme, node, isSelected) {
 function drawDiamondNode(ctx, theme, node, isSelected) {
     const size = NODE_RADIUS;
 
-    // Ombre
-    ctx.shadowColor = node.color + '99';
-    ctx.shadowBlur = 20;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 5;
+    // Style Excalidraw - losange hand-drawn avec Rough.js
+    if (roughCanvas) {
+        const options = {
+            roughness: 0.8,
+            strokeWidth: isSelected ? 3 : 2,
+            stroke: node.color,
+            fill: '#ffffff',
+            fillStyle: 'solid'
+        };
 
-    // Fond
-    const isDark = theme.background === '#0a0a0f' || theme.background === '#1e1e1e';
-    ctx.fillStyle = isDark ? 'rgba(40, 40, 50, 0.95)' : 'rgba(255, 255, 255, 0.98)';
-
-    ctx.beginPath();
-    ctx.moveTo(node.x, node.y - size);
-    ctx.lineTo(node.x + size, node.y);
-    ctx.lineTo(node.x, node.y + size);
-    ctx.lineTo(node.x - size, node.y);
-    ctx.closePath();
-    ctx.fill();
-
-    // Bordure
-    ctx.strokeStyle = node.color;
-    ctx.lineWidth = isSelected ? 5 : 3;
-    ctx.stroke();
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
+        // Polygon (losange)
+        const points = [
+            [node.x, node.y - size],
+            [node.x + size, node.y],
+            [node.x, node.y + size],
+            [node.x - size, node.y]
+        ];
+        roughCanvas.polygon(points, options);
+    } else {
+        // Fallback sans Rough.js
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.moveTo(node.x, node.y - size);
+        ctx.lineTo(node.x + size, node.y);
+        ctx.lineTo(node.x, node.y + size);
+        ctx.lineTo(node.x - size, node.y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = node.color;
+        ctx.lineWidth = isSelected ? 3 : 2;
+        ctx.stroke();
+    }
 
     // Texte
     drawNodeText(ctx, theme, node, size * 1.4);
@@ -1050,10 +1018,9 @@ function drawTextNode(ctx, theme, node, isSelected) {
 }
 
 function drawNodeText(ctx, theme, node, maxWidth) {
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 3;
-    ctx.fillStyle = theme.text;
-    ctx.font = 'bold 15px Inter, sans-serif';
+    // Style Excalidraw - texte simple sans ombre
+    ctx.fillStyle = '#1e293b'; // Gris foncé pour meilleure lisibilité
+    ctx.font = '600 14px Inter, -apple-system, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 

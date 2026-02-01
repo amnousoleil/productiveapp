@@ -10,7 +10,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: #0a0a0f;
+    background: #ffffff;
     z-index: 10000;
     display: flex;
     align-items: center;
@@ -45,14 +45,14 @@
     left: 0;
     right: 0;
     height: 60px;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 0 20px;
     z-index: 10002;
+    gap: 16px;
 }
 
 .galaxy-toolbar-left,
@@ -73,23 +73,24 @@
 .galaxy-color-palette {
     display: flex;
     gap: 6px;
-    padding: 4px;
-    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
 }
 
 .color-btn {
     width: 28px;
     height: 28px;
-    border-radius: 6px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    border: 2px solid #e5e7eb;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
 .color-btn:hover {
-    transform: scale(1.15);
-    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.1);
+    border-color: #9ca3af;
 }
 
 .color-btn:active {
@@ -99,9 +100,10 @@
 /* === SHAPE SELECTOR === */
 .galaxy-shape-selector {
     display: flex;
-    gap: 4px;
-    padding: 4px;
-    background: rgba(255, 255, 255, 0.05);
+    gap: 8px;
+    padding: 4px 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
 }
 
@@ -109,59 +111,35 @@
     width: 36px;
     height: 36px;
     border-radius: 6px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    border: 1.5px solid transparent;
+    background: transparent;
+    color: #374151;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .shape-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.05);
+    background: #e5e7eb;
 }
 
 .shape-btn.active {
-    background: rgba(251, 191, 36, 0.5);
-    border-color: rgba(251, 191, 36, 0.8);
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e40af;
 }
 
 /* === THEME SELECTOR === */
 .galaxy-theme-selector {
-    display: flex;
-    gap: 4px;
-    padding: 4px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
+    display: none; /* Caché pour style Excalidraw - fond blanc uniquement */
 }
 
 .theme-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.theme-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-.theme-btn.active {
-    background: rgba(100, 130, 255, 0.5);
-    border-color: rgba(100, 130, 255, 0.8);
+    display: none;
 }
 
 /* === TOOL BUTTONS === */
@@ -169,18 +147,17 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
+    border: 1.5px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
     font-size: 18px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
 }
 
 .galaxy-tool-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.05);
+    background: #f3f4f6;
+    border-color: #9ca3af;
 }
 
 /* Bouton aide avec animation clignotante */
@@ -206,30 +183,28 @@
 /* === BOUTON FERMETURE === */
 .galaxy-close-btn {
     position: absolute;
-    top: 24px;
-    right: 24px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    font-size: 24px;
-    font-weight: 300;
+    top: 10px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 1.5px solid #e5e7eb;
+    color: #374151;
+    font-size: 20px;
+    font-weight: 400;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.15s ease;
     z-index: 10001;
 }
 
 .galaxy-close-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(100, 130, 255, 0.5);
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #dc2626;
 }
 
 .galaxy-close-btn:active {
