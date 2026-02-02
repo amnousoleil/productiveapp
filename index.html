@@ -96,7 +96,22 @@
                 <button class="carousel-arrow carousel-next" id="carousel-next">›</button>
             </div>
 
-            <!-- Formulaire mot de passe -->
+            <!-- Bouton connexion email -->
+            <button id="email-login-toggle" class="email-login-toggle" onclick="showEmailLogin()">
+                📧 Connexion par email
+            </button>
+
+            <!-- Formulaire email (caché par défaut) -->
+            <div class="login-form hidden" id="email-login-form">
+                <p style="color:#fff;margin-bottom:16px;">Connexion par email</p>
+                <input type="email" id="email-input" placeholder="demo@productive.app" style="margin-bottom:10px;">
+                <input type="password" id="email-password" placeholder="Demo@123">
+                <button id="email-login-btn" class="btn-primary" onclick="tryEmailLogin()">Se connecter</button>
+                <button class="btn-secondary" onclick="hideEmailLogin()">← Retour aux avatars</button>
+                <p style="font-size:0.8rem;color:#888;margin-top:12px;">Test: demo@productive.app / Demo@123</p>
+            </div>
+
+            <!-- Formulaire mot de passe (avatars) -->
             <div class="login-form hidden" id="password-form">
                 <p id="login-username"></p>
                 <input type="password" id="login-password" placeholder="Mot de passe...">
@@ -706,6 +721,65 @@
 
     <!-- 5. Application principale (orchestrateur) -->
     <script src="js/app-modular.js?v=7"></script>
+
+    <!-- Email Login Functions -->
+    <script>
+    function showEmailLogin() {
+        document.querySelector('.user-carousel')?.classList.add('hidden');
+        document.querySelector('.login-subtitle')?.classList.add('hidden');
+        document.getElementById('email-login-toggle')?.classList.add('hidden');
+        document.getElementById('email-login-form')?.classList.remove('hidden');
+        document.getElementById('email-input')?.focus();
+    }
+
+    function hideEmailLogin() {
+        document.getElementById('email-login-form')?.classList.add('hidden');
+        document.querySelector('.user-carousel')?.classList.remove('hidden');
+        document.querySelector('.login-subtitle')?.classList.remove('hidden');
+        document.getElementById('email-login-toggle')?.classList.remove('hidden');
+    }
+
+    async function tryEmailLogin() {
+        const email = document.getElementById('email-input')?.value || '';
+        const password = document.getElementById('email-password')?.value || '';
+        const errorEl = document.getElementById('login-error');
+
+        if (!email || !password) {
+            if (errorEl) errorEl.textContent = 'Remplissez tous les champs';
+            return;
+        }
+
+        try {
+            console.log('🔐 Attempting email login:', email);
+
+            if (typeof ApiAuth !== 'undefined') {
+                const result = await ApiAuth.login(email, password);
+                console.log('✅ Login result:', result);
+
+                if (result && result.user) {
+                    // Success!
+                    document.getElementById('login-screen')?.classList.add('hidden');
+                    document.body.classList.add('logged-in');
+
+                    if (typeof AppState !== 'undefined') {
+                        AppState.currentUser = result.user;
+                    }
+
+                    if (typeof App !== 'undefined' && App.init) {
+                        await App.init();
+                    }
+
+                    alert('✅ Connexion réussie avec ' + result.user.email);
+                }
+            } else {
+                if (errorEl) errorEl.textContent = 'ApiAuth non disponible';
+            }
+        } catch (error) {
+            console.error('❌ Login error:', error);
+            if (errorEl) errorEl.textContent = error.message || 'Erreur de connexion';
+        }
+    }
+    </script>
 
 </body>
 </html>
