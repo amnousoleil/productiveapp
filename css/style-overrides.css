@@ -1768,11 +1768,11 @@ body .bubble.done .bubble-text {
 
 /* Cacher la sidebar avant le login */
 .sidebar {
-    display: none;
+    display: none !important;
 }
 
 body.logged-in .sidebar {
-    display: flex;
+    display: flex !important;
 }
 
 /* Masquer le bouton mobile toggle avant login */
@@ -1813,14 +1813,13 @@ body.logged-in .header-left .galaxy-icon-container {
 
 /* Ajuster le contenu principal pour la sidebar */
 @media (min-width: 769px) {
-    body.sidebar-open .app-container {
+    body.logged-in .app-container {
         margin-left: var(--sidebar-width-expanded, 260px);
         transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    body.sidebar-collapsed .app-container {
+    body.logged-in.sidebar-collapsed .app-container {
         margin-left: var(--sidebar-width-collapsed, 72px);
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 }
 
