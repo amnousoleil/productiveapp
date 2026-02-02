@@ -97,7 +97,7 @@
             </div>
 
             <!-- Bouton connexion email -->
-            <button id="email-login-toggle" class="email-login-toggle" onclick="showEmailLogin()">
+            <button type="button" id="email-login-toggle" class="email-login-toggle">
                 📧 Connexion par email
             </button>
 
@@ -106,8 +106,8 @@
                 <p style="color:#fff;margin-bottom:16px;">Connexion par email</p>
                 <input type="email" id="email-input" placeholder="demo@productive.app" style="margin-bottom:10px;">
                 <input type="password" id="email-password" placeholder="Demo@123">
-                <button id="email-login-btn" class="btn-primary" onclick="tryEmailLogin()">Se connecter</button>
-                <button class="btn-secondary" onclick="hideEmailLogin()">← Retour aux avatars</button>
+                <button type="button" id="email-login-btn" class="btn-primary">Se connecter</button>
+                <button type="button" id="email-back-btn" class="btn-secondary">← Retour aux avatars</button>
                 <p style="font-size:0.8rem;color:#888;margin-top:12px;">Test: demo@productive.app / Demo@123</p>
             </div>
 
@@ -724,25 +724,30 @@
 
     <!-- Email Login Functions -->
     <script>
-    function showEmailLogin() {
+    // Make functions globally available
+    window.showEmailLogin = function() {
+        console.log('📧 showEmailLogin called');
         document.querySelector('.user-carousel')?.classList.add('hidden');
         document.querySelector('.login-subtitle')?.classList.add('hidden');
         document.getElementById('email-login-toggle')?.classList.add('hidden');
         document.getElementById('email-login-form')?.classList.remove('hidden');
         document.getElementById('email-input')?.focus();
-    }
+    };
 
-    function hideEmailLogin() {
+    window.hideEmailLogin = function() {
+        console.log('⬅️ hideEmailLogin called');
         document.getElementById('email-login-form')?.classList.add('hidden');
         document.querySelector('.user-carousel')?.classList.remove('hidden');
         document.querySelector('.login-subtitle')?.classList.remove('hidden');
         document.getElementById('email-login-toggle')?.classList.remove('hidden');
-    }
+    };
 
-    async function tryEmailLogin() {
+    window.tryEmailLogin = async function() {
         const email = document.getElementById('email-input')?.value || '';
         const password = document.getElementById('email-password')?.value || '';
         const errorEl = document.getElementById('login-error');
+
+        console.log('🔐 tryEmailLogin called with:', email);
 
         if (!email || !password) {
             if (errorEl) errorEl.textContent = 'Remplissez tous les champs';
@@ -750,14 +755,11 @@
         }
 
         try {
-            console.log('🔐 Attempting email login:', email);
-
             if (typeof ApiAuth !== 'undefined') {
                 const result = await ApiAuth.login(email, password);
                 console.log('✅ Login result:', result);
 
                 if (result && result.user) {
-                    // Success!
                     document.getElementById('login-screen')?.classList.add('hidden');
                     document.body.classList.add('logged-in');
 
@@ -772,13 +774,44 @@
                     alert('✅ Connexion réussie avec ' + result.user.email);
                 }
             } else {
+                console.error('ApiAuth not defined');
                 if (errorEl) errorEl.textContent = 'ApiAuth non disponible';
             }
         } catch (error) {
             console.error('❌ Login error:', error);
             if (errorEl) errorEl.textContent = error.message || 'Erreur de connexion';
         }
-    }
+    };
+
+    // Also add event listeners on DOMContentLoaded as backup
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('email-login-toggle');
+        const loginBtn = document.getElementById('email-login-btn');
+        const backBtn = document.getElementById('email-back-btn');
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.showEmailLogin();
+            });
+            console.log('✅ Email toggle button listener added');
+        }
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.tryEmailLogin();
+            });
+        }
+
+        if (backBtn) {
+            backBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.hideEmailLogin();
+            });
+        }
+    });
     </script>
 
 </body>
