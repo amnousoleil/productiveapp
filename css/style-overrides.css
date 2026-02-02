@@ -1139,46 +1139,72 @@ body .bubble.done .bubble-text {
 .chat-media-buttons {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     flex-shrink: 0;
 }
 
-/* Boutons média (micro, caméra, fichier) */
+/* Boutons média (micro, caméra, fichier) - Design Glassmorphism */
 .chat-media-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    border: none;
-    background: transparent;
-    color: rgba(255,255,255,0.6);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    padding: 0;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    color: rgba(255,255,255,0.7) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 0 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1) !important;
 }
 
 .chat-media-btn svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
 }
 
 .chat-media-btn:hover {
-    background: rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.9);
+    background: linear-gradient(135deg, rgba(139,92,246,0.3) 0%, rgba(99,102,241,0.2) 100%) !important;
+    border-color: rgba(139,92,246,0.5) !important;
+    color: #fff !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 0 20px rgba(139,92,246,0.4), 0 8px 25px rgba(0,0,0,0.3) !important;
+}
+
+.chat-media-btn:hover svg {
+    filter: drop-shadow(0 0 8px rgba(139,92,246,0.6));
+    transform: scale(1.1);
+}
+
+.chat-media-btn:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 0 0 10px rgba(139,92,246,0.3), 0 2px 10px rgba(0,0,0,0.2);
 }
 
 /* Micro en enregistrement */
 .chat-media-btn.recording {
-    background: #ff4444 !important;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+    border-color: #f87171 !important;
     color: white !important;
-    animation: micPulse 1s ease-in-out infinite;
+    animation: micPulseGlow 1.5s ease-in-out infinite;
+    box-shadow: 0 0 25px rgba(239,68,68,0.5), 0 4px 15px rgba(0,0,0,0.3);
 }
 
-@keyframes micPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,68,68,0.4); }
-    50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(255,68,68,0); }
+@keyframes micPulseGlow {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(239,68,68,0.4), 0 4px 15px rgba(0,0,0,0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 35px rgba(239,68,68,0.6), 0 6px 20px rgba(0,0,0,0.4);
+    }
 }
 
 /* Champ texte style WhatsApp */
