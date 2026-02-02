@@ -1766,13 +1766,16 @@ body .bubble.done .bubble-text {
    SIDEBAR INTEGRATION - ProductiveApp v3.1
    ================================================ */
 
-/* Cacher la sidebar avant le login */
+/* Sidebar visible après login */
 .sidebar {
-    display: none !important;
+    display: flex !important;
+    opacity: 0;
+    pointer-events: none;
 }
 
 body.logged-in .sidebar {
-    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
 }
 
 /* Masquer le bouton mobile toggle avant login */
