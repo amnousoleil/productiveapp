@@ -553,12 +553,33 @@
     </div>
 
     <!-- ========== SCRIPTS ========== -->
-    <!-- DISABLED: animations.js disabled to avoid duplicate particle effects
-    <script src="js/animations.js?v=28"></script>
-    -->
+
+    <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
+    <!-- 1. Configuration et utilitaires -->
+    <script src="js/modules/config.js?v=1"></script>
+    <script src="js/modules/state.js?v=1"></script>
+    <script src="js/modules/utils.js?v=1"></script>
+
+    <!-- 2. Services -->
+    <script src="js/services/api.service.js?v=1"></script>
+
+    <!-- 3. Modules fonctionnels -->
+    <script src="js/modules/auth.js?v=1"></script>
+    <script src="js/modules/themes.js?v=1"></script>
+    <script src="js/modules/tasks.js?v=1"></script>
+    <script src="js/modules/projects.js?v=1"></script>
+    <script src="js/modules/journal.js?v=1"></script>
+    <script src="js/modules/chatbot.js?v=1"></script>
+    <script src="js/modules/effects.js?v=1"></script>
+    <script src="js/modules/report.js?v=1"></script>
+    <script src="js/modules/backup.js?v=1"></script>
+
+    <!-- 4. Modules externes -->
     <script src="js/dragdrop.js?v=30"></script>
     <script src="js/galaxy.js?v=21"></script>
-    <script src="js/app.js?v=56"></script>
+
+    <!-- 5. Application principale (orchestrateur) -->
+    <script src="js/app-modular.js?v=1"></script>
 
 </body>
 </html>
