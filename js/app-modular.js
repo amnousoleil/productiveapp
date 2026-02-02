@@ -7,7 +7,7 @@ const App = {
     /**
      * Version de l'application
      */
-    VERSION: '3.0.0',
+    VERSION: '3.1.0',
 
     /**
      * Initialise l'application après login
@@ -35,6 +35,11 @@ const App = {
 
         // Initialiser le système de backup
         Backup.init();
+
+        // Initialiser la sidebar
+        if (typeof Sidebar !== 'undefined') {
+            Sidebar.init();
+        }
 
         // Initialiser le drag & drop
         setTimeout(() => {
@@ -210,3 +215,6 @@ window.escapeHtml = (text) => Utils.escapeHtml(text);
 
 // Exposer App globalement
 window.App = App;
+
+// Exposer Sidebar
+window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;

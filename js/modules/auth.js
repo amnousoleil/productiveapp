@@ -57,6 +57,7 @@ const Auth = {
             AppState.setUser(AppState.currentUser);
             Utils.$('login-screen').classList.add('hidden');
             Utils.$('login-error').textContent = '';
+            document.body.classList.add('logged-in');
             return true;
         } else {
             Utils.$('login-error').textContent = 'Mot de passe incorrect';
@@ -77,6 +78,7 @@ const Auth = {
         Utils.$('password-form').classList.add('hidden');
         Utils.$('login-password').value = '';
         Utils.$('login-error').textContent = '';
+        document.body.classList.remove('logged-in', 'sidebar-open', 'sidebar-collapsed');
     },
 
     /**
@@ -86,6 +88,7 @@ const Auth = {
     checkExistingSession() {
         if (AppState.restoreUser()) {
             Utils.$('login-screen').classList.add('hidden');
+            document.body.classList.add('logged-in');
             return true;
         }
         return false;
