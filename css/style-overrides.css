@@ -40,13 +40,13 @@
     padding: 12px 20px;
     padding-right: 36px;
     border-radius: 12px;
-    border: 2px solid rgba(224, 120, 64, 0.25);
-    background-color: #1a1a1f;
+    border: 2px solid var(--accent-muted, rgba(224, 120, 64, 0.25));
+    background-color: var(--bg-secondary, #1a1a1f);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e07840' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 12px;
-    color: #ffffff;
+    color: var(--text-primary, #ffffff);
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
@@ -59,9 +59,9 @@
 
 .task-input-section select:hover {
     border-color: var(--accent);
-    box-shadow: 0 6px 25px rgba(224, 120, 64, 0.35);
+    box-shadow: 0 6px 25px var(--accent-glow, rgba(224, 120, 64, 0.35));
     transform: translateY(-2px);
-    background-color: #252528;
+    background-color: var(--bg-tertiary, #252528);
 }
 
 .task-input-section select:focus {
@@ -72,33 +72,33 @@
 
 /* Options du dropdown - fond sombre lisible */
 .task-input-section select option {
-    background: #1a1a1f !important;
-    color: #ffffff !important;
+    background: var(--bg-secondary, #1a1a1f) !important;
+    color: var(--text-primary, #ffffff) !important;
     padding: 12px 16px;
     font-weight: 500;
 }
 .task-input-section select option:hover,
 .task-input-section select option:checked {
-    background: linear-gradient(135deg, rgba(224, 120, 64, 0.3) 0%, rgba(224, 120, 64, 0.2) 100%) !important;
-    color: #ffffff !important;
+    background: linear-gradient(135deg, var(--accent-muted, rgba(224, 120, 64, 0.3)) 0%, var(--accent-muted, rgba(224, 120, 64, 0.2)) 100%) !important;
+    color: var(--text-primary, #ffffff) !important;
 }
 
 /* Style PREMIUM pour select de priorité */
 #priority-select {
-    background-color: #1f1a18;
-    border: 2px solid rgba(224, 120, 64, 0.4);
-    box-shadow: 0 4px 20px rgba(224, 120, 64, 0.2);
+    background-color: var(--bg-secondary, #1f1a18);
+    border: 2px solid var(--accent-muted, rgba(224, 120, 64, 0.4));
+    box-shadow: 0 4px 20px var(--accent-glow, rgba(224, 120, 64, 0.2));
 }
 
 #priority-select:hover {
-    background-color: #2a2320;
-    border-color: #e07840;
-    box-shadow: 0 8px 30px rgba(224, 120, 64, 0.4);
+    background-color: var(--bg-tertiary, #2a2320);
+    border-color: var(--accent, #e07840);
+    box-shadow: 0 8px 30px var(--accent-glow, rgba(224, 120, 64, 0.4));
 }
 
 /* Style PREMIUM pour select assignation */
 #assign-select {
-    background-color: #1a1a1f;
+    background-color: var(--bg-secondary, #1a1a1f);
     border: 2px solid rgba(100, 116, 139, 0.4);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
@@ -108,7 +108,7 @@
 }
 
 #assign-select:hover {
-    background-color: #252528;
+    background-color: var(--bg-tertiary, #252528);
     border-color: rgba(148, 163, 184, 0.6);
     box-shadow: 0 6px 20px rgba(100, 116, 139, 0.25);
 }
@@ -168,9 +168,9 @@
     gap: 10px;
     padding: 8px 14px;
     border-radius: 12px;
-    border: 2px solid rgba(224, 120, 64, 0.3);
-    background-color: #1a1a1f;
-    color: #ffffff;
+    border: 2px solid var(--accent-muted, rgba(224, 120, 64, 0.3));
+    background-color: var(--bg-secondary, #1a1a1f);
+    color: var(--text-primary, #ffffff);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
@@ -178,9 +178,9 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 .custom-select-btn:hover {
-    background-color: #252528;
+    background-color: var(--bg-tertiary, #252528);
     border-color: var(--accent);
-    box-shadow: 0 4px 15px rgba(224, 120, 64, 0.25);
+    box-shadow: 0 4px 15px var(--accent-glow, rgba(224, 120, 64, 0.25));
 }
 .custom-select-btn .select-avatar {
     width: 22px;
@@ -209,8 +209,8 @@
     left: 0;
     margin-top: 4px;
     min-width: 100%;
-    background: #1a1a1f;
-    border: 2px solid rgba(224, 120, 64, 0.3);
+    background: var(--bg-secondary, #1a1a1f);
+    border: 2px solid var(--accent-muted, rgba(224, 120, 64, 0.3));
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     z-index: 1000;
@@ -231,7 +231,7 @@
     padding: 10px 14px;
     cursor: pointer;
     transition: background 0.2s;
-    color: #ffffff;
+    color: var(--text-primary, #ffffff);
     font-weight: 500;
 }
 .custom-select-option:first-child {
@@ -241,10 +241,10 @@
     border-radius: 0 0 10px 10px;
 }
 .custom-select-option:hover {
-    background: rgba(224, 120, 64, 0.2);
+    background: var(--accent-muted, rgba(224, 120, 64, 0.2));
 }
 .custom-select-option.active {
-    background: rgba(224, 120, 64, 0.3);
+    background: var(--accent-muted, rgba(224, 120, 64, 0.3));
 }
 .custom-select-option img {
     width: 24px;
@@ -408,7 +408,7 @@ body .bubble:hover {
 }
 
 body .bubble .bubble-text {
-    color: #ffffff !important;
+    color: var(--text-primary, #ffffff) !important;
     font-size: 1.05rem !important;
     line-height: 1.4 !important;
     font-weight: 600 !important;
@@ -440,11 +440,11 @@ body .bubble.done .bubble-text {
     opacity: 0.6 !important;
 }
 
-/* === TEXTE BLANC PARTOUT === */
+/* === TEXTE VISIBLE PARTOUT === */
 .bubble .bubble-text,
 .bubble.inprogress .bubble-text,
 .bubble.done .bubble-text {
-    color: #ffffff !important;
+    color: var(--text-primary, #ffffff) !important;
 }
 
 [data-theme="matrix"] .bubble .bubble-description,
@@ -1770,7 +1770,7 @@ body .bubble.done .bubble-text {
 .sidebar {
     display: flex !important;
     opacity: 1 !important;
-    background: #0f0f14 !important;
+    background: var(--bg-secondary, #0f0f14) !important;
 }
 
 /* Masquer le bouton mobile toggle avant login */
@@ -1870,4 +1870,312 @@ body.logged-in .header-left .galaxy-icon-container {
         background: var(--bg-card, rgba(15, 15, 20, 0.95)) !important;
         border: 1px solid var(--border, rgba(255, 255, 255, 0.1)) !important;
     }
+}
+
+/* ================================================
+   CHATBOT IMPROVEMENTS
+   - Ball fades when chat opens
+   - Chat positioned at ball
+   - Minimum dimensions fixed
+   ================================================ */
+
+/* Hide chatbot before login */
+.chatbot-fab {
+    display: none !important;
+}
+
+body.logged-in .chatbot-fab {
+    display: flex !important;
+}
+
+/* Panel stays hidden until opened */
+.chatbot-panel.hidden {
+    display: none !important;
+}
+
+/* Global search overlay - hidden by default */
+.global-search-overlay {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.global-search-overlay.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+/* ================================================
+   CONFIRM MODAL - Theme-aware Premium
+   ================================================ */
+
+.confirm-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+}
+
+.confirm-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.confirm-modal {
+    position: relative;
+    background: var(--bg-card, #1e1e28);
+    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.8) translateY(40px);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow:
+        0 0 60px var(--accent-glow, rgba(99, 102, 241, 0.15)),
+        0 30px 60px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+}
+
+/* Accent glow border */
+.confirm-modal::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(45deg,
+        transparent 30%,
+        var(--accent, #6366f1) 50%,
+        transparent 70%);
+    border-radius: 25px;
+    z-index: -1;
+    animation: rotateBorder 4s linear infinite;
+    opacity: 0.5;
+}
+
+@keyframes rotateBorder {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Top accent line */
+.confirm-modal::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--accent, #6366f1) 50%, transparent 100%);
+    border-radius: 2px;
+}
+
+.confirm-modal-overlay.active .confirm-modal {
+    transform: scale(1) translateY(0);
+}
+
+.confirm-modal-icon {
+    font-size: 52px;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+}
+
+.confirm-modal-title {
+    color: var(--text-primary, #fff);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+}
+
+.confirm-modal-message {
+    color: var(--text-secondary, rgba(255, 255, 255, 0.65));
+    font-size: 1rem;
+    margin: 0 0 32px;
+    line-height: 1.6;
+}
+
+.confirm-modal-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.confirm-modal-btn {
+    position: relative;
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 130px;
+    overflow: hidden;
+}
+
+.confirm-modal-btn.cancel {
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.08));
+    color: var(--text-secondary, rgba(255, 255, 255, 0.8));
+    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.12));
+}
+
+.confirm-modal-btn.cancel:hover {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.12));
+    color: var(--text-primary, #fff);
+    transform: translateY(-2px);
+}
+
+.confirm-modal-btn.confirm {
+    background: var(--accent, #6366f1);
+    color: #fff;
+    box-shadow: 0 4px 15px var(--accent-glow, rgba(99, 102, 241, 0.4));
+}
+
+.confirm-modal-btn.confirm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px var(--accent-glow, rgba(99, 102, 241, 0.5));
+}
+
+.confirm-modal-btn.confirm.danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.confirm-modal-btn.confirm.danger:hover {
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+}
+
+/* ================================================
+   SIDEBAR TOGGLE - Theme-aware with glow pulse
+   ================================================ */
+
+.sidebar-toggle {
+    opacity: 1 !important;
+    width: 26px !important;
+    height: 26px !important;
+    right: -13px !important;
+    top: 22px !important;
+    background: var(--bg-secondary, #1a1a24) !important;
+    border: 2px solid var(--accent, #6366f1) !important;
+    box-shadow:
+        0 0 12px var(--accent-glow, rgba(99, 102, 241, 0.4)),
+        0 2px 8px rgba(0, 0, 0, 0.3) !important;
+    animation: togglePulse 2s ease-in-out infinite !important;
+}
+
+@keyframes togglePulse {
+    0%, 100% { box-shadow: 0 0 8px var(--accent-glow, rgba(99, 102, 241, 0.3)), 0 2px 8px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: 0 0 16px var(--accent-glow, rgba(99, 102, 241, 0.6)), 0 2px 8px rgba(0, 0, 0, 0.3); }
+}
+
+.sidebar-toggle svg {
+    stroke: var(--accent, #6366f1) !important;
+    stroke-width: 2 !important;
+}
+
+.sidebar-toggle:hover {
+    transform: scale(1.1) !important;
+    background: var(--accent, #6366f1) !important;
+    animation: none !important;
+    box-shadow:
+        0 0 20px var(--accent-glow, rgba(99, 102, 241, 0.6)),
+        0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.sidebar-toggle:hover svg {
+    stroke: #fff !important;
+}
+
+/* Hide confusing close button */
+.sidebar-close {
+    display: none !important;
+}
+
+/* FAB button fade animation when chat is open */
+.chatbot-fab {
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+.chatbot-fab.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.8) !important;
+}
+
+/* Panel position - starts from bottom-right where ball is */
+.chatbot-panel {
+    bottom: 20px !important;
+    right: 20px !important;
+    min-height: 450px !important;
+    max-height: 70vh !important;
+    transform-origin: bottom right !important;
+    animation: chatPanelOpen 0.3s ease forwards !important;
+}
+
+@keyframes chatPanelOpen {
+    0% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.chatbot-panel.closing {
+    animation: chatPanelClose 0.25s ease forwards !important;
+}
+
+@keyframes chatPanelClose {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(20px);
+    }
+}
+
+/* Fix button cutoff - ensure footer has enough space */
+.chatbot-input-area {
+    min-height: 60px !important;
+    padding: 12px 14px !important;
+}
+
+/* ================================================
+   MENU DROPDOWN ANIMATION
+   Fade + scale for smooth appearance
+   ================================================ */
+
+.menu-dropdown,
+.dropdown-menu,
+#menu-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95) translateY(-8px);
+    transform-origin: top right;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.menu-dropdown.active,
+.menu-dropdown.show,
+.dropdown-menu.active,
+.dropdown-menu.show,
+#menu-dropdown.active,
+#menu-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) translateY(0);
 }
