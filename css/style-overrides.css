@@ -1769,13 +1769,8 @@ body .bubble.done .bubble-text {
 /* Sidebar visible après login */
 .sidebar {
     display: flex !important;
-    opacity: 0;
-    pointer-events: none;
-}
-
-body.logged-in .sidebar {
     opacity: 1 !important;
-    pointer-events: auto !important;
+    background: #0f0f14 !important;
 }
 
 /* Masquer le bouton mobile toggle avant login */
