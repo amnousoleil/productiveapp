@@ -1,8 +1,8 @@
 # 🤖 CLAUDE.md - ProductiveApp Documentation
 
-> **Dernière mise à jour** : 2026-02-01 21:15
-> **Version** : 2.4.0
-> **Statut** : ✅ Production STABLE - Gyrophare 3 modes + Avatars images + UI Premium
+> **Dernière mise à jour** : 2026-02-02 12:00
+> **Version** : 3.0.0
+> **Statut** : ✅ Production STABLE - Architecture Modulaire + Backup PostgreSQL
 
 ---
 
@@ -22,74 +22,125 @@
 
 ---
 
-## 🏗️ Architecture technique v2.0
+## 🏗️ Architecture technique v3.0 (MODULAIRE)
 
 ### Stack
-- **Frontend** : HTML5 + CSS3 + JavaScript vanilla (ES6+)
+- **Frontend** : HTML5 + CSS3 + JavaScript vanilla (ES6+) - Architecture Modulaire
 - **Backend** : N8N workflows (automation via webhooks)
 - **Base de données** : PostgreSQL (via N8N API)
+- **Backup** : PostgreSQL automatique (30 min) + LocalStorage (5 min)
 - **Serveur** : VPS Ubuntu + Nginx (port 8080) + Traefik (reverse proxy 80/443)
 - **SSL** : Let's Encrypt (auto-renouvelé via Traefik)
 - **Déploiement** : Git push → webhook auto-deploy
 
-### Structure modulaire (v2.0 - 2026-02-01)
+### Structure modulaire (v3.0 - 2026-02-02)
 
 ```
 /var/www/productiveapp/
-├── index.html                 # Point d'entrée (401 lignes, -60% vs v1.0)
+├── index.html                 # Point d'entrée (565 lignes)
 │
 ├── css/                       # 🎨 Tous les fichiers CSS
-│   ├── style-base.css        # Variables, reset, layout (22K)
-│   ├── style-components.css  # Composants UI (43K)
-│   ├── style-themes.css      # 16 thèmes visuels (22K)
-│   ├── style-dragdrop.css    # Drag & drop (4K)
-│   └── style-overrides.css   # Overrides spécifiques (18K) ✨ NOUVEAU
+│   ├── style-base.css        # Variables, reset, layout
+│   ├── style-components.css  # Composants UI
+│   ├── style-themes.css      # 16 thèmes visuels
+│   ├── style-dragdrop.css    # Drag & drop
+│   ├── style-overrides.css   # Overrides spécifiques
+│   └── galaxy.css            # Galaxy view
 │
-├── js/                        # ⚙️ Tous les fichiers JavaScript
-│   ├── app.js                # Logique métier (1980 lignes + chatbot local)
-│   ├── dragdrop.js           # Drag & drop Kanban (400+ lignes)
-│   └── animations.js         # Animations (désactivé)
+├── js/                        # ⚙️ JavaScript - Architecture Modulaire
+│   │
+│   ├── modules/              # 📦 MODULES FONCTIONNELS
+│   │   ├── config.js         # Configuration (API, users, themes)
+│   │   ├── state.js          # Gestion d'état centralisée
+│   │   ├── utils.js          # Fonctions utilitaires
+│   │   ├── auth.js           # Authentification
+│   │   ├── themes.js         # Gestion des thèmes
+│   │   ├── tasks.js          # Logique tâches (CRUD, rendu)
+│   │   ├── projects.js       # Logique projets
+│   │   ├── journal.js        # Journal d'activité
+│   │   ├── chatbot.js        # Chatbot IA + média
+│   │   ├── effects.js        # Animations et effets
+│   │   ├── report.js         # Rapports et export
+│   │   └── backup.js         # Sauvegarde PostgreSQL
+│   │
+│   ├── services/             # 🔌 SERVICES
+│   │   └── api.service.js    # Service API centralisé
+│   │
+│   ├── app-modular.js        # 🚀 Orchestrateur principal
+│   ├── app.js                # (Legacy - conservé pour backup)
+│   ├── dragdrop.js           # Drag & drop Kanban
+│   └── galaxy.js             # Vue Galaxy
 │
 ├── assets/                    # 🖼️ Ressources statiques
-│   └── images/
-│       ├── menu-icon.png
-│       └── maha-giri-master.jpg
+│   └── images/icons/
+│
+├── docs/                      # 📚 Documentation
+│   └── N8N-BACKUP-WORKFLOW.md
 │
 ├── CLAUDE.md                  # 📖 Ce fichier (mémoire du projet)
-├── README-ARCHITECTURE.md     # 🏗️ Documentation architecture détaillée
+├── README-ARCHITECTURE.md     # 🏗️ Documentation architecture
 ├── INFRASTRUCTURE.md          # 🚀 Infrastructure serveur
 ├── BACKUP-RESTORE.md          # 🛡️ Guide sauvegarde/restauration
 └── .git/                      # 🔧 Repository Git
 ```
 
-**Ordre de chargement CSS** (IMPORTANT) :
+**Ordre de chargement JavaScript** (IMPORTANT) :
 ```html
-<link rel="stylesheet" href="css/style-base.css?v=46">
-<link rel="stylesheet" href="css/style-components.css?v=46">
-<link rel="stylesheet" href="css/style-themes.css?v=46">
-<link rel="stylesheet" href="css/style-dragdrop.css?v=46">
-<link rel="stylesheet" href="css/style-overrides.css?v=52">  <!-- Doit être EN DERNIER -->
-```
+<!-- 1. Configuration et utilitaires -->
+<script src="js/modules/config.js"></script>
+<script src="js/modules/state.js"></script>
+<script src="js/modules/utils.js"></script>
 
-**Scripts chargés** :
-```html
-<script src="js/dragdrop.js?v=30"></script>
-<script src="js/app.js?v=40"></script>
+<!-- 2. Services -->
+<script src="js/services/api.service.js"></script>
+
+<!-- 3. Modules fonctionnels -->
+<script src="js/modules/auth.js"></script>
+<script src="js/modules/themes.js"></script>
+<script src="js/modules/tasks.js"></script>
+<script src="js/modules/projects.js"></script>
+<script src="js/modules/journal.js"></script>
+<script src="js/modules/chatbot.js"></script>
+<script src="js/modules/effects.js"></script>
+<script src="js/modules/report.js"></script>
+<script src="js/modules/backup.js"></script>
+
+<!-- 4. Modules externes -->
+<script src="js/dragdrop.js"></script>
+<script src="js/galaxy.js"></script>
+
+<!-- 5. Application principale -->
+<script src="js/app-modular.js"></script>
 ```
 
 ---
 
-## 🎯 Versions actuelles (2026-02-01 21:15)
+## 🎯 Versions actuelles (2026-02-02)
 
-| Composant | Version | Dernière modif |
-|-----------|---------|----------------|
-| **CSS overrides** | v52 | Avatars + Selects premium |
-| **CSS base/components** | v46 | Stable |
-| **JS app.js** | v40 | Avatars images + Dropdown custom |
-| **JS dragdrop.js** | v30 | Stable |
-| **index.html** | 418 lignes | Dropdown user + Gyrophare |
-| **Architecture** | v2.4 | STABLE |
-| **Git commit** | 6b0e350 | Fix avatars bulles |
+| Composant | Version | Lignes | Description |
+|-----------|---------|--------|-------------|
+| **config.js** | v1 | 111 | API, users, themes, constantes |
+| **state.js** | v1 | 269 | Gestion d'état centralisée |
+| **utils.js** | v1 | 280 | Fonctions utilitaires |
+| **api.service.js** | v1 | 522 | Service API unifié |
+| **auth.js** | v1 | 215 | Authentification |
+| **tasks.js** | v1 | 600 | Logique tâches |
+| **projects.js** | v1 | 289 | Logique projets |
+| **journal.js** | v1 | 126 | Journal d'activité |
+| **chatbot.js** | v1 | 688 | Chatbot IA complet |
+| **effects.js** | v1 | 340 | Animations |
+| **report.js** | v1 | 165 | Rapports |
+| **backup.js** | v1 | 266 | Sauvegarde PostgreSQL |
+| **app-modular.js** | v1 | 212 | Orchestrateur |
+| **TOTAL MODULES** | - | **4083** | vs 2867 lignes monolithique |
+
+### Avantages v3.0
+- ✅ Code modulaire et maintenable
+- ✅ Service API centralisé (plus de duplication)
+- ✅ État global géré proprement (AppState)
+- ✅ Sauvegarde automatique PostgreSQL
+- ✅ Chaque module est testable individuellement
+- ✅ Compatibilité totale avec l'ancien code
 
 ---
 
