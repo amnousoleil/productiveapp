@@ -1715,7 +1715,7 @@ async function sendChatMessage() {
         const response = await fetch(CHATBOT_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, context, user: currentUser.name, userId: currentUser.id })
+            body: JSON.stringify({ message, context, user: currentUser.name, userId: currentUser.id, tenant_id: 'digitalgiri' })
         });
 
         let aiResponse = await response.text();
@@ -1931,6 +1931,7 @@ async function sendAudioMessage(audioBlob) {
                 mimeType: 'audio/webm',
                 user: currentUser.name,
                 userId: currentUser.id,
+                tenant_id: 'digitalgiri',
                 context: buildAIContext()
             })
         });
@@ -1974,6 +1975,7 @@ async function handleImageSelect(e) {
                 fileName: file.name,
                 user: currentUser.name,
                 userId: currentUser.id,
+                tenant_id: 'digitalgiri',
                 context: buildAIContext()
             })
         });
@@ -2013,6 +2015,7 @@ async function handleFileSelect(e) {
                 fileName: file.name,
                 user: currentUser.name,
                 userId: currentUser.id,
+                tenant_id: 'digitalgiri',
                 context: buildAIContext()
             })
         });
@@ -2254,6 +2257,8 @@ async function generateReport() {
                 message: 'Génère un rapport de direction concis avec: synthèse, accomplissements, points attention, recommandations.',
                 context: buildAIContext(),
                 user: currentUser.name,
+                userId: currentUser.id,
+                tenant_id: 'digitalgiri',
                 type: 'report'
             })
         });
