@@ -75,6 +75,7 @@ let projects = DEFAULT_PROJECTS;
 let activeProjectFilter = 'all';
 let activeUserFilter = 'all';
 let priorityFilterMode = 'off'; // off -> urgent -> normal -> zen -> off
+let lastChatbotActionTaskId = null; // Pour scroll vers la tâche après fermeture chatbot
 const GYRO_IMAGES = {
     off: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png',
     urgent: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png',
@@ -2177,10 +2178,11 @@ async function processAIActions(response) {
                     updatedAt: newTask.updated_at
                 });
                 actionsPerformed.push(`✅ Tâche créée: ${m[1].trim()}`);
+                lastChatbotActionTaskId = newTask.task_id;
             }
         }
     }
-    
+
     // ACTION:DONE|texte de la tâche
     if (response.includes('ACTION:DONE|')) {
         for (const m of [...response.matchAll(/ACTION:DONE\|([^\n]+)/g)]) {
@@ -2191,6 +2193,7 @@ async function processAIActions(response) {
                 t.status = 'done';
                 t.completedAt = new Date().toISOString();
                 actionsPerformed.push(`✅ Terminé: ${t.text}`);
+                lastChatbotActionTaskId = t.id;
             }
         }
     }
@@ -2810,7 +2813,21 @@ document.addEventListener('DOMContentLoaded', function() {
     $('download-pdf-btn').addEventListener('click', downloadPDF);
     
     $('chatbot-toggle').addEventListener('click', toggleChatbot);
-    $('chatbot-close').addEventListener('click', function() { $('chatbot-window').classList.add('hidden'); });
+    $('chatbot-close').addEventListener('click', function() {
+        $('chatbot-window').classList.add('hidden');
+        // Scroll vers la dernière tâche modifiée par le chatbot
+        if (lastChatbotActionTaskId) {
+            setTimeout(() => {
+                const bubble = document.querySelector(`[data-id="${lastChatbotActionTaskId}"]`);
+                if (bubble) {
+                    bubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    bubble.classList.add('search-match');
+                    setTimeout(() => bubble.classList.remove('search-match'), 2000);
+                }
+                lastChatbotActionTaskId = null;
+            }, 300);
+        }
+    });
     $('chatbot-resize').addEventListener('click', toggleChatbotSize);
     if ($('chatbot-font-size')) {
         $('chatbot-font-size').addEventListener('click', toggleChatbotFontSize);
