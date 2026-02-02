@@ -1347,6 +1347,7 @@ body .bubble.done .bubble-text {
         gap: 6px !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
+        position: relative !important;
     }
 
     /* Boutons média plus petits sur mobile */
@@ -1366,22 +1367,23 @@ body .bubble.done .bubble-text {
         height: 18px !important;
     }
 
-    /* Micro enregistrement mobile - moins gros */
+    /* Micro enregistrement mobile - dans le flux, pas de décalage */
     .chat-media-btn.recording,
     #chat-mic-btn.recording {
-        width: 48px !important;
-        height: 48px !important;
-        position: absolute !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        bottom: 60px !important;
-        z-index: 100 !important;
+        width: 44px !important;
+        height: 44px !important;
+        position: relative !important;
+        left: auto !important;
+        transform: none !important;
+        bottom: auto !important;
+        z-index: 10 !important;
+        flex-shrink: 0 !important;
     }
 
     .chat-media-btn.recording svg,
     #chat-mic-btn.recording svg {
-        width: 24px !important;
-        height: 24px !important;
+        width: 22px !important;
+        height: 22px !important;
     }
 
     /* Champ texte mobile - prend l'espace */
