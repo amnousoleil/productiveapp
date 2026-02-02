@@ -1338,7 +1338,7 @@ body .bubble.done .bubble-text {
 
 /* Mobile : PLEIN ÉCRAN comme ChatGPT */
 @media (max-width: 768px) {
-    /* Panel chatbot mobile - FULL SCREEN */
+    /* Panel chatbot mobile - FULL SCREEN avec layout flex correct */
     .chatbot-panel {
         width: 100vw !important;
         min-width: 100vw !important;
@@ -1352,6 +1352,8 @@ body .bubble.done .bubble-text {
         border-radius: 0 !important;
         border: none !important;
         position: fixed !important;
+        display: flex !important;
+        flex-direction: column !important;
     }
 
     .chatbot-panel.large {
@@ -1359,13 +1361,23 @@ body .bubble.done .bubble-text {
         max-height: 100vh !important;
     }
 
-    /* Zone de saisie mobile - COMPACTE */
+    /* Messages prennent tout l'espace disponible */
+    .chatbot-messages {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+    }
+
+    /* Zone de saisie mobile - EN BAS, COMPACTE */
     .chatbot-input-area {
+        flex-shrink: 0 !important;
+        position: relative !important;
+        bottom: auto !important;
         padding: 8px 10px !important;
         gap: 6px !important;
         flex-wrap: nowrap !important;
         align-items: center !important;
-        position: relative !important;
+        background: #0b141a !important;
     }
 
     /* Boutons média plus petits sur mobile */
