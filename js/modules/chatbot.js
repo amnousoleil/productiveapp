@@ -8,9 +8,24 @@ const Chatbot = {
      * Toggle l'affichage du chatbot
      */
     toggle() {
-        Utils.$('chatbot-window').classList.toggle('hidden');
-        if (!Utils.$('chatbot-window').classList.contains('hidden')) {
-            Utils.$('chatbot-input').focus();
+        const chatWindow = Utils.$('chatbot-window');
+        const fab = Utils.$('chatbot-toggle');
+        const isHidden = chatWindow.classList.contains('hidden');
+
+        if (isHidden) {
+            // Opening chat
+            chatWindow.classList.remove('hidden');
+            if (fab) fab.classList.add('hidden');
+            Utils.$('chatbot-input')?.focus();
+        } else {
+            // Closing chat - add closing animation
+            chatWindow.classList.add('closing');
+            if (fab) fab.classList.remove('hidden');
+
+            setTimeout(() => {
+                chatWindow.classList.add('hidden');
+                chatWindow.classList.remove('closing');
+            }, 250);
         }
     },
 

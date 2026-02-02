@@ -27,11 +27,16 @@ const Utils = {
 
     /**
      * Obtient le label de priorité
-     * @param {number} level - Niveau (1, 2, 3)
+     * @param {number} level - Niveau (1=Urgent, 2=Important, 3=Normal, 4=Zen)
      * @returns {string} - Label de priorité
      */
     getPriorityLabel(level) {
-        const labels = { 1: '🔥 Urgent', 2: 'Normal', 3: '💤 Zen' };
+        const labels = {
+            1: '🔥 Urgent',
+            2: '⚡ Important',
+            3: 'Normal',
+            4: '💤 Zen'
+        };
         return labels[level] || 'Normal';
     },
 

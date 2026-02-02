@@ -1,14 +1,67 @@
 // =============================================
 // PRODUCTIVEAPP - AUTH MODULE
-// Gestion de l'authentification
+// Authentification avec avatars et animations
 // =============================================
 
 const Auth = {
+    currentProfileIndex: 0,
+
     /**
-     * Render la grille de sélection utilisateur
+     * Initialize authentication
+     */
+    init() {
+        console.log('🔐 Auth: Initializing...');
+
+        // Check for existing session
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                const configUser = AppConfig.USERS.find(u => u.id === user.id);
+                if (configUser) {
+                    console.log('✅ Auth: Restored session for', user.name);
+                    AppState.currentUser = configUser;
+                    this.onLoginSuccess();
+                    return;
+                }
+            } catch (e) {
+                localStorage.removeItem('currentUser');
+            }
+        }
+
+        // No session - show login
+        console.log('🔐 Auth: No session, showing login');
+        this.showLoginScreen();
+    },
+
+    /**
+     * Show the login screen with avatars
+     */
+    showLoginScreen() {
+        const loginScreen = document.getElementById('login-screen');
+        if (!loginScreen) return;
+
+        loginScreen.classList.remove('hidden');
+        this.renderUserSelect();
+        this.initProfileCarousel();
+        this.initLoginEvents();
+
+        // Start fire particles animation
+        setTimeout(() => {
+            if (typeof Effects !== 'undefined' && Effects.initFireBreathParticles) {
+                Effects.initFireBreathParticles();
+            }
+            if (typeof Effects !== 'undefined' && Effects.createFireBubbles) {
+                Effects.createFireBubbles();
+            }
+        }, 500);
+    },
+
+    /**
+     * Render user selection grid
      */
     renderUserSelect() {
-        const grid = Utils.$('user-select-grid');
+        const grid = document.getElementById('user-select-grid');
         if (!grid) return;
 
         grid.innerHTML = AppConfig.USERS.map(user => `
@@ -21,107 +74,135 @@ const Auth = {
             </button>
         `).join('');
 
+        // Event listeners
         grid.querySelectorAll('.user-select-btn').forEach(btn => {
             btn.addEventListener('click', () => this.selectUser(btn.dataset.userid));
         });
-
-        // Lancer le système de particules de souffle
-        if (typeof Effects !== 'undefined' && Effects.initFireBreathParticles) {
-            Effects.initFireBreathParticles();
-        }
     },
 
     /**
-     * Sélectionne un utilisateur pour login
-     * @param {string} userId - ID de l'utilisateur
+     * Select a user for login
      */
     selectUser(userId) {
         const user = AppConfig.USERS.find(u => u.id === userId);
         if (!user) return;
 
         AppState.currentUser = user;
-        Utils.$('login-username').textContent = `${user.avatar} ${user.name}`;
-        Utils.$('user-select-grid').classList.add('hidden');
-        Utils.$('password-form').classList.remove('hidden');
-        Utils.$('login-password').focus();
-    },
 
-    /**
-     * Tente de se connecter avec le mot de passe
-     * @returns {boolean} - true si succès
-     */
-    attemptLogin() {
-        const password = Utils.$('login-password').value;
-
-        if (password === AppState.currentUser.password) {
-            AppState.setUser(AppState.currentUser);
-            Utils.$('login-screen').classList.add('hidden');
-            Utils.$('login-error').textContent = '';
-            document.body.classList.add('logged-in');
-            return true;
+        // Show password form or login directly if no password
+        if (!user.password) {
+            // Team user - no password needed
+            this.attemptLogin('');
         } else {
-            Utils.$('login-error').textContent = 'Mot de passe incorrect';
-            Utils.$('login-password').value = '';
-            Utils.$('login-password').focus();
-            return false;
+            // Hide carousel completely, show compact password form
+            document.querySelector('.user-carousel')?.classList.add('hidden');
+            document.querySelector('.login-subtitle')?.classList.add('hidden');
+
+            // Update and show password form
+            const usernameEl = document.getElementById('login-username');
+            if (usernameEl) {
+                usernameEl.innerHTML = `<img src="${user.loginImg}" class="login-selected-avatar"> ${user.name}`;
+            }
+
+            document.getElementById('password-form')?.classList.remove('hidden');
+            document.getElementById('login-password')?.focus();
         }
     },
 
     /**
-     * Déconnexion
+     * Attempt login with password
+     */
+    attemptLogin(password) {
+        const user = AppState.currentUser;
+        if (!user) return;
+
+        const errorEl = document.getElementById('login-error');
+
+        // Check password (or allow if no password required)
+        if (!user.password || password === user.password) {
+            // Success
+            if (errorEl) errorEl.textContent = '';
+            localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name }));
+            this.onLoginSuccess();
+        } else {
+            // Wrong password
+            if (errorEl) {
+                errorEl.textContent = '❌ Mot de passe incorrect';
+                errorEl.style.animation = 'shake 0.5s ease';
+                setTimeout(() => errorEl.style.animation = '', 500);
+            }
+            document.getElementById('login-password')?.focus();
+        }
+    },
+
+    /**
+     * On successful login
+     */
+    async onLoginSuccess() {
+        console.log('✅ Auth: Login successful');
+
+        // Hide login screen
+        const loginScreen = document.getElementById('login-screen');
+        if (loginScreen) {
+            loginScreen.classList.add('hidden');
+        }
+
+        // Add logged-in class
+        document.body.classList.add('logged-in');
+
+        // Initialize app with error handling
+        try {
+            if (typeof App !== 'undefined' && App.init) {
+                await App.init();
+            }
+        } catch (error) {
+            console.error('❌ App.init() error:', error);
+        }
+
+        // Navigate to tasks view (default)
+        try {
+            if (typeof ViewRouter !== 'undefined') {
+                ViewRouter.navigate('tasks');
+            }
+        } catch (error) {
+            console.error('❌ Router error:', error);
+        }
+    },
+
+    /**
+     * Logout
      */
     logout() {
-        AppState.setUser(null);
-        AppState.reset();
-        Utils.$('login-screen').classList.remove('hidden');
-        Utils.$('user-select-grid').classList.remove('hidden');
-        Utils.$('password-form').classList.add('hidden');
-        Utils.$('login-password').value = '';
-        Utils.$('login-error').textContent = '';
+        console.log('🔐 Auth: Logging out');
+
+        localStorage.removeItem('currentUser');
+        AppState.currentUser = null;
+
+        if (typeof AppState !== 'undefined' && AppState.reset) {
+            AppState.reset();
+        }
+
+        // Show login screen
         document.body.classList.remove('logged-in', 'sidebar-open', 'sidebar-collapsed');
-    },
 
-    /**
-     * Vérifie s'il existe une session active
-     * @returns {boolean} - true si une session existe
-     */
-    checkExistingSession() {
-        if (AppState.restoreUser()) {
-            Utils.$('login-screen').classList.add('hidden');
-            document.body.classList.add('logged-in');
-            return true;
-        }
-        return false;
-    },
-
-    /**
-     * Met à jour le badge utilisateur courant
-     */
-    updateUserBadge() {
-        const badge = Utils.$('current-user-badge');
-        if (badge && AppState.currentUser) {
-            badge.innerHTML = `
-                <span class="user-avatar">${AppState.currentUser.avatar}</span>
-                <span class="user-name">${AppState.currentUser.name}</span>
-            `;
+        const loginScreen = document.getElementById('login-screen');
+        if (loginScreen) {
+            loginScreen.classList.remove('hidden');
+            this.showLoginScreen();
         }
     },
 
     /**
-     * Initialise le carrousel de profils
+     * Initialize profile carousel
      */
     initProfileCarousel() {
-        let currentProfileIndex = 0;
-        const profileButtons = () => document.querySelectorAll('.user-select-btn');
-
         const showProfile = (index, direction = 'initial') => {
-            const buttons = profileButtons();
+            const buttons = document.querySelectorAll('.user-select-btn');
             if (buttons.length === 0) return;
 
-            // Boucler
             if (index < 0) index = buttons.length - 1;
             if (index >= buttons.length) index = 0;
-            currentProfileIndex = index;
+            this.currentProfileIndex = index;
 
             buttons.forEach((btn, i) => {
                 if (i === index) {
@@ -129,7 +210,7 @@ const Auth = {
                     btn.style.opacity = '1';
                     btn.style.transform = 'scale(1.1)';
                     btn.style.animation = 'none';
-                    btn.offsetHeight; // Force reflow
+                    btn.offsetHeight; // Trigger reflow
 
                     if (direction === 'right') {
                         btn.style.animation = 'slideInFromRight 0.4s ease-out forwards';
@@ -145,74 +226,86 @@ const Auth = {
             });
         };
 
-        const prevBtn = Utils.$('carousel-prev');
-        const nextBtn = Utils.$('carousel-next');
+        const prevBtn = document.getElementById('carousel-prev');
+        const nextBtn = document.getElementById('carousel-next');
 
         if (prevBtn) {
-            prevBtn.addEventListener('click', () => {
-                showProfile(currentProfileIndex - 1, 'left');
-            });
+            prevBtn.onclick = () => showProfile(this.currentProfileIndex - 1, 'left');
         }
-
         if (nextBtn) {
-            nextBtn.addEventListener('click', () => {
-                showProfile(currentProfileIndex + 1, 'right');
-            });
+            nextBtn.onclick = () => showProfile(this.currentProfileIndex + 1, 'right');
         }
 
-        // Afficher le premier profil après délai
-        setTimeout(() => showProfile(0), 3000);
+        // Initial display with delay for animation
+        setTimeout(() => showProfile(0), 100);
     },
 
     /**
-     * Initialise les événements d'authentification
+     * Initialize login events
      */
-    initEvents() {
-        const loginBtn = Utils.$('login-btn');
-        const loginPassword = Utils.$('login-password');
-        const backBtn = Utils.$('back-btn');
-        const logoutBtn = Utils.$('logout-btn');
+    initLoginEvents() {
+        const loginBtn = document.getElementById('login-btn');
+        const backBtn = document.getElementById('back-btn');
+        const passwordInput = document.getElementById('login-password');
 
         if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                if (this.attemptLogin()) {
-                    // Déclencher l'initialisation de l'app
-                    if (typeof App !== 'undefined' && App.init) {
-                        App.init();
-                    }
-                }
-            });
-        }
-
-        if (loginPassword) {
-            loginPassword.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    if (this.attemptLogin()) {
-                        if (typeof App !== 'undefined' && App.init) {
-                            App.init();
-                        }
-                    }
-                }
-            });
+            loginBtn.onclick = () => {
+                const password = passwordInput?.value || '';
+                this.attemptLogin(password);
+            };
         }
 
         if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                Utils.$('user-select-grid').classList.remove('hidden');
-                Utils.$('password-form').classList.add('hidden');
-                Utils.$('login-error').textContent = '';
-                AppState.currentUser = null;
-            });
+            backBtn.onclick = () => {
+                // Hide password form
+                document.getElementById('password-form')?.classList.add('hidden');
+                // Show carousel again
+                document.querySelector('.user-carousel')?.classList.remove('hidden');
+                document.querySelector('.login-subtitle')?.classList.remove('hidden');
+                // Clear inputs
+                if (passwordInput) passwordInput.value = '';
+                const errorEl = document.getElementById('login-error');
+                if (errorEl) errorEl.textContent = '';
+            };
         }
 
+        if (passwordInput) {
+            passwordInput.onkeypress = (e) => {
+                if (e.key === 'Enter') {
+                    this.attemptLogin(passwordInput.value);
+                }
+            };
+        }
+    },
+
+    /**
+     * Update user badge in header
+     */
+    updateUserBadge() {
+        const badge = document.getElementById('current-user-badge');
+        if (badge && AppState.currentUser) {
+            const user = AppState.currentUser;
+            const avatarHtml = user.loginImg
+                ? `<img src="${user.loginImg}" class="user-avatar-img" alt="${user.name}">`
+                : `<span class="user-avatar">${user.avatar || '👤'}</span>`;
+
+            badge.innerHTML = `
+                ${avatarHtml}
+                <span class="user-name">${user.name || 'User'}</span>
+            `;
+        }
+    },
+
+    /**
+     * Initialize events (logout button, etc.)
+     */
+    initEvents() {
+        const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.logout());
         }
-
-        // Initialiser le carrousel
-        this.initProfileCarousel();
     }
 };
 
-// Exposer globalement
+// Expose globally
 window.Auth = Auth;

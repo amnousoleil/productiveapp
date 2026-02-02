@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="css/notes-editor.css?v=2">
     <link rel="stylesheet" href="css/settings.css?v=1">
     <link rel="stylesheet" href="css/auth.css?v=4">
-    <link rel="stylesheet" href="css/style-overrides.css?v=85">
+    <link rel="stylesheet" href="css/style-overrides.css?v=90">
     <link rel="stylesheet" href="css/style-views.css?v=3">
     <link rel="stylesheet" href="css/galaxy.css?v=10">
 
@@ -99,13 +99,13 @@
             <!-- Séparateur -->
             <div style="margin:25px 0;color:rgba(255,255,255,0.3);font-size:0.85rem;">── ou ──</div>
 
-            <!-- Formulaire email VISIBLE -->
-            <div class="login-form" id="email-login-form" style="margin-top:0;">
+            <!-- Formulaire email -->
+            <div class="login-form" id="email-login-form" style="margin-top:0;pointer-events:auto;position:relative;z-index:100;">
                 <p style="color:#fff;margin-bottom:12px;font-weight:600;">📧 Connexion par email</p>
-                <input type="email" id="email-input" placeholder="demo@productive.app" value="demo@productive.app" style="margin-bottom:10px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;width:100%;box-sizing:border-box;">
-                <input type="password" id="email-password" placeholder="Demo@123" value="Demo@123" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;width:100%;box-sizing:border-box;">
-                <button type="button" id="email-login-btn" class="btn-primary" style="margin-top:12px;padding:12px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Se connecter</button>
-                <p style="font-size:0.75rem;color:#22c55e;margin-top:10px;">✓ Credentials pré-remplis - cliquez "Se connecter"</p>
+                <input type="email" id="email-input" placeholder="votre@email.com" value="demo@productive.app" autocomplete="email" style="margin-bottom:10px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;width:100%;box-sizing:border-box;pointer-events:auto;cursor:text;position:relative;z-index:101;">
+                <input type="password" id="email-password" placeholder="Mot de passe" value="Demo@123" autocomplete="current-password" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;width:100%;box-sizing:border-box;pointer-events:auto;cursor:text;position:relative;z-index:101;">
+                <button type="button" id="email-login-btn" class="btn-primary" style="margin-top:12px;padding:12px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;pointer-events:auto;position:relative;z-index:101;">Se connecter</button>
+                <p id="email-login-status" style="font-size:0.75rem;color:#71717a;margin-top:10px;">Test: demo@productive.app / Demo@123</p>
             </div>
 
             <!-- Formulaire mot de passe (avatars) -->
@@ -667,11 +667,11 @@
     <script src="js/modules/utils.js?v=1"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
-    <script src="js/modules/api/api-config.js?v=1"></script>
-    <script src="js/modules/api/api-tokens.js?v=1"></script>
-    <script src="js/modules/api/api-fetch.js?v=1"></script>
-    <script src="js/modules/api/api.js?v=1"></script>
-    <script src="js/modules/api/api-auth.js?v=7"></script>
+    <script src="js/modules/api/api-config.js?v=10"></script>
+    <script src="js/modules/api/api-tokens.js?v=10"></script>
+    <script src="js/modules/api/api-fetch.js?v=10"></script>
+    <script src="js/modules/api/api.js?v=10"></script>
+    <script src="js/modules/api/api-auth.js?v=11"></script>
     <script src="js/modules/api/api-projects.js?v=1"></script>
     <script src="js/modules/api/api-notes.js?v=1"></script>
     <script src="js/modules/api/api-tasks.js?v=1"></script>
@@ -725,14 +725,19 @@
         const email = document.getElementById('email-input')?.value || '';
         const password = document.getElementById('email-password')?.value || '';
         const errorEl = document.getElementById('login-error');
+        const statusEl = document.getElementById('email-login-status');
         const btn = document.getElementById('email-login-btn');
 
         console.log('🔐 Attempting login with:', email);
+        console.log('📡 API Base URL:', typeof ApiConfig !== 'undefined' ? ApiConfig.getBaseUrl() : 'ApiConfig not loaded');
 
         if (btn) btn.textContent = '⏳ Connexion...';
+        if (statusEl) statusEl.textContent = '📡 Connexion à l\'API...';
+        if (statusEl) statusEl.style.color = '#71717a';
 
         if (!email || !password) {
             if (errorEl) errorEl.textContent = 'Remplissez tous les champs';
+            if (statusEl) statusEl.textContent = '';
             if (btn) btn.textContent = 'Se connecter';
             return;
         }
@@ -743,6 +748,11 @@
                 console.log('✅ Login OK:', result);
 
                 if (result && result.user) {
+                    if (statusEl) {
+                        statusEl.textContent = '✅ Connecté!';
+                        statusEl.style.color = '#22c55e';
+                    }
+
                     document.getElementById('login-screen')?.classList.add('hidden');
                     document.body.classList.add('logged-in');
 
@@ -759,11 +769,16 @@
             } else {
                 console.error('❌ ApiAuth not defined');
                 if (errorEl) errorEl.textContent = 'Erreur: ApiAuth non chargé';
+                if (statusEl) statusEl.textContent = '';
                 if (btn) btn.textContent = 'Se connecter';
             }
         } catch (error) {
             console.error('❌ Login error:', error);
             if (errorEl) errorEl.textContent = error.message || 'Erreur de connexion';
+            if (statusEl) {
+                statusEl.textContent = '❌ Échec connexion API';
+                statusEl.style.color = '#ef4444';
+            }
             if (btn) btn.textContent = 'Se connecter';
         }
     };

@@ -2840,19 +2840,28 @@ document.addEventListener('DOMContentLoaded', function() {
     initChatMediaButtons(); // Init boutons média WhatsApp
     initRecordCancelBtn(); // Init bouton annuler enregistrement
 
-    // === GALAXY VIEW - Init lazy (au premier clic) ===
-    let galaxyInitialized = false;
+    // === GALAXIE VIEW - Integration with Excalidraw ===
     const galaxyIcon = $('galaxy-icon');
     if (galaxyIcon) {
-        galaxyIcon.addEventListener('click', () => {
-            if (!galaxyInitialized && typeof initGalaxyView === 'function') {
-                initGalaxyView();
-                galaxyInitialized = true;
-            }
-            if (typeof openGalaxyView === 'function') {
-                openGalaxyView();
-            }
-        });
+        // Initialize the new GalaxieView module
+        if (typeof GalaxieView !== 'undefined') {
+            GalaxieView.init();
+            galaxyIcon.addEventListener('click', () => {
+                GalaxieView.open();
+            });
+        } else {
+            // Fallback to old galaxy.js if new module not loaded
+            let galaxyInitialized = false;
+            galaxyIcon.addEventListener('click', () => {
+                if (!galaxyInitialized && typeof initGalaxyView === 'function') {
+                    initGalaxyView();
+                    galaxyInitialized = true;
+                }
+                if (typeof openGalaxyView === 'function') {
+                    openGalaxyView();
+                }
+            });
+        }
     }
 
     // === EFFET DIVIN - PARTICULES DORÉES ===

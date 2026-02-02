@@ -195,7 +195,8 @@ const Projects = {
             return;
         }
 
-        if (!confirm(`Supprimer le projet "${project.name}" ?`)) return;
+        const confirmed = await ConfirmModal.confirmDelete(`le projet "${project.name}"`);
+        if (!confirmed) return;
 
         // Supprimer de la DB si c'est un projet custom
         if (projectId.startsWith('proj_')) {

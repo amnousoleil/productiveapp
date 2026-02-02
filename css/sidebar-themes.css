@@ -1,0 +1,165 @@
+/* ================================================
+   SIDEBAR THEME SUPPORT
+   Inherits from main theme variables
+   ================================================ */
+
+/* === DEFAULT (Dark) === */
+.sidebar {
+    --sidebar-bg: var(--bg-secondary, #0f0f12);
+    --sidebar-border: var(--border-primary, rgba(255, 255, 255, 0.06));
+    --sidebar-hover: rgba(255, 255, 255, 0.04);
+    --sidebar-active: rgba(99, 102, 241, 0.12);
+    --sidebar-text: var(--text-tertiary, #71717a);
+    --sidebar-text-active: var(--text-primary, #fafafa);
+    --sidebar-accent: var(--accent, #6366f1);
+}
+
+/* === EXECUTIVE === */
+[data-theme="executive"] .sidebar {
+    --sidebar-bg: #0d0d0d;
+    --sidebar-border: rgba(212, 175, 55, 0.15);
+    --sidebar-hover: rgba(212, 175, 55, 0.08);
+    --sidebar-active: rgba(212, 175, 55, 0.15);
+    --sidebar-accent: #d4af37;
+}
+
+/* === CORPORATE === */
+[data-theme="corporate"] .sidebar {
+    --sidebar-bg: #0a1628;
+    --sidebar-border: rgba(59, 130, 246, 0.15);
+    --sidebar-hover: rgba(59, 130, 246, 0.08);
+    --sidebar-active: rgba(59, 130, 246, 0.15);
+    --sidebar-accent: #3b82f6;
+}
+
+/* === MINIMAL (Light) === */
+[data-theme="minimal"] .sidebar {
+    --sidebar-bg: #ffffff;
+    --sidebar-border: rgba(0, 0, 0, 0.08);
+    --sidebar-hover: rgba(0, 0, 0, 0.04);
+    --sidebar-active: rgba(99, 102, 241, 0.1);
+    --sidebar-text: #64748b;
+    --sidebar-text-active: #0f172a;
+    --sidebar-accent: #6366f1;
+}
+
+/* === ACADEMIE (Light) === */
+[data-theme="academie"] .sidebar {
+    --sidebar-bg: #faf6f0;
+    --sidebar-border: rgba(139, 69, 19, 0.12);
+    --sidebar-hover: rgba(139, 69, 19, 0.06);
+    --sidebar-active: rgba(139, 69, 19, 0.12);
+    --sidebar-text: #8b7355;
+    --sidebar-text-active: #3d2914;
+    --sidebar-accent: #8b4513;
+}
+
+/* === SLATE === */
+[data-theme="slate"] .sidebar {
+    --sidebar-bg: #1e293b;
+    --sidebar-border: rgba(148, 163, 184, 0.12);
+    --sidebar-hover: rgba(148, 163, 184, 0.08);
+    --sidebar-active: rgba(99, 102, 241, 0.15);
+    --sidebar-accent: #6366f1;
+}
+
+/* === OBSIDIAN === */
+[data-theme="obsidian"] .sidebar {
+    --sidebar-bg: #0b0b0b;
+    --sidebar-border: rgba(139, 92, 246, 0.12);
+    --sidebar-hover: rgba(139, 92, 246, 0.06);
+    --sidebar-active: rgba(139, 92, 246, 0.15);
+    --sidebar-accent: #8b5cf6;
+}
+
+/* === SUNSET === */
+[data-theme="sunset"] .sidebar {
+    --sidebar-bg: #1a0a05;
+    --sidebar-border: rgba(249, 115, 22, 0.15);
+    --sidebar-hover: rgba(249, 115, 22, 0.08);
+    --sidebar-active: rgba(249, 115, 22, 0.15);
+    --sidebar-accent: #f97316;
+}
+
+/* === OCEAN === */
+[data-theme="ocean"] .sidebar {
+    --sidebar-bg: #051923;
+    --sidebar-border: rgba(0, 180, 216, 0.15);
+    --sidebar-hover: rgba(0, 180, 216, 0.08);
+    --sidebar-active: rgba(0, 180, 216, 0.15);
+    --sidebar-accent: #00b4d8;
+}
+
+/* === FOREST === */
+[data-theme="forest"] .sidebar {
+    --sidebar-bg: #080c08;
+    --sidebar-border: rgba(74, 222, 128, 0.12);
+    --sidebar-hover: rgba(74, 222, 128, 0.06);
+    --sidebar-active: rgba(74, 222, 128, 0.12);
+    --sidebar-accent: #4ade80;
+}
+
+/* === BUBBLEGUM === */
+[data-theme="bubblegum"] .sidebar {
+    --sidebar-bg: #1a0a14;
+    --sidebar-border: rgba(255, 107, 157, 0.15);
+    --sidebar-hover: rgba(255, 107, 157, 0.08);
+    --sidebar-active: rgba(255, 107, 157, 0.15);
+    --sidebar-accent: #ff6b9d;
+}
+
+/* === AURORA === */
+[data-theme="aurora"] .sidebar {
+    --sidebar-bg: #0a0d14;
+    --sidebar-border: rgba(147, 197, 253, 0.12);
+    --sidebar-hover: rgba(147, 197, 253, 0.06);
+    --sidebar-active: rgba(147, 197, 253, 0.12);
+    --sidebar-accent: #93c5fd;
+}
+
+/* === MATRIX === */
+[data-theme="matrix"] .sidebar {
+    --sidebar-bg: #0a0f0a;
+    --sidebar-border: rgba(0, 255, 102, 0.15);
+    --sidebar-hover: rgba(0, 255, 102, 0.06);
+    --sidebar-active: rgba(0, 255, 102, 0.15);
+    --sidebar-text: #00ff66;
+    --sidebar-accent: #00ff66;
+}
+
+/* === CYBERPUNK === */
+[data-theme="cyberpunk"] .sidebar {
+    --sidebar-bg: #0d0221;
+    --sidebar-border: rgba(255, 0, 255, 0.15);
+    --sidebar-hover: rgba(255, 0, 255, 0.08);
+    --sidebar-active: rgba(255, 0, 255, 0.15);
+    --sidebar-accent: #ff00ff;
+}
+
+/* === TERMINAL === */
+[data-theme="terminal"] .sidebar {
+    --sidebar-bg: #000000;
+    --sidebar-border: rgba(0, 255, 0, 0.2);
+    --sidebar-hover: rgba(0, 255, 0, 0.08);
+    --sidebar-active: rgba(0, 255, 0, 0.15);
+    --sidebar-text: #00ff00;
+    --sidebar-accent: #00ff00;
+}
+
+/* === MIDNIGHT === */
+[data-theme="midnight"] .sidebar {
+    --sidebar-bg: #0d0d18;
+    --sidebar-border: rgba(124, 159, 255, 0.12);
+    --sidebar-hover: rgba(124, 159, 255, 0.06);
+    --sidebar-active: rgba(124, 159, 255, 0.12);
+    --sidebar-accent: #7c9fff;
+}
+
+/* === DESERT (Default) === */
+[data-theme="desert"] .sidebar {
+    --sidebar-bg: #1a1410;
+    --sidebar-border: rgba(224, 120, 64, 0.15);
+    --sidebar-hover: rgba(224, 120, 64, 0.08);
+    --sidebar-active: rgba(224, 120, 64, 0.15);
+    --sidebar-accent: #e07840;
+}

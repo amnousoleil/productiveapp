@@ -1,0 +1,250 @@
+/* ================================================
+   SIDEBAR - Toggle-based (no hover expand)
+   ProductiveApp v4.0
+   ================================================ */
+
+/* === VARIABLES === */
+:root {
+    --sidebar-width: 240px;
+    --sidebar-collapsed: 60px;
+    --sidebar-bg: var(--bg-secondary, #0f0f12);
+    --sidebar-border: var(--border-primary, rgba(255, 255, 255, 0.06));
+    --sidebar-hover: rgba(255, 255, 255, 0.04);
+    --sidebar-active: rgba(99, 102, 241, 0.12);
+    --sidebar-text: var(--text-tertiary, #71717a);
+    --sidebar-text-active: var(--text-primary, #fafafa);
+    --sidebar-accent: var(--accent, #6366f1);
+    --sidebar-transition: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* === CONTAINER === */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-collapsed);
+    height: 100vh;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    display: none; /* Hidden by default until logged in */
+    flex-direction: column;
+    z-index: 100;
+    transition: width var(--sidebar-transition);
+    overflow: hidden;
+    will-change: width;
+}
+
+/* Show sidebar only when logged in */
+body.logged-in .sidebar {
+    display: flex;
+}
+
+/* Expanded state - controlled by JS */
+.sidebar.expanded {
+    width: var(--sidebar-width);
+}
+
+/* === TOGGLE BUTTON === */
+.sidebar-toggle {
+    position: absolute;
+    top: 14px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    background: var(--sidebar-bg);
+    border: 1px solid var(--sidebar-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 101;
+    transition: all var(--sidebar-transition);
+    opacity: 0;
+}
+
+.sidebar:hover .sidebar-toggle,
+.sidebar.expanded .sidebar-toggle {
+    opacity: 1;
+}
+
+.sidebar-toggle:hover {
+    background: var(--sidebar-accent);
+    border-color: var(--sidebar-accent);
+    transform: scale(1.1);
+}
+
+.sidebar-toggle svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--sidebar-text);
+    stroke-width: 2;
+    fill: none;
+    transition: transform var(--sidebar-transition);
+}
+
+.sidebar-toggle:hover svg {
+    stroke: white;
+}
+
+.sidebar.expanded .sidebar-toggle svg {
+    transform: rotate(180deg);
+}
+
+/* === CLOSE BUTTON (inside expanded sidebar) === */
+.sidebar-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--sidebar-text);
+    transition: all 150ms ease;
+}
+
+.sidebar.expanded .sidebar-close {
+    display: flex;
+}
+
+.sidebar-close:hover {
+    background: var(--sidebar-hover);
+    color: var(--sidebar-text-active);
+}
+
+.sidebar-close svg {
+    width: 16px;
+    height: 16px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* === HEADER === */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 14px;
+    border-bottom: 1px solid var(--sidebar-border);
+    min-height: 56px;
+}
+
+.sidebar-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 150ms ease;
+}
+
+.sidebar-logo:hover {
+    transform: scale(1.05);
+}
+
+.sidebar-brand {
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all var(--sidebar-transition);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.sidebar.expanded .sidebar-brand {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sidebar-brand-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--sidebar-text-active);
+    letter-spacing: -0.3px;
+}
+
+.sidebar-brand-version {
+    font-size: 10px;
+    color: var(--sidebar-text);
+    margin-top: 1px;
+}
+
+/* === PROFILE === */
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--sidebar-border);
+}
+
+.sidebar-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.sidebar-avatar img,
+.sidebar-avatar-emoji {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.sidebar-avatar-emoji {
+    background: rgba(99, 102, 241, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.sidebar-status-dot {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid var(--sidebar-bg);
+    cursor: pointer;
+}
+
+.sidebar-status-dot.online { background: #22c55e; }
+.sidebar-status-dot.busy { background: #ef4444; }
+.sidebar-status-dot.away { background: #f59e0b; }
+.sidebar-status-dot.offline { background: #52525b; }
+
+.sidebar-profile-info {
+    flex: 1;
+    min-width: 0;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: all var(--sidebar-transition);
+}
+
+.sidebar.expanded .sidebar-profile-info {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sidebar-profile-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--sidebar-text-active);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-profile-status {
+    font-size: 11px;
+    color: var(--sidebar-text);
+    margin-top: 1px;
+}

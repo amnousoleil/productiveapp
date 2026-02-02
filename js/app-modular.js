@@ -7,7 +7,7 @@ const App = {
     /**
      * Version de l'application
      */
-    VERSION: '3.1.0',
+    VERSION: '4.0.0',
 
     /**
      * Initialise l'application après login
@@ -15,39 +15,49 @@ const App = {
     async init() {
         console.log(`🚀 ProductiveApp v${this.VERSION} - Initialisation...`);
 
-        // Mettre à jour le badge utilisateur
-        Auth.updateUserBadge();
+        try {
+            // Mettre à jour le badge utilisateur
+            if (typeof Auth !== 'undefined') Auth.updateUserBadge();
 
-        // Charger le thème
-        Themes.loadTheme();
+            // Charger le thème
+            if (typeof Themes !== 'undefined') Themes.loadTheme();
 
-        // Mettre à jour le mode de vue
-        Effects.updateViewMode();
+            // Mettre à jour le mode de vue
+            if (typeof Effects !== 'undefined' && Effects.updateViewMode) Effects.updateViewMode();
 
-        // Initialiser la taille de police du chatbot
-        Chatbot.initFontSize();
+            // Initialiser la taille de police du chatbot
+            if (typeof Chatbot !== 'undefined' && Chatbot.initFontSize) Chatbot.initFontSize();
 
-        // Charger les données
-        await this.loadData();
+            // Charger les données
+            await this.loadData();
 
-        // Initialiser les composants UI
-        this.initUI();
+            // Initialiser les composants UI
+            this.initUI();
 
-        // Initialiser le système de backup
-        Backup.init();
+            // Initialiser le système de backup
+            if (typeof Backup !== 'undefined' && Backup.init) Backup.init();
 
-        // Initialiser la sidebar
-        if (typeof Sidebar !== 'undefined') {
-            Sidebar.init();
+            // Initialiser la sidebar
+            if (typeof Sidebar !== 'undefined' && Sidebar.init) Sidebar.init();
+
+            // Initialiser les nouveaux modules de vues
+            if (typeof NotesModule !== 'undefined' && NotesModule.init) NotesModule.init();
+            if (typeof ProjectsView !== 'undefined' && ProjectsView.init) ProjectsView.init();
+            if (typeof Dashboard !== 'undefined' && Dashboard.init) Dashboard.init();
+            if (typeof SettingsView !== 'undefined' && SettingsView.init) SettingsView.init();
+            if (typeof AnalyticsView !== 'undefined' && AnalyticsView.init) AnalyticsView.init();
+            if (typeof ReportsView !== 'undefined' && ReportsView.init) ReportsView.init();
+
+            // Initialiser le drag & drop
+            setTimeout(() => {
+                if (typeof initDragAndDrop === 'function') initDragAndDrop();
+                if (typeof initAnimation === 'function') initAnimation();
+            }, 100);
+
+            console.log(`✅ ProductiveApp v${this.VERSION} prête !`);
+        } catch (error) {
+            console.error('❌ App.init() error:', error);
         }
-
-        // Initialiser le drag & drop
-        setTimeout(() => {
-            if (typeof initDragAndDrop === 'function') initDragAndDrop();
-            if (typeof initAnimation === 'function') initAnimation();
-        }, 100);
-
-        console.log(`✅ ProductiveApp v${this.VERSION} prête !`);
     },
 
     /**
@@ -55,6 +65,30 @@ const App = {
      */
     async loadData() {
         console.log('📡 Chargement des données...');
+
+        // Use legacy N8N webhook system
+        try {
+            await this.loadDataLegacy();
+        } catch (error) {
+            console.error('❌ Erreur chargement données:', error);
+        }
+
+        // Render filters and UI
+        Projects.renderFilter();
+        Projects.renderSelect();
+        Projects.renderUserFilter();
+        Projects.renderAssignSelect();
+
+        // Render data
+        Tasks.render();
+        Journal.render();
+    },
+
+    /**
+     * Charge les données via l'ancien système (n8n webhooks)
+     */
+    async loadDataLegacy() {
+        console.log('📡 Chargement legacy (webhooks)...');
 
         // Charger projets d'abord (pour les références)
         await Projects.load();
@@ -64,42 +98,36 @@ const App = {
             loadProjectsOrder();
         }
 
-        // Render les filtres de projets
-        Projects.renderFilter();
-        Projects.renderSelect();
-        Projects.renderUserFilter();
-        Projects.renderAssignSelect();
-
         // Charger tâches et journal en parallèle
         await Promise.all([
             Tasks.load(),
             Journal.load()
         ]);
 
-        // Render initial
-        Tasks.render();
-        Journal.render();
-
-        console.log('✅ Données chargées');
+        console.log('✅ Données legacy chargées');
     },
 
     /**
      * Initialise les composants UI
      */
     initUI() {
+        console.log('🎨 Initialisation UI...');
+
         // Initialiser les événements de chaque module
-        Tasks.initEvents();
-        Projects.initEvents();
-        Journal.initEvents();
-        Chatbot.initEvents();
-        Themes.initEvents();
-        Report.initEvents();
+        try { if (typeof Tasks !== 'undefined' && Tasks.initEvents) Tasks.initEvents(); } catch(e) { console.error('Tasks.initEvents error:', e); }
+        try { if (typeof Projects !== 'undefined' && Projects.initEvents) Projects.initEvents(); } catch(e) { console.error('Projects.initEvents error:', e); }
+        try { if (typeof Journal !== 'undefined' && Journal.initEvents) Journal.initEvents(); } catch(e) { console.error('Journal.initEvents error:', e); }
+        try { if (typeof Chatbot !== 'undefined' && Chatbot.initEvents) Chatbot.initEvents(); } catch(e) { console.error('Chatbot.initEvents error:', e); }
+        try { if (typeof Themes !== 'undefined' && Themes.initEvents) Themes.initEvents(); } catch(e) { console.error('Themes.initEvents error:', e); }
+        try { if (typeof Report !== 'undefined' && Report.initEvents) Report.initEvents(); } catch(e) { console.error('Report.initEvents error:', e); }
 
         // Effets et interactions
-        Effects.initSearch();
-        Effects.initMenuDropdown();
-        Effects.initGyrophare();
-        Effects.initViewToggle();
+        try { if (typeof Effects !== 'undefined' && Effects.initSearch) Effects.initSearch(); } catch(e) { console.error('Effects.initSearch error:', e); }
+        try { if (typeof Effects !== 'undefined' && Effects.initMenuDropdown) Effects.initMenuDropdown(); } catch(e) { console.error('Effects.initMenuDropdown error:', e); }
+        try { if (typeof Effects !== 'undefined' && Effects.initGyrophare) Effects.initGyrophare(); } catch(e) { console.error('Effects.initGyrophare error:', e); }
+        try { if (typeof Effects !== 'undefined' && Effects.initViewToggle) Effects.initViewToggle(); } catch(e) { console.error('Effects.initViewToggle error:', e); }
+
+        console.log('✅ UI initialisée');
     },
 
     /**
@@ -119,22 +147,28 @@ const App = {
 document.addEventListener('DOMContentLoaded', function() {
     console.log(`🚀 ProductiveApp v${App.VERSION} - Démarrage...`);
 
-    // Initialiser les projets par défaut dans l'état
-    AppState.initProjects();
+    try {
+        // Initialiser les projets par défaut dans l'état
+        if (typeof AppState !== 'undefined' && AppState.initProjects) {
+            AppState.initProjects();
+        }
 
-    // Render l'écran de login
-    Auth.renderUserSelect();
-    Auth.initEvents();
+        // Initialiser les événements auth (logout button, etc.)
+        if (typeof Auth !== 'undefined' && Auth.initEvents) {
+            Auth.initEvents();
+        }
 
-    // Créer les effets visuels de login
-    Effects.createFireBubbles();
+        // Initialiser l'authentification (vérifie session, affiche login si besoin)
+        if (typeof Auth !== 'undefined' && Auth.init) {
+            Auth.init();
+        } else {
+            console.error('Auth module not loaded');
+        }
 
-    // Vérifier si une session existe
-    if (Auth.checkExistingSession()) {
-        App.init();
+        console.log(`✅ ProductiveApp v${App.VERSION} - Prêt`);
+    } catch (error) {
+        console.error('❌ Error during initialization:', error);
     }
-
-    console.log(`✅ ProductiveApp v${App.VERSION} - Prêt pour login`);
 });
 
 // =============================================

@@ -8,40 +8,18 @@ const ApiAuth = (function() {
 
     /**
      * Login with email and password
-     * DEMO MODE: Uses mock authentication for testing
+     * All logins go through the real API via nginx proxy
      */
     async function login(email, password) {
-        // DEMO: Mock login for testing (no backend available)
-        if (email === 'demo@productive.app' && password === 'Demo@123') {
-            console.log('✅ Mock login successful');
-            const mockUser = {
-                id: 'demo-user',
-                email: email,
-                name: 'Demo User',
-                avatar: '👤',
-                role: 'admin'
-            };
-            const mockToken = 'mock-token-' + Date.now();
+        console.log('🔐 Attempting login via API:', email);
 
-            if (typeof ApiTokens !== 'undefined') {
-                ApiTokens.setTokens(mockToken, mockToken);
-                ApiTokens.setStoredUser(mockUser);
-            }
-
-            return {
-                user: mockUser,
-                workspaces: [{ id: 'default', name: 'Demo Workspace' }],
-                accessToken: mockToken,
-                refreshToken: mockToken
-            };
-        }
-
-        // Try real API if not demo credentials
         try {
             const response = await ApiFetch.fetchWithoutAuth('/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ email, password })
             });
+
+            console.log('📡 API Response:', response);
 
             if (response.success && response.data) {
                 const { user, accessToken, refreshToken, workspaces } = response.data;
@@ -53,13 +31,14 @@ const ApiAuth = (function() {
                     ApiTokens.setWorkspaceId(workspaces[0].id);
                 }
 
+                console.log('✅ Login successful:', user.email);
                 return { user, workspaces, accessToken, refreshToken };
             }
 
             throw new Error(response.error?.message || 'Login failed');
         } catch (error) {
-            console.error('API login failed:', error);
-            throw new Error('Identifiants incorrects');
+            console.error('❌ API login failed:', error);
+            throw new Error(error.message || 'Identifiants incorrects');
         }
     }
 
