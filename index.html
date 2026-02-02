@@ -96,19 +96,16 @@
                 <button class="carousel-arrow carousel-next" id="carousel-next">›</button>
             </div>
 
-            <!-- Bouton connexion email -->
-            <button type="button" id="email-login-toggle" class="email-login-toggle">
-                📧 Connexion par email
-            </button>
+            <!-- Séparateur -->
+            <div style="margin:25px 0;color:rgba(255,255,255,0.3);font-size:0.85rem;">── ou ──</div>
 
-            <!-- Formulaire email (caché par défaut) -->
-            <div class="login-form hidden" id="email-login-form">
-                <p style="color:#fff;margin-bottom:16px;">Connexion par email</p>
-                <input type="email" id="email-input" placeholder="demo@productive.app" style="margin-bottom:10px;">
-                <input type="password" id="email-password" placeholder="Demo@123">
-                <button type="button" id="email-login-btn" class="btn-primary">Se connecter</button>
-                <button type="button" id="email-back-btn" class="btn-secondary">← Retour aux avatars</button>
-                <p style="font-size:0.8rem;color:#888;margin-top:12px;">Test: demo@productive.app / Demo@123</p>
+            <!-- Formulaire email VISIBLE -->
+            <div class="login-form" id="email-login-form" style="margin-top:0;">
+                <p style="color:#fff;margin-bottom:12px;font-weight:600;">📧 Connexion par email</p>
+                <input type="email" id="email-input" placeholder="demo@productive.app" value="demo@productive.app" style="margin-bottom:10px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;width:100%;box-sizing:border-box;">
+                <input type="password" id="email-password" placeholder="Demo@123" value="Demo@123" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;width:100%;box-sizing:border-box;">
+                <button type="button" id="email-login-btn" class="btn-primary" style="margin-top:12px;padding:12px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Se connecter</button>
+                <p style="font-size:0.75rem;color:#22c55e;margin-top:10px;">✓ Credentials pré-remplis - cliquez "Se connecter"</p>
             </div>
 
             <!-- Formulaire mot de passe (avatars) -->
@@ -724,40 +721,26 @@
 
     <!-- Email Login Functions -->
     <script>
-    // Make functions globally available
-    window.showEmailLogin = function() {
-        console.log('📧 showEmailLogin called');
-        document.querySelector('.user-carousel')?.classList.add('hidden');
-        document.querySelector('.login-subtitle')?.classList.add('hidden');
-        document.getElementById('email-login-toggle')?.classList.add('hidden');
-        document.getElementById('email-login-form')?.classList.remove('hidden');
-        document.getElementById('email-input')?.focus();
-    };
-
-    window.hideEmailLogin = function() {
-        console.log('⬅️ hideEmailLogin called');
-        document.getElementById('email-login-form')?.classList.add('hidden');
-        document.querySelector('.user-carousel')?.classList.remove('hidden');
-        document.querySelector('.login-subtitle')?.classList.remove('hidden');
-        document.getElementById('email-login-toggle')?.classList.remove('hidden');
-    };
-
     window.tryEmailLogin = async function() {
         const email = document.getElementById('email-input')?.value || '';
         const password = document.getElementById('email-password')?.value || '';
         const errorEl = document.getElementById('login-error');
+        const btn = document.getElementById('email-login-btn');
 
-        console.log('🔐 tryEmailLogin called with:', email);
+        console.log('🔐 Attempting login with:', email);
+
+        if (btn) btn.textContent = '⏳ Connexion...';
 
         if (!email || !password) {
             if (errorEl) errorEl.textContent = 'Remplissez tous les champs';
+            if (btn) btn.textContent = 'Se connecter';
             return;
         }
 
         try {
             if (typeof ApiAuth !== 'undefined') {
                 const result = await ApiAuth.login(email, password);
-                console.log('✅ Login result:', result);
+                console.log('✅ Login OK:', result);
 
                 if (result && result.user) {
                     document.getElementById('login-screen')?.classList.add('hidden');
@@ -771,44 +754,40 @@
                         await App.init();
                     }
 
-                    alert('✅ Connexion réussie avec ' + result.user.email);
+                    console.log('✅ Connexion réussie!');
                 }
             } else {
-                console.error('ApiAuth not defined');
-                if (errorEl) errorEl.textContent = 'ApiAuth non disponible';
+                console.error('❌ ApiAuth not defined');
+                if (errorEl) errorEl.textContent = 'Erreur: ApiAuth non chargé';
+                if (btn) btn.textContent = 'Se connecter';
             }
         } catch (error) {
             console.error('❌ Login error:', error);
             if (errorEl) errorEl.textContent = error.message || 'Erreur de connexion';
+            if (btn) btn.textContent = 'Se connecter';
         }
     };
 
-    // Also add event listeners on DOMContentLoaded as backup
+    // Add event listener for email login button
     document.addEventListener('DOMContentLoaded', function() {
-        const toggleBtn = document.getElementById('email-login-toggle');
         const loginBtn = document.getElementById('email-login-btn');
-        const backBtn = document.getElementById('email-back-btn');
-
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                window.showEmailLogin();
-            });
-            console.log('✅ Email toggle button listener added');
-        }
 
         if (loginBtn) {
             loginBtn.addEventListener('click', function(e) {
                 e.preventDefault();
+                console.log('🔘 Login button clicked');
                 window.tryEmailLogin();
             });
+            console.log('✅ Email login button ready');
         }
 
-        if (backBtn) {
-            backBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                window.hideEmailLogin();
+        // Also handle Enter key in password field
+        const passwordField = document.getElementById('email-password');
+        if (passwordField) {
+            passwordField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    window.tryEmailLogin();
+                }
             });
         }
     });
