@@ -1101,16 +1101,41 @@ body .bubble.done .bubble-text {
 }
 #chatbot-font-size:hover { background: rgba(255,255,255,0.2); }
 
-/* === CHATBOT STYLE WHATSAPP === */
+/* === CHATBOT STYLE WHATSAPP VERT PREMIUM === */
 
-/* Panel plus large style WhatsApp */
+/* Bouton FAB - Vert premium avec glow */
+.chatbot-fab {
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%) !important;
+    box-shadow:
+        0 4px 20px rgba(37, 211, 102, 0.5),
+        0 0 40px rgba(37, 211, 102, 0.25) !important;
+    border: none !important;
+    animation: fabGlowGreen 2s ease-in-out infinite;
+}
+
+.chatbot-fab:hover {
+    transform: scale(1.12) !important;
+    box-shadow:
+        0 6px 30px rgba(37, 211, 102, 0.7),
+        0 0 60px rgba(37, 211, 102, 0.4) !important;
+}
+
+@keyframes fabGlowGreen {
+    0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.5), 0 0 40px rgba(37,211,102,0.25); }
+    50% { box-shadow: 0 4px 25px rgba(37,211,102,0.7), 0 0 50px rgba(37,211,102,0.35); }
+}
+
+/* Panel style WhatsApp */
 .chatbot-panel {
     width: 420px !important;
     min-width: 380px !important;
     max-width: 500px !important;
     border-radius: 16px !important;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+    box-shadow:
+        0 8px 40px rgba(0,0,0,0.5),
+        0 0 60px rgba(37, 211, 102, 0.15) !important;
+    border: 1px solid rgba(37, 211, 102, 0.2) !important;
 }
 
 .chatbot-panel.large {
@@ -1119,91 +1144,99 @@ body .bubble.done .bubble-text {
     height: 75vh !important;
 }
 
-/* Header style WhatsApp */
+/* Header vert premium */
 .chatbot-header {
     background: linear-gradient(135deg, #075e54 0%, #128c7e 100%) !important;
     padding: 12px 16px !important;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.3);
 }
 
-/* Zone de saisie style WhatsApp */
+.chatbot-controls button {
+    background: rgba(255,255,255,0.1) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+.chatbot-controls button:hover {
+    background: rgba(37,211,102,0.3) !important;
+    box-shadow: 0 0 15px rgba(37,211,102,0.3);
+}
+
+/* Zone de saisie */
 .chatbot-input-area {
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
     padding: 10px 12px !important;
-    background: #1a1a1f !important;
-    border-top: 1px solid rgba(255,255,255,0.1) !important;
+    background: #0b141a !important;
+    border-top: 1px solid rgba(37, 211, 102, 0.15) !important;
 }
 
 /* Conteneur boutons média */
 .chat-media-buttons {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-shrink: 0;
 }
 
-/* Boutons média (micro, caméra, fichier) - Design Glassmorphism */
+/* Boutons média VERT PREMIUM */
 .chat-media-btn {
     width: 40px !important;
     height: 40px !important;
-    border-radius: 12px !important;
-    border: 1px solid rgba(255,255,255,0.15) !important;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%) !important;
-    backdrop-filter: blur(10px) !important;
-    -webkit-backdrop-filter: blur(10px) !important;
-    color: rgba(255,255,255,0.7) !important;
+    border-radius: 50% !important;
+    border: none !important;
+    background: rgba(37, 211, 102, 0.15) !important;
+    color: #25d366 !important;
     cursor: pointer !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 0.25s ease !important;
     padding: 0 !important;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1) !important;
 }
 
 .chat-media-btn svg {
-    width: 20px;
-    height: 20px;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+    width: 20px !important;
+    height: 20px !important;
+    transition: all 0.25s ease !important;
 }
 
 .chat-media-btn:hover {
-    background: linear-gradient(135deg, rgba(139,92,246,0.3) 0%, rgba(99,102,241,0.2) 100%) !important;
-    border-color: rgba(139,92,246,0.5) !important;
-    color: #fff !important;
-    transform: translateY(-2px) !important;
-    box-shadow: 0 0 20px rgba(139,92,246,0.4), 0 8px 25px rgba(0,0,0,0.3) !important;
+    background: rgba(37, 211, 102, 0.25) !important;
+    color: #2eec77 !important;
+    box-shadow: 0 0 20px rgba(37, 211, 102, 0.4) !important;
+    transform: scale(1.08) !important;
 }
 
-.chat-media-btn:hover svg {
-    filter: drop-shadow(0 0 8px rgba(139,92,246,0.6));
-    transform: scale(1.1);
-}
-
-.chat-media-btn:active {
-    transform: translateY(0) scale(0.95);
-    box-shadow: 0 0 10px rgba(139,92,246,0.3), 0 2px 10px rgba(0,0,0,0.2);
-}
-
-/* Micro en enregistrement */
-.chat-media-btn.recording {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
-    border-color: #f87171 !important;
+/* Micro en enregistrement - GROS et ROUGE */
+.chat-media-btn.recording,
+#chat-mic-btn.recording {
+    width: 60px !important;
+    height: 60px !important;
+    background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%) !important;
     color: white !important;
-    animation: micPulseGlow 1.5s ease-in-out infinite;
-    box-shadow: 0 0 25px rgba(239,68,68,0.5), 0 4px 15px rgba(0,0,0,0.3);
+    animation: micRecordBig 0.7s ease-in-out infinite !important;
+    box-shadow:
+        0 0 25px rgba(255, 68, 68, 0.7),
+        0 0 50px rgba(255, 68, 68, 0.4) !important;
+    position: relative;
+    z-index: 10;
 }
 
-@keyframes micPulseGlow {
+.chat-media-btn.recording svg,
+#chat-mic-btn.recording svg {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+@keyframes micRecordBig {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 20px rgba(239,68,68,0.4), 0 4px 15px rgba(0,0,0,0.3);
+        box-shadow: 0 0 25px rgba(255,68,68,0.7), 0 0 50px rgba(255,68,68,0.4);
     }
     50% {
-        transform: scale(1.05);
-        box-shadow: 0 0 35px rgba(239,68,68,0.6), 0 6px 20px rgba(0,0,0,0.4);
+        transform: scale(1.1);
+        box-shadow: 0 0 35px rgba(255,68,68,0.9), 0 0 70px rgba(255,68,68,0.5);
     }
 }
 

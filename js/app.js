@@ -19,7 +19,7 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 // === UTILISATEURS ===
 const USERS = [
     { id: 'maha', name: 'Maître Maha Giri', avatar: '👑', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: '🚀', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f029ae_ChatGPTImage1f%C3%A9vr.202611_03_13.png', password: 'Autopdutop63.G+htrhs7', role: 'team' },
+    { id: 'brice', name: 'Brice', avatar: '🚀', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697ff503b4fa8_ChatGPTImage2f%C3%A9vr.202601_51_06.png', password: 'Autopdutop63.G+htrhs7', role: 'team' },
     { id: 'team', name: 'Team', avatar: '👥', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png', password: null, role: 'shared' }
 ];
 
@@ -1749,8 +1749,14 @@ function initChatMediaButtons() {
 
     if (!micBtn) return;
 
-    // Micro : toggle enregistrement
-    micBtn.addEventListener('click', toggleAudioRecording);
+    // Micro : MAINTENIR APPUYÉ pour enregistrer (style WhatsApp)
+    micBtn.addEventListener('mousedown', startHoldRecording);
+    micBtn.addEventListener('mouseup', () => stopAudioRecording(false));
+    micBtn.addEventListener('mouseleave', () => { if (isRecording) stopAudioRecording(true); });
+    // Touch events pour mobile
+    micBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startHoldRecording(); }, { passive: false });
+    micBtn.addEventListener('touchend', () => stopAudioRecording(false));
+    micBtn.addEventListener('touchcancel', () => stopAudioRecording(true));
 
     // Caméra : ouvre sélecteur
     cameraBtn.addEventListener('click', () => cameraInput.click());
@@ -1761,19 +1767,40 @@ function initChatMediaButtons() {
     fileInput.addEventListener('change', handleFileSelect);
 }
 
+// Démarrer enregistrement en maintenant appuyé
+async function startHoldRecording() {
+    if (isRecording) return;
+    await toggleAudioRecording();
+}
+
+// Variables pour l'enregistrement audio
+let audioContext, analyser, dataArray, animationId, recordingStartTime, timerInterval;
+
 // Toggle enregistrement audio
 async function toggleAudioRecording() {
     const micBtn = $('chat-mic-btn');
+    const recorderUI = $('audio-recorder-ui');
+    const chatInput = $('chatbot-input');
 
     if (isRecording) {
         // Arrêter l'enregistrement
-        mediaRecorder.stop();
-        micBtn.classList.remove('recording');
-        isRecording = false;
+        stopAudioRecording(false);
     } else {
         // Démarrer l'enregistrement
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+            // Setup audio analyser pour visualisation
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            analyser.fftSize = 64;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            // Créer les barres de l'onde
+            createWaveformBars();
+
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
 
@@ -1782,18 +1809,107 @@ async function toggleAudioRecording() {
             };
 
             mediaRecorder.onstop = async () => {
-                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 stream.getTracks().forEach(track => track.stop());
-                await sendAudioMessage(audioBlob);
+                if (audioContext) audioContext.close();
+                cancelAnimationFrame(animationId);
+                clearInterval(timerInterval);
+
+                // Si pas annulé, envoyer
+                if (audioChunks.length > 0 && !window.recordingCancelled) {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await sendAudioMessage(audioBlob);
+                }
+                window.recordingCancelled = false;
             };
 
             mediaRecorder.start();
             micBtn.classList.add('recording');
+            recorderUI.classList.add('active');
+            chatInput.style.display = 'none';
             isRecording = true;
+
+            // Démarrer timer
+            recordingStartTime = Date.now();
+            updateRecordTimer();
+            timerInterval = setInterval(updateRecordTimer, 1000);
+
+            // Démarrer visualisation
+            animateWaveform();
+
         } catch (err) {
             console.error('❌ Erreur micro:', err);
             addChatMsg('❌ Impossible d\'accéder au micro', 'assistant');
         }
+    }
+}
+
+// Créer les barres du visualiseur
+function createWaveformBars() {
+    const waveform = $('audio-waveform');
+    waveform.innerHTML = '';
+    for (let i = 0; i < 20; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'waveform-bar';
+        bar.style.height = '4px';
+        waveform.appendChild(bar);
+    }
+}
+
+// Animer l'onde en fonction du son
+function animateWaveform() {
+    if (!isRecording) return;
+
+    analyser.getByteFrequencyData(dataArray);
+    const bars = document.querySelectorAll('.waveform-bar');
+
+    bars.forEach((bar, i) => {
+        const value = dataArray[i] || 0;
+        const height = Math.max(4, (value / 255) * 28);
+        bar.style.height = height + 'px';
+    });
+
+    animationId = requestAnimationFrame(animateWaveform);
+}
+
+// Mettre à jour le timer
+function updateRecordTimer() {
+    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    const timer = $('record-timer');
+    if (timer) timer.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
+// Arrêter l'enregistrement
+function stopAudioRecording(cancel = false) {
+    const micBtn = $('chat-mic-btn');
+    const recorderUI = $('audio-recorder-ui');
+    const chatInput = $('chatbot-input');
+
+    window.recordingCancelled = cancel;
+
+    if (cancel) {
+        audioChunks = []; // Vider si annulé
+    }
+
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+    }
+
+    micBtn.classList.remove('recording');
+    recorderUI.classList.remove('active');
+    chatInput.style.display = '';
+    isRecording = false;
+
+    clearInterval(timerInterval);
+    cancelAnimationFrame(animationId);
+}
+
+// Initialiser bouton annuler
+function initRecordCancelBtn() {
+    const cancelBtn = $('record-cancel');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => stopAudioRecording(true));
     }
 }
 
@@ -2618,6 +2734,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $('chatbot-send').addEventListener('click', sendChatMessage);
     $('chatbot-input').addEventListener('keypress', function(e) { if (e.key === 'Enter') sendChatMessage(); });
     initChatMediaButtons(); // Init boutons média WhatsApp
+    initRecordCancelBtn(); // Init bouton annuler enregistrement
 
     // === GALAXY VIEW - Init lazy (au premier clic) ===
     let galaxyInitialized = false;
