@@ -1536,3 +1536,93 @@ body .bubble.done .bubble-text {
 .bubbles-view .bubble { cursor: pointer; }
 .bubbles-view .bubble:active { transform: scale(0.98) !important; }
 .bubbles-view .task-actions { display: none !important; }
+
+/* === BARRE RECHERCHE TÂCHES === */
+.search-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-left: 8px;
+    position: relative;
+}
+
+.search-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary, #888);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+.search-toggle-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--accent, #daa520);
+    transform: scale(1.1);
+}
+.search-toggle-btn.active {
+    background: var(--accent, #daa520);
+    color: #000;
+    box-shadow: 0 0 12px rgba(218, 165, 32, 0.4);
+}
+
+.search-input {
+    width: 0;
+    padding: 0;
+    border: none;
+    background: rgba(0,0,0,0.3);
+    color: var(--text-primary, #fff);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: -36px;
+    padding-left: 40px;
+}
+.search-input::placeholder {
+    color: var(--text-secondary, #666);
+}
+.search-container.expanded .search-input {
+    width: 180px;
+    padding: 8px 12px 8px 40px;
+    opacity: 1;
+    border: 1px solid rgba(218, 165, 32, 0.3);
+}
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent, #daa520);
+    box-shadow: 0 0 8px rgba(218, 165, 32, 0.2);
+}
+
+.search-count {
+    position: absolute;
+    right: 8px;
+    font-size: 0.7rem;
+    color: var(--accent, #daa520);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.search-container.expanded .search-count {
+    opacity: 1;
+}
+
+/* Highlight des tâches trouvées */
+.bubble.search-match {
+    box-shadow: 0 0 0 2px var(--accent, #daa520), 0 4px 15px rgba(218, 165, 32, 0.3) !important;
+}
+.bubble.search-hidden {
+    opacity: 0.15;
+    transform: scale(0.98);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .search-container.expanded .search-input {
+        width: 140px;
+    }
+}

@@ -1722,7 +1722,9 @@ async function sendChatMessage() {
         try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
 
         loadingDiv.remove();
+        const hadActions = aiResponse && aiResponse.includes('ACTION:');
         aiResponse = await processAIActions(aiResponse);
+        if (hadActions) await loadTasks();
         addChatMsg(aiResponse || 'OK!', 'assistant');
     } catch (e) {
         loadingDiv.remove();
@@ -1940,6 +1942,10 @@ async function sendAudioMessage(audioBlob) {
         try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
 
         loadingDiv.remove();
+        if (aiResponse && aiResponse.includes('ACTION:')) {
+            aiResponse = await processAIActions(aiResponse);
+            await loadTasks();
+        }
         addChatMsg(aiResponse || 'Audio reçu !', 'assistant');
     } catch (e) {
         loadingDiv.remove();
@@ -1984,6 +1990,10 @@ async function handleImageSelect(e) {
         try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
 
         loadingDiv.remove();
+        if (aiResponse && aiResponse.includes('ACTION:')) {
+            aiResponse = await processAIActions(aiResponse);
+            await loadTasks();
+        }
         addChatMsg(aiResponse || 'Image reçue !', 'assistant');
     } catch (e) {
         loadingDiv.remove();
@@ -2024,6 +2034,10 @@ async function handleFileSelect(e) {
         try { const j = JSON.parse(aiResponse); aiResponse = j.response || j.text || aiResponse; } catch(e) {}
 
         loadingDiv.remove();
+        if (aiResponse && aiResponse.includes('ACTION:')) {
+            aiResponse = await processAIActions(aiResponse);
+            await loadTasks();
+        }
         addChatMsg(aiResponse || 'Fichier reçu !', 'assistant');
     } catch (e) {
         loadingDiv.remove();
@@ -2052,6 +2066,38 @@ function fileToBase64(file) {
         reader.onerror = reject;
         reader.readAsDataURL(file);
     });
+}
+
+// === FONCTIONS RECHERCHE TÂCHES ===
+function highlightSearchResults(query) {
+    const bubbles = document.querySelectorAll('.bubble');
+    let matchCount = 0;
+
+    bubbles.forEach(bubble => {
+        const text = bubble.textContent.toLowerCase();
+        if (text.includes(query)) {
+            bubble.classList.add('search-match');
+            bubble.classList.remove('search-hidden');
+            matchCount++;
+            // Scroll vers le premier résultat
+            if (matchCount === 1) {
+                bubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        } else {
+            bubble.classList.remove('search-match');
+            bubble.classList.add('search-hidden');
+        }
+    });
+
+    const searchCount = $('search-count');
+    searchCount.textContent = matchCount > 0 ? matchCount : '';
+}
+
+function clearSearchHighlights() {
+    document.querySelectorAll('.bubble').forEach(bubble => {
+        bubble.classList.remove('search-match', 'search-hidden');
+    });
+    $('search-count').textContent = '';
 }
 
 function buildAIContext() {
@@ -2656,6 +2702,42 @@ document.addEventListener('DOMContentLoaded', function() {
         this.querySelector('.gyrophare-icon').src = GYRO_IMAGES[priorityFilterMode];
 
         renderTasks();
+    });
+
+    // === BARRE DE RECHERCHE TÂCHES ===
+    const searchContainer = $('search-container');
+    const searchToggleBtn = $('search-toggle-btn');
+    const searchInput = $('search-input');
+    const searchCount = $('search-count');
+
+    searchToggleBtn.addEventListener('click', function() {
+        searchContainer.classList.toggle('expanded');
+        searchToggleBtn.classList.toggle('active');
+        if (searchContainer.classList.contains('expanded')) {
+            searchInput.focus();
+        } else {
+            searchInput.value = '';
+            clearSearchHighlights();
+        }
+    });
+
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        if (query.length < 2) {
+            clearSearchHighlights();
+            searchCount.textContent = '';
+            return;
+        }
+        highlightSearchResults(query);
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            searchContainer.classList.remove('expanded');
+            searchToggleBtn.classList.remove('active');
+            this.value = '';
+            clearSearchHighlights();
+        }
     });
 
     // === MENU DROPDOWN TOGGLE ===
