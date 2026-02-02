@@ -744,6 +744,7 @@ const Sidebar = (function() {
     // === INITIALIZATION ===
 
     function init() {
+        console.log('🎨 Sidebar: Initializing...');
         loadState();
         render();
         initShortcuts();
@@ -811,7 +812,7 @@ const Sidebar = (function() {
         // Initial responsive check
         handleResize();
 
-        console.log('Sidebar: Initialized');
+        console.log('✅ Sidebar: Initialized and rendered');
     }
 
     function debounce(fn, delay) {
