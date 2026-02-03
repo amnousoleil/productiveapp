@@ -15,7 +15,7 @@ const ApiProjects = (function() {
         if (!workspaceId) {
             throw new Error('No workspace selected');
         }
-        return `/workspaces/${workspaceId}/projects${path}`;
+        return `/projects/workspace/${workspaceId}${path}`;
     }
 
     /**
@@ -31,7 +31,8 @@ const ApiProjects = (function() {
         const query = queryParams.toString();
         const url = buildUrl('') + (query ? `?${query}` : '');
         const response = await Api.get(url);
-        return response.data?.projects || [];
+        // Backend returns array directly in data, not data.projects
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -87,7 +88,7 @@ const ApiProjects = (function() {
      */
     async function getMembers(projectId) {
         const response = await Api.get(buildUrl(`/${projectId}/members`));
-        return response.data?.members || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -116,7 +117,7 @@ const ApiProjects = (function() {
         const response = await Api.post(buildUrl('/reorder'), {
             projectIds
         });
-        return response.data?.projects || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**

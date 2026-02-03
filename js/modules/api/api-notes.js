@@ -15,7 +15,7 @@ const ApiNotes = (function() {
         if (!workspaceId) {
             throw new Error('No workspace selected');
         }
-        return `/workspaces/${workspaceId}/notes${path}`;
+        return `/notes/workspace/${workspaceId}${path}`;
     }
 
     /**
@@ -33,7 +33,8 @@ const ApiNotes = (function() {
         const query = queryParams.toString();
         const url = buildUrl('') + (query ? `?${query}` : '');
         const response = await Api.get(url);
-        return response.data?.notes || [];
+        // Backend returns array directly in data, not data.notes
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -89,7 +90,7 @@ const ApiNotes = (function() {
      */
     async function getVersions(noteId) {
         const response = await Api.get(buildUrl(`/${noteId}/versions`));
-        return response.data?.versions || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -131,7 +132,7 @@ const ApiNotes = (function() {
      */
     async function getLinks(noteId) {
         const response = await Api.get(buildUrl(`/${noteId}/links`));
-        return response.data?.links || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -139,7 +140,7 @@ const ApiNotes = (function() {
      */
     async function getDeleted() {
         const response = await Api.get(buildUrl('/trash'));
-        return response.data?.notes || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -147,7 +148,7 @@ const ApiNotes = (function() {
      */
     async function search(query) {
         const response = await Api.get(buildUrl(`?search=${encodeURIComponent(query)}`));
-        return response.data?.notes || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     return {

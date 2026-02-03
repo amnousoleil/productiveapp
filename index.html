@@ -23,8 +23,12 @@
     <link rel="stylesheet" href="css/animations.css?v=1">
     <link rel="stylesheet" href="css/dashboard.css?v=1">
     <link rel="stylesheet" href="css/notes-editor.css?v=2">
-    <link rel="stylesheet" href="css/settings.css?v=1">
+    <link rel="stylesheet" href="css/settings.css?v=2">
     <link rel="stylesheet" href="css/auth.css?v=4">
+    <link rel="stylesheet" href="css/gamification.css?v=1">
+    <link rel="stylesheet" href="css/messaging.css?v=1">
+    <link rel="stylesheet" href="css/notifications.css?v=1">
+    <link rel="stylesheet" href="css/analytics.css?v=1">
     <link rel="stylesheet" href="css/style-overrides.css?v=90">
     <link rel="stylesheet" href="css/style-views.css?v=3">
     <link rel="stylesheet" href="css/galaxy.css?v=10">
@@ -155,6 +159,16 @@
         <!-- Reports View -->
         <div id="view-reports" class="view-container">
             <!-- Rendered by ReportsView -->
+        </div>
+
+        <!-- Gamification View -->
+        <div id="gamification-view" class="gamification-overlay">
+            <!-- Rendered by Gamification.js -->
+        </div>
+
+        <!-- Messaging View -->
+        <div id="view-messaging" class="view-container">
+            <!-- Rendered by Messaging.js -->
         </div>
 
         <!-- Tasks View (wraps existing app-container) -->
@@ -709,7 +723,43 @@
     <script src="js/modules/analytics-view.js?v=1"></script>
     <script src="js/modules/reports-view.js?v=1"></script>
 
-    <!-- 4. Modules externes -->
+    <!-- 5. Gamification Module -->
+    <script src="js/modules/gamification/gamification-api.js?v=1"></script>
+    <script src="js/modules/gamification/gamification-profile.js?v=1"></script>
+    <script src="js/modules/gamification/gamification-achievements.js?v=1"></script>
+    <script src="js/modules/gamification/gamification-streak.js?v=1"></script>
+    <script src="js/modules/gamification/gamification-leaderboard.js?v=1"></script>
+    <script src="js/modules/gamification/gamification.js?v=1"></script>
+
+    <!-- 6. Messaging Module -->
+    <script src="js/modules/messaging/messaging-api.js?v=1"></script>
+    <script src="js/modules/messaging/messaging-ui.js?v=1"></script>
+    <script src="js/modules/messaging/messaging-conversations.js?v=1"></script>
+    <script src="js/modules/messaging/messaging-chat.js?v=1"></script>
+    <script src="js/modules/messaging/messaging-events.js?v=1"></script>
+    <script src="js/modules/messaging/messaging.js?v=1"></script>
+
+    <!-- 7. Notifications Module -->
+    <script src="js/modules/notifications/notifications-api.js?v=1"></script>
+    <script src="js/modules/notifications/notifications-ui.js?v=1"></script>
+    <script src="js/modules/notifications/notifications-list.js?v=1"></script>
+    <script src="js/modules/notifications/notifications-badge.js?v=1"></script>
+    <script src="js/modules/notifications/notifications.js?v=1"></script>
+
+    <!-- 8. Analytics Module -->
+    <script src="js/modules/analytics/analytics-api.js?v=1"></script>
+    <script src="js/modules/analytics/analytics-dashboard.js?v=1"></script>
+    <script src="js/modules/analytics/analytics-charts.js?v=1"></script>
+    <script src="js/modules/analytics/analytics.js?v=1"></script>
+
+    <!-- 9. Settings Module -->
+    <script src="js/modules/settings/settings-profile.js?v=1"></script>
+    <script src="js/modules/settings/settings-workspace.js?v=1"></script>
+    <script src="js/modules/settings/settings-notifications.js?v=1"></script>
+    <script src="js/modules/settings/settings-theme.js?v=1"></script>
+    <script src="js/modules/settings/settings.js?v=1"></script>
+
+    <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=30"></script>
     <!-- Galaxie View - Excalidraw integration -->
     <script src="js/modules/galaxie-view.js?v=1"></script>

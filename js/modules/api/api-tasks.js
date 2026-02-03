@@ -15,7 +15,7 @@ const ApiTasks = (function() {
         if (!workspaceId) {
             throw new Error('No workspace selected');
         }
-        return `/workspaces/${workspaceId}/tasks${path}`;
+        return `/tasks/workspace/${workspaceId}${path}`;
     }
 
     /**
@@ -36,7 +36,8 @@ const ApiTasks = (function() {
         const query = queryParams.toString();
         const url = buildUrl('') + (query ? `?${query}` : '');
         const response = await Api.get(url);
-        return response.data?.tasks || [];
+        // Backend returns array directly in data, not data.tasks
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -90,7 +91,7 @@ const ApiTasks = (function() {
      */
     async function getComments(taskId) {
         const response = await Api.get(buildUrl(`/${taskId}/comments`));
-        return response.data?.comments || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -116,7 +117,7 @@ const ApiTasks = (function() {
      */
     async function getSubtasks(taskId) {
         const response = await Api.get(buildUrl(`/${taskId}/subtasks`));
-        return response.data?.subtasks || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -132,7 +133,7 @@ const ApiTasks = (function() {
      */
     async function getDueSoon() {
         const response = await Api.get(buildUrl('/due-soon'));
-        return response.data?.tasks || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -140,7 +141,7 @@ const ApiTasks = (function() {
      */
     async function getOverdue() {
         const response = await Api.get(buildUrl('/overdue'));
-        return response.data?.tasks || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**
@@ -148,7 +149,7 @@ const ApiTasks = (function() {
      */
     async function reorder(taskIds) {
         const response = await Api.post(buildUrl('/reorder'), { taskIds });
-        return response.data?.tasks || [];
+        return Array.isArray(response.data) ? response.data : [];
     }
 
     /**

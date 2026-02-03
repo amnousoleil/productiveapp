@@ -22,13 +22,21 @@ const ApiAuth = (function() {
             console.log('📡 API Response:', response);
 
             if (response.success && response.data) {
-                const { user, accessToken, refreshToken, workspaces } = response.data;
+                const { user, tokens } = response.data;
+                const { accessToken, refreshToken } = tokens;
 
                 ApiTokens.setTokens(accessToken, refreshToken);
                 ApiTokens.setStoredUser(user);
 
-                if (workspaces && workspaces.length > 0) {
-                    ApiTokens.setWorkspaceId(workspaces[0].id);
+                // Fetch workspaces after login
+                let workspaces = [];
+                try {
+                    workspaces = await getWorkspacesInternal(accessToken);
+                    if (workspaces.length > 0) {
+                        ApiTokens.setWorkspaceId(workspaces[0].id);
+                    }
+                } catch (wsError) {
+                    console.warn('Failed to fetch workspaces:', wsError);
                 }
 
                 console.log('✅ Login successful:', user.email);
@@ -43,6 +51,25 @@ const ApiAuth = (function() {
     }
 
     /**
+     * Internal helper to fetch workspaces with a specific token
+     */
+    async function getWorkspacesInternal(accessToken) {
+        const config = ApiConfig.get();
+        const url = `${config.BASE_URL}/workspaces`;
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+
+        const data = await response.json();
+        return data.data?.workspaces || [];
+    }
+
+    /**
      * Register new user
      */
     async function register(userData) {
@@ -52,12 +79,24 @@ const ApiAuth = (function() {
         });
 
         if (response.success && response.data) {
-            const { user, accessToken, refreshToken } = response.data;
+            const { user, tokens } = response.data;
+            const { accessToken, refreshToken } = tokens;
 
             ApiTokens.setTokens(accessToken, refreshToken);
             ApiTokens.setStoredUser(user);
 
-            return { user, accessToken, refreshToken };
+            // Fetch workspaces after registration
+            let workspaces = [];
+            try {
+                workspaces = await getWorkspacesInternal(accessToken);
+                if (workspaces.length > 0) {
+                    ApiTokens.setWorkspaceId(workspaces[0].id);
+                }
+            } catch (wsError) {
+                console.warn('Failed to fetch workspaces:', wsError);
+            }
+
+            return { user, workspaces, accessToken, refreshToken };
         }
 
         throw new Error(response.error?.message || 'Registration failed');
