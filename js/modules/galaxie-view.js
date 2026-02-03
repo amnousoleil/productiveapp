@@ -24,6 +24,14 @@ const GalaxieView = (function() {
      */
     function init() {
         createOverlay();
+
+        // Connect the galaxy icon button to open the view
+        const galaxyIcon = document.getElementById('galaxy-icon');
+        if (galaxyIcon) {
+            galaxyIcon.addEventListener('click', open);
+            console.log('🌌 Galaxie View: Connected to #galaxy-icon button');
+        }
+
         console.log('🌌 Galaxie View module initialized');
     }
 

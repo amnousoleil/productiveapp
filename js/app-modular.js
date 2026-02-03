@@ -47,6 +47,7 @@ const App = {
             if (typeof SettingsView !== 'undefined' && SettingsView.init) SettingsView.init();
             if (typeof AnalyticsView !== 'undefined' && AnalyticsView.init) AnalyticsView.init();
             if (typeof ReportsView !== 'undefined' && ReportsView.init) ReportsView.init();
+            if (typeof GalaxieView !== 'undefined' && GalaxieView.init) GalaxieView.init();
 
             // Initialiser le drag & drop
             setTimeout(() => {

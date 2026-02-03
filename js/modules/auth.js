@@ -110,19 +110,40 @@ const Auth = {
     },
 
     /**
-     * Attempt login with password
+     * Attempt login with password - tries API first, falls back to local
      */
-    attemptLogin(password) {
+    async attemptLogin(password) {
         const user = AppState.currentUser;
         if (!user) return;
 
         const errorEl = document.getElementById('login-error');
+        const loginBtn = document.getElementById('login-btn');
 
-        // Check password (or allow if no password required)
+        // Show loading state
+        if (loginBtn) {
+            loginBtn.disabled = true;
+            loginBtn.textContent = '...';
+        }
+
+        try {
+            // Try API login first
+            const apiSuccess = await this.tryApiLogin(user.email || user.id, password);
+            if (apiSuccess) {
+                if (errorEl) errorEl.textContent = '';
+                localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name }));
+                this.onLoginSuccess();
+                return;
+            }
+        } catch (e) {
+            console.warn('⚠️ Auth: API login failed, trying local fallback', e);
+        }
+
+        // Fallback to local password check
         if (!user.password || password === user.password) {
-            // Success
+            // Success with local auth
             if (errorEl) errorEl.textContent = '';
             localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name }));
+            console.log('✅ Auth: Local login successful (fallback)');
             this.onLoginSuccess();
         } else {
             // Wrong password
@@ -133,6 +154,57 @@ const Auth = {
             }
             document.getElementById('login-password')?.focus();
         }
+
+        // Reset button state
+        if (loginBtn) {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Connexion';
+        }
+    },
+
+    /**
+     * Try login via API
+     * @returns {boolean} true if successful
+     */
+    async tryApiLogin(email, password) {
+        const baseUrl = typeof ApiConfig !== 'undefined' ? ApiConfig.BASE_URL : '/api/v1';
+
+        const response = await fetch(`${baseUrl}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.warn('⚠️ Auth: API returned error', response.status, errorData);
+            return false;
+        }
+
+        const data = await response.json();
+
+        // Expected format: { data: { tokens: { accessToken, refreshToken } } }
+        const tokens = data?.data?.tokens || data?.tokens;
+        if (tokens?.accessToken) {
+            // Store tokens
+            localStorage.setItem('accessToken', tokens.accessToken);
+            if (tokens.refreshToken) {
+                localStorage.setItem('refreshToken', tokens.refreshToken);
+            }
+
+            // Update ApiConfig if available
+            if (typeof ApiConfig !== 'undefined' && ApiConfig.setToken) {
+                ApiConfig.setToken(tokens.accessToken);
+            }
+
+            console.log('✅ Auth: API login successful, tokens stored');
+            return true;
+        }
+
+        console.warn('⚠️ Auth: API response missing tokens', data);
+        return false;
     },
 
     /**
