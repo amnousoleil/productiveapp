@@ -12,27 +12,29 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style-base.css?v=49">
-    <link rel="stylesheet" href="css/style-components.css?v=46">
-    <link rel="stylesheet" href="css/style-themes.css?v=46">
-    <link rel="stylesheet" href="css/style-dragdrop.css?v=46">
-    <link rel="stylesheet" href="css/sidebar.css?v=50">
-    <link rel="stylesheet" href="css/style-sidebar.css?v=51">
-    <link rel="stylesheet" href="css/sidebar-nav.css?v=50">
-    <link rel="stylesheet" href="css/sidebar-themes.css?v=1">
-    <link rel="stylesheet" href="css/animations.css?v=1">
-    <link rel="stylesheet" href="css/dashboard.css?v=1">
-    <link rel="stylesheet" href="css/notes-editor.css?v=2">
-    <link rel="stylesheet" href="css/settings.css?v=2">
-    <link rel="stylesheet" href="css/auth.css?v=4">
-    <link rel="stylesheet" href="css/gamification.css?v=1">
-    <link rel="stylesheet" href="css/messaging.css?v=1">
-    <link rel="stylesheet" href="css/notifications.css?v=1">
-    <link rel="stylesheet" href="css/analytics.css?v=1">
-    <link rel="stylesheet" href="css/reports.css?v=1">
-    <link rel="stylesheet" href="css/style-overrides.css?v=62">
-    <link rel="stylesheet" href="css/style-views.css?v=3">
-    <link rel="stylesheet" href="css/galaxy.css?v=10">
+    <link rel="stylesheet" href="css/style-base.css?v=74">
+    <link rel="stylesheet" href="css/style-components.css?v=74">
+    <link rel="stylesheet" href="css/style-themes.css?v=74">
+    <link rel="stylesheet" href="css/style-dragdrop.css?v=74">
+    <link rel="stylesheet" href="css/sidebar.css?v=74">
+    <link rel="stylesheet" href="css/style-sidebar.css?v=74">
+    <link rel="stylesheet" href="css/sidebar-nav.css?v=74">
+    <link rel="stylesheet" href="css/sidebar-themes.css?v=74">
+    <link rel="stylesheet" href="css/animations.css?v=74">
+    <link rel="stylesheet" href="css/dashboard.css?v=74">
+    <link rel="stylesheet" href="css/notes-editor.css?v=74">
+    <link rel="stylesheet" href="css/settings.css?v=74">
+    <link rel="stylesheet" href="css/auth.css?v=74">
+    <link rel="stylesheet" href="css/gamification.css?v=74">
+    <link rel="stylesheet" href="css/messaging.css?v=74">
+    <link rel="stylesheet" href="css/notifications.css?v=74">
+    <link rel="stylesheet" href="css/analytics.css?v=74">
+    <link rel="stylesheet" href="css/reports.css?v=74">
+    <link rel="stylesheet" href="css/style-overrides.css?v=74">
+    <!-- NEW: Auth Login Module CSS -->
+    <link rel="stylesheet" href="js/modules/login/login.css?v=74">
+    <link rel="stylesheet" href="css/style-views.css?v=74">
+    <link rel="stylesheet" href="css/galaxy.css?v=74">
 
 
     <!-- PDF export -->
@@ -85,13 +87,12 @@
         </div>
     </div>
 
-    <!-- ========== ÉCRAN DE CONNEXION ========== -->
+    <!-- ========== ANCIEN ÉCRAN DE CONNEXION (COMMENTÉ - Remplacé par AuthLogin) ========== -->
+    <!--
     <div id="login-screen" class="login-screen">
         <div class="login-container">
             <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="login-logo">
             <h1>ProductiveApp</h1>
-
-            <!-- ÉTAPE 1: Formulaire de connexion équipe -->
             <div id="login-form" class="login-form-container">
                 <p class="login-subtitle">🔐 Connexion équipe</p>
                 <div class="login-inputs">
@@ -101,16 +102,13 @@
                 <button type="button" id="login-btn" class="btn-primary login-btn">🔓 Connexion</button>
                 <p id="login-error" class="error-text"></p>
             </div>
-
-            <!-- ÉTAPE 2: Sélection du membre -->
             <div id="member-picker" class="member-picker-container hidden">
                 <p class="login-subtitle">👋 Qui es-tu ?</p>
-                <div class="member-grid" id="member-grid">
-                    <!-- Membres générés par Auth.renderMemberGrid() -->
-                </div>
+                <div class="member-grid" id="member-grid"></div>
             </div>
         </div>
     </div>
+    -->
 
     <!-- ========== CANVAS ANIMATIONS ========== -->
     <!-- DISABLED: Canvas animations disabled to avoid duplicate animations with CSS hover effects
@@ -180,8 +178,18 @@
             <!-- Rendered by Gamification.js -->
         </div>
 
-        <!-- Messaging View -->
+        <!-- Behavioral Profile View -->
+        <div id="view-behavioral" class="view-container">
+            <!-- Rendered by BehavioralView.js -->
+        </div>
+
+        <!-- Messaging View (Chat IA) -->
         <div id="view-messaging" class="view-container">
+            <!-- Rendered by ChatView.js -->
+        </div>
+
+        <!-- Team Messaging View -->
+        <div id="view-team-messaging" class="view-container">
             <!-- Rendered by Messaging.js -->
         </div>
 
@@ -690,108 +698,139 @@
 
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
-    <script src="js/modules/config.js?v=56"></script>
-    <script src="js/modules/state.js?v=1"></script>
-    <script src="js/modules/utils.js?v=1"></script>
+    <script src="js/modules/config.js?v=74"></script>
+    <script src="js/modules/state.js?v=74"></script>
+    <script src="js/modules/utils.js?v=74"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
-    <script src="js/modules/api/api-config.js?v=56"></script>
-    <script src="js/modules/api/api-tokens.js?v=10"></script>
-    <script src="js/modules/api/api-fetch.js?v=10"></script>
-    <script src="js/modules/api/api.js?v=10"></script>
-    <script src="js/modules/api/api-auth.js?v=58"></script>
-    <script src="js/modules/api/api-projects.js?v=1"></script>
-    <script src="js/modules/api/api-notes.js?v=1"></script>
-    <script src="js/modules/api/api-tasks.js?v=1"></script>
-    <script src="js/modules/api/api-data-loader.js?v=1"></script>
+    <script src="js/modules/api/api-config.js?v=74"></script>
+    <script src="js/modules/api/api-tokens.js?v=74"></script>
+    <script src="js/modules/api/api-fetch.js?v=74"></script>
+    <script src="js/modules/api/api.js?v=74"></script>
+    <script src="js/modules/api/api-auth.js?v=74"></script>
+    <script src="js/modules/api/api-projects.js?v=74"></script>
+    <script src="js/modules/api/api-notes.js?v=74"></script>
+    <script src="js/modules/api/api-tasks.js?v=74"></script>
+    <script src="js/modules/api/api-data-loader.js?v=74"></script>
 
     <!-- 3. Services (legacy, kept for compatibility) -->
-    <script src="js/services/api.service.js?v=1"></script>
+    <script src="js/services/api.service.js?v=74"></script>
 
     <!-- 4. Modules fonctionnels -->
-    <script src="js/modules/auth/login-ui.js?v=1"></script>
-    <script src="js/modules/auth/login-legacy.js?v=1"></script>
-    <script src="js/modules/auth.js?v=58"></script>
-    <script src="js/modules/themes.js?v=1"></script>
-    <script src="js/modules/confirm-modal.js?v=1"></script>
-    <script src="js/modules/tasks.js?v=1"></script>
-    <script src="js/modules/projects.js?v=2"></script>
-    <script src="js/modules/journal.js?v=1"></script>
-    <script src="js/modules/chatbot.js?v=1"></script>
-    <script src="js/modules/effects.js?v=1"></script>
-    <script src="js/modules/report.js?v=1"></script>
-    <script src="js/modules/backup.js?v=1"></script>
-    <script src="js/modules/sidebar/sidebar-core.js?v=50"></script>
-    <script src="js/modules/sidebar/sidebar-render.js?v=50"></script>
-    <script src="js/modules/sidebar/sidebar-events.js?v=50"></script>
-    <script src="js/modules/sidebar/sidebar-init.js?v=50"></script>
-    <script src="js/modules/router.js?v=2"></script>
-    <script src="js/modules/dashboard.js?v=2"></script>
-    <script src="js/modules/notes/notes-core.js?v=1"></script>
-    <script src="js/modules/notes/notes-toolbar.js?v=1"></script>
-    <script src="js/modules/notes/notes-slash.js?v=1"></script>
-    <script src="js/modules/notes/notes-editor.js?v=2"></script>
-    <script src="js/modules/notes/notes-init.js?v=1"></script>
-    <script src="js/modules/projects-view.js?v=2"></script>
-    <script src="js/modules/settings-view.js?v=1"></script>
-    <script src="js/modules/analytics-view.js?v=1"></script>
-    <script src="js/modules/reports-view.js?v=1"></script>
+    <script src="js/modules/auth/login-ui.js?v=74"></script>
+    <script src="js/modules/auth/login-legacy.js?v=74"></script>
+    <script src="js/modules/auth.js?v=74"></script>
+    <script src="js/modules/themes.js?v=74"></script>
+    <script src="js/modules/confirm-modal.js?v=74"></script>
+    <script src="js/modules/tasks.js?v=74"></script>
+    <script src="js/modules/projects.js?v=74"></script>
+    <script src="js/modules/journal.js?v=74"></script>
+    <script src="js/modules/chatbot/chat-actions.js?v=74"></script>
+    <script src="js/modules/chatbot.js?v=74"></script>
+    <script src="js/modules/effects.js?v=74"></script>
+    <script src="js/modules/report.js?v=74"></script>
+    <script src="js/modules/backup.js?v=74"></script>
+    <script src="js/modules/sidebar/sidebar-core.js?v=74"></script>
+    <script src="js/modules/sidebar/sidebar-render.js?v=74"></script>
+    <script src="js/modules/sidebar/sidebar-events.js?v=74"></script>
+    <script src="js/modules/sidebar/sidebar-init.js?v=74"></script>
+    <script src="js/modules/router.js?v=74"></script>
+    <script src="js/modules/dashboard/dash-insights.js?v=74"></script>
+    <script src="js/modules/dashboard.js?v=74"></script>
+    <script src="js/modules/notes/notes-core.js?v=74"></script>
+    <script src="js/modules/notes/notes-render.js?v=74"></script>
+    <script src="js/modules/notes/notes-toolbar.js?v=74"></script>
+    <script src="js/modules/notes/notes-slash.js?v=74"></script>
+    <script src="js/modules/notes/notes-editor.js?v=74"></script>
+    <script src="js/modules/notes/notes-init.js?v=74"></script>
+    <script src="js/modules/projects-view.js?v=74"></script>
+    <!-- Settings Module -->
+    <script src="js/modules/settings/settings-state.js?v=74"></script>
+    <script src="js/modules/settings/settings-data.js?v=74"></script>
+    <script src="js/modules/settings/settings-actions.js?v=74"></script>
+    <script src="js/modules/settings/settings-render.js?v=74"></script>
+    <script src="js/modules/settings/settings-team.js?v=74"></script>
+    <script src="js/modules/settings/settings-styles.js?v=74"></script>
+    <script src="js/modules/settings-view.js?v=74"></script>
+    <!-- Analytics Module -->
+    <script src="js/modules/analytics/analytics-api.js?v=74"></script>
+    <script src="js/modules/analytics/analytics-charts.js?v=74"></script>
+    <script src="js/modules/analytics/analytics-styles.js?v=74"></script>
+    <script src="js/modules/analytics-view.js?v=74"></script>
+    <!-- Reports Module -->
+    <script src="js/modules/reports/reports-api.js?v=74"></script>
+    <script src="js/modules/reports/reports-cards.js?v=74"></script>
+    <script src="js/modules/reports/reports-list.js?v=74"></script>
+    <script src="js/modules/reports/reports-detail.js?v=74"></script>
+    <script src="js/modules/reports/reports-styles.js?v=74"></script>
+    <script src="js/modules/reports/reports-view.js?v=74"></script>
 
-    <!-- 5. Gamification Module -->
-    <script src="js/modules/gamification/gamification-api.js?v=1"></script>
-    <script src="js/modules/gamification/gamification-profile.js?v=1"></script>
-    <script src="js/modules/gamification/gamification-achievements.js?v=1"></script>
-    <script src="js/modules/gamification/gamification-streak.js?v=1"></script>
-    <script src="js/modules/gamification/gamification-leaderboard.js?v=1"></script>
-    <script src="js/modules/gamification/gamification.js?v=1"></script>
-
-    <!-- 6. Messaging Module -->
-    <script src="js/modules/messaging/messaging-api.js?v=1"></script>
-    <script src="js/modules/messaging/messaging-ui.js?v=1"></script>
-    <script src="js/modules/messaging/messaging-conversations.js?v=1"></script>
-    <script src="js/modules/messaging/messaging-chat.js?v=1"></script>
-    <script src="js/modules/messaging/messaging-events.js?v=1"></script>
-    <script src="js/modules/messaging/messaging.js?v=1"></script>
+    <!-- 5. Messaging Module -->
+    <script src="js/modules/messaging/messaging-api.js?v=74"></script>
+    <script src="js/modules/messaging/messaging-ui.js?v=74"></script>
+    <script src="js/modules/messaging/messaging-conversations.js?v=74"></script>
+    <script src="js/modules/messaging/messaging-chat.js?v=74"></script>
+    <script src="js/modules/messaging/messaging-events.js?v=74"></script>
+    <script src="js/modules/messaging/messaging.js?v=74"></script>
+    <!-- Chat IA View -->
+    <!-- Gamification View Modules -->
+    <script src="js/modules/gamification/gv-helpers.js?v=74"></script>
+    <script src="js/modules/gamification/gv-styles.js?v=74"></script>
+    <script src="js/modules/gamification/gv-api.js?v=74"></script>
+    <script src="js/modules/gamification/gv-render.js?v=74"></script>
+    <script src="js/modules/gamification-view.js?v=74"></script>
+    <!-- Chat Module -->
+    <script src="js/modules/chat/chat-history.js?v=74"></script>
+    <script src="js/modules/chat/chat-responses.js?v=74"></script>
+    <script src="js/modules/chat/chat-styles.js?v=74"></script>
+    <script src="js/modules/chat/chat-ui.js?v=74"></script>
+    <script src="js/modules/chat/chat-view.js?v=74"></script>
 
     <!-- 7. Notifications Module -->
-    <script src="js/modules/notifications/notifications-api.js?v=1"></script>
-    <script src="js/modules/notifications/notifications-ui.js?v=1"></script>
-    <script src="js/modules/notifications/notifications-list.js?v=1"></script>
-    <script src="js/modules/notifications/notifications-badge.js?v=1"></script>
-    <script src="js/modules/notifications/notifications.js?v=1"></script>
-
-    <!-- 8. Analytics Module -->
-    <script src="js/modules/analytics/analytics-api.js?v=1"></script>
-    <script src="js/modules/analytics/analytics-dashboard.js?v=1"></script>
-    <script src="js/modules/analytics/analytics-charts.js?v=1"></script>
-    <script src="js/modules/analytics/analytics.js?v=1"></script>
-
-    <!-- 9. Settings Module -->
-    <script src="js/modules/settings/settings-profile.js?v=1"></script>
-    <script src="js/modules/settings/settings-workspace.js?v=1"></script>
-    <script src="js/modules/settings/settings-notifications.js?v=1"></script>
-    <script src="js/modules/settings/settings-theme.js?v=1"></script>
-    <script src="js/modules/settings/settings.js?v=1"></script>
+    <script src="js/modules/notifications/notifications-api.js?v=74"></script>
+    <script src="js/modules/notifications/notifications-ui.js?v=74"></script>
+    <script src="js/modules/notifications/notifications-list.js?v=74"></script>
+    <script src="js/modules/notifications/notifications-badge.js?v=74"></script>
+    <script src="js/modules/notifications/notifications.js?v=74"></script>
 
     <!-- 10. Modules externes -->
-    <script src="js/dragdrop.js?v=30"></script>
+    <script src="js/dragdrop.js?v=74"></script>
     <!-- Galaxie View - Excalidraw integration -->
-    <script src="js/modules/galaxie-view.js?v=2"></script>
+    <script src="js/modules/galaxie-view.js?v=74"></script>
     <!-- Old canvas-based galaxy.js kept for fallback -->
-    <!-- <script src="js/galaxy.js?v=21"></script> -->
+    <!-- <script src="js/galaxy.js?v=74"></script> -->
 
     <!-- Accounting Module -->
-    <script src="js/modules/accounting-api.js?v=1"></script>
-    <script src="js/modules/accounting.js?v=1"></script>
+    <script src="js/modules/accounting-api.js?v=74"></script>
+    <script src="js/modules/accounting.js?v=74"></script>
 
     <!-- Psycho-Audit Module -->
-    <script src="js/modules/psycho-audit.js?v=1"></script>
+    <script src="js/modules/psycho-audit/questions-bank.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-scoring.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-state.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-api.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-charts.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-render.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-styles.js?v=74"></script>
+    <script src="js/modules/psycho-audit/pa-report.js?v=74"></script>
+    <script src="js/modules/psycho-audit-view.js?v=74"></script>
+
+    <!-- Behavioral Profile Module -->
+    <script src="js/modules/behavioral/bh-api.js?v=74"></script>
+    <script src="js/modules/behavioral/bh-charts.js?v=74"></script>
+    <script src="js/modules/behavioral/bh-render.js?v=74"></script>
+    <script src="js/modules/behavioral/bh-styles.js?v=74"></script>
+    <script src="js/modules/behavioral/index.js?v=74"></script>
+    <script src="js/modules/behavioral-view.js?v=74"></script>
 
     <!-- Report Creator - Psycho Audit Engine -->
-    <script src="js/modules/report-creator.js?v=1"></script>
+    <script src="js/modules/report-creator.js?v=74"></script>
+
+    <!-- NEW: Auth Login Module -->
+    <script src="js/modules/login/login.js?v=74"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=8"></script>
+    <script src="js/app-modular.js?v=74"></script>
 
     <!-- Email Login Functions -->
     <script>

@@ -6,10 +6,15 @@
 const AccountingApi = (function() {
     'use strict';
 
-    const WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
+    function getWorkspaceId() {
+        if (typeof ApiTokens !== 'undefined' && ApiTokens.getWorkspaceId) {
+            return ApiTokens.getWorkspaceId();
+        }
+        return localStorage.getItem('workspace_id') || '';
+    }
 
     function buildUrl(path) {
-        return `/accounting/workspace/${WORKSPACE_ID}${path}`;
+        return `/accounting/workspace/${getWorkspaceId()}${path}`;
     }
 
     /**

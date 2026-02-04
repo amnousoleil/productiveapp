@@ -13,7 +13,7 @@ const Messaging = (function() {
      * Initialize messaging module
      * @param {string} containerId - ID of container element
      */
-    async function init(containerId = 'view-messaging') {
+    async function init(containerId = 'view-team-messaging') {
         if (initialized) {
             console.log('💬 Messaging already initialized');
             return;
@@ -102,7 +102,7 @@ const Messaging = (function() {
         } else {
             // Manual show
             document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
-            const view = document.getElementById('view-messaging');
+            const view = document.getElementById('view-team-messaging');
             if (view) view.classList.add('active');
         }
     }
@@ -111,7 +111,7 @@ const Messaging = (function() {
      * Hide the messaging view
      */
     function hide() {
-        const view = document.getElementById('view-messaging');
+        const view = document.getElementById('view-team-messaging');
         if (view) view.classList.remove('active');
     }
 

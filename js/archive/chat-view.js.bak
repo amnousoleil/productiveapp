@@ -1,0 +1,856 @@
+/**
+ * CHAT VIEW - ProductiveApp v4.0
+ * Assistant IA intégré avec réponses intelligentes contextuelles
+ */
+
+const ChatView = (function() {
+    'use strict';
+
+    // Configuration
+    const CONFIG = {
+        containerId: 'view-messaging',
+        storageKey: 'productiveapp_chat_history',
+        maxHistory: 50,
+        typingDelay: 800
+    };
+
+    // État
+    let messages = [];
+    let isTyping = false;
+
+    // Icons SVG
+    const icons = {
+        send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>',
+        bot: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>',
+        user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+        sparkle: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>',
+        trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+        help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+    };
+
+    // Réponses intelligentes basées sur le contexte ProductiveApp
+    const AI_RESPONSES = {
+        greetings: [
+            "Bonjour ! Je suis votre assistant ProductiveApp. Comment puis-je vous aider aujourd'hui ?",
+            "Salut ! Prêt à booster votre productivité ? Que puis-je faire pour vous ?",
+            "Hello ! Je suis là pour vous accompagner. Posez-moi vos questions !"
+        ],
+        help: [
+            `Voici ce que je peux faire pour vous :
+
+📋 **Gestion des tâches**
+- Créer, modifier ou supprimer des tâches
+- Définir des priorités et des deadlines
+- Suivre votre progression
+
+📊 **Productivité**
+- Analyser vos habitudes de travail
+- Suggérer des améliorations
+- Résumer vos activités
+
+🎮 **Gamification**
+- Expliquer le système de points
+- Vous motiver avec des défis
+- Célébrer vos accomplissements
+
+💡 **Conseils**
+- Techniques de productivité
+- Organisation du travail
+- Gestion du temps
+
+Que souhaitez-vous explorer ?`
+        ],
+        tasks: {
+            summary: () => {
+                const tasks = getTasksSummary();
+                return `📊 **Résumé de vos tâches :**
+
+🔴 Urgent : ${tasks.urgent} tâche(s)
+📋 À faire : ${tasks.todo} tâche(s)
+🔄 En cours : ${tasks.inProgress} tâche(s)
+✅ Terminées : ${tasks.done} tâche(s)
+
+${tasks.urgent > 0 ? '⚠️ Vous avez des tâches urgentes à traiter !' : '👍 Pas de tâches urgentes pour le moment.'}
+
+Voulez-vous voir les détails ou créer une nouvelle tâche ?`;
+            },
+            tips: [
+                "💡 **Conseil :** Commencez par les tâches urgentes le matin quand votre énergie est au maximum !",
+                "💡 **Astuce :** Utilisez la technique Pomodoro : 25 min de travail, 5 min de pause.",
+                "💡 **Conseil :** Décomposez les grandes tâches en sous-tâches plus petites et gérables."
+            ]
+        },
+        productivity: [
+            `🚀 **Conseils productivité :**
+
+1. **Règle des 2 minutes** : Si une tâche prend moins de 2 min, faites-la immédiatement
+2. **Time blocking** : Bloquez du temps pour chaque type de tâche
+3. **Deep work** : Réservez des créneaux sans interruption pour le travail complexe
+4. **Review hebdo** : Faites le point chaque semaine sur vos accomplissements
+
+Quel aspect souhaitez-vous approfondir ?`,
+            `📈 **Pour améliorer votre productivité :**
+
+• Identifiez vos heures de peak performance
+• Éliminez les distractions (notifications, réseaux sociaux)
+• Utilisez la matrice d'Eisenhower (urgent/important)
+• Célébrez vos petites victoires !
+
+Besoin de plus de détails sur une technique ?`
+        ],
+        galaxy: [
+            `🌌 **Galaxy View** est votre espace de visualisation créatif !
+
+C'est un tableau blanc interactif basé sur Excalidraw où vous pouvez :
+- Créer des mind maps
+- Dessiner des schémas
+- Organiser visuellement vos idées
+- Relier vos projets entre eux
+
+Cliquez sur l'icône œil d'Horus dans le header pour l'ouvrir !`
+        ],
+        settings: [
+            `⚙️ **Paramètres disponibles :**
+
+- **Thèmes** : Executive, Ocean, Forest, Sunset
+- **Notifications** : Personnalisez vos alertes
+- **Sidebar** : Mode compact ou étendu
+- **Données** : Export JSON, vidage du cache
+
+Allez dans Paramètres pour personnaliser votre expérience !`
+        ],
+        motivation: [
+            "🔥 Vous êtes sur la bonne voie ! Chaque tâche accomplie vous rapproche de vos objectifs.",
+            "💪 La persévérance est la clé du succès. Continuez comme ça !",
+            "⭐ N'oubliez pas : le progrès, même petit, reste du progrès !",
+            "🎯 Concentrez-vous sur une chose à la fois, et vous accomplirez des merveilles."
+        ],
+        unknown: [
+            "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ou me donner plus de contexte ?",
+            "Hmm, je n'ai pas de réponse précise pour ça. Essayez de demander de l'aide sur les tâches, la productivité ou les fonctionnalités.",
+            "Je suis encore en apprentissage ! Pour l'instant, je peux vous aider avec vos tâches, la productivité et les fonctionnalités de ProductiveApp."
+        ]
+    };
+
+    /**
+     * Get tasks summary from AppState
+     */
+    function getTasksSummary() {
+        if (typeof AppState === 'undefined' || !AppState.tasks) {
+            return { urgent: 0, todo: 0, inProgress: 0, done: 0 };
+        }
+        const tasks = AppState.tasks || [];
+        return {
+            urgent: tasks.filter(t => t.priority?.level === 1 && t.status !== 'done').length,
+            todo: tasks.filter(t => t.status === 'todo').length,
+            inProgress: tasks.filter(t => t.status === 'inprogress').length,
+            done: tasks.filter(t => t.status === 'done').length
+        };
+    }
+
+    /**
+     * Get current user name
+     */
+    function getUserName() {
+        if (typeof AppState !== 'undefined' && AppState.currentUser) {
+            return AppState.currentUser.name || 'Utilisateur';
+        }
+        return 'Utilisateur';
+    }
+
+    /**
+     * Analyze user message and generate response
+     */
+    function generateResponse(userMessage) {
+        const msg = userMessage.toLowerCase().trim();
+
+        // Greetings
+        if (/^(salut|bonjour|hello|hi|hey|coucou|yo)/i.test(msg)) {
+            return randomChoice(AI_RESPONSES.greetings);
+        }
+
+        // Help
+        if (/aide|help|comment|quoi faire|que peux|fonctionnalit/i.test(msg)) {
+            return AI_RESPONSES.help[0];
+        }
+
+        // Tasks
+        if (/tâche|tache|task|todo|à faire|a faire/i.test(msg)) {
+            if (/combien|résumé|resume|stat|nombre/i.test(msg)) {
+                return AI_RESPONSES.tasks.summary();
+            }
+            return AI_RESPONSES.tasks.summary() + '\n\n' + randomChoice(AI_RESPONSES.tasks.tips);
+        }
+
+        // Productivity
+        if (/productiv|conseil|astuce|tip|améliorer|organis/i.test(msg)) {
+            return randomChoice(AI_RESPONSES.productivity);
+        }
+
+        // Galaxy View
+        if (/galaxy|galaxie|mind ?map|tableau|whiteboard|dessin/i.test(msg)) {
+            return AI_RESPONSES.galaxy[0];
+        }
+
+        // Settings
+        if (/paramètre|setting|thème|theme|config/i.test(msg)) {
+            return AI_RESPONSES.settings[0];
+        }
+
+        // Motivation
+        if (/motiv|encourager|décourag|fatigue|dur|difficile/i.test(msg)) {
+            return randomChoice(AI_RESPONSES.motivation);
+        }
+
+        // Thanks
+        if (/merci|thank|génial|super|cool|parfait/i.test(msg)) {
+            return `Avec plaisir ${getUserName()} ! N'hésitez pas si vous avez d'autres questions. 😊`;
+        }
+
+        // Goodbye
+        if (/bye|au revoir|à plus|a plus|ciao|bonne journée/i.test(msg)) {
+            return `À bientôt ${getUserName()} ! Bonne continuation et restez productif ! 🚀`;
+        }
+
+        // Unknown
+        return randomChoice(AI_RESPONSES.unknown);
+    }
+
+    /**
+     * Random choice from array
+     */
+    function randomChoice(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    /**
+     * Format message with markdown-like syntax
+     */
+    function formatMessage(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+    }
+
+    /**
+     * Add message to chat
+     */
+    function addMessage(text, isUser = false) {
+        const message = {
+            id: Date.now(),
+            text,
+            isUser,
+            timestamp: new Date().toISOString()
+        };
+        messages.push(message);
+
+        // Keep only last N messages
+        if (messages.length > CONFIG.maxHistory) {
+            messages = messages.slice(-CONFIG.maxHistory);
+        }
+
+        // Save to localStorage
+        saveHistory();
+
+        // Render message
+        renderMessage(message);
+
+        return message;
+    }
+
+    /**
+     * Render single message
+     */
+    function renderMessage(message) {
+        const messagesContainer = document.getElementById('chat-messages');
+        if (!messagesContainer) return;
+
+        const div = document.createElement('div');
+        div.className = `chat-message ${message.isUser ? 'user' : 'bot'}`;
+        div.innerHTML = `
+            <div class="chat-message-avatar">
+                ${message.isUser ? icons.user : icons.bot}
+            </div>
+            <div class="chat-message-content">
+                <div class="chat-message-text">${formatMessage(message.text)}</div>
+                <div class="chat-message-time">${formatTime(message.timestamp)}</div>
+            </div>
+        `;
+
+        messagesContainer.appendChild(div);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    /**
+     * Format timestamp
+     */
+    function formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    /**
+     * Show typing indicator
+     */
+    function showTyping() {
+        isTyping = true;
+        const messagesContainer = document.getElementById('chat-messages');
+        if (!messagesContainer) return;
+
+        const typing = document.createElement('div');
+        typing.id = 'chat-typing';
+        typing.className = 'chat-message bot typing';
+        typing.innerHTML = `
+            <div class="chat-message-avatar">${icons.bot}</div>
+            <div class="chat-message-content">
+                <div class="chat-typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        `;
+        messagesContainer.appendChild(typing);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    /**
+     * Hide typing indicator
+     */
+    function hideTyping() {
+        isTyping = false;
+        const typing = document.getElementById('chat-typing');
+        if (typing) typing.remove();
+    }
+
+    /**
+     * Handle user message submission
+     */
+    function handleSubmit() {
+        const input = document.getElementById('chat-input');
+        if (!input) return;
+
+        const text = input.value.trim();
+        if (!text || isTyping) return;
+
+        // Add user message
+        addMessage(text, true);
+        input.value = '';
+
+        // Show typing indicator
+        showTyping();
+
+        // Generate and show bot response after delay
+        setTimeout(() => {
+            hideTyping();
+            const response = generateResponse(text);
+            addMessage(response, false);
+        }, CONFIG.typingDelay + Math.random() * 500);
+    }
+
+    /**
+     * Clear chat history
+     */
+    function clearHistory() {
+        if (!confirm('Voulez-vous vraiment effacer l\'historique de conversation ?')) {
+            return;
+        }
+        messages = [];
+        localStorage.removeItem(CONFIG.storageKey);
+        render();
+        // Add welcome message
+        setTimeout(() => {
+            addMessage(`Bonjour ${getUserName()} ! Historique effacé. Comment puis-je vous aider ?`, false);
+        }, 300);
+    }
+
+    /**
+     * Save history to localStorage
+     */
+    function saveHistory() {
+        try {
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify(messages));
+        } catch (e) {
+            console.warn('ChatView: Could not save history', e);
+        }
+    }
+
+    /**
+     * Load history from localStorage
+     */
+    function loadHistory() {
+        try {
+            const saved = localStorage.getItem(CONFIG.storageKey);
+            if (saved) {
+                messages = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.warn('ChatView: Could not load history', e);
+            messages = [];
+        }
+    }
+
+    /**
+     * Render the chat interface
+     */
+    function render() {
+        const container = document.getElementById(CONFIG.containerId);
+        if (!container) {
+            console.error('ChatView: Container not found:', CONFIG.containerId);
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="chat-view">
+                <!-- Header -->
+                <div class="chat-view-header">
+                    <div class="chat-view-title">
+                        <span class="chat-view-icon">${icons.sparkle}</span>
+                        <div>
+                            <h2>Assistant IA</h2>
+                            <span class="chat-view-status">En ligne</span>
+                        </div>
+                    </div>
+                    <div class="chat-view-actions">
+                        <button class="chat-action-btn" onclick="ChatView.showHelp()" title="Aide">
+                            ${icons.help}
+                        </button>
+                        <button class="chat-action-btn" onclick="ChatView.clearHistory()" title="Effacer l'historique">
+                            ${icons.trash}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will be rendered here -->
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="chat-quick-actions">
+                    <button class="chat-quick-btn" onclick="ChatView.quickAction('tasks')">📋 Mes tâches</button>
+                    <button class="chat-quick-btn" onclick="ChatView.quickAction('productivity')">💡 Conseils</button>
+                    <button class="chat-quick-btn" onclick="ChatView.quickAction('help')">❓ Aide</button>
+                </div>
+
+                <!-- Input -->
+                <div class="chat-input-container">
+                    <input
+                        type="text"
+                        id="chat-input"
+                        class="chat-input"
+                        placeholder="Posez une question..."
+                        onkeypress="if(event.key === 'Enter') ChatView.handleSubmit()"
+                        autocomplete="off"
+                    >
+                    <button class="chat-send-btn" onclick="ChatView.handleSubmit()">
+                        ${icons.send}
+                    </button>
+                </div>
+            </div>
+
+            <style>
+                .chat-view {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    background: var(--background, #0a0a0f);
+                }
+
+                .chat-view-header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 20px 24px;
+                    background: var(--surface, #12121a);
+                    border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+                }
+
+                .chat-view-title {
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                }
+
+                .chat-view-icon {
+                    width: 44px;
+                    height: 44px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+                    border-radius: 12px;
+                }
+
+                .chat-view-icon svg {
+                    width: 24px;
+                    height: 24px;
+                    stroke: #8b5cf6;
+                }
+
+                .chat-view-title h2 {
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: var(--text, #fafafa);
+                }
+
+                .chat-view-status {
+                    font-size: 12px;
+                    color: #22c55e;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                }
+
+                .chat-view-status::before {
+                    content: '';
+                    width: 8px;
+                    height: 8px;
+                    background: #22c55e;
+                    border-radius: 50%;
+                    animation: pulse 2s infinite;
+                }
+
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
+                }
+
+                .chat-view-actions {
+                    display: flex;
+                    gap: 8px;
+                }
+
+                .chat-action-btn {
+                    width: 40px;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255,255,255,0.05);
+                    border: 1px solid var(--border, rgba(255,255,255,0.08));
+                    border-radius: 10px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                .chat-action-btn svg {
+                    width: 18px;
+                    height: 18px;
+                    stroke: var(--text-muted, #71717a);
+                }
+
+                .chat-action-btn:hover {
+                    background: rgba(139, 92, 246, 0.15);
+                    border-color: rgba(139, 92, 246, 0.3);
+                }
+
+                .chat-action-btn:hover svg {
+                    stroke: #8b5cf6;
+                }
+
+                .chat-messages {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 24px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 16px;
+                }
+
+                .chat-message {
+                    display: flex;
+                    gap: 12px;
+                    max-width: 85%;
+                    animation: fadeIn 0.3s ease;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                .chat-message.user {
+                    flex-direction: row-reverse;
+                    margin-left: auto;
+                }
+
+                .chat-message-avatar {
+                    width: 36px;
+                    height: 36px;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: var(--surface, #12121a);
+                    border-radius: 10px;
+                    border: 1px solid var(--border, rgba(255,255,255,0.08));
+                }
+
+                .chat-message-avatar svg {
+                    width: 18px;
+                    height: 18px;
+                    stroke: var(--text-muted, #71717a);
+                }
+
+                .chat-message.bot .chat-message-avatar {
+                    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.2));
+                }
+
+                .chat-message.bot .chat-message-avatar svg {
+                    stroke: #8b5cf6;
+                }
+
+                .chat-message.user .chat-message-avatar {
+                    background: rgba(34, 197, 94, 0.15);
+                }
+
+                .chat-message.user .chat-message-avatar svg {
+                    stroke: #22c55e;
+                }
+
+                .chat-message-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+
+                .chat-message-text {
+                    padding: 14px 18px;
+                    border-radius: 16px;
+                    font-size: 14px;
+                    line-height: 1.6;
+                    color: var(--text, #fafafa);
+                }
+
+                .chat-message.bot .chat-message-text {
+                    background: var(--surface, #12121a);
+                    border: 1px solid var(--border, rgba(255,255,255,0.08));
+                    border-bottom-left-radius: 4px;
+                }
+
+                .chat-message.user .chat-message-text {
+                    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+                    border-bottom-right-radius: 4px;
+                }
+
+                .chat-message-time {
+                    font-size: 11px;
+                    color: var(--text-muted, #71717a);
+                    padding: 0 4px;
+                }
+
+                .chat-message.user .chat-message-time {
+                    text-align: right;
+                }
+
+                /* Typing indicator */
+                .chat-typing-dots {
+                    display: flex;
+                    gap: 4px;
+                    padding: 14px 18px;
+                }
+
+                .chat-typing-dots span {
+                    width: 8px;
+                    height: 8px;
+                    background: var(--text-muted, #71717a);
+                    border-radius: 50%;
+                    animation: typing 1.4s infinite;
+                }
+
+                .chat-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+                .chat-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+                @keyframes typing {
+                    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+                    30% { transform: translateY(-8px); opacity: 1; }
+                }
+
+                /* Quick actions */
+                .chat-quick-actions {
+                    display: flex;
+                    gap: 8px;
+                    padding: 12px 24px;
+                    border-top: 1px solid var(--border, rgba(255,255,255,0.05));
+                    overflow-x: auto;
+                }
+
+                .chat-quick-btn {
+                    padding: 8px 14px;
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid var(--border, rgba(255,255,255,0.08));
+                    border-radius: 20px;
+                    font-size: 13px;
+                    color: var(--text, #fafafa);
+                    cursor: pointer;
+                    white-space: nowrap;
+                    transition: all 0.2s ease;
+                }
+
+                .chat-quick-btn:hover {
+                    background: rgba(139, 92, 246, 0.15);
+                    border-color: rgba(139, 92, 246, 0.3);
+                }
+
+                /* Input */
+                .chat-input-container {
+                    display: flex;
+                    gap: 12px;
+                    padding: 16px 24px 24px;
+                    background: var(--surface, #12121a);
+                    border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+                }
+
+                .chat-input {
+                    flex: 1;
+                    padding: 14px 18px;
+                    background: var(--background, #0a0a0f);
+                    border: 1px solid var(--border, rgba(255,255,255,0.1));
+                    border-radius: 12px;
+                    font-size: 14px;
+                    color: var(--text, #fafafa);
+                    outline: none;
+                    transition: border-color 0.2s ease;
+                }
+
+                .chat-input:focus {
+                    border-color: #8b5cf6;
+                }
+
+                .chat-input::placeholder {
+                    color: var(--text-muted, #71717a);
+                }
+
+                .chat-send-btn {
+                    width: 48px;
+                    height: 48px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+                    border: none;
+                    border-radius: 12px;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                .chat-send-btn svg {
+                    width: 20px;
+                    height: 20px;
+                    stroke: white;
+                }
+
+                .chat-send-btn:hover {
+                    transform: scale(1.05);
+                    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+                }
+
+                .chat-send-btn:active {
+                    transform: scale(0.95);
+                }
+
+                /* Scrollbar */
+                .chat-messages::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                .chat-messages::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+
+                .chat-messages::-webkit-scrollbar-thumb {
+                    background: var(--border, rgba(255,255,255,0.1));
+                    border-radius: 3px;
+                }
+
+                .chat-messages::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255,255,255,0.2);
+                }
+            </style>
+        `;
+
+        // Load and render history
+        loadHistory();
+        const messagesContainer = document.getElementById('chat-messages');
+        if (messagesContainer) {
+            messages.forEach(msg => renderMessage(msg));
+        }
+
+        // Welcome message if no history
+        if (messages.length === 0) {
+            setTimeout(() => {
+                addMessage(`Bonjour ${getUserName()} ! 👋\n\nJe suis votre assistant ProductiveApp. Je peux vous aider avec :\n• Résumé de vos tâches\n• Conseils de productivité\n• Questions sur les fonctionnalités\n\nComment puis-je vous aider aujourd'hui ?`, false);
+            }, 500);
+        }
+
+        // Focus input
+        setTimeout(() => {
+            document.getElementById('chat-input')?.focus();
+        }, 100);
+
+        console.log('💬 ChatView rendered');
+    }
+
+    /**
+     * Handle quick action buttons
+     */
+    function quickAction(type) {
+        const input = document.getElementById('chat-input');
+        const queries = {
+            tasks: 'Montre-moi un résumé de mes tâches',
+            productivity: 'Donne-moi des conseils de productivité',
+            help: 'Comment utiliser ProductiveApp ?'
+        };
+
+        if (input && queries[type]) {
+            input.value = queries[type];
+            handleSubmit();
+        }
+    }
+
+    /**
+     * Show help message
+     */
+    function showHelp() {
+        addMessage('aide', true);
+        showTyping();
+        setTimeout(() => {
+            hideTyping();
+            addMessage(AI_RESPONSES.help[0], false);
+        }, CONFIG.typingDelay);
+    }
+
+    /**
+     * Refresh the view
+     */
+    function refresh() {
+        render();
+    }
+
+    /**
+     * Initialize the module
+     */
+    function init() {
+        console.log('💬 ChatView: Initialized');
+    }
+
+    // Public API
+    return {
+        init,
+        render,
+        refresh,
+        handleSubmit,
+        clearHistory,
+        quickAction,
+        showHelp
+    };
+})();
+
+// Export globally
+if (typeof window !== 'undefined') {
+    window.ChatView = ChatView;
+    // Alias for router compatibility
+    window.MessagingView = ChatView;
+}
+
+console.log('📦 chat-view.js loaded');

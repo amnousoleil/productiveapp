@@ -83,9 +83,107 @@ const Dashboard = (function() {
         return div.innerHTML;
     }
 
+    // API Widget data cache
+    let apiWidgets = { xp: null, streak: null, productivity: null };
+
+    async function fetchApiWidgets() {
+        if (typeof ApiFetch === 'undefined' || typeof ApiTokens === 'undefined') return;
+        if (!ApiTokens.isAuthenticated()) return;
+
+        const workspaceId = ApiTokens.getWorkspaceId();
+        if (!workspaceId) return;
+
+        const endpoints = [
+            { key: 'xp', url: `/gamification/workspace/${workspaceId}/profile` },
+            { key: 'streak', url: `/gamification/workspace/${workspaceId}/streaks` },
+            { key: 'productivity', url: `/analytics/workspace/${workspaceId}/productivity` }
+        ];
+
+        const results = await Promise.allSettled(
+            endpoints.map(e => ApiFetch.fetchWithAuth(e.url))
+        );
+
+        results.forEach((result, i) => {
+            if (result.status === 'fulfilled' && result.value?.data) {
+                apiWidgets[endpoints[i].key] = result.value.data;
+            }
+        });
+    }
+
+    function renderApiWidgets() {
+        const xp = apiWidgets.xp?.profile || apiWidgets.xp;
+        const streaks = apiWidgets.streak?.streaks || apiWidgets.streak;
+        const prod = apiWidgets.productivity;
+
+        // XP Widget
+        const level = xp?.level || 1;
+        const currentXp = xp?.current_xp || xp?.xp || 0;
+        const xpForNext = xp?.xp_for_next_level || 1000;
+        const xpPercent = Math.min(100, (currentXp / xpForNext) * 100);
+
+        // Streak Widget
+        const dailyStreak = streaks?.find?.(s => s.type === 'daily_login') || {};
+        const currentStreak = dailyStreak.current || 0;
+        const bestStreak = dailyStreak.best || 0;
+
+        // Productivity Widget
+        const weeklyRate = prod?.completion_rate || prod?.weekly_completion || 0;
+
+        return `
+            <div class="dashboard-api-widgets">
+                <div class="api-widget xp-widget">
+                    <div class="api-widget-icon">🏆</div>
+                    <div class="api-widget-content">
+                        <div class="api-widget-title">Niveau ${level}</div>
+                        <div class="api-widget-progress">
+                            <div class="api-progress-bar" style="width:${xpPercent}%"></div>
+                        </div>
+                        <div class="api-widget-detail">${currentXp} / ${xpForNext} XP</div>
+                    </div>
+                </div>
+                <div class="api-widget streak-widget">
+                    <div class="api-widget-icon">🔥</div>
+                    <div class="api-widget-content">
+                        <div class="api-widget-value">${currentStreak}</div>
+                        <div class="api-widget-label">jours consécutifs</div>
+                        <div class="api-widget-detail">Record: ${bestStreak} jours</div>
+                    </div>
+                </div>
+                <div class="api-widget prod-widget">
+                    <div class="api-widget-icon">📈</div>
+                    <div class="api-widget-content">
+                        <div class="api-widget-value">${Math.round(weeklyRate)}%</div>
+                        <div class="api-widget-label">productivité semaine</div>
+                        <div class="api-widget-progress">
+                            <div class="api-progress-bar" style="width:${weeklyRate}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .dashboard-api-widgets{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+                .api-widget{flex:1;min-width:200px;background:var(--surface,#12121a);border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:12px;padding:16px;display:flex;gap:12px;align-items:center}
+                .api-widget-icon{font-size:28px}
+                .api-widget-content{flex:1}
+                .api-widget-title{font-weight:600;color:var(--text,#fafafa);margin-bottom:6px}
+                .api-widget-value{font-size:28px;font-weight:700;color:var(--text,#fafafa)}
+                .api-widget-label{font-size:12px;color:var(--text-muted,#71717a)}
+                .api-widget-detail{font-size:11px;color:var(--text-muted,#71717a);margin-top:4px}
+                .api-widget-progress{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:6px}
+                .api-progress-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#6366f1);border-radius:3px;transition:width 0.3s}
+                .xp-widget .api-progress-bar{background:linear-gradient(90deg,#f59e0b,#eab308)}
+                .streak-widget{background:linear-gradient(135deg,rgba(249,115,22,0.1),rgba(234,88,12,0.05))}
+                .prod-widget .api-progress-bar{background:linear-gradient(90deg,#22c55e,#16a34a)}
+            </style>
+        `;
+    }
+
     function render() {
         const container = document.getElementById('view-dashboard');
         if (!container) return;
+
+        // Debug: log tasks state
+        console.log('📊 Dashboard render - AppState.tasks:', AppState?.tasks?.length ?? 'undefined', AppState?.tasks);
 
         const stats = getStats();
         const activities = getRecentActivity();
@@ -138,6 +236,12 @@ const Dashboard = (function() {
                     </div>
                 </div>
             </div>
+
+            <!-- API Widgets -->
+            <div id="dashboard-api-widgets-container"></div>
+
+            <!-- Insights -->
+            <div id="dashboard-insights-container"></div>
 
             <!-- Grid -->
             <div class="dashboard-grid">
@@ -224,6 +328,23 @@ const Dashboard = (function() {
                 </div>
             </div>
         `;
+
+        // Load API widgets asynchronously
+        loadApiWidgets();
+    }
+
+    async function loadApiWidgets() {
+        const container = document.getElementById('dashboard-api-widgets-container');
+        if (!container) return;
+
+        await fetchApiWidgets();
+        container.innerHTML = renderApiWidgets();
+
+        // Load Insights widget
+        const insightsContainer = document.getElementById('dashboard-insights-container');
+        if (insightsContainer && typeof DashInsights !== 'undefined') {
+            insightsContainer.innerHTML = DashInsights.render();
+        }
     }
 
     async function refresh() {
@@ -240,17 +361,8 @@ const Dashboard = (function() {
 
     async function init() {
         console.log('📊 Dashboard: Initializing...');
-
-        // Load data from API if authenticated
-        if (typeof ApiDataLoader !== 'undefined' && ApiTokens.isAuthenticated()) {
-            try {
-                await ApiDataLoader.loadAll();
-            } catch (error) {
-                console.warn('Failed to load data from API:', error);
-            }
-        }
-
-        render();
+        // Use refresh() to ensure data is loaded (handles race condition with login)
+        await refresh();
         console.log('✅ Dashboard: Ready');
     }
 

@@ -64,6 +64,13 @@ const AppConfig = {
             role: 'team'
         },
         {
+            id: 'edna',
+            name: 'Edna',
+            avatar: '❤️',
+            loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
+            role: 'team'
+        },
+        {
             id: 'all',
             name: 'Tout le monde',
             avatar: '👥',

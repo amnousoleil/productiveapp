@@ -76,10 +76,15 @@ const ProjectsView = (function() {
      * Render projects grid
      */
     function render() {
+        console.log('📁 ProjectsView.render() called');
         const container = document.getElementById('view-projects');
-        if (!container) return;
+        if (!container) {
+            console.error('❌ ProjectsView: #view-projects not found');
+            return;
+        }
 
         const projects = getProjects();
+        console.log('📁 ProjectsView: Found', projects.length, 'projects');
 
         container.innerHTML = `
             <div class="view-header">
@@ -145,22 +150,119 @@ const ProjectsView = (function() {
     }
 
     /**
-     * Open project (filter tasks by project)
+     * Open project (filter tasks by project or show empty view)
      */
     function openProject(projectId, projectName) {
-        // Filter tasks by this project
-        if (typeof AppState !== 'undefined') {
-            AppState.setFilter('project', projectName);
+        const tasksCount = getProjectTasksCount(projectName);
+
+        if (tasksCount === 0) {
+            // Project is empty - show detail view
+            showProjectDetail(projectId, projectName);
+        } else {
+            // Project has tasks - navigate to tasks view with filter
+            if (typeof AppState !== 'undefined') {
+                AppState.setFilter('project', projectName);
+            }
+
+            // Navigate to tasks view
+            ViewRouter.navigate('tasks');
+
+            // Click on the project chip if exists
+            setTimeout(() => {
+                const chip = document.querySelector(`.project-chip[data-project="${projectName}"]`);
+                if (chip) chip.click();
+            }, 100);
         }
+    }
+
+    /**
+     * Show project detail view (for empty projects)
+     */
+    function showProjectDetail(projectId, projectName) {
+        console.log('📁 ProjectsView.showProjectDetail:', projectName);
+
+        const container = document.getElementById('view-projects');
+        if (!container) return;
+
+        // Find project data
+        const projects = getProjects();
+        const project = projects.find(p => p.id === projectId) || {
+            id: projectId,
+            name: projectName,
+            color: COLORS[4],
+            icon: ICONS[0]
+        };
+
+        const color = project.color || COLORS[4];
+        const icon = project.icon || ICONS[0];
+        const notesCount = getProjectNotesCount(projectId);
+
+        container.innerHTML = `
+            <div class="view-header">
+                <button class="btn btn-secondary" onclick="ProjectsView.render()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right: 6px;">
+                        <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Retour aux projets
+                </button>
+            </div>
+
+            <div class="project-detail-container">
+                <div class="project-detail-header" style="--project-color: ${color};">
+                    <div class="project-detail-icon" style="background: ${color}20; color: ${color}; border: 2px solid ${color};">
+                        ${icon}
+                    </div>
+                    <div class="project-detail-info">
+                        <h1 class="project-detail-title">${escapeHtml(project.name)}</h1>
+                        <p class="project-detail-desc">${project.description || 'Aucune description'}</p>
+                    </div>
+                </div>
+
+                <div class="project-detail-stats">
+                    <div class="project-detail-stat">
+                        ${icons['check-square']}
+                        <span>0 tâches</span>
+                    </div>
+                    <div class="project-detail-stat">
+                        ${icons['file-text']}
+                        <span>${notesCount} notes</span>
+                    </div>
+                </div>
+
+                <div class="project-empty-state">
+                    <div class="project-empty-icon">📋</div>
+                    <h2 class="project-empty-title">Ce projet est vide pour l'instant</h2>
+                    <p class="project-empty-text">Commencez par ajouter une première tâche à ce projet.</p>
+                    <button class="btn btn-primary btn-large" onclick="ProjectsView.addTaskToProject('${projectId}', '${escapeHtml(projectName)}')">
+                        ${icons['plus']} Ajouter une tâche
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    /**
+     * Add task to specific project
+     */
+    function addTaskToProject(projectId, projectName) {
+        console.log('📁 ProjectsView.addTaskToProject:', projectName);
 
         // Navigate to tasks view
         ViewRouter.navigate('tasks');
 
-        // Click on the project chip if exists
+        // Pre-select the project in the task creation form
         setTimeout(() => {
-            const chip = document.querySelector(`.project-chip[data-project="${projectName}"]`);
-            if (chip) chip.click();
-        }, 100);
+            const projectSelect = document.getElementById('task-project');
+            if (projectSelect) {
+                projectSelect.value = projectName;
+            }
+
+            // Focus the task input
+            const taskInput = document.getElementById('new-task-input') || document.getElementById('task-text');
+            if (taskInput) {
+                taskInput.focus();
+            }
+        }, 200);
     }
 
     /**
@@ -334,6 +436,8 @@ const ProjectsView = (function() {
         render,
         refresh,
         openProject,
+        showProjectDetail,
+        addTaskToProject,
         openCreateModal,
         closeCreateModal,
         selectColor,

@@ -30,11 +30,13 @@ const Sidebar = (function() {
         { id: 'projects', icon: 'folder', label: 'Projets', tooltip: 'Vos projets' },
         { id: 'galaxy', icon: 'sparkles', label: 'Galaxy', tooltip: 'Vue Galaxy' },
         { id: 'divider1', type: 'divider' },
-        { id: 'messaging', icon: 'message-circle', label: 'Chat IA', tooltip: 'Assistant IA', badge: true },
+        { id: 'mahayawen', icon: 'bot', label: 'Mahayawen', tooltip: 'Assistant IA', badge: true },
+        { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'TeamTalk' },
         { id: 'journal', icon: 'book-open', label: 'Journal', tooltip: 'Journal d\'activité' },
         { id: 'divider2', type: 'divider' },
         { id: 'accounting', icon: 'calculator', label: 'Comptabilité', tooltip: 'Gestion comptable', tag: 'NEW' },
         { id: 'psycho-audit', icon: 'brain', label: 'Psycho-Audit', tooltip: 'Analyse psycho' },
+        { id: 'behavioral', icon: 'activity', label: 'Mon Profil', tooltip: 'Profil comportemental' },
         { id: 'reports', icon: 'file-bar-chart', label: 'Rapports', tooltip: 'Générer rapports' }
     ];
 
@@ -131,12 +133,13 @@ const Sidebar = (function() {
     function executeNavigation(itemId) {
         // Mapper les IDs sidebar vers router
         const routerIdMap = {
-            'psycho-audit': 'psychoAudit'
+            'psycho-audit': 'psychoAudit',
+            'team-messaging': 'teamMessaging'
         };
         const routerId = routerIdMap[itemId] || itemId;
 
-        // Vues gérées par le router
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'accounting', 'psychoAudit', 'messaging', 'reports', 'analytics'];
+        // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'accounting', 'psychoAudit', 'teamMessaging', 'reports', 'analytics', 'gamification', 'behavioral'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);
@@ -145,6 +148,14 @@ const Sidebar = (function() {
 
         // Actions spéciales
         switch (itemId) {
+            case 'mahayawen':
+                // Toggle le chatbot flottant (pas de navigation)
+                if (typeof Chatbot !== 'undefined' && Chatbot.toggle) {
+                    Chatbot.toggle();
+                } else if (typeof toggleChatbot === 'function') {
+                    toggleChatbot();
+                }
+                break;
             case 'galaxy':
                 document.getElementById('galaxy-icon')?.click();
                 break;

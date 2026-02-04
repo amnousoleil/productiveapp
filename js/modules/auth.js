@@ -5,6 +5,7 @@
 
 const Auth = {
     apiUser: null, // Utilisateur API après authentification
+    authenticated: false, // Flag to prevent re-init loop
 
     /**
      * Initialize authentication
@@ -12,6 +13,15 @@ const Auth = {
      */
     async init() {
         console.log('🔐 Auth: Initializing...');
+
+        // CRITICAL: Prevent infinite loop - if already authenticated, skip
+        if (this.authenticated) {
+            console.log('✅ Auth: Already authenticated, skipping init');
+            return;
+        }
+
+        // SECURITY: Only team email allowed
+        const TEAM_EMAIL = 'contact@mahagiri.fr';
 
         // Check for existing JWT session
         const accessToken = ApiTokens.getAccessToken();
@@ -22,6 +32,15 @@ const Auth = {
 
                 if (response && response.user) {
                     console.log('✅ Auth: Session valid for', response.user.email);
+
+                    // SECURITY: Only allow team email to access member picker
+                    if (response.user.email?.toLowerCase() !== TEAM_EMAIL) {
+                        console.warn('⚠️ Auth: Non-team email, clearing session');
+                        ApiTokens.clearTokens();
+                        this.showLoginScreen();
+                        return;
+                    }
+
                     this.apiUser = response.user;
 
                     // Ensure workspace is set
@@ -108,6 +127,8 @@ const Auth = {
      */
     showLoginScreen() {
         const loginScreen = document.getElementById('login-screen');
+            const memberPicker2 = document.getElementById('member-picker');
+            if (memberPicker2) memberPicker2.remove();
         if (!loginScreen) return;
 
         loginScreen.classList.remove('hidden');
@@ -142,6 +163,8 @@ const Auth = {
      */
     showMemberPicker() {
         const loginScreen = document.getElementById('login-screen');
+            const memberPicker2 = document.getElementById('member-picker');
+            if (memberPicker2) memberPicker2.remove();
         if (!loginScreen) return;
 
         loginScreen.classList.remove('hidden');
@@ -185,19 +208,40 @@ const Auth = {
             </button>
         `).join('');
 
-        // Event listeners
+        console.log('✅ Member grid rendered with', AppConfig.USERS.length, 'members');
+        console.log('🔍 Auth global check:', typeof Auth, typeof Auth?.selectMember);
+
+        // Direct click handlers on each button (most reliable)
         grid.querySelectorAll('.member-select-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.selectMember(btn.dataset.memberid));
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const memberId = this.dataset.memberid;
+                console.log('🖱️ CLICK on member:', memberId);
+
+                // Direct call to selectMember
+                try {
+                    Auth.selectMember(memberId);
+                } catch (err) {
+                    console.error('❌ selectMember error:', err);
+                    alert('Erreur: ' + err.message);
+                }
+            };
         });
+
+        console.log('✅ Member grid ready - ' + grid.querySelectorAll('.member-select-btn').length + ' buttons bound');
     },
 
     /**
      * Select a team member
      */
     selectMember(memberId) {
+        console.log('🎯 Auth.selectMember() called with:', memberId);
+
         const member = AppConfig.USERS.find(u => u.id === memberId);
         if (!member) {
             console.error('❌ Auth: Member not found:', memberId);
+            alert('Membre non trouvé: ' + memberId);
             return;
         }
 
@@ -206,7 +250,7 @@ const Auth = {
         // Save selected member
         localStorage.setItem('selectedMemberId', memberId);
 
-        // Merge API user with selected member (fallback if apiUser is null)
+        // Set current user
         AppState.currentUser = {
             ...(this.apiUser || {}),
             ...member,
@@ -214,24 +258,80 @@ const Auth = {
             name: member.name
         };
 
-        console.log('✅ Auth: AppState.currentUser set:', AppState.currentUser);
-        this.onLoginSuccess();
+        console.log('✅ Auth: AppState.currentUser set');
+
+        // CRITICAL: Set authenticated flag BEFORE App.init to prevent infinite loop
+        this.authenticated = true;
+        console.log('✅ Auth: authenticated flag set to TRUE');
+
+        // DIRECT ENTRY
+        try {
+            // REMOVE login screen completely from DOM (prevents any re-display)
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) {
+                loginScreen.remove();
+                console.log('✅ Login screen REMOVED from DOM');
+            }
+
+            // Add logged-in class
+            document.body.classList.add('logged-in');
+
+            // Show tasks view directly
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            const tasksView = document.getElementById('view-tasks');
+            if (tasksView) {
+                tasksView.classList.add('active');
+            }
+
+            // Initialize app (Auth.init will skip because authenticated=true)
+            if (typeof App !== 'undefined' && App.init) {
+                App.init().catch(err => console.error('App.init error:', err));
+            }
+
+            console.log('✅ Entry complete!');
+        } catch (error) {
+            console.error('❌ Entry error:', error);
+            alert('Erreur: ' + error.message);
+        }
     },
 
     /**
      * Attempt login with email/password via API
+     * IMPORTANT: Only contact@mahagiri.fr can access the member picker
      */
     async attemptLogin() {
+        console.log('🔐 Auth.attemptLogin() called');
+
         const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
         const errorEl = document.getElementById('login-error');
         const loginBtn = document.getElementById('login-btn');
 
-        const email = emailInput?.value?.trim();
+        console.log('📧 Email input found:', !!emailInput, 'value:', emailInput?.value);
+        console.log('🔑 Password input found:', !!passwordInput, 'has value:', !!passwordInput?.value);
+
+        const email = emailInput?.value?.trim()?.toLowerCase();
         const password = passwordInput?.value;
 
+        console.log('📧 Email after processing:', email);
+
         if (!email || !password) {
+            console.log('❌ Missing email or password');
             if (errorEl) errorEl.textContent = '❌ Email et mot de passe requis';
+            return;
+        }
+
+        // SECURITY: Only team email can access member picker
+        const TEAM_EMAIL = 'contact@mahagiri.fr';
+        console.log('🔒 Checking email:', email, '===', TEAM_EMAIL, '?', email === TEAM_EMAIL);
+
+        if (email !== TEAM_EMAIL) {
+            console.log('❌ Email mismatch - access denied');
+            if (errorEl) {
+                errorEl.textContent = '❌ Accès réservé à l\'équipe';
+                errorEl.style.animation = 'shake 0.5s ease';
+                setTimeout(() => errorEl.style.animation = '', 500);
+            }
             return;
         }
 
@@ -248,9 +348,9 @@ const Auth = {
             if (result && result.user) {
                 if (errorEl) errorEl.textContent = '';
                 this.apiUser = result.user;
-                console.log('✅ Auth: API login successful');
+                console.log('✅ Auth: API login successful for team');
 
-                // Show member picker
+                // Show member picker (only for team email)
                 this.showMemberPicker();
                 return;
             }
@@ -275,33 +375,64 @@ const Auth = {
      * On successful login
      */
     async onLoginSuccess() {
-        console.log('✅ Auth: Login successful for', AppState.currentUser?.name);
+        console.log('🎉 Auth.onLoginSuccess() CALLED for:', AppState.currentUser?.name);
 
         // Hide login screen
         const loginScreen = document.getElementById('login-screen');
+            const memberPicker2 = document.getElementById('member-picker');
+            if (memberPicker2) memberPicker2.remove();
+        console.log('📺 Login screen found:', !!loginScreen);
         if (loginScreen) {
             loginScreen.classList.add('hidden');
+            loginScreen.style.display = 'none';
+            console.log('✅ Login screen hidden');
         }
 
         // Add logged-in class
         document.body.classList.add('logged-in');
+        console.log('✅ Body has logged-in class:', document.body.classList.contains('logged-in'));
 
         // Initialize app
         try {
             if (typeof App !== 'undefined' && App.init) {
+                console.log('🚀 Auth: Initializing App...');
                 await App.init();
+                console.log('✅ Auth: App initialized successfully');
+            } else {
+                console.warn('⚠️ App or App.init not found');
             }
         } catch (error) {
             console.error('❌ App.init() error:', error);
+            console.error('Error stack:', error.stack);
+            // Continue anyway - app might partially work
         }
 
-        // Navigate to tasks view
+        // Navigate to tasks view (try multiple routers)
         try {
-            if (typeof ViewRouter !== 'undefined') {
+            if (typeof ViewRouter !== 'undefined' && ViewRouter.navigate) {
+                console.log('🧭 Auth: Navigating via ViewRouter...');
                 ViewRouter.navigate('tasks');
+            } else if (typeof Router !== 'undefined' && Router.navigate) {
+                console.log('🧭 Auth: Navigating via Router...');
+                Router.navigate('tasks');
+            } else {
+                // Fallback: manually show tasks view
+                console.log('🧭 Auth: Manual navigation fallback...');
+                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+                const tasksView = document.getElementById('tasks-view');
+                if (tasksView) {
+                    tasksView.classList.add('active');
+                }
             }
+            console.log('✅ Auth: Navigation complete');
         } catch (error) {
             console.error('❌ Router error:', error);
+            // Fallback: manually show tasks view
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            const tasksView = document.getElementById('tasks-view');
+            if (tasksView) {
+                tasksView.classList.add('active');
+            }
         }
     },
 
@@ -335,6 +466,8 @@ const Auth = {
         document.body.classList.remove('logged-in', 'sidebar-open', 'sidebar-collapsed');
 
         const loginScreen = document.getElementById('login-screen');
+            const memberPicker2 = document.getElementById('member-picker');
+            if (memberPicker2) memberPicker2.remove();
         if (loginScreen) {
             loginScreen.classList.remove('hidden');
             this.showLoginScreen();
@@ -412,3 +545,41 @@ const Auth = {
 
 // Expose globally
 window.Auth = Auth;
+
+// GLOBAL FUNCTION - Backup entry method
+window.enterApp = function(memberId) {
+    console.log('🚪 enterApp called with:', memberId);
+
+    const member = AppConfig.USERS.find(u => u.id === memberId);
+    if (!member) {
+        alert('Membre non trouvé');
+        return;
+    }
+
+    // Set user
+    localStorage.setItem('selectedMemberId', memberId);
+    AppState.currentUser = { ...member };
+
+    // Hide login
+    const loginScreen = document.getElementById('login-screen');
+            const memberPicker2 = document.getElementById('member-picker');
+            if (memberPicker2) memberPicker2.remove();
+    if (loginScreen) {
+        loginScreen.style.display = 'none';
+    }
+
+    // Show app
+    document.body.classList.add('logged-in');
+
+    // Show tasks view
+    document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+    const tasksView = document.getElementById('view-tasks');
+    if (tasksView) tasksView.classList.add('active');
+
+    // Init app
+    if (typeof App !== 'undefined' && App.init) {
+        App.init();
+    }
+
+    console.log('✅ Entered as', member.name);
+};

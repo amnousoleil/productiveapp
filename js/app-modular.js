@@ -15,6 +15,12 @@ const App = {
     async init() {
         console.log(`🚀 ProductiveApp v${this.VERSION} - Initialisation...`);
 
+        // GUARD: Ne pas initialiser si pas encore authentifié via AuthLogin
+        if (typeof AuthLogin !== 'undefined' && !AuthLogin.authenticated) {
+            console.log('⚠️ App.init: AuthLogin not authenticated yet, skipping');
+            return;
+        }
+
         try {
             // Mettre à jour le badge utilisateur
             if (typeof Auth !== 'undefined') Auth.updateUserBadge();
@@ -69,7 +75,52 @@ const App = {
     async loadData() {
         console.log('📡 Chargement des données...');
 
-        // Use legacy N8N webhook system
+        // DEBUG: Log current state
+        const hasApiDataLoader = typeof ApiDataLoader !== 'undefined';
+        const hasApiTokens = typeof ApiTokens !== 'undefined';
+        const accessToken = hasApiTokens ? ApiTokens.getAccessToken() : null;
+        const workspaceId = hasApiTokens ? ApiTokens.getWorkspaceId() : null;
+
+        console.log('📡 DEBUG loadData:', {
+            hasApiDataLoader,
+            hasApiTokens,
+            hasAccessToken: !!accessToken,
+            workspaceId,
+            tokenPreview: accessToken ? accessToken.substring(0, 30) + '...' : 'none'
+        });
+
+        // API Express = source unique (PostgreSQL)
+        if (hasApiDataLoader && hasApiTokens && accessToken && workspaceId) {
+            try {
+                console.log('📡 Chargement API Express (PostgreSQL) pour workspace:', workspaceId);
+                await ApiDataLoader.loadAll();
+                const taskCount = (AppState.tasks || []).length;
+                const projectCount = (AppState.projects || []).length;
+                console.log('✅ API chargée:', taskCount, 'tâches,', projectCount, 'projets');
+
+                // Render filters and UI (toujours, même si 0 tâches)
+                Projects.renderFilter();
+                Projects.renderSelect();
+                Projects.renderUserFilter();
+                Projects.renderAssignSelect();
+                // Render data
+                Tasks.render();
+                Journal.render();
+                return; // API a répondu, ne pas appeler legacy
+            } catch (e) {
+                console.error('⚠️ API Express failed:', e.message, e);
+            }
+        } else {
+            console.warn('⚠️ Cannot use API:', {
+                hasApiDataLoader,
+                hasApiTokens,
+                hasAccessToken: !!accessToken,
+                workspaceId
+            });
+        }
+
+        // Fallback legacy SEULEMENT si API n'est pas disponible
+        console.log('📡 Fallback legacy (webhooks)...');
         try {
             await this.loadDataLegacy();
         } catch (error) {
@@ -156,46 +207,21 @@ document.addEventListener('DOMContentLoaded', function() {
             AppState.initProjects();
         }
 
-        // Initialiser les événements auth (logout button, etc.)
+        // Initialiser les événements auth (logout button, etc.) - garder pour compatibilité
         if (typeof Auth !== 'undefined' && Auth.initEvents) {
             Auth.initEvents();
         }
 
-        // === DIRECT LOGIN BUTTON BINDING ===
-        // Ensure the login button always works by binding it directly here
-        const loginBtn = document.getElementById('login-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('🔐 Login button clicked');
-                if (typeof Auth !== 'undefined' && Auth.attemptLogin) {
-                    Auth.attemptLogin();
-                }
-            });
-            console.log('✅ Login button event bound');
-        }
-
-        // Bind Enter key on login inputs
-        const loginEmail = document.getElementById('login-email');
-        const loginPassword = document.getElementById('login-password');
-        [loginEmail, loginPassword].forEach(input => {
-            if (input) {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        if (typeof Auth !== 'undefined' && Auth.attemptLogin) {
-                            Auth.attemptLogin();
-                        }
-                    }
-                });
-            }
-        });
-
-        // Initialiser l'authentification (vérifie session, affiche login si besoin)
-        if (typeof Auth !== 'undefined' && Auth.init) {
+        // === NEW: Utiliser AuthLogin au lieu de Auth ===
+        if (typeof AuthLogin !== 'undefined' && AuthLogin.init) {
+            console.log('🔐 Starting AuthLogin...');
+            AuthLogin.init();
+        } else if (typeof Auth !== 'undefined' && Auth.init) {
+            // Fallback vers ancien système si AuthLogin n'est pas chargé
+            console.log('🔐 Fallback to Auth...');
             Auth.init();
         } else {
-            console.error('Auth module not loaded');
+            console.error('❌ No auth module loaded');
         }
 
         console.log(`✅ ProductiveApp v${App.VERSION} - Prêt`);
@@ -273,7 +299,7 @@ Object.defineProperty(window, 'viewMode', {
 window.initApp = () => App.init();
 window.setTheme = (id) => Themes.setTheme(id);
 window.loadTheme = () => Themes.loadTheme();
-window.logout = () => Auth.logout();
+window.logout = () => typeof AuthLogin !== 'undefined' ? AuthLogin.logout() : Auth?.logout();
 window.getProject = (id) => AppState.findProject(id);
 window.getPriorityLabel = (level) => Utils.getPriorityLabel(level);
 window.getUserName = (id) => Utils.getUserName(id);

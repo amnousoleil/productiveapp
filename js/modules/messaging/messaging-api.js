@@ -8,12 +8,21 @@ const MessagingAPI = (function() {
 
     const BASE_PATH = '/messaging';
 
+    function getWorkspaceId() {
+        return ApiTokens.getWorkspaceId();
+    }
+
     /**
      * Get all conversations for current user
      */
     async function getConversations() {
         try {
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations`);
+            const workspaceId = getWorkspaceId();
+            if (!workspaceId) {
+                console.warn('⚠️ No workspace ID');
+                return getMockConversations();
+            }
+            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`);
             console.log('💬 Conversations:', response);
             return response.data || response;
         } catch (error) {
@@ -88,7 +97,9 @@ const MessagingAPI = (function() {
      */
     async function createConversation(participantIds, name = null) {
         try {
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations`, {
+            const workspaceId = getWorkspaceId();
+            if (!workspaceId) throw new Error('No workspace ID');
+            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`, {
                 method: 'POST',
                 body: JSON.stringify({ participantIds, name })
             });
@@ -105,7 +116,9 @@ const MessagingAPI = (function() {
      */
     async function searchConversations(query) {
         try {
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/search?q=${encodeURIComponent(query)}`);
+            const workspaceId = getWorkspaceId();
+            if (!workspaceId) return [];
+            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/search?q=${encodeURIComponent(query)}`);
             return response.data || response;
         } catch (error) {
             console.warn('⚠️ Search failed');

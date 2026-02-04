@@ -21,8 +21,9 @@ const ViewRouter = (function() {
         reports: 'view-reports',
         accounting: 'view-accounting',
         psychoAudit: 'view-psycho-audit',
-        messaging: 'view-messaging',
-        gamification: 'view-gamification'
+        teamMessaging: 'view-team-messaging',
+        gamification: 'view-gamification',
+        behavioral: 'view-behavioral'
     };
 
     let currentView = 'dashboard';
@@ -114,11 +115,8 @@ const ViewRouter = (function() {
                 // Tasks are already rendered by the existing system
                 break;
             case 'galaxy':
-                // Ensure iframe is loaded and visible
-                const galaxyIframe = document.getElementById('galaxy-iframe');
-                if (galaxyIframe && !galaxyIframe.src) {
-                    galaxyIframe.src = '/galaxy/index.html';
-                }
+                // Galaxy uses embedded iframe in #view-galaxy, no extra init needed
+                // The iframe src="/galaxy/index.html" loads Excalidraw directly
                 break;
             case 'accounting':
                 if (typeof AccountingView !== 'undefined') {
@@ -134,14 +132,19 @@ const ViewRouter = (function() {
                     console.warn('🧭 ViewRouter: PsychoAuditView is NOT defined!');
                 }
                 break;
-            case 'messaging':
-                if (typeof MessagingView !== 'undefined') {
-                    MessagingView.refresh();
+            case 'teamMessaging':
+                if (typeof Messaging !== 'undefined') {
+                    Messaging.refresh();
                 }
                 break;
             case 'gamification':
-                if (typeof Gamification !== 'undefined') {
-                    Gamification.init('view-gamification');
+                if (typeof GamificationView !== 'undefined') {
+                    GamificationView.refresh();
+                }
+                break;
+            case 'behavioral':
+                if (typeof BehavioralView !== 'undefined') {
+                    BehavioralView.render();
                 }
                 break;
         }

@@ -24,7 +24,8 @@ const ApiTasks = (function() {
     async function getAll(params = {}) {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.set('page', params.page);
-        if (params.limit) queryParams.set('limit', params.limit);
+        // Always send limit, default to 500 to get all tasks
+        queryParams.set('limit', params.limit || 500);
         if (params.projectId) queryParams.set('project_id', params.projectId);
         if (params.status) queryParams.set('status', params.status);
         if (params.priority) queryParams.set('priority', params.priority);

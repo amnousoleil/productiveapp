@@ -1,283 +1,158 @@
 /**
  * Analytics Charts Module
- * Renders activity charts using native Canvas
+ * Renders SVG bar chart and heatmap
  */
 
-const AnalyticsCharts = (function() {
+var AnalyticsCharts = (function() {
     'use strict';
 
-    let chartData = null;
-    let currentPeriod = 7;
-    let canvas = null;
-    let ctx = null;
-
     /**
-     * Initialize charts
+     * Render productivity bar chart (SVG)
+     * @param {string} containerId
+     * @param {Array} dailyStats - Array of {date, completion_rate, tasks_completed}
      */
-    async function init() {
-        canvas = document.getElementById('analytics-chart-canvas');
-        if (!canvas) return;
+    function renderBarChart(containerId, dailyStats) {
+        var container = document.getElementById(containerId);
+        if (!container || !dailyStats || !dailyStats.length) return;
 
-        ctx = canvas.getContext('2d');
-        await load(7);
-        attachPeriodListeners();
+        var width = 100;
+        var height = 120;
+        var barWidth = Math.floor(80 / dailyStats.length);
+        var maxValue = Math.max.apply(null, dailyStats.map(function(d) { return d.completion_rate || 0; }));
+        if (maxValue < 10) maxValue = 100;
+
+        var bars = dailyStats.map(function(stat, i) {
+            var barHeight = (stat.completion_rate / maxValue) * 80;
+            var x = 10 + i * (barWidth + 2);
+            var y = 90 - barHeight;
+            var dayLabel = new Date(stat.date).toLocaleDateString('fr-FR', { weekday: 'short' }).substring(0, 2);
+
+            return '<g>' +
+                '<rect x="' + x + '" y="' + y + '" width="' + (barWidth - 1) + '" height="' + barHeight + '" ' +
+                    'fill="var(--primary, #8b5cf6)" rx="2" opacity="0.8">' +
+                    '<title>' + stat.date + ': ' + stat.completion_rate + '%</title>' +
+                '</rect>' +
+                '<text x="' + (x + barWidth/2 - 1) + '" y="98" fill="var(--text-muted)" font-size="6" text-anchor="middle">' + dayLabel + '</text>' +
+            '</g>';
+        }).join('');
+
+        var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet">' +
+            '<line x1="10" y1="90" x2="95" y2="90" stroke="var(--border, #333)" stroke-width="0.5"/>' +
+            bars +
+        '</svg>';
+
+        container.innerHTML = svg;
     }
 
     /**
-     * Load chart data
-     * @param {number} days
+     * Render GitHub-style heatmap
+     * @param {string} containerId
+     * @param {Array} heatmapData - Array of {date, count}
      */
-    async function load(days = 7) {
-        currentPeriod = days;
+    function renderHeatmap(containerId, heatmapData) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
 
-        try {
-            chartData = await AnalyticsAPI.getActivityChart(days);
-            render();
-        } catch (error) {
-            console.error('❌ Failed to load chart:', error);
+        if (!heatmapData || !heatmapData.length) {
+            heatmapData = generateEmptyHeatmap(90);
         }
+
+        var cellSize = 10;
+        var cellGap = 2;
+        var weeks = Math.ceil(heatmapData.length / 7);
+        var width = weeks * (cellSize + cellGap) + 30;
+        var height = 7 * (cellSize + cellGap) + 20;
+
+        var maxCount = Math.max.apply(null, heatmapData.map(function(d) { return d.count || 0; }));
+        if (maxCount < 1) maxCount = 1;
+
+        var cells = heatmapData.map(function(day, i) {
+            var week = Math.floor(i / 7);
+            var dayOfWeek = i % 7;
+            var x = 25 + week * (cellSize + cellGap);
+            var y = 15 + dayOfWeek * (cellSize + cellGap);
+            var intensity = day.count / maxCount;
+            var color = getHeatmapColor(intensity);
+
+            return '<rect x="' + x + '" y="' + y + '" width="' + cellSize + '" height="' + cellSize + '" ' +
+                'fill="' + color + '" rx="2">' +
+                '<title>' + day.date + ': ' + day.count + ' actions</title>' +
+            '</rect>';
+        }).join('');
+
+        var dayLabels = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+        var labels = dayLabels.map(function(d, i) {
+            if (i % 2 === 0) {
+                return '<text x="8" y="' + (22 + i * (cellSize + cellGap)) + '" fill="var(--text-muted)" font-size="8">' + d + '</text>';
+            }
+            return '';
+        }).join('');
+
+        var svg = '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet">' +
+            labels + cells +
+            '<g transform="translate(' + (width - 80) + ', 5)">' +
+                '<text x="0" y="8" fill="var(--text-muted)" font-size="7">Moins</text>' +
+                '<rect x="25" y="2" width="8" height="8" fill="var(--surface, #1a1a2e)" rx="1"/>' +
+                '<rect x="35" y="2" width="8" height="8" fill="rgba(139,92,246,0.25)" rx="1"/>' +
+                '<rect x="45" y="2" width="8" height="8" fill="rgba(139,92,246,0.5)" rx="1"/>' +
+                '<rect x="55" y="2" width="8" height="8" fill="rgba(139,92,246,0.75)" rx="1"/>' +
+                '<rect x="65" y="2" width="8" height="8" fill="var(--primary, #8b5cf6)" rx="1"/>' +
+                '<text x="75" y="8" fill="var(--text-muted)" font-size="7">Plus</text>' +
+            '</g>' +
+        '</svg>';
+
+        container.innerHTML = svg;
     }
 
-    /**
-     * Render the chart
-     */
-    function render() {
-        if (!ctx || !chartData) return;
-
-        // Clear canvas
-        const rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width * 2;
-        canvas.height = rect.height * 2;
-        ctx.scale(2, 2);
-
-        const width = rect.width;
-        const height = rect.height;
-        const padding = { top: 20, right: 20, bottom: 40, left: 50 };
-
-        ctx.clearRect(0, 0, width, height);
-
-        const chartWidth = width - padding.left - padding.right;
-        const chartHeight = height - padding.top - padding.bottom;
-
-        // Get max value for scale
-        const allValues = [
-            ...chartData.datasets.notes,
-            ...chartData.datasets.tasks,
-            ...chartData.datasets.messages
-        ];
-        const maxValue = Math.max(...allValues, 10);
-
-        // Draw grid lines
-        drawGrid(padding, chartWidth, chartHeight, maxValue);
-
-        // Draw bars
-        drawBars(padding, chartWidth, chartHeight, maxValue);
-
-        // Draw labels
-        drawLabels(padding, chartWidth, chartHeight);
-
-        // Draw legend
-        drawLegend(width, padding);
+    function getHeatmapColor(intensity) {
+        if (intensity <= 0) return 'var(--surface, #1a1a2e)';
+        if (intensity < 0.25) return 'rgba(139,92,246,0.25)';
+        if (intensity < 0.5) return 'rgba(139,92,246,0.5)';
+        if (intensity < 0.75) return 'rgba(139,92,246,0.75)';
+        return 'var(--primary, #8b5cf6)';
     }
 
-    /**
-     * Draw grid lines
-     */
-    function drawGrid(padding, chartWidth, chartHeight, maxValue) {
-        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border') || '#2a2a3a';
-        ctx.lineWidth = 0.5;
-
-        const steps = 5;
-        for (let i = 0; i <= steps; i++) {
-            const y = padding.top + (chartHeight / steps) * i;
-
-            ctx.beginPath();
-            ctx.moveTo(padding.left, y);
-            ctx.lineTo(padding.left + chartWidth, y);
-            ctx.stroke();
-
-            // Value label
-            const value = Math.round(maxValue - (maxValue / steps) * i);
-            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted') || '#71717a';
-            ctx.font = '11px Inter, sans-serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(value.toString(), padding.left - 10, y + 4);
-        }
-    }
-
-    /**
-     * Draw bars
-     */
-    function drawBars(padding, chartWidth, chartHeight, maxValue) {
-        const labels = chartData.labels;
-        const datasets = chartData.datasets;
-        const barGroupWidth = chartWidth / labels.length;
-        const barWidth = barGroupWidth * 0.2;
-        const gap = barWidth * 0.3;
-
-        const colors = {
-            notes: getAccentColor(),
-            tasks: '#22c55e',
-            messages: '#8b5cf6'
-        };
-
-        labels.forEach((label, i) => {
-            const groupX = padding.left + barGroupWidth * i + barGroupWidth * 0.15;
-
-            // Notes bar
-            drawBar(
-                groupX,
-                padding.top,
-                barWidth,
-                chartHeight,
-                datasets.notes[i],
-                maxValue,
-                colors.notes
-            );
-
-            // Tasks bar
-            drawBar(
-                groupX + barWidth + gap,
-                padding.top,
-                barWidth,
-                chartHeight,
-                datasets.tasks[i],
-                maxValue,
-                colors.tasks
-            );
-
-            // Messages bar
-            drawBar(
-                groupX + (barWidth + gap) * 2,
-                padding.top,
-                barWidth,
-                chartHeight,
-                datasets.messages[i],
-                maxValue,
-                colors.messages
-            );
-        });
-    }
-
-    /**
-     * Draw single bar
-     */
-    function drawBar(x, top, width, chartHeight, value, maxValue, color) {
-        const barHeight = (value / maxValue) * chartHeight;
-        const y = top + chartHeight - barHeight;
-
-        // Bar with rounded top
-        ctx.fillStyle = color;
-        ctx.beginPath();
-        ctx.roundRect(x, y, width, barHeight, [4, 4, 0, 0]);
-        ctx.fill();
-    }
-
-    /**
-     * Draw x-axis labels
-     */
-    function drawLabels(padding, chartWidth, chartHeight) {
-        const labels = chartData.labels;
-        const barGroupWidth = chartWidth / labels.length;
-
-        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted') || '#71717a';
-        ctx.font = '11px Inter, sans-serif';
-        ctx.textAlign = 'center';
-
-        labels.forEach((label, i) => {
-            const x = padding.left + barGroupWidth * i + barGroupWidth / 2;
-            const y = padding.top + chartHeight + 25;
-            ctx.fillText(label, x, y);
-        });
-    }
-
-    /**
-     * Draw legend
-     */
-    function drawLegend(width, padding) {
-        const legends = [
-            { label: 'Notes', color: getAccentColor() },
-            { label: 'Tâches', color: '#22c55e' },
-            { label: 'Messages', color: '#8b5cf6' }
-        ];
-
-        const legendX = width - padding.right - 180;
-        const legendY = padding.top - 5;
-
-        legends.forEach((item, i) => {
-            const x = legendX + i * 70;
-
-            // Color dot
-            ctx.fillStyle = item.color;
-            ctx.beginPath();
-            ctx.arc(x, legendY, 5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Label
-            ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-muted') || '#71717a';
-            ctx.font = '11px Inter, sans-serif';
-            ctx.textAlign = 'left';
-            ctx.fillText(item.label, x + 10, legendY + 4);
-        });
-    }
-
-    /**
-     * Attach period button listeners
-     */
-    function attachPeriodListeners() {
-        document.querySelectorAll('.analytics-period-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const days = parseInt(btn.dataset.days);
-
-                // Update active state
-                document.querySelectorAll('.analytics-period-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                // Reload chart
-                load(days);
+    function generateEmptyHeatmap(days) {
+        var heatmap = [];
+        var now = new Date();
+        for (var i = days - 1; i >= 0; i--) {
+            var date = new Date(now);
+            date.setDate(date.getDate() - i);
+            heatmap.push({
+                date: date.toISOString().split('T')[0],
+                count: 0
             });
-        });
-    }
-
-    /**
-     * Get accent color from theme
-     */
-    function getAccentColor() {
-        return getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#6366f1';
-    }
-
-    /**
-     * Handle window resize
-     */
-    function handleResize() {
-        if (chartData) {
-            render();
         }
+        return heatmap;
     }
 
     /**
-     * Get current data
+     * Render trend indicator
+     * @param {string} containerId
+     * @param {number} value - Current value
+     * @param {string} trend - 'up', 'down', or 'neutral'
+     * @param {number} percent - Change percentage
      */
-    function getData() {
-        return chartData;
-    }
+    function renderTrendIndicator(containerId, value, trend, percent) {
+        var container = document.getElementById(containerId);
+        if (!container) return;
 
-    // Listen for resize
-    window.addEventListener('resize', debounce(handleResize, 250));
+        var color = trend === 'up' ? '#22c55e' : (trend === 'down' ? '#ef4444' : 'var(--text-muted)');
+        var arrow = trend === 'up' ? 'M12 19V5M5 12l7-7 7 7' : (trend === 'down' ? 'M12 5v14M5 12l7 7 7-7' : 'M5 12h14');
+        var sign = percent > 0 ? '+' : '';
 
-    function debounce(fn, ms) {
-        let timer;
-        return function() {
-            clearTimeout(timer);
-            timer = setTimeout(fn, ms);
-        };
+        var svg = '<svg viewBox="0 0 60 24" style="width:60px;height:24px">' +
+            '<path d="' + arrow + '" stroke="' + color + '" stroke-width="2" fill="none" transform="scale(0.6) translate(2,4)"/>' +
+            '<text x="20" y="17" fill="' + color + '" font-size="12" font-weight="600">' + sign + percent + '%</text>' +
+        '</svg>';
+
+        container.innerHTML = svg;
     }
 
     return {
-        init,
-        load,
-        render,
-        getData
+        renderBarChart: renderBarChart,
+        renderHeatmap: renderHeatmap,
+        renderTrendIndicator: renderTrendIndicator
     };
 })();
 
