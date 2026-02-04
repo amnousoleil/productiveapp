@@ -169,11 +169,17 @@ const Tasks = {
      * @param {string} action - Action (start, done, reopen, delete)
      */
     async handleAction(taskId, action) {
+        console.log('📋 Tasks.handleAction:', taskId, action);
+
         const task = AppState.findTask(taskId);
-        if (!task) return;
+        if (!task) {
+            console.error('❌ Task not found:', taskId);
+            return;
+        }
 
         // Use Express API if authenticated
         const useExpress = typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated();
+        console.log('📋 useExpress:', useExpress, 'ApiTasks defined:', typeof ApiTasks !== 'undefined', 'isAuthenticated:', ApiTokens.isAuthenticated());
         const statusMap = { inprogress: 'in_progress', done: 'done', todo: 'todo' };
 
         switch (action) {
@@ -329,8 +335,14 @@ const Tasks = {
      * @param {string} action - Action
      */
     async modalAction(taskId, action) {
-        await this.handleAction(taskId, action);
-        this.closeEditModal();
+        console.log('📋 Tasks.modalAction:', taskId, action);
+        try {
+            await this.handleAction(taskId, action);
+            this.closeEditModal();
+        } catch (err) {
+            console.error('❌ modalAction error:', err);
+            Utils.notify('Erreur: ' + err.message, 'error');
+        }
     },
 
     /**
@@ -347,6 +359,8 @@ const Tasks = {
      * Sauvegarde les modifications d'une tâche
      */
     async saveEdit() {
+        console.log('📋 Tasks.saveEdit() called');
+
         const taskId = Utils.$('edit-task-id').value;
         const newTitle = Utils.$('edit-task-title').value.trim();
         const newDescription = Utils.$('edit-task-description').value.trim();
@@ -354,48 +368,65 @@ const Tasks = {
         const newPriority = parseInt(Utils.$('edit-task-priority').value);
         const newUserId = Utils.$('edit-task-user').value;
 
+        console.log('📋 saveEdit data:', { taskId, newTitle, newProjectId, newPriority, newUserId });
+
         if (!newTitle) {
             Utils.notify('Le titre ne peut pas être vide', 'warning');
             return;
         }
 
         const task = AppState.findTask(taskId);
-        if (!task) return;
-
-        // Use Express API if authenticated
-        if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
-            const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
-            await ApiTasks.update(taskId, {
-                title: newTitle,
-                description: newDescription,
-                project_id: newProjectId === 'general' ? null : newProjectId,
-                priority: priorityMap[newPriority] || 'medium',
-                assigned_to: newUserId
-            });
-        } else {
-            await ApiService.updateTaskFull(taskId, {
-                title: newTitle,
-                description: newDescription,
-                projectId: newProjectId,
-                priority: newPriority,
-                userId: newUserId
-            });
+        if (!task) {
+            console.error('❌ Task not found:', taskId);
+            Utils.notify('Tâche introuvable', 'error');
+            return;
         }
 
-        // Mettre à jour localement
-        task.text = newTitle;
-        task.description = newDescription;
-        task.project = newProjectId;
-        task.priority = { level: newPriority, label: Utils.getPriorityLabel(newPriority) };
-        task.userId = newUserId;
-        task.userName = Utils.getUserName(newUserId);
-        task.updatedAt = new Date().toISOString();
+        try {
+            // Use Express API if authenticated
+            if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
+                console.log('📋 Using Express API (ApiTasks)');
+                const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
+                const updateData = {
+                    title: newTitle,
+                    description: newDescription,
+                    project_id: newProjectId === 'general' ? null : newProjectId,
+                    priority: priorityMap[newPriority] || 'medium',
+                    assigned_to: newUserId
+                };
+                console.log('📋 Update data:', updateData);
+                await ApiTasks.update(taskId, updateData);
+                console.log('✅ API update successful');
+            } else {
+                console.log('📋 Using N8N API (ApiService)');
+                await ApiService.updateTaskFull(taskId, {
+                    title: newTitle,
+                    description: newDescription,
+                    projectId: newProjectId,
+                    priority: newPriority,
+                    userId: newUserId
+                });
+            }
 
-        window.tasks = AppState.tasks;
+            // Mettre à jour localement
+            task.text = newTitle;
+            task.description = newDescription;
+            task.project = newProjectId;
+            task.priority = { level: newPriority, label: Utils.getPriorityLabel(newPriority) };
+            task.userId = newUserId;
+            task.userName = Utils.getUserName(newUserId);
+            task.updatedAt = new Date().toISOString();
 
-        this.closeEditModal();
-        this.render();
-        Projects.renderFilter();
+            window.tasks = AppState.tasks;
+
+            this.closeEditModal();
+            this.render();
+            Projects.renderFilter();
+            Utils.notify('Tâche mise à jour !', 'success');
+        } catch (err) {
+            console.error('❌ saveEdit error:', err);
+            Utils.notify('Erreur: ' + err.message, 'error');
+        }
     },
 
     /**
@@ -639,12 +670,17 @@ const Tasks = {
      * Initialise les événements
      */
     initEvents() {
+        console.log('📋 Tasks.initEvents() called');
+
         const addBtn = Utils.$('add-task-btn');
         const taskInput = Utils.$('task-input');
         const cancelEditBtn = Utils.$('cancel-edit-task');
         const confirmEditBtn = Utils.$('confirm-edit-task');
         const editModal = Utils.$('edit-task-modal');
         const reformulateBtn = Utils.$('reformulate-btn');
+
+        console.log('📋 confirmEditBtn found:', !!confirmEditBtn);
+        console.log('📋 editModal found:', !!editModal);
 
         if (addBtn) {
             addBtn.addEventListener('click', () => this.create());

@@ -167,15 +167,22 @@ const ApiDataLoader = (function() {
 
     /**
      * Normalize task priority to frontend format
+     * Returns { level: number, label: string }
      */
     function normalizeTaskPriority(priority) {
         const priorityMap = {
             'urgent': 1,
-            'high': 2,
-            'medium': 3,
-            'low': 4
+            'high': 1,
+            'medium': 2,
+            'low': 3
         };
-        return priorityMap[priority] || 3;
+        const labelMap = {
+            1: 'Urgent',
+            2: 'Normal',
+            3: 'Zen'
+        };
+        const level = priorityMap[priority] || 2;
+        return { level, label: labelMap[level] || 'Normal' };
     }
 
     /**

@@ -61,7 +61,8 @@ const ApiTasks = (function() {
      * Update task
      */
     async function update(taskId, data) {
-        const response = await Api.patch(buildUrl(`/${taskId}`), data);
+        // Note: PUT /:taskId route is outside workspace prefix
+        const response = await Api.put(`/tasks/${taskId}`, data);
         return response.data?.task;
     }
 
@@ -69,7 +70,8 @@ const ApiTasks = (function() {
      * Delete task
      */
     async function remove(taskId) {
-        await Api.delete(buildUrl(`/${taskId}`));
+        // Note: DELETE /:taskId route is outside workspace prefix
+        await Api.delete(`/tasks/${taskId}`);
         return true;
     }
 

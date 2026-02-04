@@ -516,9 +516,8 @@ const Auth = {
         const badge = document.getElementById('current-user-badge');
         if (badge && AppState.currentUser) {
             const user = AppState.currentUser;
-            const avatarHtml = user.loginImg
-                ? `<img src="${user.loginImg}" class="user-avatar-img" alt="${user.name}">`
-                : `<span class="user-avatar">${user.avatar || '👤'}</span>`;
+            // Always use emoji avatar in header badge (not loginImg)
+            const avatarHtml = `<span class="user-avatar">${user.avatar || '👤'}</span>`;
 
             badge.innerHTML = `
                 ${avatarHtml}

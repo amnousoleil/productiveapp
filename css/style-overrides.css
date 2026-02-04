@@ -573,20 +573,79 @@ body .bubble.done .bubble-text {
 [data-theme="matrix"] .bubble .edit-btn.has-note::after { color: #00ff66; }
 [data-theme="hacker"] .bubble .edit-btn.has-note::after { color: #00ff00; }
 
+/* === EDIT TASK MODAL - CENTERED OVERLAY === */
+#edit-task-modal {
+    position: fixed !important;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+#edit-task-modal.hidden {
+    display: none !important;
+}
+#edit-task-modal .modal-box-large {
+    background: var(--bg-secondary, #1a1a2e);
+    border: 1px solid var(--border-primary, #333);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    padding: 24px;
+    animation: modalSlideIn 0.3s ease-out;
+}
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* === MODAL LARGE === */
 .modal-box-large {
     width: 90%;
     max-width: 600px;
-    max-height: 90vh;
+    max-height: 85vh;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent, #daa520) transparent;
+}
+.modal-box-large::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-box-large::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-box-large::-webkit-scrollbar-thumb {
+    background: var(--accent, #daa520);
+    border-radius: 3px;
 }
 .modal-box-large h3 {
     font-size: 1.3rem;
     margin-bottom: 16px;
+    color: var(--text-primary, #fff);
 }
 .modal-box-large .modal-input {
     font-size: 1.1rem;
     padding: 14px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--bg-primary, #0d0d1a);
+    border: 1px solid var(--border, #333);
+    border-radius: 8px;
+    color: var(--text-primary, #fff);
+    margin-bottom: 16px;
+}
+.modal-box-large .modal-input:focus {
+    outline: none;
+    border-color: var(--accent, #daa520);
+    box-shadow: 0 0 0 3px rgba(218, 165, 32, 0.2);
 }
 
 /* === LOGIN SCREEN CINÉMATIQUE === */
