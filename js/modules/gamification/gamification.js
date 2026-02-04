@@ -13,7 +13,7 @@ const Gamification = (function() {
      * Initialize gamification system
      * @param {string} containerId - ID of container element
      */
-    async function init(containerId = 'gamification-view') {
+    async function init(containerId = 'view-gamification') {
         if (initialized) {
             console.log('🎮 Gamification already initialized');
             return;
@@ -142,7 +142,7 @@ const Gamification = (function() {
      */
     function show() {
         if (!container) {
-            container = document.getElementById('gamification-view');
+            container = document.getElementById('view-gamification');
         }
         if (container) {
             container.classList.add('visible');

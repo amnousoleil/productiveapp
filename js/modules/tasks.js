@@ -5,9 +5,17 @@
 
 const Tasks = {
     /**
-     * Charge les tâches depuis l'API
+     * Charge les tâches depuis l'API Express
      */
     async load() {
+        // Use ApiDataLoader which handles normalization
+        if (typeof ApiDataLoader !== 'undefined' && ApiTokens.isAuthenticated()) {
+            const tasks = await ApiDataLoader.loadTasks();
+            AppState.setTasks(tasks);
+            return tasks;
+        }
+
+        // Fallback to old N8N service if not authenticated with Express
         const tasks = await ApiService.loadTasks();
         AppState.setTasks(tasks);
         return tasks;
@@ -26,7 +34,7 @@ const Tasks = {
 
         const projectId = options.project || Utils.$('project-select')?.value || 'general';
         const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 2;
-        const assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser.id;
+        const assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
 
         // Désactiver le bouton
         const btn = Utils.$('add-task-btn');
@@ -35,61 +43,124 @@ const Tasks = {
             btn.textContent = '...';
         }
 
-        const taskData = {
-            text: text,
-            description: options.description || '',
-            project: projectId,
-            priority: { level: priorityLevel, label: Utils.getPriorityLabel(priorityLevel) },
-            userId: assignTo,
-            userName: Utils.getUserName(assignTo)
-        };
-
-        const result = await ApiService.createTask(taskData);
-
-        if (btn) {
-            btn.disabled = false;
-            btn.textContent = '+';
-        }
-
-        if (result) {
-            const parts = Utils.parseTaskText(result.text);
-            const newTask = {
-                id: result.task_id,
-                text: parts.title,
-                description: parts.description,
-                status: result.status || 'todo',
-                priority: { level: result.priority, label: Utils.getPriorityLabel(result.priority) },
-                project: result.project_id,
-                userId: result.user_id,
-                userName: Utils.getUserName(result.user_id),
-                position: 0,
-                createdAt: result.created_at,
-                updatedAt: result.updated_at
-            };
-
-            AppState.addTask(newTask);
-            this.render();
-            Projects.renderFilter();
-
-            // Journal
-            if (assignTo !== AppState.currentUser.id) {
-                Journal.add('task', `📝 Assigné à ${Utils.getUserName(assignTo)}: ${text}`, 2);
-            } else {
-                Journal.add('task', `📝 Créé: ${text}`, 2);
+        try {
+            // Try Express API first if authenticated
+            let result = null;
+            if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
+                try {
+                    const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
+                    result = await ApiTasks.create({
+                        title: text,
+                        description: options.description || '',
+                        project_id: projectId === 'general' ? null : projectId,
+                        priority: priorityMap[priorityLevel] || 'medium',
+                        assigned_to: assignTo,
+                        status: 'todo'
+                    });
+                } catch (e) {
+                    console.warn('⚠️ Tasks: Express API failed, falling back to N8N', e);
+                }
             }
 
-            // Reset inputs
-            if (!options.text) {
-                Utils.$('task-input').value = '';
-                Utils.$('project-select').value = '';
-                Utils.$('priority-select').value = '2';
-                Utils.$('assign-select').value = '';
+            // Fallback to N8N
+            if (!result) {
+                const taskData = {
+                    text: text,
+                    description: options.description || '',
+                    project: projectId,
+                    priority: { level: priorityLevel, label: Utils.getPriorityLabel(priorityLevel) },
+                    userId: assignTo,
+                    userName: Utils.getUserName(assignTo)
+                };
+                result = await ApiService.createTask(taskData);
             }
 
-            return newTask;
-        }
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '+';
+            }
 
-        return null;
+            if (result) {
+                // Normalize result from either API
+                const newTask = result.task_id ? {
+                    // N8N format
+                    id: result.task_id,
+                    text: Utils.parseTaskText(result.text).title,
+                    description: Utils.parseTaskText(result.text).description,
+                    status: result.status || 'todo',
+                    priority: { level: result.priority || priorityLevel, label: Utils.getPriorityLabel(result.priority || priorityLevel) },
+                    project: result.project_id || projectId,
+                    userId: result.user_id || assignTo,
+                    userName: Utils.getUserName(result.user_id || assignTo),
+                    position: 0,
+                    createdAt: result.created_at,
+                    updatedAt: result.updated_at
+                } : {
+                    // Express format
+                    id: result.id,
+                    text: result.title || text,
+                    description: result.description || '',
+                    status: result.status === 'in_progress' ? 'inprogress' : (result.status || 'todo'),
+                    priority: { level: { urgent: 1, high: 2, medium: 3, low: 4 }[result.priority] || priorityLevel, label: Utils.getPriorityLabel({ urgent: 1, high: 2, medium: 3, low: 4 }[result.priority] || priorityLevel) },
+                    project: result.project_id || projectId,
+                    userId: result.assigned_to || assignTo,
+                    userName: Utils.getUserName(result.assigned_to || assignTo),
+                    position: result.position || 0,
+                    createdAt: result.created_at,
+                    updatedAt: result.updated_at
+                };
+
+                AppState.addTask(newTask);
+
+                try {
+                    this.render();
+                } catch (renderErr) {
+                    console.error('❌ Tasks.render() error:', renderErr);
+                }
+
+                try {
+                    Projects.renderFilter();
+                } catch (filterErr) {
+                    console.error('❌ Projects.renderFilter() error:', filterErr);
+                }
+
+                // Journal
+                try {
+                    if (assignTo !== AppState.currentUser?.id) {
+                        Journal.add('task', `📝 Assigné à ${Utils.getUserName(assignTo)}: ${text}`, 2);
+                    } else {
+                        Journal.add('task', `📝 Créé: ${text}`, 2);
+                    }
+                } catch (journalErr) {
+                    console.warn('Journal error:', journalErr);
+                }
+
+                // Reset inputs
+                if (!options.text) {
+                    const taskInput = Utils.$('task-input');
+                    const projectSelect = Utils.$('project-select');
+                    const prioritySelect = Utils.$('priority-select');
+                    const assignSelect = Utils.$('assign-select');
+                    if (taskInput) taskInput.value = '';
+                    if (projectSelect) projectSelect.value = '';
+                    if (prioritySelect) prioritySelect.value = '2';
+                    if (assignSelect) assignSelect.value = '';
+                }
+
+                Utils.notify('Tâche créée !', 'success');
+                return newTask;
+            }
+
+            return null;
+        } catch (err) {
+            console.error('❌ Tasks.create() error:', err);
+            Utils.notify('Erreur lors de la création', 'error');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '+';
+            }
+            return null;
+        }
     },
 
     /**
@@ -101,24 +172,51 @@ const Tasks = {
         const task = AppState.findTask(taskId);
         if (!task) return;
 
+        // Use Express API if authenticated
+        const useExpress = typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated();
+        const statusMap = { inprogress: 'in_progress', done: 'done', todo: 'todo' };
+
         switch (action) {
             case 'start':
-                await ApiService.updateTask(taskId, 'inprogress', task.priority.level);
+                if (useExpress) {
+                    await ApiTasks.update(taskId, { status: 'in_progress' });
+                } else {
+                    await ApiService.updateTask(taskId, 'inprogress', task.priority.level);
+                }
                 task.status = 'inprogress';
                 task.updatedAt = new Date().toISOString();
                 Journal.add('task', `🔄 Commencé: ${task.text}`, 2);
                 break;
 
             case 'done':
-                await ApiService.updateTask(taskId, 'done', task.priority.level);
+                if (useExpress) {
+                    await ApiTasks.update(taskId, { status: 'done' });
+                } else {
+                    await ApiService.updateTask(taskId, 'done', task.priority.level);
+                }
                 task.status = 'done';
                 task.completedAt = new Date().toISOString();
                 task.updatedAt = new Date().toISOString();
                 Journal.add('win', `✅ Terminé: ${task.text}`, 3);
+
+                // Gamification: enregistrer l'action pour XP
+                if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordAction) {
+                    GamificationAPI.recordAction('task_completed', { task_id: taskId })
+                        .then(result => {
+                            if (result?.xpGained) {
+                                console.log(`🎮 +${result.xpGained} XP pour tâche terminée`);
+                            }
+                        })
+                        .catch(err => console.warn('Gamification event failed:', err));
+                }
                 break;
 
             case 'reopen':
-                await ApiService.updateTask(taskId, 'todo', task.priority.level);
+                if (useExpress) {
+                    await ApiTasks.update(taskId, { status: 'todo' });
+                } else {
+                    await ApiService.updateTask(taskId, 'todo', task.priority.level);
+                }
                 task.status = 'todo';
                 task.completedAt = null;
                 task.updatedAt = new Date().toISOString();
@@ -126,7 +224,11 @@ const Tasks = {
                 break;
 
             case 'delete':
-                await ApiService.deleteTask(taskId);
+                if (useExpress) {
+                    await ApiTasks.remove(taskId);
+                } else {
+                    await ApiService.deleteTask(taskId);
+                }
                 Journal.add('task', `🗑️ Supprimé: ${task.text}`, 2);
                 AppState.removeTask(taskId);
                 break;
@@ -260,13 +362,25 @@ const Tasks = {
         const task = AppState.findTask(taskId);
         if (!task) return;
 
-        await ApiService.updateTaskFull(taskId, {
-            title: newTitle,
-            description: newDescription,
-            projectId: newProjectId,
-            priority: newPriority,
-            userId: newUserId
-        });
+        // Use Express API if authenticated
+        if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
+            const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
+            await ApiTasks.update(taskId, {
+                title: newTitle,
+                description: newDescription,
+                project_id: newProjectId === 'general' ? null : newProjectId,
+                priority: priorityMap[newPriority] || 'medium',
+                assigned_to: newUserId
+            });
+        } else {
+            await ApiService.updateTaskFull(taskId, {
+                title: newTitle,
+                description: newDescription,
+                projectId: newProjectId,
+                priority: newPriority,
+                userId: newUserId
+            });
+        }
 
         // Mettre à jour localement
         task.text = newTitle;
@@ -376,8 +490,8 @@ const Tasks = {
      * @returns {string} - HTML
      */
     renderTaskHTMLFull(task) {
-        const project = AppState.findProject(task.project);
-        const userAvatar = Utils.getUserAvatar(task.userId);
+        const project = AppState.findProject(task.project) || { id: 'general', name: 'Général', icon: '📁', color: '#6B7280' };
+        const userAvatar = Utils.getUserAvatar(task.userId) || '👤';
         const hasDescription = task.description && task.description.trim();
 
         return `
@@ -413,8 +527,8 @@ const Tasks = {
      * @returns {string} - HTML
      */
     renderTaskHTMLSimple(task) {
-        const project = AppState.findProject(task.project);
-        const userAvatar = Utils.getUserAvatar(task.userId);
+        const project = AppState.findProject(task.project) || { id: 'general', name: 'Général', icon: '📁', color: '#6B7280' };
+        const userAvatar = Utils.getUserAvatar(task.userId) || '👤';
         const hasDescription = task.description && task.description.trim();
 
         return `

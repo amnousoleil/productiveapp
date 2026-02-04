@@ -114,25 +114,36 @@ const GalaxieView = (function() {
      * Open Galaxie View
      */
     function open() {
+        console.log('🌌 GalaxieView.open() called, isOpen:', isOpen);
         if (isOpen) return;
 
         if (!overlayElement) {
+            console.log('🌌 Creating overlay...');
             createOverlay();
         }
 
         const iframe = document.getElementById(CONFIG.iframeId);
-        if (iframe && !iframe.src) {
-            // Check if static build exists, otherwise use dev server
-            checkAndSetIframeSrc(iframe);
+        console.log('🌌 Iframe element found:', !!iframe, 'current src:', iframe?.src);
+
+        if (iframe && (!iframe.src || iframe.src === 'about:blank' || iframe.src === window.location.href)) {
+            // Set iframe src directly - the file is known to exist
+            iframe.src = CONFIG.iframeUrl;
+            console.log('🌌 Set iframe src to:', CONFIG.iframeUrl);
         }
 
-        overlayElement.classList.remove('hidden');
+        // Force display and remove hidden
+        if (overlayElement) {
+            overlayElement.style.display = 'flex';
+            overlayElement.classList.remove('hidden');
+            console.log('🌌 Overlay shown, classList:', overlayElement.className);
+        }
+
         isOpen = true;
 
         // Hide scrollbar on body
         document.body.style.overflow = 'hidden';
 
-        console.log('🌌 Galaxie View opened');
+        console.log('🌌 Galaxie View opened successfully');
     }
 
     /**
@@ -159,10 +170,12 @@ const GalaxieView = (function() {
      * Close Galaxie View
      */
     function close() {
+        console.log('🌌 GalaxieView.close() called, isOpen:', isOpen);
         if (!isOpen) return;
 
         if (overlayElement) {
             overlayElement.classList.add('hidden');
+            overlayElement.style.display = 'none';
         }
         isOpen = false;
 
@@ -203,15 +216,20 @@ const GalaxieView = (function() {
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background: rgba(0, 0, 0, 0.9);
-                z-index: 10000;
-                display: flex;
+                background: rgba(0, 0, 0, 0.95);
+                z-index: 99999;
+                display: none;
                 flex-direction: column;
                 opacity: 1;
                 transition: opacity 0.2s ease;
             }
 
+            .galaxie-view-overlay:not(.hidden) {
+                display: flex !important;
+            }
+
             .galaxie-view-overlay.hidden {
+                display: none !important;
                 opacity: 0;
                 pointer-events: none;
             }
@@ -265,17 +283,19 @@ const GalaxieView = (function() {
             }
 
             /* Animation for opening */
-            .galaxie-view-overlay:not(.hidden) {
-                animation: galaxieViewFadeIn 0.2s ease;
-            }
-
             @keyframes galaxieViewFadeIn {
                 from {
                     opacity: 0;
+                    transform: scale(0.98);
                 }
                 to {
                     opacity: 1;
+                    transform: scale(1);
                 }
+            }
+
+            .galaxie-view-overlay:not(.hidden) {
+                animation: galaxieViewFadeIn 0.2s ease forwards;
             }
 
             /* Mobile responsive */

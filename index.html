@@ -16,9 +16,9 @@
     <link rel="stylesheet" href="css/style-components.css?v=46">
     <link rel="stylesheet" href="css/style-themes.css?v=46">
     <link rel="stylesheet" href="css/style-dragdrop.css?v=46">
-    <link rel="stylesheet" href="css/sidebar.css?v=3">
-    <link rel="stylesheet" href="css/style-sidebar.css?v=2">
-    <link rel="stylesheet" href="css/sidebar-nav.css?v=2">
+    <link rel="stylesheet" href="css/sidebar.css?v=50">
+    <link rel="stylesheet" href="css/style-sidebar.css?v=51">
+    <link rel="stylesheet" href="css/sidebar-nav.css?v=50">
     <link rel="stylesheet" href="css/sidebar-themes.css?v=1">
     <link rel="stylesheet" href="css/animations.css?v=1">
     <link rel="stylesheet" href="css/dashboard.css?v=1">
@@ -29,7 +29,8 @@
     <link rel="stylesheet" href="css/messaging.css?v=1">
     <link rel="stylesheet" href="css/notifications.css?v=1">
     <link rel="stylesheet" href="css/analytics.css?v=1">
-    <link rel="stylesheet" href="css/style-overrides.css?v=90">
+    <link rel="stylesheet" href="css/reports.css?v=1">
+    <link rel="stylesheet" href="css/style-overrides.css?v=62">
     <link rel="stylesheet" href="css/style-views.css?v=3">
     <link rel="stylesheet" href="css/galaxy.css?v=10">
 
@@ -89,38 +90,25 @@
         <div class="login-container">
             <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo" class="login-logo">
             <h1>ProductiveApp</h1>
-            <p class="login-subtitle">Sélectionne ton profil</p>
 
-            <!-- Carrousel d'avatars -->
-            <div class="user-carousel">
-                <button class="carousel-arrow carousel-prev" id="carousel-prev">‹</button>
-                <div class="user-select-grid" id="user-select-grid">
-                    <!-- Avatars générés par Auth.renderUserSelect() -->
+            <!-- ÉTAPE 1: Formulaire de connexion équipe -->
+            <div id="login-form" class="login-form-container">
+                <p class="login-subtitle">🔐 Connexion équipe</p>
+                <div class="login-inputs">
+                    <input type="email" id="login-email" placeholder="Email équipe" autocomplete="email">
+                    <input type="password" id="login-password" placeholder="Mot de passe" autocomplete="current-password">
                 </div>
-                <button class="carousel-arrow carousel-next" id="carousel-next">›</button>
+                <button type="button" id="login-btn" class="btn-primary login-btn">🔓 Connexion</button>
+                <p id="login-error" class="error-text"></p>
             </div>
 
-            <!-- Séparateur -->
-            <div style="margin:25px 0;color:rgba(255,255,255,0.3);font-size:0.85rem;">── ou ──</div>
-
-            <!-- Formulaire email -->
-            <div class="login-form" id="email-login-form" style="margin-top:0;pointer-events:auto;position:relative;z-index:100;">
-                <p style="color:#fff;margin-bottom:12px;font-weight:600;">📧 Connexion par email</p>
-                <input type="email" id="email-input" placeholder="votre@email.com" value="demo@productive.app" autocomplete="email" style="margin-bottom:10px;padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;width:100%;box-sizing:border-box;pointer-events:auto;cursor:text;position:relative;z-index:101;">
-                <input type="password" id="email-password" placeholder="Mot de passe" value="Demo@123" autocomplete="current-password" style="padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);color:#fff;width:100%;box-sizing:border-box;pointer-events:auto;cursor:text;position:relative;z-index:101;">
-                <button type="button" id="email-login-btn" class="btn-primary" style="margin-top:12px;padding:12px;background:#6366f1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;pointer-events:auto;position:relative;z-index:101;">Se connecter</button>
-                <p id="email-login-status" style="font-size:0.75rem;color:#71717a;margin-top:10px;">Test: demo@productive.app / Demo@123</p>
+            <!-- ÉTAPE 2: Sélection du membre -->
+            <div id="member-picker" class="member-picker-container hidden">
+                <p class="login-subtitle">👋 Qui es-tu ?</p>
+                <div class="member-grid" id="member-grid">
+                    <!-- Membres générés par Auth.renderMemberGrid() -->
+                </div>
             </div>
-
-            <!-- Formulaire mot de passe (avatars) -->
-            <div class="login-form hidden" id="password-form">
-                <p id="login-username"></p>
-                <input type="password" id="login-password" placeholder="Mot de passe...">
-                <button id="login-btn" class="btn-primary">Entrer</button>
-                <button id="back-btn" class="btn-secondary">← Retour</button>
-            </div>
-
-            <p id="login-error" class="error-text"></p>
         </div>
     </div>
 
@@ -163,7 +151,13 @@
 
         <!-- Galaxy View -->
         <div id="view-galaxy" class="view-container">
-            <!-- Rendered by GalaxieView - iframe overlay -->
+            <iframe
+                id="galaxy-iframe"
+                src="/galaxy/index.html"
+                style="width: 100%; height: 100%; border: none; display: block;"
+                allow="fullscreen"
+                loading="lazy"
+            ></iframe>
         </div>
 
         <!-- Journal View -->
@@ -171,8 +165,18 @@
             <!-- Rendered by Journal.js - scrolls to journal section -->
         </div>
 
+        <!-- Accounting View -->
+        <div id="view-accounting" class="view-container">
+            <!-- Rendered by Accounting.js -->
+        </div>
+
+        <!-- Psycho-Audit View -->
+        <div id="view-psycho-audit" class="view-container">
+            <!-- Rendered by PsychoAudit.js -->
+        </div>
+
         <!-- Gamification View -->
-        <div id="gamification-view" class="gamification-overlay">
+        <div id="view-gamification" class="view-container">
             <!-- Rendered by Gamification.js -->
         </div>
 
@@ -686,16 +690,16 @@
 
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
-    <script src="js/modules/config.js?v=1"></script>
+    <script src="js/modules/config.js?v=56"></script>
     <script src="js/modules/state.js?v=1"></script>
     <script src="js/modules/utils.js?v=1"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
-    <script src="js/modules/api/api-config.js?v=10"></script>
+    <script src="js/modules/api/api-config.js?v=56"></script>
     <script src="js/modules/api/api-tokens.js?v=10"></script>
     <script src="js/modules/api/api-fetch.js?v=10"></script>
     <script src="js/modules/api/api.js?v=10"></script>
-    <script src="js/modules/api/api-auth.js?v=11"></script>
+    <script src="js/modules/api/api-auth.js?v=58"></script>
     <script src="js/modules/api/api-projects.js?v=1"></script>
     <script src="js/modules/api/api-notes.js?v=1"></script>
     <script src="js/modules/api/api-tasks.js?v=1"></script>
@@ -707,7 +711,7 @@
     <!-- 4. Modules fonctionnels -->
     <script src="js/modules/auth/login-ui.js?v=1"></script>
     <script src="js/modules/auth/login-legacy.js?v=1"></script>
-    <script src="js/modules/auth.js?v=7"></script>
+    <script src="js/modules/auth.js?v=58"></script>
     <script src="js/modules/themes.js?v=1"></script>
     <script src="js/modules/confirm-modal.js?v=1"></script>
     <script src="js/modules/tasks.js?v=1"></script>
@@ -717,10 +721,10 @@
     <script src="js/modules/effects.js?v=1"></script>
     <script src="js/modules/report.js?v=1"></script>
     <script src="js/modules/backup.js?v=1"></script>
-    <script src="js/modules/sidebar/sidebar-core.js?v=1"></script>
-    <script src="js/modules/sidebar/sidebar-render.js?v=1"></script>
-    <script src="js/modules/sidebar/sidebar-events.js?v=1"></script>
-    <script src="js/modules/sidebar/sidebar-init.js?v=1"></script>
+    <script src="js/modules/sidebar/sidebar-core.js?v=50"></script>
+    <script src="js/modules/sidebar/sidebar-render.js?v=50"></script>
+    <script src="js/modules/sidebar/sidebar-events.js?v=50"></script>
+    <script src="js/modules/sidebar/sidebar-init.js?v=50"></script>
     <script src="js/modules/router.js?v=2"></script>
     <script src="js/modules/dashboard.js?v=2"></script>
     <script src="js/modules/notes/notes-core.js?v=1"></script>
@@ -772,12 +776,22 @@
     <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=30"></script>
     <!-- Galaxie View - Excalidraw integration -->
-    <script src="js/modules/galaxie-view.js?v=1"></script>
+    <script src="js/modules/galaxie-view.js?v=2"></script>
     <!-- Old canvas-based galaxy.js kept for fallback -->
     <!-- <script src="js/galaxy.js?v=21"></script> -->
 
+    <!-- Accounting Module -->
+    <script src="js/modules/accounting-api.js?v=1"></script>
+    <script src="js/modules/accounting.js?v=1"></script>
+
+    <!-- Psycho-Audit Module -->
+    <script src="js/modules/psycho-audit.js?v=1"></script>
+
+    <!-- Report Creator - Psycho Audit Engine -->
+    <script src="js/modules/report-creator.js?v=1"></script>
+
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=7"></script>
+    <script src="js/app-modular.js?v=8"></script>
 
     <!-- Email Login Functions -->
     <script>

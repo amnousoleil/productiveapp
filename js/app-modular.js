@@ -48,6 +48,8 @@ const App = {
             if (typeof AnalyticsView !== 'undefined' && AnalyticsView.init) AnalyticsView.init();
             if (typeof ReportsView !== 'undefined' && ReportsView.init) ReportsView.init();
             if (typeof GalaxieView !== 'undefined' && GalaxieView.init) GalaxieView.init();
+            if (typeof AccountingView !== 'undefined' && AccountingView.init) AccountingView.init();
+            if (typeof PsychoAuditView !== 'undefined' && PsychoAuditView.init) PsychoAuditView.init();
 
             // Initialiser le drag & drop
             setTimeout(() => {
@@ -158,6 +160,36 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof Auth !== 'undefined' && Auth.initEvents) {
             Auth.initEvents();
         }
+
+        // === DIRECT LOGIN BUTTON BINDING ===
+        // Ensure the login button always works by binding it directly here
+        const loginBtn = document.getElementById('login-btn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('🔐 Login button clicked');
+                if (typeof Auth !== 'undefined' && Auth.attemptLogin) {
+                    Auth.attemptLogin();
+                }
+            });
+            console.log('✅ Login button event bound');
+        }
+
+        // Bind Enter key on login inputs
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        [loginEmail, loginPassword].forEach(input => {
+            if (input) {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (typeof Auth !== 'undefined' && Auth.attemptLogin) {
+                            Auth.attemptLogin();
+                        }
+                    }
+                });
+            }
+        });
 
         // Initialiser l'authentification (vérifie session, affiche login si besoin)
         if (typeof Auth !== 'undefined' && Auth.init) {

@@ -1,56 +1,136 @@
 // =============================================
-// PRODUCTIVEAPP - AUTH MODULE
-// Authentification avec avatars et animations
+// PRODUCTIVEAPP - AUTH MODULE v2.0
+// Authentification équipe + sélection membre
 // =============================================
 
 const Auth = {
-    currentProfileIndex: 0,
+    apiUser: null, // Utilisateur API après authentification
 
     /**
      * Initialize authentication
+     * Checks for existing JWT token and validates session via API
      */
-    init() {
+    async init() {
         console.log('🔐 Auth: Initializing...');
 
-        // Check for existing session
-        const savedUser = localStorage.getItem('currentUser');
-        if (savedUser) {
+        // Check for existing JWT session
+        const accessToken = ApiTokens.getAccessToken();
+        if (accessToken) {
             try {
-                const user = JSON.parse(savedUser);
-                const configUser = AppConfig.USERS.find(u => u.id === user.id);
-                if (configUser) {
-                    console.log('✅ Auth: Restored session for', user.name);
-                    AppState.currentUser = configUser;
-                    this.onLoginSuccess();
+                console.log('🔐 Auth: Found access token, validating...');
+                const response = await ApiAuth.getMe();
+
+                if (response && response.user) {
+                    console.log('✅ Auth: Session valid for', response.user.email);
+                    this.apiUser = response.user;
+
+                    // Ensure workspace is set
+                    if (!ApiTokens.getWorkspaceId()) {
+                        await this.ensureWorkspace();
+                    }
+
+                    // Check if member was already selected
+                    const savedMemberId = localStorage.getItem('selectedMemberId');
+                    if (savedMemberId) {
+                        const member = AppConfig.USERS.find(u => u.id === savedMemberId);
+                        if (member) {
+                            AppState.currentUser = {
+                                ...this.apiUser,
+                                ...member
+                            };
+                            this.onLoginSuccess();
+                            return;
+                        }
+                    }
+
+                    // Show member picker
+                    this.showMemberPicker();
                     return;
                 }
             } catch (e) {
-                localStorage.removeItem('currentUser');
+                console.warn('⚠️ Auth: Token validation failed, trying refresh...', e.message);
+
+                // Try to refresh the token
+                try {
+                    const refreshToken = ApiTokens.getRefreshToken();
+                    if (refreshToken) {
+                        const refreshResponse = await fetch(`${ApiConfig.BASE_URL}/auth/refresh`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ refreshToken })
+                        });
+
+                        if (refreshResponse.ok) {
+                            const data = await refreshResponse.json();
+                            if (data.success && data.data?.tokens) {
+                                ApiTokens.setTokens(data.data.tokens.accessToken, data.data.tokens.refreshToken);
+                                console.log('✅ Auth: Token refreshed, retrying...');
+                                return this.init();
+                            }
+                        }
+                    }
+                } catch (refreshError) {
+                    console.warn('⚠️ Auth: Refresh failed', refreshError.message);
+                }
+
+                // Clear invalid tokens
+                ApiTokens.clearTokens();
             }
         }
 
-        // No session - show login
-        console.log('🔐 Auth: No session, showing login');
+        // No valid session - show login
+        console.log('🔐 Auth: No valid session, showing login');
         this.showLoginScreen();
     },
 
     /**
-     * Show the login screen with avatars
+     * Ensure workspace is set
+     */
+    async ensureWorkspace() {
+        const DEFAULT_WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
+        try {
+            const workspaces = await ApiAuth.getWorkspaces();
+            if (workspaces && workspaces.length > 0) {
+                ApiTokens.setWorkspaceId(workspaces[0].id);
+                console.log('✅ Workspace set:', workspaces[0].id);
+            } else {
+                ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
+                console.log('⚠️ Using default workspace');
+            }
+        } catch (wsErr) {
+            console.warn('Failed to fetch workspaces:', wsErr);
+            ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
+        }
+    },
+
+    /**
+     * Show the login screen with email/password form
      */
     showLoginScreen() {
         const loginScreen = document.getElementById('login-screen');
         if (!loginScreen) return;
 
         loginScreen.classList.remove('hidden');
-        this.renderUserSelect();
-        this.initProfileCarousel();
+
+        // Pre-fill with team credentials
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
+
+        if (emailInput && AppConfig.TEAM_AUTH) {
+            emailInput.value = AppConfig.TEAM_AUTH.email;
+        }
+        if (passwordInput && AppConfig.TEAM_AUTH) {
+            passwordInput.value = AppConfig.TEAM_AUTH.password;
+        }
+
+        // Hide member picker, show login form
+        document.getElementById('login-form')?.classList.remove('hidden');
+        document.getElementById('member-picker')?.classList.add('hidden');
+
         this.initLoginEvents();
 
-        // Start fire particles animation
+        // Start fire bubbles animation
         setTimeout(() => {
-            if (typeof Effects !== 'undefined' && Effects.initFireBreathParticles) {
-                Effects.initFireBreathParticles();
-            }
             if (typeof Effects !== 'undefined' && Effects.createFireBubbles) {
                 Effects.createFireBubbles();
             }
@@ -58,160 +138,144 @@ const Auth = {
     },
 
     /**
-     * Render user selection grid
+     * Show member picker after successful API auth
      */
-    renderUserSelect() {
-        const grid = document.getElementById('user-select-grid');
+    showMemberPicker() {
+        const loginScreen = document.getElementById('login-screen');
+        if (!loginScreen) return;
+
+        loginScreen.classList.remove('hidden');
+
+        // Hide login form, show member picker
+        document.getElementById('login-form')?.classList.add('hidden');
+        document.getElementById('member-picker')?.classList.remove('hidden');
+
+        this.renderMemberGrid();
+
+        // Fire particles around avatars
+        setTimeout(() => {
+            if (typeof Effects !== 'undefined' && Effects.initFireBreathParticles) {
+                Effects.initFireBreathParticles();
+            }
+        }, 300);
+    },
+
+    /**
+     * Render member selection grid
+     */
+    renderMemberGrid() {
+        const grid = document.getElementById('member-grid');
         if (!grid) return;
 
-        grid.innerHTML = AppConfig.USERS.map(user => `
-            <button class="user-select-btn" data-userid="${user.id}">
-                <div class="avatar-orbit-container">
-                    <div class="fire-breath-container"></div>
-                    <img src="${user.loginImg}" class="user-avatar-img-login" alt="${user.name}">
-                </div>
-                <span class="user-name-select">${user.name}</span>
+        const getRoleLabel = (role, id) => {
+            if (id === 'all') return '👥 Tous';
+            switch(role) {
+                case 'boss': return '👑 Boss';
+                case 'team': return '🚀 Équipe';
+                case 'shared': return '👥 Partagé';
+                default: return '';
+            }
+        };
+
+        grid.innerHTML = AppConfig.USERS.map(member => `
+            <button class="member-select-btn ${member.id === 'all' ? 'member-all' : ''}" data-memberid="${member.id}">
+                <img src="${member.loginImg}" class="user-avatar-img-login" alt="${member.name}">
+                <span class="member-name">${member.name}</span>
+                <span class="member-role">${getRoleLabel(member.role, member.id)}</span>
             </button>
         `).join('');
 
         // Event listeners
-        grid.querySelectorAll('.user-select-btn').forEach(btn => {
-            btn.addEventListener('click', () => this.selectUser(btn.dataset.userid));
+        grid.querySelectorAll('.member-select-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.selectMember(btn.dataset.memberid));
         });
     },
 
     /**
-     * Select a user for login
+     * Select a team member
      */
-    selectUser(userId) {
-        const user = AppConfig.USERS.find(u => u.id === userId);
-        if (!user) return;
-
-        AppState.currentUser = user;
-
-        // Show password form or login directly if no password
-        if (!user.password) {
-            // Team user - no password needed
-            this.attemptLogin('');
-        } else {
-            // Hide carousel completely, show compact password form
-            document.querySelector('.user-carousel')?.classList.add('hidden');
-            document.querySelector('.login-subtitle')?.classList.add('hidden');
-
-            // Update and show password form
-            const usernameEl = document.getElementById('login-username');
-            if (usernameEl) {
-                usernameEl.innerHTML = `<img src="${user.loginImg}" class="login-selected-avatar"> ${user.name}`;
-            }
-
-            document.getElementById('password-form')?.classList.remove('hidden');
-            document.getElementById('login-password')?.focus();
+    selectMember(memberId) {
+        const member = AppConfig.USERS.find(u => u.id === memberId);
+        if (!member) {
+            console.error('❌ Auth: Member not found:', memberId);
+            return;
         }
+
+        console.log('✅ Auth: Member selected:', member.name);
+
+        // Save selected member
+        localStorage.setItem('selectedMemberId', memberId);
+
+        // Merge API user with selected member (fallback if apiUser is null)
+        AppState.currentUser = {
+            ...(this.apiUser || {}),
+            ...member,
+            id: member.id,
+            name: member.name
+        };
+
+        console.log('✅ Auth: AppState.currentUser set:', AppState.currentUser);
+        this.onLoginSuccess();
     },
 
     /**
-     * Attempt login with password - tries API first, falls back to local
+     * Attempt login with email/password via API
      */
-    async attemptLogin(password) {
-        const user = AppState.currentUser;
-        if (!user) return;
-
+    async attemptLogin() {
+        const emailInput = document.getElementById('login-email');
+        const passwordInput = document.getElementById('login-password');
         const errorEl = document.getElementById('login-error');
         const loginBtn = document.getElementById('login-btn');
+
+        const email = emailInput?.value?.trim();
+        const password = passwordInput?.value;
+
+        if (!email || !password) {
+            if (errorEl) errorEl.textContent = '❌ Email et mot de passe requis';
+            return;
+        }
 
         // Show loading state
         if (loginBtn) {
             loginBtn.disabled = true;
-            loginBtn.textContent = '...';
+            loginBtn.innerHTML = '<span class="spinner"></span> Connexion...';
         }
 
         try {
-            // Try API login first
-            const apiSuccess = await this.tryApiLogin(user.email || user.id, password);
-            if (apiSuccess) {
+            console.log('🔐 Auth: Attempting login for', email);
+            const result = await ApiAuth.login(email, password);
+
+            if (result && result.user) {
                 if (errorEl) errorEl.textContent = '';
-                localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name }));
-                this.onLoginSuccess();
+                this.apiUser = result.user;
+                console.log('✅ Auth: API login successful');
+
+                // Show member picker
+                this.showMemberPicker();
                 return;
             }
         } catch (e) {
-            console.warn('⚠️ Auth: API login failed, trying local fallback', e);
-        }
+            console.warn('⚠️ Auth: API login failed:', e.message);
 
-        // Fallback to local password check
-        if (!user.password || password === user.password) {
-            // Success with local auth
-            if (errorEl) errorEl.textContent = '';
-            localStorage.setItem('currentUser', JSON.stringify({ id: user.id, name: user.name }));
-            console.log('✅ Auth: Local login successful (fallback)');
-            this.onLoginSuccess();
-        } else {
-            // Wrong password
             if (errorEl) {
-                errorEl.textContent = '❌ Mot de passe incorrect';
+                errorEl.textContent = e.message || '❌ Identifiants incorrects';
                 errorEl.style.animation = 'shake 0.5s ease';
                 setTimeout(() => errorEl.style.animation = '', 500);
             }
-            document.getElementById('login-password')?.focus();
         }
 
         // Reset button state
         if (loginBtn) {
             loginBtn.disabled = false;
-            loginBtn.textContent = 'Connexion';
+            loginBtn.innerHTML = '🔓 Connexion';
         }
-    },
-
-    /**
-     * Try login via API
-     * @returns {boolean} true if successful
-     */
-    async tryApiLogin(email, password) {
-        const baseUrl = typeof ApiConfig !== 'undefined' ? ApiConfig.BASE_URL : '/api/v1';
-
-        const response = await fetch(`${baseUrl}/auth/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.warn('⚠️ Auth: API returned error', response.status, errorData);
-            return false;
-        }
-
-        const data = await response.json();
-
-        // Expected format: { data: { tokens: { accessToken, refreshToken } } }
-        const tokens = data?.data?.tokens || data?.tokens;
-        if (tokens?.accessToken) {
-            // Store tokens
-            localStorage.setItem('accessToken', tokens.accessToken);
-            if (tokens.refreshToken) {
-                localStorage.setItem('refreshToken', tokens.refreshToken);
-            }
-
-            // Update ApiConfig if available
-            if (typeof ApiConfig !== 'undefined' && ApiConfig.setToken) {
-                ApiConfig.setToken(tokens.accessToken);
-            }
-
-            console.log('✅ Auth: API login successful, tokens stored');
-            return true;
-        }
-
-        console.warn('⚠️ Auth: API response missing tokens', data);
-        return false;
     },
 
     /**
      * On successful login
      */
     async onLoginSuccess() {
-        console.log('✅ Auth: Login successful');
+        console.log('✅ Auth: Login successful for', AppState.currentUser?.name);
 
         // Hide login screen
         const loginScreen = document.getElementById('login-screen');
@@ -222,7 +286,7 @@ const Auth = {
         // Add logged-in class
         document.body.classList.add('logged-in');
 
-        // Initialize app with error handling
+        // Initialize app
         try {
             if (typeof App !== 'undefined' && App.init) {
                 await App.init();
@@ -231,7 +295,7 @@ const Auth = {
             console.error('❌ App.init() error:', error);
         }
 
-        // Navigate to tasks view (default)
+        // Navigate to tasks view
         try {
             if (typeof ViewRouter !== 'undefined') {
                 ViewRouter.navigate('tasks');
@@ -242,13 +306,26 @@ const Auth = {
     },
 
     /**
-     * Logout
+     * Logout - calls API then clears session
      */
-    logout() {
-        console.log('🔐 Auth: Logging out');
+    async logout() {
+        console.log('🔐 Auth: Logging out...');
 
+        try {
+            const result = await ApiAuth.logout();
+            if (result?.tasks_reset) {
+                console.log(`✅ Auth: ${result.tasks_reset} tasks reset to todo`);
+            }
+        } catch (e) {
+            console.warn('⚠️ Auth: API logout failed:', e.message);
+        }
+
+        // Clear all tokens and storage
+        ApiTokens.clearTokens();
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('selectedMemberId');
         AppState.currentUser = null;
+        this.apiUser = null;
 
         if (typeof AppState !== 'undefined' && AppState.reset) {
             AppState.reset();
@@ -265,51 +342,14 @@ const Auth = {
     },
 
     /**
-     * Initialize profile carousel
+     * Switch member (without full logout)
      */
-    initProfileCarousel() {
-        const showProfile = (index, direction = 'initial') => {
-            const buttons = document.querySelectorAll('.user-select-btn');
-            if (buttons.length === 0) return;
+    switchMember() {
+        localStorage.removeItem('selectedMemberId');
+        AppState.currentUser = null;
 
-            if (index < 0) index = buttons.length - 1;
-            if (index >= buttons.length) index = 0;
-            this.currentProfileIndex = index;
-
-            buttons.forEach((btn, i) => {
-                if (i === index) {
-                    btn.style.display = 'flex';
-                    btn.style.opacity = '1';
-                    btn.style.transform = 'scale(1.1)';
-                    btn.style.animation = 'none';
-                    btn.offsetHeight; // Trigger reflow
-
-                    if (direction === 'right') {
-                        btn.style.animation = 'slideInFromRight 0.4s ease-out forwards';
-                    } else if (direction === 'left') {
-                        btn.style.animation = 'slideInFromLeft 0.4s ease-out forwards';
-                    } else {
-                        btn.style.animation = 'cardReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards';
-                    }
-                } else {
-                    btn.style.display = 'none';
-                    btn.style.opacity = '0';
-                }
-            });
-        };
-
-        const prevBtn = document.getElementById('carousel-prev');
-        const nextBtn = document.getElementById('carousel-next');
-
-        if (prevBtn) {
-            prevBtn.onclick = () => showProfile(this.currentProfileIndex - 1, 'left');
-        }
-        if (nextBtn) {
-            nextBtn.onclick = () => showProfile(this.currentProfileIndex + 1, 'right');
-        }
-
-        // Initial display with delay for animation
-        setTimeout(() => showProfile(0), 100);
+        document.body.classList.remove('logged-in');
+        this.showMemberPicker();
     },
 
     /**
@@ -317,37 +357,23 @@ const Auth = {
      */
     initLoginEvents() {
         const loginBtn = document.getElementById('login-btn');
-        const backBtn = document.getElementById('back-btn');
+        const emailInput = document.getElementById('login-email');
         const passwordInput = document.getElementById('login-password');
 
         if (loginBtn) {
-            loginBtn.onclick = () => {
-                const password = passwordInput?.value || '';
-                this.attemptLogin(password);
-            };
+            loginBtn.onclick = () => this.attemptLogin();
         }
 
-        if (backBtn) {
-            backBtn.onclick = () => {
-                // Hide password form
-                document.getElementById('password-form')?.classList.add('hidden');
-                // Show carousel again
-                document.querySelector('.user-carousel')?.classList.remove('hidden');
-                document.querySelector('.login-subtitle')?.classList.remove('hidden');
-                // Clear inputs
-                if (passwordInput) passwordInput.value = '';
-                const errorEl = document.getElementById('login-error');
-                if (errorEl) errorEl.textContent = '';
-            };
-        }
-
-        if (passwordInput) {
-            passwordInput.onkeypress = (e) => {
-                if (e.key === 'Enter') {
-                    this.attemptLogin(passwordInput.value);
-                }
-            };
-        }
+        // Enter key to submit
+        [emailInput, passwordInput].forEach(input => {
+            if (input) {
+                input.onkeypress = (e) => {
+                    if (e.key === 'Enter') {
+                        this.attemptLogin();
+                    }
+                };
+            }
+        });
     },
 
     /**
@@ -375,6 +401,11 @@ const Auth = {
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.logout());
+        }
+
+        const switchMemberBtn = document.getElementById('switch-member-btn');
+        if (switchMemberBtn) {
+            switchMemberBtn.addEventListener('click', () => this.switchMember());
         }
     }
 };

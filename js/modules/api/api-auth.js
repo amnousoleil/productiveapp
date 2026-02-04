@@ -29,14 +29,20 @@ const ApiAuth = (function() {
                 ApiTokens.setStoredUser(user);
 
                 // Fetch workspaces after login
+                const DEFAULT_WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
                 let workspaces = [];
                 try {
                     workspaces = await getWorkspacesInternal(accessToken);
                     if (workspaces.length > 0) {
                         ApiTokens.setWorkspaceId(workspaces[0].id);
+                        console.log('✅ Workspace set:', workspaces[0].id);
+                    } else {
+                        console.warn('No workspaces returned, using default');
+                        ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
                     }
                 } catch (wsError) {
-                    console.warn('Failed to fetch workspaces:', wsError);
+                    console.warn('Failed to fetch workspaces, using default:', wsError);
+                    ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
                 }
 
                 console.log('✅ Login successful:', user.email);
@@ -54,8 +60,8 @@ const ApiAuth = (function() {
      * Internal helper to fetch workspaces with a specific token
      */
     async function getWorkspacesInternal(accessToken) {
-        const config = ApiConfig.get();
-        const url = `${config.BASE_URL}/workspaces`;
+        const baseUrl = ApiConfig.getBaseUrl();
+        const url = `${baseUrl}/workspaces`;
 
         const response = await fetch(url, {
             method: 'GET',
@@ -86,14 +92,20 @@ const ApiAuth = (function() {
             ApiTokens.setStoredUser(user);
 
             // Fetch workspaces after registration
+            const DEFAULT_WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
             let workspaces = [];
             try {
                 workspaces = await getWorkspacesInternal(accessToken);
                 if (workspaces.length > 0) {
                     ApiTokens.setWorkspaceId(workspaces[0].id);
+                    console.log('✅ Workspace set:', workspaces[0].id);
+                } else {
+                    console.warn('No workspaces returned, using default');
+                    ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
                 }
             } catch (wsError) {
-                console.warn('Failed to fetch workspaces:', wsError);
+                console.warn('Failed to fetch workspaces, using default:', wsError);
+                ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
             }
 
             return { user, workspaces, accessToken, refreshToken };

@@ -17,14 +17,22 @@ const AppConfig = {
     // === IDENTIFIANT TENANT ===
     TENANT_ID: 'digitalgiri',
 
-    // === UTILISATEURS ===
+    // === AUTHENTIFICATION ÉQUIPE ===
+    // Un seul compte pour toute l'équipe, puis sélection du membre
+    TEAM_AUTH: {
+        email: 'contact@mahagiri.fr',
+        password: 'Autopdutop63.G+htrhs7'
+    },
+
+    // === MEMBRES DE L'ÉQUIPE ===
+    // Profils disponibles après authentification
+    // Chaque membre a son onboarding privé et peut filtrer ses propres tâches
     USERS: [
         {
             id: 'maha',
-            name: 'Maître Maha Giri',
+            name: 'Maha Giri',
             avatar: '👑',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png',
-            password: 'Autopdutop63.G+htrhs7',
             role: 'boss'
         },
         {
@@ -32,15 +40,34 @@ const AppConfig = {
             name: 'Brice',
             avatar: '🚀',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697ff503b4fa8_ChatGPTImage2f%C3%A9vr.202601_51_06.png',
-            password: 'Autopdutop63.G+htrhs7',
             role: 'team'
         },
         {
-            id: 'team',
-            name: 'Team',
+            id: 'lilian',
+            name: 'Lilian',
+            avatar: '🎯',
+            loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
+            role: 'team'
+        },
+        {
+            id: 'miheko',
+            name: 'Mihéko',
+            avatar: '✨',
+            loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
+            role: 'team'
+        },
+        {
+            id: 'karima',
+            name: 'Karima',
+            avatar: '💫',
+            loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
+            role: 'team'
+        },
+        {
+            id: 'all',
+            name: 'Tout le monde',
             avatar: '👥',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
-            password: null,
             role: 'shared'
         }
     ],

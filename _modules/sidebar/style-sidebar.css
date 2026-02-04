@@ -57,26 +57,23 @@ body.logged-in .sidebar {
     position: absolute;
     top: 18px;
     right: 14px;
-    width: 34px;
-    height: 34px;
-    background: rgba(99, 102, 241, 0.15);
-    border: 2px solid var(--sb-accent);
-    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    background: var(--sb-hover);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: var(--sb-accent);
-    z-index: 50;
+    color: var(--sb-text);
+    z-index: 10;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
 }
 
 .sidebar-collapse-btn:hover {
-    background: var(--sb-accent);
-    color: #fff;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--sb-text-active);
 }
 
 .sidebar-collapse-btn svg {

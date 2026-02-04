@@ -1763,41 +1763,8 @@ body .bubble.done .bubble-text {
 }
 
 /* ================================================
-   SIDEBAR INTEGRATION - ProductiveApp v3.1
+   SIDEBAR INTEGRATION - ProductiveApp v4.4
    ================================================ */
-
-/* Sidebar visible après login */
-.sidebar {
-    display: flex !important;
-    opacity: 1 !important;
-    background: var(--bg-secondary, #0f0f14) !important;
-}
-
-/* Masquer le bouton mobile toggle avant login */
-.sidebar-mobile-toggle {
-    display: none !important;
-}
-
-body.logged-in .sidebar-mobile-toggle {
-    display: flex !important;
-}
-
-@media (min-width: 769px) {
-    body.logged-in .sidebar-mobile-toggle {
-        display: none !important;
-    }
-}
-
-/* Ajuster le header quand sidebar est ouverte (desktop) */
-@media (min-width: 769px) {
-    body.sidebar-open .app-header {
-        padding-left: 20px;
-    }
-
-    body.sidebar-collapsed .app-header {
-        padding-left: 20px;
-    }
-}
 
 /* Masquer l'ancien header quand sidebar est active */
 body.logged-in .header-left .user-badge {
@@ -1811,21 +1778,24 @@ body.logged-in .header-left .galaxy-icon-container {
 
 /* Ajuster le contenu principal pour la sidebar */
 @media (min-width: 769px) {
-    body.logged-in .app-container {
-        margin-left: var(--sidebar-width-expanded, 260px);
-        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Par défaut: sidebar OUVERTE (260px) */
+    body.logged-in .app-container,
+    body.logged-in .view-container {
+        margin-left: 260px !important;
+        transition: margin-left 0.25s ease;
     }
 
-    body.logged-in.sidebar-collapsed .app-container {
-        margin-left: var(--sidebar-width-collapsed, 72px);
+    /* Quand sidebar REPLIÉE (64px) */
+    body.logged-in.sidebar-collapsed .app-container,
+    body.logged-in.sidebar-collapsed .view-container {
+        margin-left: 64px !important;
     }
 }
 
-/* Ajuster le chatbot FAB pour qu'il ne soit pas caché par la sidebar */
-@media (min-width: 769px) {
-    body.sidebar-open #chatbot-toggle,
-    body.sidebar-collapsed #chatbot-toggle {
-        right: 20px;
+@media (max-width: 768px) {
+    body.logged-in .app-container,
+    body.logged-in .view-container {
+        margin-left: 0 !important;
     }
 }
 
@@ -2056,50 +2026,10 @@ body.logged-in .chatbot-fab {
 }
 
 /* ================================================
-   SIDEBAR TOGGLE - Theme-aware with glow pulse
+   SIDEBAR TOGGLE - Clean style (inside sidebar)
    ================================================ */
 
-.sidebar-toggle {
-    opacity: 1 !important;
-    width: 26px !important;
-    height: 26px !important;
-    right: -13px !important;
-    top: 22px !important;
-    background: var(--bg-secondary, #1a1a24) !important;
-    border: 2px solid var(--accent, #6366f1) !important;
-    box-shadow:
-        0 0 12px var(--accent-glow, rgba(99, 102, 241, 0.4)),
-        0 2px 8px rgba(0, 0, 0, 0.3) !important;
-    animation: togglePulse 2s ease-in-out infinite !important;
-}
-
-@keyframes togglePulse {
-    0%, 100% { box-shadow: 0 0 8px var(--accent-glow, rgba(99, 102, 241, 0.3)), 0 2px 8px rgba(0, 0, 0, 0.3); }
-    50% { box-shadow: 0 0 16px var(--accent-glow, rgba(99, 102, 241, 0.6)), 0 2px 8px rgba(0, 0, 0, 0.3); }
-}
-
-.sidebar-toggle svg {
-    stroke: var(--accent, #6366f1) !important;
-    stroke-width: 2 !important;
-}
-
-.sidebar-toggle:hover {
-    transform: scale(1.1) !important;
-    background: var(--accent, #6366f1) !important;
-    animation: none !important;
-    box-shadow:
-        0 0 20px var(--accent-glow, rgba(99, 102, 241, 0.6)),
-        0 4px 12px rgba(0, 0, 0, 0.4) !important;
-}
-
-.sidebar-toggle:hover svg {
-    stroke: #fff !important;
-}
-
-/* Hide confusing close button */
-.sidebar-close {
-    display: none !important;
-}
+/* Toggle is now handled in style-sidebar.css */
 
 /* FAB button fade animation when chat is open */
 .chatbot-fab {
@@ -2178,4 +2108,490 @@ body.logged-in .chatbot-fab {
     opacity: 1;
     visibility: visible;
     transform: scale(1) translateY(0);
+}
+
+/* ================================================
+   LOGIN FORM v2.0 - Team Auth + Member Picker
+   ================================================ */
+
+/* Container du formulaire login */
+.login-form-container {
+    opacity: 0;
+    animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.5s forwards;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.login-form-container .login-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.login-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.login-inputs input {
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 200, 100, 0.2);
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.login-inputs input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.login-inputs input:focus {
+    border-color: rgba(255, 200, 100, 0.6);
+    background: rgba(0, 0, 0, 0.5);
+    outline: none;
+    box-shadow: 0 0 20px rgba(255, 200, 100, 0.15);
+}
+
+.login-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+    border: none;
+    border-radius: 12px;
+    color: #1a1a1f;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
+}
+
+.login-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(255, 140, 0, 0.5);
+}
+
+.login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.login-btn .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-top-color: #1a1a1f;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* === MEMBER PICKER - HORIZONTAL RESPONSIVE === */
+.member-picker-container {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease forwards;
+    width: 100%;
+    max-width: 100vw;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.member-picker-container.hidden {
+    display: none;
+}
+
+.member-picker-container .login-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Grille horizontale responsive */
+.member-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    padding: 15px 10px 25px;
+    margin: 0 auto;
+    max-width: 850px;
+    justify-content: center;
+    flex-wrap: wrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.member-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.member-select-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 2px solid rgba(255, 200, 100, 0.15) !important;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    scroll-snap-align: center;
+    flex-shrink: 0;
+    width: 110px;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 100;
+}
+
+.member-select-btn:hover {
+    transform: translateY(-5px) scale(1.02);
+    border-color: rgba(255, 200, 100, 0.5);
+    background: rgba(255, 200, 100, 0.08);
+    box-shadow: 0 12px 30px rgba(255, 140, 0, 0.2);
+}
+
+.member-select-btn .user-avatar-img-login {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 200, 100, 0.25);
+    transition: all 0.3s ease;
+}
+
+.member-select-btn:hover .user-avatar-img-login {
+    border-color: rgba(255, 200, 100, 0.7);
+    box-shadow: 0 0 20px rgba(255, 200, 100, 0.3);
+}
+
+.member-name {
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+.member-role {
+    color: rgba(255, 200, 100, 0.6);
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+
+/* Responsive mobile - slider horizontal */
+@media (max-width: 768px) {
+    .member-grid {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        padding-left: 15px;
+        padding-right: 15px;
+        max-width: 100%;
+    }
+
+    .member-select-btn {
+        width: 95px;
+        padding: 12px;
+    }
+
+    .member-select-btn .user-avatar-img-login {
+        width: 48px;
+        height: 48px;
+    }
+
+    .member-name {
+        font-size: 0.75rem;
+        max-width: 85px;
+    }
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === FIX LOGIN SCREEN - CLEAN DESIGN === */
+.login-screen {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 20px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%) !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Removed generic border reset - was breaking member buttons */
+
+.login-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    max-width: 400px !important;
+    width: 100% !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Logo et titre */
+.login-logo {
+    width: 80px !important;
+    height: 80px !important;
+    margin-bottom: 15px !important;
+    border-radius: 20px !important;
+}
+
+.login-container h1 {
+    font-size: 2rem !important;
+    margin-bottom: 8px !important;
+}
+
+/* "Tout le monde" option spéciale */
+.member-select-btn.member-all {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.member-select-btn.member-all:hover {
+    border-color: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.25);
+}
+
+/* Hide old elements */
+.user-carousel,
+#password-form,
+#email-login-form {
+    display: none !important;
+}
+
+/* === FIX: Hide ALL app elements before login === */
+body:not(.logged-in) .main-content,
+body:not(.logged-in) .sidebar,
+body:not(.logged-in) #app-sidebar,
+body:not(.logged-in) #app-header,
+body:not(.logged-in) .header,
+body:not(.logged-in) .sidebar-mobile-toggle,
+body:not(.logged-in) .sidebar-mobile-overlay,
+body:not(.logged-in) .global-search-overlay,
+body:not(.logged-in) .chatbot-panel,
+body:not(.logged-in) #chatbot-panel,
+body:not(.logged-in) .chatbot-fab,
+body:not(.logged-in) #chatbot-toggle {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Remove any borders/outlines on login */
+.login-screen,
+.login-screen *,
+.login-container,
+.login-form-container,
+.member-picker-container {
+    outline: none !important;
+}
+
+/* Fix inputs styling */
+.login-inputs input {
+    border: 2px solid rgba(255, 200, 100, 0.2) !important;
+}
+
+.login-inputs input:focus {
+    border: 2px solid rgba(255, 200, 100, 0.5) !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Ensure login screen covers everything */
+.login-screen:not(.hidden) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%) !important;
+}
+
+/* === EXTRA FIX: Remove any outlines/borders on login === */
+.login-screen,
+.login-container,
+#login-screen,
+.login-form-container,
+.member-picker-container,
+.login-inputs,
+.member-grid {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Only allow borders on specific elements */
+.member-select-btn {
+    border: 2px solid rgba(255, 200, 100, 0.15) !important;
+}
+
+.member-select-btn:hover {
+    border: 2px solid rgba(255, 200, 100, 0.5) !important;
+}
+
+.login-inputs input {
+    border: 2px solid rgba(255, 200, 100, 0.2) !important;
+}
+
+.login-inputs input:focus {
+    border: 2px solid rgba(255, 200, 100, 0.5) !important;
+}
+
+/* === FIX: User avatar in header badge === */
+.user-avatar-img {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid var(--accent, #d4af37) !important;
+    flex-shrink: 0 !important;
+}
+
+.user-badge {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.user-badge .user-name {
+    font-size: 0.9rem !important;
+    font-weight: 500 !important;
+}
+
+/* ================================================
+   CLEAN LOGIN FIX - Remove all visual bugs
+   ================================================ */
+
+/* Hide the border/glow around login container */
+.login-container::before {
+    display: none !important;
+}
+
+/* Hide any stray overlays before login */
+body:not(.logged-in) *:not(.login-screen):not(.login-screen *):not(.fire-bubble) {
+    /* This is too aggressive, let's be more specific */
+}
+
+/* Specifically hide the sidebar-mobile-overlay */
+.sidebar-mobile-overlay {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+body.logged-in .sidebar-mobile-overlay.active {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Login form inputs need proper styling */
+#login-email,
+#login-password {
+    border: 2px solid rgba(255, 200, 100, 0.3) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    color: #fff !important;
+    padding: 14px 18px !important;
+    border-radius: 12px !important;
+    font-size: 1rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    outline: none !important;
+}
+
+#login-email:focus,
+#login-password:focus {
+    border-color: rgba(255, 200, 100, 0.6) !important;
+    box-shadow: 0 0 15px rgba(255, 200, 100, 0.15) !important;
+}
+
+/* Login button clickable */
+#login-btn {
+    cursor: pointer !important;
+    pointer-events: auto !important;
+    z-index: 100 !important;
+    position: relative !important;
+}
+
+/* ================================================
+   FIX: Remove the ugly gray/visual artifacts on login screen
+   This hides the ::before and ::after pseudo-elements from style-base.css
+   ================================================ */
+.login-screen::before,
+.login-screen::after {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    content: none !important;
+}
+
+/* Also hide any container pseudo-elements */
+.login-container::before,
+.login-container::after {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Clean background for login screen */
+.login-screen {
+    background: linear-gradient(165deg, #0a0a0a 0%, #1a1410 40%, #2d2117 100%) !important;
+}
+
+/* Ensure login form is fully interactive */
+.login-form-container,
+.member-picker-container {
+    pointer-events: auto !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+/* Make sure all login buttons work */
+.login-form-container button,
+.member-picker-container button,
+.member-select-btn,
+#login-btn {
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }

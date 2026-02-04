@@ -18,7 +18,11 @@ const ViewRouter = (function() {
         journal: 'view-journal',
         settings: 'view-settings',
         analytics: 'view-analytics',
-        reports: 'view-reports'
+        reports: 'view-reports',
+        accounting: 'view-accounting',
+        psychoAudit: 'view-psycho-audit',
+        messaging: 'view-messaging',
+        gamification: 'view-gamification'
     };
 
     let currentView = 'dashboard';
@@ -28,6 +32,7 @@ const ViewRouter = (function() {
      * Navigate to a specific view
      */
     function navigate(viewId) {
+        console.log(`🧭 ViewRouter: navigate('${viewId}') called`);
         if (!VIEWS[viewId]) {
             console.warn(`ViewRouter: Unknown view "${viewId}"`);
             return false;
@@ -43,8 +48,12 @@ const ViewRouter = (function() {
 
         // Show target view
         const targetView = document.getElementById(VIEWS[viewId]);
+        console.log(`🧭 ViewRouter: Target container '${VIEWS[viewId]}' found:`, !!targetView);
         if (targetView) {
             targetView.classList.add('active');
+            console.log(`🧭 ViewRouter: Added 'active' class to ${VIEWS[viewId]}`);
+        } else {
+            console.warn(`🧭 ViewRouter: Container ${VIEWS[viewId]} NOT FOUND!`);
         }
 
         // Update sidebar active state
@@ -103,6 +112,37 @@ const ViewRouter = (function() {
                 break;
             case 'tasks':
                 // Tasks are already rendered by the existing system
+                break;
+            case 'galaxy':
+                // Ensure iframe is loaded and visible
+                const galaxyIframe = document.getElementById('galaxy-iframe');
+                if (galaxyIframe && !galaxyIframe.src) {
+                    galaxyIframe.src = '/galaxy/index.html';
+                }
+                break;
+            case 'accounting':
+                if (typeof AccountingView !== 'undefined') {
+                    AccountingView.refresh();
+                }
+                break;
+            case 'psychoAudit':
+                console.log('🧭 ViewRouter: initializeView psychoAudit - PsychoAuditView exists:', typeof PsychoAuditView !== 'undefined');
+                if (typeof PsychoAuditView !== 'undefined') {
+                    console.log('🧭 ViewRouter: Calling PsychoAuditView.refresh()');
+                    PsychoAuditView.refresh();
+                } else {
+                    console.warn('🧭 ViewRouter: PsychoAuditView is NOT defined!');
+                }
+                break;
+            case 'messaging':
+                if (typeof MessagingView !== 'undefined') {
+                    MessagingView.refresh();
+                }
+                break;
+            case 'gamification':
+                if (typeof Gamification !== 'undefined') {
+                    Gamification.init('view-gamification');
+                }
                 break;
         }
     }

@@ -115,6 +115,57 @@
 
 ---
 
+## 🔌 Backend API (productive-core) - 2026-02-03
+
+### Emplacement
+- **Sources** : `/root/productive-core/`
+- **Port** : 3000 (proxié via Nginx sur `/api/v1`)
+- **Base de données** : PostgreSQL `productive_app`
+
+### Endpoints principaux
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/api/v1/auth/login` | POST | Connexion (email/password) |
+| `/api/v1/auth/logout` | POST | Déconnexion + reset tâches |
+| `/api/v1/auth/me` | GET | Info utilisateur courant |
+| `/api/v1/auth/refresh` | POST | Refresh token JWT |
+| `/api/v1/workspaces` | GET | Liste des workspaces |
+| `/api/v1/tasks/workspace/:id` | GET/POST | CRUD tâches |
+| `/api/v1/tasks/workspace/:id/active-users` | GET | **NOUVEAU** - Utilisateurs actifs |
+| `/api/v1/projects/workspace/:id` | GET/POST | CRUD projets |
+
+### Fonctionnalité : Reset tâches au logout (2026-02-03)
+
+**Objectif métier** : Pointage implicite - visualiser qui travaille en temps réel.
+
+**Comportement** :
+1. À la déconnexion, toutes les tâches `in_progress` de l'utilisateur → `todo`
+2. À la reconnexion, l'employé doit manuellement remettre ses tâches en `in_progress`
+3. Aucune tâche `in_progress` = employé pas encore actif
+
+**Fichiers modifiés** :
+- `src/modules/tasks/tasks.service.ts` : `resetUserTasksOnLogout(userId)`, `getActiveUsers(workspaceId)`
+- `src/modules/auth/auth.controller.ts` : Appel de `resetUserTasksOnLogout` au logout
+- `src/modules/tasks/tasks.routes.ts` : Route `/active-users`
+- `src/modules/tasks/tasks.controller.ts` : Handler `getActiveUsers`
+
+**Test** :
+```bash
+# Login
+TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@productive.app","password":"Demo@123"}' | jq -r '.data.tokens.accessToken')
+
+# Créer tâche in_progress, logout, vérifier status = todo
+```
+
+### Credentials test
+- **Email** : `demo@productive.app`
+- **Password** : `Demo@123`
+- **Workspace ID** : `fd92221a-aaa2-42c9-9d06-f158b5adccc3`
+
+---
+
 ## 🎯 Versions actuelles (2026-02-02)
 
 | Composant | Version | Lignes | Description |

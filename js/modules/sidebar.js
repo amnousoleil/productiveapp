@@ -32,7 +32,9 @@ const Sidebar = (function() {
         { id: 'divider2', type: 'divider' },
         { id: 'psycho-audit', icon: 'brain', label: 'Psycho-Audit', tooltip: 'Analyse comportementale', tag: 'NEW' },
         { id: 'analytics', icon: 'bar-chart-2', label: 'Analytics', tooltip: 'Statistiques détaillées' },
-        { id: 'reports', icon: 'file-bar-chart', label: 'Rapports', tooltip: 'Générer des rapports' }
+        { id: 'reports', icon: 'file-bar-chart', label: 'Rapports', tooltip: 'Générer des rapports' },
+        { id: 'accounting', icon: 'dollar-sign', label: 'Comptabilité', tooltip: 'Gestion financière' },
+        { id: 'gamification', icon: 'trophy', label: 'Gamification', tooltip: 'XP, niveaux et achievements' }
     ];
 
     const footerItems = [
@@ -59,7 +61,9 @@ const Sidebar = (function() {
         'help-circle': '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
         'log-out': '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
         search: '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
-        menu: '<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>'
+        menu: '<svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>',
+        'dollar-sign': '<svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+        trophy: '<svg viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>'
     };
 
     // === TOOLTIP ELEMENT ===
@@ -238,10 +242,13 @@ const Sidebar = (function() {
 
     function executeNavigation(itemId) {
         // Use ViewRouter for main views
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'analytics', 'reports', 'accounting', 'psycho-audit', 'gamification'];
 
         if (routedViews.includes(itemId) && typeof ViewRouter !== 'undefined') {
-            ViewRouter.navigate(itemId);
+            // Map sidebar IDs to router IDs
+            const routerIdMap = { 'psycho-audit': 'psychoAudit' };
+            const routerId = routerIdMap[itemId] || itemId;
+            ViewRouter.navigate(routerId);
             return;
         }
 
@@ -258,15 +265,13 @@ const Sidebar = (function() {
                 setTimeout(scrollToJournal, 100);
                 break;
             case 'psycho-audit':
-                openPremiumReport();
+                if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('psychoAudit');
                 break;
             case 'analytics':
-                console.log('Analytics - Coming soon');
+                if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('analytics');
                 break;
             case 'reports':
-                // Navigate to tasks then scroll
-                if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('tasks');
-                setTimeout(scrollToReports, 100);
+                if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('reports');
                 break;
             case 'settings':
                 console.log('Settings - Coming soon');

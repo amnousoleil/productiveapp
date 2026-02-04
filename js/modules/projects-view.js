@@ -54,9 +54,22 @@ const ProjectsView = (function() {
      * Get notes count for a project
      */
     function getProjectNotesCount(projectId) {
-        return typeof NotesModule !== 'undefined'
-            ? NotesModule.getNotesByProject(projectId).length
-            : 0;
+        try {
+            if (typeof NotesModule !== 'undefined' && typeof NotesModule.getNotesByProject === 'function') {
+                const notes = NotesModule.getNotesByProject(projectId);
+                return Array.isArray(notes) ? notes.length : 0;
+            }
+            if (typeof NotesModule !== 'undefined' && typeof NotesModule.getNotes === 'function') {
+                const notes = NotesModule.getNotes();
+                return Array.isArray(notes)
+                    ? notes.filter(n => n.project_id === projectId || n.projectId === projectId).length
+                    : 0;
+            }
+            return 0;
+        } catch (e) {
+            console.warn('Could not get notes count:', e);
+            return 0;
+        }
     }
 
     /**
