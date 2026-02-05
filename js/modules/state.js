@@ -71,7 +71,29 @@ const AppState = {
     restoreUser() {
         const saved = sessionStorage.getItem('currentUser');
         if (saved) {
-            this.currentUser = JSON.parse(saved);
+            let user = JSON.parse(saved);
+
+            // AUTO-MIGRATION: If ID is old format (not UUID), find and fix it
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (user && user.id && !uuidRegex.test(user.id)) {
+                console.warn('⚠️ Old ID format detected:', user.id, '- migrating...');
+                // Find matching user in config by name
+                if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
+                    const match = AppConfig.USERS.find(u =>
+                        u.name.toLowerCase() === user.name?.toLowerCase() ||
+                        u.id.toLowerCase() === user.id?.toLowerCase()
+                    );
+                    if (match && uuidRegex.test(match.id)) {
+                        console.log('✅ Migrated user ID:', user.id, '→', match.id);
+                        user.id = match.id;
+                        sessionStorage.setItem('currentUser', JSON.stringify(user));
+                        // Also fix localStorage
+                        localStorage.setItem('selectedMemberId', match.id);
+                    }
+                }
+            }
+
+            this.currentUser = user;
             return true;
         }
         return false;

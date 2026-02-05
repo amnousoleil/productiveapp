@@ -10,10 +10,57 @@ const App = {
     VERSION: '4.0.0',
 
     /**
+     * Migre les anciens IDs (format string) vers les nouveaux UUIDs
+     */
+    migrateOldIds() {
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+        // Migration du selectedMemberId dans localStorage
+        const savedMemberId = localStorage.getItem('selectedMemberId');
+        if (savedMemberId && !uuidRegex.test(savedMemberId)) {
+            console.warn('⚠️ Migrating old selectedMemberId:', savedMemberId);
+            if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
+                const match = AppConfig.USERS.find(u =>
+                    u.name.toLowerCase().includes(savedMemberId.toLowerCase()) ||
+                    savedMemberId.toLowerCase().includes(u.name.toLowerCase().split(' ')[0])
+                );
+                if (match && uuidRegex.test(match.id)) {
+                    console.log('✅ Migrated localStorage:', savedMemberId, '→', match.id);
+                    localStorage.setItem('selectedMemberId', match.id);
+                } else {
+                    // Can't migrate - clear it
+                    console.log('🧹 Clearing invalid selectedMemberId');
+                    localStorage.removeItem('selectedMemberId');
+                }
+            }
+        }
+
+        // Migration du currentUser dans AppState
+        if (typeof AppState !== 'undefined' && AppState.currentUser) {
+            if (AppState.currentUser.id && !uuidRegex.test(AppState.currentUser.id)) {
+                console.warn('⚠️ Migrating old currentUser.id:', AppState.currentUser.id);
+                if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
+                    const match = AppConfig.USERS.find(u =>
+                        u.name.toLowerCase() === AppState.currentUser.name?.toLowerCase()
+                    );
+                    if (match && uuidRegex.test(match.id)) {
+                        console.log('✅ Migrated currentUser.id:', AppState.currentUser.id, '→', match.id);
+                        AppState.currentUser.id = match.id;
+                        AppState.setUser(AppState.currentUser);
+                    }
+                }
+            }
+        }
+    },
+
+    /**
      * Initialise l'application après login
      */
     async init() {
         console.log(`🚀 ProductiveApp v${this.VERSION} - Initialisation...`);
+
+        // AUTO-MIGRATE old IDs to UUIDs
+        this.migrateOldIds();
 
         // GUARD: Ne pas initialiser si pas encore authentifié via AuthLogin
         if (typeof AuthLogin !== 'undefined' && !AuthLogin.authenticated) {
