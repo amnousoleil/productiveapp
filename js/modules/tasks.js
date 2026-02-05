@@ -36,10 +36,12 @@ const Tasks = {
         const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 2;
         let assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
 
-        // Validate UUID format - if not valid, set to null
+        // Validate UUID format - if not valid or empty, set to null
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (assignTo && !uuidRegex.test(assignTo)) {
-            console.warn('⚠️ Invalid UUID for assignTo:', assignTo, '- setting to null');
+        if (!assignTo || assignTo === '' || !uuidRegex.test(assignTo)) {
+            if (assignTo && assignTo !== '') {
+                console.warn('⚠️ Invalid UUID for assignTo:', assignTo, '- setting to null');
+            }
             assignTo = null;
         }
 
@@ -63,14 +65,22 @@ const Tasks = {
             if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
                 try {
                     const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
-                    result = await ApiTasks.create({
+                    const createData = {
                         title: text,
                         description: options.description || '',
-                        project_id: validProjectId === 'general' ? null : validProjectId,
                         priority: priorityMap[priorityLevel] || 'medium',
-                        assigned_to: assignTo,
                         status: 'todo'
-                    });
+                    };
+                    // Only add project_id if it's a valid UUID
+                    if (validProjectId && validProjectId !== 'general') {
+                        createData.project_id = validProjectId;
+                    }
+                    // Only add assigned_to if it's a valid UUID
+                    if (assignTo) {
+                        createData.assigned_to = assignTo;
+                    }
+                    console.log('📤 Sending to API:', createData);
+                    result = await ApiTasks.create(createData);
                 } catch (e) {
                     console.warn('⚠️ Tasks: Express API failed, falling back to N8N', e);
                 }
