@@ -129,6 +129,8 @@ const ApiDataLoader = (function() {
             project: t.project_id,
             project_id: t.project_id,
             assignee_id: t.assignee_id,
+            userId: t.assignee_id,
+            userName: typeof Utils !== 'undefined' ? Utils.getUserName(t.assignee_id) : '',
             due_date: t.due_date,
             created_at: t.created_at,
             updated_at: t.updated_at,
