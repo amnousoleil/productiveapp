@@ -34,15 +34,21 @@ const Tasks = {
 
         const projectId = options.project || Utils.$('project-select')?.value || 'general';
         const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 2;
-        const assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
+        let assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
 
-        // DEBUG: Log what's being sent
-        console.log('🔍 DEBUG Tasks.create:', {
-            assignTo,
-            'assign-select value': Utils.$('assign-select')?.value,
-            'currentUser.id': AppState.currentUser?.id,
-            'currentUser': AppState.currentUser
-        });
+        // Validate UUID format - if not valid, set to null
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        if (assignTo && !uuidRegex.test(assignTo)) {
+            console.warn('⚠️ Invalid UUID for assignTo:', assignTo, '- setting to null');
+            assignTo = null;
+        }
+
+        // Also validate projectId
+        let validProjectId = projectId;
+        if (projectId && projectId !== 'general' && !uuidRegex.test(projectId)) {
+            console.warn('⚠️ Invalid UUID for projectId:', projectId, '- setting to null');
+            validProjectId = null;
+        }
 
         // Désactiver le bouton
         const btn = Utils.$('add-task-btn');
@@ -60,7 +66,7 @@ const Tasks = {
                     result = await ApiTasks.create({
                         title: text,
                         description: options.description || '',
-                        project_id: projectId === 'general' ? null : projectId,
+                        project_id: validProjectId === 'general' ? null : validProjectId,
                         priority: priorityMap[priorityLevel] || 'medium',
                         assigned_to: assignTo,
                         status: 'todo'
