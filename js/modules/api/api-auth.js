@@ -29,7 +29,7 @@ const ApiAuth = (function() {
                 ApiTokens.setStoredUser(user);
 
                 // Fetch workspaces after login
-                const DEFAULT_WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
+                const DEFAULT_WORKSPACE_ID = 'd737eaec-b55f-4c3c-9d54-4ac6d5113b0f';
                 let workspaces = [];
                 try {
                     workspaces = await getWorkspacesInternal(accessToken);
@@ -92,7 +92,7 @@ const ApiAuth = (function() {
             ApiTokens.setStoredUser(user);
 
             // Fetch workspaces after registration
-            const DEFAULT_WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
+            const DEFAULT_WORKSPACE_ID = 'd737eaec-b55f-4c3c-9d54-4ac6d5113b0f';
             let workspaces = [];
             try {
                 workspaces = await getWorkspacesInternal(accessToken);

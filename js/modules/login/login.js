@@ -10,7 +10,7 @@ const AuthLogin = {
     currentPhase: null, // 'login' | 'member' | 'app'
 
     // Constantes
-    TEAM_EMAIL: 'contact@mahagiri.fr',
+    ALLOWED_DOMAIN: '@mahagiri.fr',
     CONTAINER_ID: 'auth-login-container',
 
     // =========================================
@@ -46,7 +46,7 @@ const AuthLogin = {
                         const member = AppConfig.USERS.find(u => u.id === savedMemberId);
                         if (member) {
                             console.log('✅ AuthLogin: Auto-login as', member.name);
-                            this.enterApp(member);
+                            await this.enterApp(member);
                             return;
                         }
                     }
@@ -171,8 +171,8 @@ const AuthLogin = {
             return;
         }
 
-        // Vérification email équipe
-        if (email !== this.TEAM_EMAIL) {
+        // Vérification email équipe (domaine @mahagiri.fr)
+        if (!email.endsWith(this.ALLOWED_DOMAIN)) {
             this.showError('Accès réservé à l\'équipe');
             return;
         }
@@ -280,7 +280,7 @@ const AuthLogin = {
         console.log('✅ AuthLogin: Member grid rendered with', AppConfig.USERS.length, 'members');
     },
 
-    selectMember(memberId) {
+    async selectMember(memberId) {
         const member = AppConfig.USERS.find(u => u.id === memberId);
         if (!member) {
             console.error('❌ AuthLogin: Member not found:', memberId);
@@ -294,20 +294,41 @@ const AuthLogin = {
         localStorage.setItem('selectedMemberId', memberId);
 
         // Entrer dans l'app
-        this.enterApp(member);
+        await this.enterApp(member);
     },
 
     // =========================================
     // PHASE 3 : ENTRÉE DANS L'APP
     // =========================================
-    enterApp(member) {
+    async enterApp(member) {
         console.log('🚀 AuthLogin: Entering app as', member.name);
 
         // 1. Mettre le flag AVANT tout
         this.authenticated = true;
         this.currentPhase = 'app';
 
-        // 2. Définir l'utilisateur courant
+        // 2. S'assurer que le workspace est défini
+        const DEFAULT_WORKSPACE_ID = 'd737eaec-b55f-4c3c-9d54-4ac6d5113b0f';
+        if (!ApiTokens.getWorkspaceId()) {
+            console.log('⚠️ AuthLogin: No workspace ID, fetching...');
+            try {
+                const workspaces = await ApiAuth.getWorkspaces();
+                if (workspaces && workspaces.length > 0) {
+                    ApiTokens.setWorkspaceId(workspaces[0].id);
+                    console.log('✅ Workspace set:', workspaces[0].id);
+                } else {
+                    ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
+                    console.log('⚠️ Using default workspace');
+                }
+            } catch (e) {
+                console.warn('Failed to fetch workspaces, using default:', e);
+                ApiTokens.setWorkspaceId(DEFAULT_WORKSPACE_ID);
+            }
+        } else {
+            console.log('✅ Workspace already set:', ApiTokens.getWorkspaceId());
+        }
+
+        // 3. Définir l'utilisateur courant
         if (typeof AppState !== 'undefined') {
             AppState.currentUser = {
                 ...(this.apiUser || {}),
@@ -317,7 +338,7 @@ const AuthLogin = {
             };
         }
 
-        // 3. SUPPRIMER le conteneur de login du DOM
+        // 4. SUPPRIMER le conteneur de login du DOM
         const container = document.getElementById(this.CONTAINER_ID);
         if (container) {
             container.remove();
@@ -331,20 +352,20 @@ const AuthLogin = {
             console.log('✅ AuthLogin: Old login-screen REMOVED from DOM');
         }
 
-        // 4. Ajouter la classe logged-in
+        // 5. Ajouter la classe logged-in
         document.body.classList.add('logged-in');
 
-        // 5. Afficher la vue tasks
+        // 6. Afficher la vue tasks
         document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
         const tasksView = document.getElementById('view-tasks');
         if (tasksView) {
             tasksView.classList.add('active');
         }
 
-        // 6. Initialiser l'app (une seule fois, le flag empêche la boucle)
+        // 7. Initialiser l'app (une seule fois, le flag empêche la boucle)
         if (typeof App !== 'undefined' && App.init) {
             console.log('🚀 AuthLogin: Calling App.init()...');
-            App.init().catch(err => console.error('App.init error:', err));
+            await App.init();
         }
 
         console.log('✅ AuthLogin: Entry complete!');

@@ -106,7 +106,7 @@ const Auth = {
      * Ensure workspace is set
      */
     async ensureWorkspace() {
-        const DEFAULT_WORKSPACE_ID = 'fd92221a-aaa2-42c9-9d06-f158b5adccc3';
+        const DEFAULT_WORKSPACE_ID = 'd737eaec-b55f-4c3c-9d54-4ac6d5113b0f';
         try {
             const workspaces = await ApiAuth.getWorkspaces();
             if (workspaces && workspaces.length > 0) {
@@ -321,12 +321,12 @@ const Auth = {
             return;
         }
 
-        // SECURITY: Only team email can access member picker
-        const TEAM_EMAIL = 'contact@mahagiri.fr';
-        console.log('🔒 Checking email:', email, '===', TEAM_EMAIL, '?', email === TEAM_EMAIL);
+        // SECURITY: Only team emails (@mahagiri.fr) can access member picker
+        const ALLOWED_DOMAIN = '@mahagiri.fr';
+        console.log('🔒 Checking email domain:', email, 'ends with', ALLOWED_DOMAIN, '?', email.endsWith(ALLOWED_DOMAIN));
 
-        if (email !== TEAM_EMAIL) {
-            console.log('❌ Email mismatch - access denied');
+        if (!email.endsWith(ALLOWED_DOMAIN)) {
+            console.log('❌ Email domain mismatch - access denied');
             if (errorEl) {
                 errorEl.textContent = '❌ Accès réservé à l\'équipe';
                 errorEl.style.animation = 'shake 0.5s ease';

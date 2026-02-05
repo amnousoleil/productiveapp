@@ -32,7 +32,9 @@ const Tasks = {
             return null;
         }
 
-        const projectId = options.project || Utils.$('project-select')?.value || 'general';
+        // Use: 1) explicit option, 2) dropdown value, 3) current project filter, 4) 'general'
+        const currentFilterProject = AppState.filters?.project !== 'all' ? AppState.filters.project : null;
+        const projectId = options.project || Utils.$('project-select')?.value || currentFilterProject || 'general';
         const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 2;
         let assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
 
@@ -66,6 +68,15 @@ const Tasks = {
             const hasWorkspace = typeof ApiTokens !== 'undefined' && ApiTokens.getWorkspaceId();
             const isAuthenticated = typeof ApiTokens !== 'undefined' && ApiTokens.isAuthenticated();
 
+            // DEBUG: Log auth state
+            console.log('🔍 DEBUG Task Create:', {
+                isApiTasksDefined,
+                hasWorkspace,
+                workspaceId: ApiTokens?.getWorkspaceId?.(),
+                isAuthenticated,
+                hasToken: !!ApiTokens?.getAccessToken?.()
+            });
+
             // Use Express API if we have a workspace (even without token for legacy auth)
             if (isApiTasksDefined && (isAuthenticated || hasWorkspace)) {
                 try {
@@ -84,11 +95,14 @@ const Tasks = {
                     if (assignTo) {
                         createData.assigned_to = assignTo;
                     }
-                    console.log('📤 Sending to API:', createData);
+                    console.log('📤 Sending to Express API:', createData);
                     result = await ApiTasks.create(createData);
+                    console.log('✅ Express API response:', result);
                 } catch (e) {
-                    console.warn('⚠️ Tasks: Express API failed, falling back to N8N', e);
+                    console.error('❌ Express API failed:', e.message, e);
                 }
+            } else {
+                console.warn('⚠️ Skipping Express API - conditions not met');
             }
 
             // Fallback to N8N

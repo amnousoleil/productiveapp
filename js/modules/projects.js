@@ -8,7 +8,25 @@ const Projects = {
      * Charge les projets depuis l'API
      */
     async load() {
-        const projects = await ApiService.loadProjects();
+        let projects = [];
+
+        // Utiliser l'API PostgreSQL si disponible
+        if (typeof ApiProjects !== 'undefined' && ApiTokens.getWorkspaceId()) {
+            console.log('📦 Loading projects via PostgreSQL API...');
+            try {
+                projects = await ApiProjects.getAll();
+                console.log('✅ Projects loaded via API:', projects.length);
+            } catch (error) {
+                console.error('❌ API projects load failed:', error);
+                // Fallback vers N8N
+                projects = await ApiService.loadProjects();
+            }
+        } else {
+            // Fallback N8N
+            console.log('📦 Loading projects via N8N fallback...');
+            projects = await ApiService.loadProjects();
+        }
+
         AppState.setProjects(projects);
         return projects;
     },
@@ -43,6 +61,13 @@ const Projects = {
                 document.querySelectorAll('.project-chip').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 AppState.setFilter('project', btn.dataset.project);
+
+                // Sync the project dropdown with the selected filter
+                const select = Utils.$('project-select');
+                if (select) {
+                    select.value = btn.dataset.project;
+                }
+
                 Tasks.render();
             });
         });
@@ -67,8 +92,11 @@ const Projects = {
     renderSelect() {
         const select = Utils.$('project-select');
         if (select) {
+            const currentFilter = AppState.filters?.project;
             select.innerHTML = '<option value="">Projet...</option>' +
-                AppState.projects.map(p => `<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
+                AppState.projects.map(p =>
+                    `<option value="${p.id}" ${currentFilter === p.id ? 'selected' : ''}>${p.icon} ${p.name}</option>`
+                ).join('');
         }
     },
 
@@ -156,24 +184,41 @@ const Projects = {
             name: name,
             icon: icons[Math.floor(Math.random() * icons.length)],
             color: colors[Math.floor(Math.random() * colors.length)],
-            desc: desc || name
+            description: desc || name
         };
 
-        const result = await ApiService.createProject(projectData);
+        let result = null;
+
+        // Utiliser l'API PostgreSQL si disponible
+        if (typeof ApiProjects !== 'undefined' && ApiTokens.getWorkspaceId()) {
+            console.log('📦 Creating project via PostgreSQL API...');
+            try {
+                result = await ApiProjects.create(projectData);
+                console.log('✅ Project created via API:', result);
+            } catch (error) {
+                console.error('❌ API project creation failed:', error);
+                // Fallback vers N8N
+                result = await ApiService.createProject(projectData);
+            }
+        } else {
+            // Fallback N8N
+            console.log('📦 Creating project via N8N fallback...');
+            result = await ApiService.createProject(projectData);
+        }
 
         if (result) {
             const newProject = {
-                id: result.project_id || Utils.generateId('proj'),
+                id: result.id || result.project_id || Utils.generateId('proj'),
                 name: result.name || projectData.name,
                 icon: result.icon || projectData.icon,
                 color: result.color || projectData.color,
-                desc: result.description || projectData.desc
+                desc: result.description || projectData.description
             };
 
             AppState.addProject(newProject);
             this.renderFilter();
             this.renderSelect();
-            console.log('✅ Projet ajouté:', projectData.name);
+            console.log('✅ Projet ajouté:', newProject.name, 'ID:', newProject.id);
         }
 
         this.closeModal();
@@ -198,9 +243,20 @@ const Projects = {
         const confirmed = await ConfirmModal.confirmDelete(`le projet "${project.name}"`);
         if (!confirmed) return;
 
-        // Supprimer de la DB si c'est un projet custom
-        if (projectId.startsWith('proj_')) {
-            await ApiService.deleteProject(projectId);
+        // Supprimer de la DB
+        try {
+            if (typeof ApiProjects !== 'undefined' && ApiTokens.getWorkspaceId()) {
+                console.log('🗑️ Deleting project via PostgreSQL API:', projectId);
+                await ApiProjects.remove(projectId);
+                console.log('✅ Project deleted via API');
+            } else if (projectId.startsWith('proj_')) {
+                // Fallback N8N pour anciens projets
+                await ApiService.deleteProject(projectId);
+            }
+        } catch (error) {
+            console.error('❌ Project deletion failed:', error);
+            Utils.notify('Erreur lors de la suppression du projet', 'error');
+            return;
         }
 
         AppState.removeProject(projectId);
