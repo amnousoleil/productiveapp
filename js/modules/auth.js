@@ -20,8 +20,8 @@ const Auth = {
             return;
         }
 
-        // SECURITY: Only team email allowed
-        const TEAM_EMAIL = 'contact@mahagiri.fr';
+        // SECURITY: Team emails allowed (all @mahagiri.fr addresses)
+        const ALLOWED_DOMAIN = '@mahagiri.fr';
 
         // Check for existing JWT session
         const accessToken = ApiTokens.getAccessToken();
@@ -33,8 +33,8 @@ const Auth = {
                 if (response && response.user) {
                     console.log('✅ Auth: Session valid for', response.user.email);
 
-                    // SECURITY: Only allow team email to access member picker
-                    if (response.user.email?.toLowerCase() !== TEAM_EMAIL) {
+                    // SECURITY: Only allow team emails (@mahagiri.fr) to access member picker
+                    if (!response.user.email?.toLowerCase().endsWith(ALLOWED_DOMAIN)) {
                         console.warn('⚠️ Auth: Non-team email, clearing session');
                         ApiTokens.clearTokens();
                         this.showLoginScreen();

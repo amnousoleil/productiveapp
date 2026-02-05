@@ -60,13 +60,14 @@ const Tasks = {
         }
 
         try {
-            // Try Express API first if authenticated
+            // Try Express API first if workspace is set (indicates valid session)
             let result = null;
             const isApiTasksDefined = typeof ApiTasks !== 'undefined';
+            const hasWorkspace = typeof ApiTokens !== 'undefined' && ApiTokens.getWorkspaceId();
             const isAuthenticated = typeof ApiTokens !== 'undefined' && ApiTokens.isAuthenticated();
-            console.log('🔍 API Check:', { isApiTasksDefined, isAuthenticated, ApiTokens: typeof ApiTokens });
 
-            if (isApiTasksDefined && isAuthenticated) {
+            // Use Express API if we have a workspace (even without token for legacy auth)
+            if (isApiTasksDefined && (isAuthenticated || hasWorkspace)) {
                 try {
                     const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
                     const createData = {
