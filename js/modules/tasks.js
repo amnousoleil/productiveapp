@@ -62,7 +62,11 @@ const Tasks = {
         try {
             // Try Express API first if authenticated
             let result = null;
-            if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
+            const isApiTasksDefined = typeof ApiTasks !== 'undefined';
+            const isAuthenticated = typeof ApiTokens !== 'undefined' && ApiTokens.isAuthenticated();
+            console.log('🔍 API Check:', { isApiTasksDefined, isAuthenticated, ApiTokens: typeof ApiTokens });
+
+            if (isApiTasksDefined && isAuthenticated) {
                 try {
                     const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
                     const createData = {
