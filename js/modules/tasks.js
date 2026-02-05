@@ -36,6 +36,14 @@ const Tasks = {
         const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 2;
         const assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
 
+        // DEBUG: Log what's being sent
+        console.log('🔍 DEBUG Tasks.create:', {
+            assignTo,
+            'assign-select value': Utils.$('assign-select')?.value,
+            'currentUser.id': AppState.currentUser?.id,
+            'currentUser': AppState.currentUser
+        });
+
         // Désactiver le bouton
         const btn = Utils.$('add-task-btn');
         if (btn) {
