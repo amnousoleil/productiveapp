@@ -29,42 +29,42 @@ const AppConfig = {
     // Chaque membre a son onboarding privé et peut filtrer ses propres tâches
     USERS: [
         {
-            id: 'maha',
+            id: 'dd8db965-df93-4274-9ae9-8847a58730d3',
             name: 'Maha Giri',
             avatar: '👑',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png',
             role: 'boss'
         },
         {
-            id: 'brice',
+            id: '7ea300fa-b086-4215-8641-bdb4dfb0c543',
             name: 'Brice',
             avatar: '🚀',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697ff503b4fa8_ChatGPTImage2f%C3%A9vr.202601_51_06.png',
             role: 'team'
         },
         {
-            id: 'lilian',
+            id: 'fae3f5c9-c032-47f6-a7cd-45c510edf2ec',
             name: 'Lilian',
             avatar: '🎯',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
             role: 'team'
         },
         {
-            id: 'miheko',
+            id: 'a62984e6-d424-4803-a7c7-d55ab0814fad',
             name: 'Mihéko',
             avatar: '✨',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
             role: 'team'
         },
         {
-            id: 'karima',
+            id: 'dc1b4c74-9da5-48c0-8057-a159cc661cb9',
             name: 'Karima',
             avatar: '💫',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
             role: 'team'
         },
         {
-            id: 'edna',
+            id: '948f61a5-136a-4ff5-b4c2-aeb1e945a3a2',
             name: 'Edna',
             avatar: '❤️',
             loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',

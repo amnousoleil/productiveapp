@@ -54,7 +54,7 @@ const Tasks = {
                         description: options.description || '',
                         project_id: projectId === 'general' ? null : projectId,
                         priority: priorityMap[priorityLevel] || 'medium',
-                        assignee_id: assignTo,
+                        assigned_to: assignTo,
                         status: 'todo'
                     });
                 } catch (e) {
@@ -103,8 +103,8 @@ const Tasks = {
                     status: result.status === 'in_progress' ? 'inprogress' : (result.status || 'todo'),
                     priority: { level: { urgent: 1, high: 2, medium: 3, low: 4 }[result.priority] || priorityLevel, label: Utils.getPriorityLabel({ urgent: 1, high: 2, medium: 3, low: 4 }[result.priority] || priorityLevel) },
                     project: result.project_id || projectId,
-                    userId: result.assignee_id || assignTo,
-                    userName: Utils.getUserName(result.assignee_id || assignTo),
+                    userId: result.assigned_to || assignTo,
+                    userName: Utils.getUserName(result.assigned_to || assignTo),
                     position: result.position || 0,
                     createdAt: result.created_at,
                     updatedAt: result.updated_at
@@ -392,7 +392,7 @@ const Tasks = {
                     description: newDescription,
                     project_id: newProjectId === 'general' ? null : newProjectId,
                     priority: priorityMap[newPriority] || 'medium',
-                    assignee_id: newUserId
+                    assigned_to: newUserId
                 };
                 console.log('📋 Update data:', updateData);
                 await ApiTasks.update(taskId, updateData);

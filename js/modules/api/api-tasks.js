@@ -159,14 +159,14 @@ const ApiTasks = (function() {
      * Assign task to user
      */
     async function assign(taskId, userId) {
-        return update(taskId, { assignee_id: userId });
+        return update(taskId, { assigned_to: userId });
     }
 
     /**
      * Unassign task
      */
     async function unassign(taskId) {
-        return update(taskId, { assignee_id: null });
+        return update(taskId, { assigned_to: null });
     }
 
     /**
