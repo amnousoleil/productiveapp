@@ -11,8 +11,8 @@ const ThemeAuto = (function() {
     let mediaQuery = null;
 
     // Thèmes clairs et sombres
-    const LIGHT_THEMES = ['ivory', 'paper', 'porcelain', 'sakura', 'mint', 'pastel', 'zen', 'nordic', 'watercolor'];
-    const DARK_THEMES = ['executive', 'obsidian', 'midnight', 'matrix', 'cyberpunk', 'cosmic', 'tron'];
+    const LIGHT_THEMES = ['ivory', 'paper', 'porcelain', 'sakura', 'mint', 'pastel', 'zen', 'nordic', 'watercolor', 'printemps', 'ete', 'pearl', 'snow', 'bamboo', 'provence'];
+    const DARK_THEMES = ['executive', 'obsidian', 'midnight', 'matrix', 'cyberpunk', 'cosmic', 'tron', 'amethyst', 'ruby', 'bioluminescence', 'hiver'];
 
     function init() {
         mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');

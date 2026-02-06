@@ -30,6 +30,7 @@ const ApiTasks = (function() {
         if (params.status) queryParams.set('status', params.status);
         if (params.priority) queryParams.set('priority', params.priority);
         if (params.assigneeId) queryParams.set('assignee_id', params.assigneeId);
+        if (params.userId) queryParams.set('user_id', params.userId);
         if (params.search) queryParams.set('search', params.search);
         if (params.dueBefore) queryParams.set('due_before', params.dueBefore);
         if (params.dueAfter) queryParams.set('due_after', params.dueAfter);

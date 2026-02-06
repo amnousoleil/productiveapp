@@ -104,11 +104,13 @@ const App = {
             if (typeof AccountingView !== 'undefined' && AccountingView.init) AccountingView.init();
             if (typeof PsychoAuditView !== 'undefined' && PsychoAuditView.init) PsychoAuditView.init();
             if (typeof AIReportsView !== 'undefined' && AIReportsView.init) AIReportsView.init();
+            if (typeof TeamVisionView !== 'undefined' && TeamVisionView.init) TeamVisionView.init();
 
             // Initialiser le drag & drop
             setTimeout(() => {
                 if (typeof initDragAndDrop === 'function') initDragAndDrop();
                 if (typeof initAnimation === 'function') initAnimation();
+                if (typeof AnimationControls !== 'undefined' && AnimationControls.init) AnimationControls.init();
             }, 100);
 
             // CRITICAL: Ensure all modals are closed on startup

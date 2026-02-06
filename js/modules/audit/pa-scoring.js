@@ -136,7 +136,13 @@ const PaScoring = (function() {
         relationships: "Planifie un moment de connexion authentique (pas transactionnel) avec quelqu'un cette semaine.",
         resilience: "Après chaque échec, écris : Ce que j'ai appris + Ce que je fais différemment.",
         growth: "Bloque 30 min par semaine pour apprendre quelque chose de nouveau, sans exception.",
-        impact: "Identifie une action concrète qui bénéficie à quelqu'un d'autre que toi cette semaine."
+        impact: "Identifie une action concrète qui bénéficie à quelqu'un d'autre que toi cette semaine.",
+        emotional_reg: "Pratique le protocole TIPP (Temperature, Exercice intense, Respiration, Relaxation musculaire) lors de la prochaine vague émotionnelle.",
+        somatic: "Fais un body scan de 10 min chaque soir : parcours ton corps de la tête aux pieds en observant chaque sensation.",
+        shadow: "Identifie un trait qui t'agace chez quelqu'un cette semaine. Cherche honnêtement sa version cachée en toi.",
+        spiritual: "10 minutes de silence complet par jour. Pas de méditation guidée. Juste toi et le silence. Observe ce qui émerge.",
+        inner_child: "Écris une lettre bienveillante à toi-même enfant. Dis-lui ce que tu aurais aimé entendre à l'époque.",
+        presence: "Pratique l'espace de respiration 3 minutes (MBCT) : 3 fois par jour, entre deux activités. Conscience → Respiration → Expansion."
     };
 
     var RECS_HIGH = {
@@ -149,7 +155,13 @@ const PaScoring = (function() {
         relationships: "Identifie une relation à approfondir et propose une collaboration ou projet commun.",
         resilience: "Expose-toi volontairement à un inconfort contrôlé pour élargir ta zone de confort.",
         growth: "Enseigne ce que tu sais à quelqu'un d'autre - c'est le meilleur test de maîtrise.",
-        impact: "Mesure ton impact réel : combien de personnes as-tu aidées ce mois-ci et comment ?"
+        impact: "Mesure ton impact réel : combien de personnes as-tu aidées ce mois-ci et comment ?",
+        emotional_reg: "Pratique l'action opposée (DBT) : quand l'émotion est injustifiée, fais l'inverse de ce qu'elle te pousse à faire.",
+        somatic: "Expérimente la pendulation somatique (Levine) : alterne entre zone agréable et zone de tension dans le corps.",
+        shadow: "Initie un dialogue intérieur avec ta partie la plus rejetée. Demande-lui : 'Quel cadeau portes-tu ?'",
+        spiritual: "Pratique Vipassana 20 min : balayage corporel avec équanimité totale. Observe l'impermanence de TOUTE sensation.",
+        inner_child: "Tu as déjà intégré ton enfant intérieur. Maintenant, deviens le mentor que tu aurais aimé avoir.",
+        presence: "Expérimente une journée en pleine conscience continue : chaque geste, chaque pas, chaque parole - avec conscience totale."
     };
 
     function getDetailedRecommendations(axeScores) {

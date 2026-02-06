@@ -71,7 +71,7 @@ const lerp = (a, b, t) => a + (b - a) * t;
 const dist = (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1);
 const rand = (a, b) => Math.random() * (b - a) + a;
 const Q_MULT = { low: 0.25, medium: 0.55, high: 0.8, ultra: 1.0 };
-const cap = (base, q) => Math.max(1, (base * (Q_MULT[q] || 0.8)) | 0);
+const cap = (base, q) => Math.max(1, (base * (Q_MULT[q] || 0.8) * Math.max(0.15, intensityFactor)) | 0);
 const Q_STEP = { low: 16, medium: 10, high: 6, ultra: 4 };
 function getStep() { return Q_STEP[quality] || 6; }
 
@@ -186,6 +186,10 @@ let quality = 'high';
 let state = {}, fadeIn = 0;
 let canvasScale = 1;
 let frameSkipCounter = 0;
+// Intensity system (controlled by AnimationControls)
+let intensityFactor = 0.45;  // 0.0 to 1.0
+let intensityTarget = 0.45;
+let intensityRaw = 45;       // 0-100 user-facing value
 const Q_SCALE = { low: 0.5, medium: 0.75, high: 1, ultra: 1 };
 
 function applyResolution() {
@@ -204,7 +208,9 @@ function resize() {
 
 function glow(blur, color) {
     if (quality === 'low' || quality === 'medium') return;
-    ctx.shadowBlur = quality === 'high' ? blur * 0.6 : blur;
+    if (intensityFactor < 0.3) return;
+    var glowMult = Math.max(0, (intensityFactor - 0.3) / 0.7);
+    ctx.shadowBlur = (quality === 'high' ? blur * 0.6 : blur) * glowMult;
     ctx.shadowColor = color;
 }
 function noGlow() { ctx.shadowBlur = 0; }
@@ -259,7 +265,31 @@ const TC = {
     'art-deco':  { type: 'particles', c: ['#C8A040','#E0C060'], a: 0.5 },
     watercolor:  { type: 'shimmer',   c: ['#8888C0','#A8A8D8','#9898B8'], a: 0.15 },
     nordic:      { type: 'shimmer',   c: ['#5A7A6A','#78A890','#90C0A8'], a: 0.12 },
-    cosmic:      { type: 'stars',     c: ['#9966FF','#B888FF','#7744DD'], a: 0.8 }
+    cosmic:      { type: 'stars',     c: ['#9966FF','#B888FF','#7744DD'], a: 0.8 },
+    // SAISONS
+    printemps:   { type: 'shimmer',   c: ['#78B464','#98D080','#B8E8A0'], a: 0.15 },
+    ete:         { type: 'shimmer',   c: ['#2890C0','#48B0E0','#F0D080'], a: 0.15 },
+    automne:     { type: 'fireflies', c: ['#C85A28','#E07840','#D8A030'], a: 0.65 },
+    hiver:       { type: 'stars',     c: ['#88B8E0','#A8D0F0','#C0D8F0'], a: 0.6 },
+    // PRÉCIEUX
+    amethyst:    { type: 'stars',     c: ['#9060D8','#B080F0','#7040B8'], a: 0.7 },
+    jade:        { type: 'fireflies', c: ['#40A878','#60C898','#308860'], a: 0.55 },
+    ruby:        { type: 'particles', c: ['#D83040','#F05060'], a: 0.6 },
+    pearl:       { type: 'shimmer',   c: ['#A098B0','#B8B0C8','#D0C8D8'], a: 0.12 },
+    copper:      { type: 'fireflies', c: ['#C87850','#E09870','#A06038'], a: 0.5 },
+    // VOYAGE
+    sahara:      { type: 'desert',    c: ['#D2AF5A','#E8C878','#C09838'], a: 0.65 },
+    fjord:       { type: 'waves',     c: ['#3C8296','#58A8C0','#286878'], a: 0.6 },
+    bamboo:      { type: 'shimmer',   c: ['#64803C','#88A858','#A0C070'], a: 0.12 },
+    bali:        { type: 'ocean',     c: ['#00B496','#30D8B8','#008870'], a: 0.75 },
+    provence:    { type: 'shimmer',   c: ['#8C6EA0','#A888C0','#C0A0D0'], a: 0.15 },
+    // ADDITIONS
+    moss:        { type: 'forest',    c: ['#507832','#70A048','#3A5A20'], a: 0.6 },
+    ember:       { type: 'fireflies', c: ['#DC5020','#F07040','#FF9060'], a: 0.7 },
+    snow:        { type: 'shimmer',   c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.1 },
+    charcoal:    { type: 'particles', c: ['#909AA4','#B0B8C0'], a: 0.35 },
+    bioluminescence: { type: 'ocean', c: ['#00C8DC','#40E8F0','#00E8A0'], a: 0.85 },
+    'ukiyo-e':   { type: 'particles', c: ['#B45038','#D07050'], a: 0.5 }
 };
 
 // ==========================================================
@@ -858,9 +888,10 @@ function initTheme() {
     const theme = getCurrentTheme();
     const cfg = TC[theme];
 
-    // Set canvas opacity per theme
+    // Set canvas opacity per theme, scaled by intensity
     if (canvas) {
-        canvas.style.opacity = cfg ? String(cfg.a) : '0.7';
+        var baseOpacity = cfg ? cfg.a : 0.7;
+        canvas.style.opacity = String(baseOpacity * Math.max(0.05, intensityFactor));
     }
 
     if (ctx) { ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0); ctx.clearRect(0, 0, W, H); }
@@ -883,6 +914,19 @@ function loop(ts) {
     if (quality === 'low') { frameSkipCounter = (frameSkipCounter + 1) % 2; if (frameSkipCounter !== 0) { requestAnimationFrame(loop); return; } }
     if (fadeIn < 1) fadeIn = Math.min(1, fadeIn + dt * 2.5);
 
+    // Smooth intensity transitions
+    if (Math.abs(intensityFactor - intensityTarget) > 0.001) {
+        intensityFactor = lerp(intensityFactor, intensityTarget, Math.min(1, dt * 4));
+    } else {
+        intensityFactor = intensityTarget;
+    }
+    // Skip rendering entirely if intensity is effectively zero
+    if (intensityFactor < 0.01) {
+        if (ctx) ctx.clearRect(0, 0, W, H);
+        requestAnimationFrame(loop);
+        return;
+    }
+
     const theme = getCurrentTheme();
     const cfg = TC[theme];
     if (cfg) {
@@ -899,11 +943,36 @@ function loop(ts) {
 // ==========================================================
 // SECTION 9: ENGINE INIT, RESET & GLOBAL API
 // ==========================================================
+// ==========================================================
+// SECTION 8.5: INTENSITY API
+// ==========================================================
+function setIntensity(value) {
+    intensityRaw = Math.max(0, Math.min(100, value));
+    intensityTarget = intensityRaw / 100;
+    // Update canvas opacity immediately for responsive feel
+    if (canvas) {
+        var theme = getCurrentTheme();
+        var cfg = TC[theme];
+        var baseOpacity = cfg ? cfg.a : 0.7;
+        canvas.style.opacity = String(baseOpacity * Math.max(0.05, intensityTarget));
+    }
+}
+
 function engineInit() {
     canvas = document.getElementById('matrix-bg');
     if (!canvas) return;
     ctx = canvas.getContext('2d');
     canvas.style.transition = 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+
+    // Load saved intensity
+    try {
+        var savedIntensity = localStorage.getItem('productiveapp_animation_intensity');
+        if (savedIntensity !== null) {
+            intensityRaw = parseInt(savedIntensity, 10) || 45;
+            intensityFactor = intensityRaw / 100;
+            intensityTarget = intensityFactor;
+        }
+    } catch (e) {}
 
     const deviceScore = Perf.detectDevice();
     resize();
@@ -933,7 +1002,14 @@ function engineReset() {
 
 window.initAnimation = engineInit;
 window.resetAnimationForTheme = engineReset;
+window.AnimEngine = {
+    setIntensity: setIntensity,
+    getIntensity: function() { return intensityRaw; },
+    getIntensityFactor: function() { return intensityFactor; },
+    getQuality: function() { return quality; },
+    reinit: function() { applyResolution(); initTheme(); }
+};
 
 })();
 
-console.log('animations.js v4.0 loaded');
+console.log('animations.js v4.1 loaded (intensity system)');

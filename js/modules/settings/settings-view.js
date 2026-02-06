@@ -45,6 +45,7 @@ const SettingsView = (function() {
             SettingsRender.renderTheme(currentTheme, themes, icons) +
             SettingsRender.renderNotifications(notifications, icons) +
             SettingsRender.renderSidebar(sidebarCompact, icons) +
+            SettingsRender.renderAnimations(icons) +
             SettingsRender.renderWorkspace(workspace, icons) +
             SettingsRender.renderTeam() +
             SettingsRender.renderData(icons) +
@@ -113,6 +114,20 @@ const SettingsView = (function() {
     }
 
     /**
+     * Set animation intensity - delegate to actions
+     */
+    function setAnimIntensity(value) {
+        SettingsActions.setAnimIntensity(value);
+    }
+
+    /**
+     * Set animation preset - delegate to actions
+     */
+    function setAnimPreset(presetKey) {
+        SettingsActions.setAnimPreset(presetKey);
+    }
+
+    /**
      * Refresh/render the view
      */
     function refresh() {
@@ -138,7 +153,9 @@ const SettingsView = (function() {
         clearCache: clearCache,
         saveProfile: saveProfile,
         saveWorkspace: saveWorkspace,
-        setWorkspaceIcon: setWorkspaceIcon
+        setWorkspaceIcon: setWorkspaceIcon,
+        setAnimIntensity: setAnimIntensity,
+        setAnimPreset: setAnimPreset
     };
 })();
 

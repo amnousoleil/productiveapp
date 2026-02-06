@@ -235,6 +235,33 @@ const Auth = {
     /**
      * Select a team member
      */
+    /**
+     * Fallback: select user directly from API data (no AppConfig match)
+     */
+    selectMemberDirect(apiUser) {
+        console.log('🎯 Auth.selectMemberDirect() for:', apiUser.name);
+        localStorage.setItem('selectedMemberId', apiUser.id);
+        AppState.currentUser = {
+            ...apiUser,
+            avatar: '👤',
+            role: 'team'
+        };
+        this.authenticated = true;
+        try {
+            const loginScreen = document.getElementById('login-screen');
+            if (loginScreen) loginScreen.remove();
+            document.body.classList.add('logged-in');
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            const tasksView = document.getElementById('view-tasks');
+            if (tasksView) tasksView.classList.add('active');
+            if (typeof App !== 'undefined' && App.init) {
+                App.init().catch(err => console.error('App.init error:', err));
+            }
+        } catch (error) {
+            console.error('❌ Entry error:', error);
+        }
+    },
+
     selectMember(memberId) {
         console.log('🎯 Auth.selectMember() called with:', memberId);
 
@@ -322,10 +349,11 @@ const Auth = {
         }
 
         // SECURITY: Only team emails (@mahagiri.fr) can access member picker
-        const ALLOWED_DOMAIN = '@mahagiri.fr';
-        console.log('🔒 Checking email domain:', email, 'ends with', ALLOWED_DOMAIN, '?', email.endsWith(ALLOWED_DOMAIN));
+        const ALLOWED_DOMAINS = ['@mahagiri.fr', '@giri-app.com'];
+        const domainOk = ALLOWED_DOMAINS.some(d => email.endsWith(d));
+        console.log('🔒 Checking email domain:', email, 'allowed?', domainOk);
 
-        if (!email.endsWith(ALLOWED_DOMAIN)) {
+        if (!domainOk) {
             console.log('❌ Email domain mismatch - access denied');
             if (errorEl) {
                 errorEl.textContent = '❌ Accès réservé à l\'équipe';
@@ -350,8 +378,16 @@ const Auth = {
                 this.apiUser = result.user;
                 console.log('✅ Auth: API login successful for team');
 
-                // Show member picker (only for team email)
-                this.showMemberPicker();
+                // Auto-select member matching user ID (no member picker)
+                const matchedMember = AppConfig.USERS.find(u => u.id === result.user.id);
+                if (matchedMember) {
+                    console.log('✅ Auth: Auto-selecting member:', matchedMember.name);
+                    this.selectMember(matchedMember.id);
+                } else {
+                    // Fallback: create member profile from API user data
+                    console.log('✅ Auth: No matching member in config, using API user directly');
+                    this.selectMemberDirect(result.user);
+                }
                 return;
             }
         } catch (e) {

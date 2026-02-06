@@ -195,7 +195,7 @@ const Dashboard = (function() {
             <div class="view-header">
                 <h1 class="view-title">
                     <span class="view-title-icon">${icons.home}</span>
-                    Dashboard
+                    Dashboard ${AppState?.currentUser?.name ? 'de ' + escapeHtml(AppState.currentUser.name) : ''}
                 </h1>
                 <div class="view-actions">
                     <button class="btn btn-secondary" onclick="Dashboard.refresh()">

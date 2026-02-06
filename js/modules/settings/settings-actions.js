@@ -116,6 +116,45 @@ const SettingsActions = (function() {
     function exportData() { SettingsData.exportData(); }
     function clearCache() { SettingsData.clearCache(); }
 
+    /**
+     * Set animation intensity
+     */
+    function setAnimIntensity(value) {
+        var intensity = parseInt(value, 10);
+        if (typeof AnimationControls !== 'undefined') {
+            AnimationControls.setIntensity(intensity);
+        }
+        var valEl = document.getElementById('settings-anim-value');
+        if (valEl) valEl.textContent = intensity + '%';
+    }
+
+    /**
+     * Set animation preset
+     */
+    function setAnimPreset(presetKey) {
+        if (typeof AnimationControls !== 'undefined') {
+            AnimationControls.setPreset(presetKey);
+        }
+        // Update preset button highlights in settings
+        document.querySelectorAll('.settings-anim-preset').forEach(function(btn) {
+            var isActive = btn.getAttribute('data-preset') === presetKey;
+            btn.classList.toggle('active', isActive);
+            btn.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
+            btn.style.background = isActive ? 'var(--bg-card)' : 'transparent';
+            btn.style.color = isActive ? 'var(--accent)' : 'var(--text-muted)';
+            btn.style.boxShadow = isActive ? '0 0 8px var(--accent-glow, rgba(99,102,241,0.2))' : 'none';
+        });
+        // Update slider to match preset intensity
+        var slider = document.getElementById('settings-anim-slider');
+        var valEl = document.getElementById('settings-anim-value');
+        if (slider && typeof AnimationControls !== 'undefined') {
+            var newVal = AnimationControls.getIntensity();
+            slider.value = String(newVal);
+            if (valEl) valEl.textContent = newVal + '%';
+        }
+        showToast('Animation: ' + presetKey);
+    }
+
     return {
         saveNotificationSettings: saveNotificationSettings,
         toggleSidebarCompact: toggleSidebarCompact,
@@ -127,7 +166,9 @@ const SettingsActions = (function() {
         toggleSidebar: toggleSidebar,
         saveProfile: saveProfile,
         saveWorkspace: saveWorkspace,
-        setWorkspaceIcon: setWorkspaceIcon
+        setWorkspaceIcon: setWorkspaceIcon,
+        setAnimIntensity: setAnimIntensity,
+        setAnimPreset: setAnimPreset
     };
 })();
 

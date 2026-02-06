@@ -3,7 +3,7 @@
  * PWA avec cache intelligent - network-first pour CSS/JS
  */
 
-const CACHE_VERSION = 'v9-modal-layout-fix';
+const CACHE_VERSION = 'v10-animation-controls';
 const STATIC_CACHE = 'static-' + CACHE_VERSION;
 const API_CACHE = 'api-' + CACHE_VERSION;
 

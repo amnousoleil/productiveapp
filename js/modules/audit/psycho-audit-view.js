@@ -1,6 +1,9 @@
 /**
- * PSYCHO-AUDIT VIEW - Orchestrator
- * ProductiveApp v5.0
+ * PSYCHO-AUDIT VIEW - Orchestrator v6.0 Premium
+ * ProductiveApp v6.0
+ *
+ * Routes to PaPremiumUI for the full multi-tab experience
+ * while maintaining backward compatibility with existing modules.
  */
 
 const PsychoAuditView = (function() {
@@ -28,8 +31,13 @@ const PsychoAuditView = (function() {
 
         PaStyles.inject();
 
-        var state = PaState.getState();
-        container.innerHTML = PaRender.renderLayout(state.showResults);
+        // Use Premium UI if available, fallback to classic
+        if (typeof PaPremiumUI !== 'undefined') {
+            PaPremiumUI.renderPremiumView();
+        } else {
+            var state = PaState.getState();
+            container.innerHTML = PaRender.renderLayout(state.showResults);
+        }
     }
 
     function setAnswer(questionId, value) {
@@ -70,7 +78,7 @@ const PsychoAuditView = (function() {
         if (hasInitialized) return;
         hasInitialized = true;
 
-        console.log('🧠 PsychoAuditView: Initializing...');
+        console.log('🧠 PsychoAuditView v6.0 Premium: Initializing...');
 
         // Load history from API
         var history = await PaApi.loadHistory();

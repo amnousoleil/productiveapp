@@ -11,6 +11,11 @@ const ApiNotes = (function() {
     }
 
     function getMemberId() {
+        // Use current user's ID for per-user note isolation
+        if (typeof AppState !== 'undefined' && AppState.currentUser?.id && AppState.currentUser.id !== 'all') {
+            return AppState.currentUser.id;
+        }
+        // Fallback to localStorage
         const id = localStorage.getItem('selectedMemberId');
         return (id && id !== 'all') ? id : null;
     }

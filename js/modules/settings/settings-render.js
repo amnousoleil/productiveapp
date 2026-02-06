@@ -177,6 +177,48 @@ const SettingsRender = (function() {
         return typeof SettingsTeam !== 'undefined' ? SettingsTeam.render() : '';
     }
 
+    function renderAnimations(icons) {
+        var intensity = SettingsState.getAnimationIntensity();
+        var preset = SettingsState.getAnimationPreset();
+        var presets = [
+            { key: 'zen', label: 'Zen', icon: '\u2728' },
+            { key: 'elegant', label: '\u00C9l\u00E9gant', icon: '\uD83C\uDF38' },
+            { key: 'dynamic', label: 'Dynamic', icon: '\u26A1' },
+            { key: 'spectacular', label: 'Spectacle', icon: '\uD83C\uDF86' },
+            { key: 'cinematic', label: 'Cin\u00E9ma', icon: '\uD83C\uDFAC' }
+        ];
+
+        var presetsHtml = presets.map(function(p) {
+            return '<button class="settings-anim-preset" ' +
+                'data-preset="' + p.key + '" onclick="SettingsView.setAnimPreset(\'' + p.key + '\')" ' +
+                'style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:10px;' +
+                'border:1.5px solid ' + (preset === p.key ? 'var(--accent)' : 'var(--border)') + ';' +
+                'background:' + (preset === p.key ? 'var(--bg-card)' : 'transparent') + ';' +
+                'color:' + (preset === p.key ? 'var(--accent)' : 'var(--text-muted)') + ';' +
+                'cursor:pointer;font-size:11px;font-weight:500;font-family:inherit;' +
+                (preset === p.key ? 'box-shadow:0 0 8px var(--accent-glow, rgba(99,102,241,0.2));' : '') + '">' +
+                '<span style="font-size:20px;">' + p.icon + '</span>' +
+                '<span>' + p.label + '</span>' +
+            '</button>';
+        }).join('');
+
+        return '<section class="settings-section">' +
+            '<h2 class="settings-section-title">' + icons.sparkles + '<span>Animations</span></h2>' +
+            '<div class="settings-card" style="padding: 20px;">' +
+                '<p style="font-size:14px;color:var(--text);margin:0 0 14px;">Preset d\'animation</p>' +
+                '<div style="display:flex;gap:8px;margin-bottom:20px;">' + presetsHtml + '</div>' +
+                '<p style="font-size:14px;color:var(--text);margin:0 0 8px;">Intensit\u00E9 : <span id="settings-anim-value" style="color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums;">' + intensity + '%</span></p>' +
+                '<input type="range" min="0" max="100" value="' + intensity + '" ' +
+                    'id="settings-anim-slider" ' +
+                    'oninput="SettingsView.setAnimIntensity(this.value)" ' +
+                    'style="width:100%;accent-color:var(--accent);height:6px;border-radius:3px;">' +
+                '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:6px;">' +
+                    '<span>Aucune</span><span>Maximale</span>' +
+                '</div>' +
+            '</div>' +
+        '</section>';
+    }
+
     return {
         renderProfile: renderProfile,
         renderTheme: renderTheme,
@@ -184,6 +226,7 @@ const SettingsRender = (function() {
         renderSidebar: renderSidebar,
         renderWorkspace: renderWorkspace,
         renderTeam: renderTeam,
+        renderAnimations: renderAnimations,
         renderData: renderData,
         renderAbout: renderAbout,
         renderLogout: renderLogout

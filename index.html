@@ -22,13 +22,14 @@
     <!-- CSS -->
     <link rel="stylesheet" href="css/style-base.css?v=999">
     <link rel="stylesheet" href="css/style-components.css?v=999">
-    <link rel="stylesheet" href="css/style-themes.css?v=999">
+    <link rel="stylesheet" href="css/style-themes.css?v=1100">
     <link rel="stylesheet" href="css/style-dragdrop.css?v=999">
     <link rel="stylesheet" href="css/sidebar.css?v=999">
     <link rel="stylesheet" href="css/style-sidebar.css?v=999">
     <link rel="stylesheet" href="css/sidebar-nav.css?v=999">
-    <link rel="stylesheet" href="css/sidebar-themes.css?v=999">
-    <link rel="stylesheet" href="css/animations.css?v=999">
+    <link rel="stylesheet" href="css/sidebar-themes.css?v=1100">
+    <link rel="stylesheet" href="css/animations.css?v=1200">
+    <link rel="stylesheet" href="css/animation-controls.css?v=100">
     <link rel="stylesheet" href="css/dashboard.css?v=999">
     <link rel="stylesheet" href="css/notes-editor.css?v=1001">
     <link rel="stylesheet" href="css/notes-ai.css?v=1001">
@@ -40,11 +41,12 @@
     <link rel="stylesheet" href="css/notifications.css?v=999">
     <link rel="stylesheet" href="css/analytics.css?v=999">
     <link rel="stylesheet" href="css/reports.css?v=999">
-    <link rel="stylesheet" href="css/style-overrides.css?v=1003">
+    <link rel="stylesheet" href="css/style-overrides.css?v=1100">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=999">
     <link rel="stylesheet" href="css/style-views.css?v=1002">
     <link rel="stylesheet" href="css/galaxy.css?v=999">
+    <link rel="stylesheet" href="css/team-vision.css?v=1010">
     <link rel="stylesheet" href="css/pwa.css?v=999">
 
     <!-- PDF export -->
@@ -135,6 +137,11 @@
         <!-- Dashboard View -->
         <div id="view-dashboard" class="view-container">
             <!-- Rendered by Dashboard.js -->
+        </div>
+
+        <!-- Team Vision View -->
+        <div id="view-team-vision" class="view-container">
+            <!-- Rendered by TeamVisionView -->
         </div>
 
         <!-- Notes View -->
@@ -490,6 +497,11 @@
                         <span class="theme-name">Sakura</span>
                         <span class="theme-subtitle">Cerisier</span>
                     </div>
+                    <div class="theme-card" data-theme="moss">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0A0E08 0%, #141C10 50%, #507832 100%);"></div>
+                        <span class="theme-name">Moss</span>
+                        <span class="theme-subtitle">Sous-Bois</span>
+                    </div>
                 </div>
             </div>
 
@@ -532,6 +544,11 @@
                         <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0e14 0%, #141a22 50%, #6B8DB5 100%);"></div>
                         <span class="theme-name">Storm</span>
                         <span class="theme-subtitle">Orage Électrique</span>
+                    </div>
+                    <div class="theme-card" data-theme="ember">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #180808 0%, #281010 50%, #DC5020 100%);"></div>
+                        <span class="theme-name">Ember</span>
+                        <span class="theme-subtitle">Braises Ardentes</span>
                     </div>
                 </div>
             </div>
@@ -604,6 +621,16 @@
                         <span class="theme-name">Espresso</span>
                         <span class="theme-subtitle">Café Noir</span>
                     </div>
+                    <div class="theme-card" data-theme="snow">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #FAFCFE 0%, #F0F4F8 50%, #E4EAF0 100%);"></div>
+                        <span class="theme-name">Snow</span>
+                        <span class="theme-subtitle">Blanc Pur</span>
+                    </div>
+                    <div class="theme-card" data-theme="charcoal">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #101214 0%, #1A1C20 50%, #24282C 100%);"></div>
+                        <span class="theme-name">Charcoal</span>
+                        <span class="theme-subtitle">Anthracite</span>
+                    </div>
                 </div>
             </div>
 
@@ -637,6 +664,11 @@
                         <span class="theme-name">Hologram</span>
                         <span class="theme-subtitle">Iridescent</span>
                     </div>
+                    <div class="theme-card" data-theme="bioluminescence">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #040810 0%, #00C8DC 50%, #00E8A0 100%);"></div>
+                        <span class="theme-name">Bioluminescence</span>
+                        <span class="theme-subtitle">Abysses</span>
+                    </div>
                 </div>
             </div>
 
@@ -669,6 +701,105 @@
                         <div class="theme-preview-mini" style="background: linear-gradient(135deg, #050210 0%, #0a0520 50%, #9966FF 100%);"></div>
                         <span class="theme-name">Cosmic</span>
                         <span class="theme-subtitle">Galaxie</span>
+                    </div>
+                    <div class="theme-card" data-theme="ukiyo-e">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0C0A14 0%, #18141E 50%, #B45038 100%);"></div>
+                        <span class="theme-name">Ukiyo-e</span>
+                        <span class="theme-subtitle">Estampe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAISONS -->
+            <div class="theme-category">
+                <h4 class="category-title">SAISONS</h4>
+                <p class="category-desc">Le cycle éternel du vivant</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="printemps">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F6F9F0 0%, #EEF4E4 50%, #78B464 100%);"></div>
+                        <span class="theme-name">Printemps</span>
+                        <span class="theme-subtitle">Éclosion</span>
+                    </div>
+                    <div class="theme-card" data-theme="ete">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F8F6EE 0%, #F2EEE0 50%, #2890C0 100%);"></div>
+                        <span class="theme-name">Été</span>
+                        <span class="theme-subtitle">Soleil & Mer</span>
+                    </div>
+                    <div class="theme-card" data-theme="automne">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1A0E08 0%, #2C1810 50%, #C85A28 100%);"></div>
+                        <span class="theme-name">Automne</span>
+                        <span class="theme-subtitle">Feuilles d'Or</span>
+                    </div>
+                    <div class="theme-card" data-theme="hiver">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #080C14 0%, #101824 50%, #88B8E0 100%);"></div>
+                        <span class="theme-name">Hiver</span>
+                        <span class="theme-subtitle">Givre & Silence</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRÉCIEUX -->
+            <div class="theme-category">
+                <h4 class="category-title">PRÉCIEUX</h4>
+                <p class="category-desc">Gemmes et matières nobles de la terre</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="amethyst">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0C0618 0%, #180E28 50%, #9060D8 100%);"></div>
+                        <span class="theme-name">Amethyst</span>
+                        <span class="theme-subtitle">Améthyste</span>
+                    </div>
+                    <div class="theme-card" data-theme="jade">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #060E0A 0%, #0E1C14 50%, #40A878 100%);"></div>
+                        <span class="theme-name">Jade</span>
+                        <span class="theme-subtitle">Jade Impérial</span>
+                    </div>
+                    <div class="theme-card" data-theme="ruby">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #140608 0%, #240E10 50%, #D83040 100%);"></div>
+                        <span class="theme-name">Ruby</span>
+                        <span class="theme-subtitle">Rubis</span>
+                    </div>
+                    <div class="theme-card" data-theme="pearl">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #FAFAF8 0%, #F2F0EE 50%, #E8E4E0 100%);"></div>
+                        <span class="theme-name">Pearl</span>
+                        <span class="theme-subtitle">Perle Nacre</span>
+                    </div>
+                    <div class="theme-card" data-theme="copper">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #120C08 0%, #221610 50%, #C87850 100%);"></div>
+                        <span class="theme-name">Copper</span>
+                        <span class="theme-subtitle">Cuivre Oxydé</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VOYAGE -->
+            <div class="theme-category">
+                <h4 class="category-title">VOYAGE</h4>
+                <p class="category-desc">Destinations du monde, horizons lointains</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="sahara">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1C1408 0%, #30240E 50%, #D2AF5A 100%);"></div>
+                        <span class="theme-name">Sahara</span>
+                        <span class="theme-subtitle">Dunes Dorées</span>
+                    </div>
+                    <div class="theme-card" data-theme="fjord">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #060C10 0%, #0E1820 50%, #3C8296 100%);"></div>
+                        <span class="theme-name">Fjord</span>
+                        <span class="theme-subtitle">Eaux Profondes</span>
+                    </div>
+                    <div class="theme-card" data-theme="bamboo">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F5F4EC 0%, #ECE8DA 50%, #64803C 100%);"></div>
+                        <span class="theme-name">Bamboo</span>
+                        <span class="theme-subtitle">Jardin Zen</span>
+                    </div>
+                    <div class="theme-card" data-theme="bali">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0A1210 0%, #121E1A 50%, #00B496 100%);"></div>
+                        <span class="theme-name">Bali</span>
+                        <span class="theme-subtitle">Tropical</span>
+                    </div>
+                    <div class="theme-card" data-theme="provence">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #FAF6F0 0%, #F2ECE4 50%, #8C6EA0 100%);"></div>
+                        <span class="theme-name">Provence</span>
+                        <span class="theme-subtitle">Champs de Lavande</span>
                     </div>
                 </div>
             </div>
@@ -883,7 +1014,7 @@
 
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
-    <script src="js/modules/config.js?v=999"></script>
+    <script src="js/modules/config.js?v=1100"></script>
     <script src="js/modules/state.js?v=999"></script>
     <script src="js/modules/utils.js?v=999"></script>
 
@@ -900,7 +1031,7 @@
     <script src="js/modules/services/api-galaxy.js?v=999"></script>
     <script src="js/modules/services/api-data-loader.js?v=999"></script>
     <script src="js/modules/services/websocket.js?v=999"></script>
-    <script src="js/modules/theme-auto.js?v=999"></script>
+    <script src="js/modules/theme-auto.js?v=1100"></script>
 
     <!-- 3. Services (legacy, kept for compatibility) -->
     <script src="js/services/api.service.js?v=999"></script>
@@ -909,7 +1040,7 @@
     <script src="js/modules/auth/login-ui.js?v=999"></script>
     <script src="js/modules/auth/login-legacy.js?v=999"></script>
     <script src="js/modules/auth/auth.js?v=999"></script>
-    <script src="js/modules/themes.js?v=999"></script>
+    <script src="js/modules/themes.js?v=1100"></script>
     <script src="js/modules/confirm-modal.js?v=999"></script>
     <script src="js/modules/tasks/tasks.js?v=999"></script>
     <script src="js/modules/projects/projects.js?v=999"></script>
@@ -936,13 +1067,15 @@
     <script src="js/modules/notes/notes-init.js?v=999"></script>
     <script src="js/modules/projects/projects-view.js?v=999"></script>
     <!-- Settings Module -->
-    <script src="js/modules/settings/settings-state.js?v=999"></script>
+    <script src="js/modules/settings/settings-state.js?v=1200"></script>
     <script src="js/modules/settings/settings-data.js?v=999"></script>
-    <script src="js/modules/settings/settings-actions.js?v=999"></script>
-    <script src="js/modules/settings/settings-render.js?v=999"></script>
+    <script src="js/modules/settings/settings-actions.js?v=1200"></script>
+    <script src="js/modules/settings/settings-render.js?v=1200"></script>
     <script src="js/modules/settings/settings-team.js?v=999"></script>
     <script src="js/modules/settings/settings-styles.js?v=999"></script>
-    <script src="js/modules/settings/settings-view.js?v=999"></script>
+    <script src="js/modules/settings/settings-view.js?v=1200"></script>
+    <!-- Animation Controls -->
+    <script src="js/modules/animation-controls.js?v=100"></script>
     <!-- Analytics Module -->
     <script src="js/modules/analytics/analytics-api.js?v=999"></script>
     <script src="js/modules/analytics/analytics-charts.js?v=999"></script>
@@ -1004,16 +1137,18 @@
     <script src="js/modules/accounting/accounting-api.js?v=999"></script>
     <script src="js/modules/accounting/accounting.js?v=999"></script>
 
-    <!-- Psycho-Audit Module (now in audit/) -->
-    <script src="js/modules/audit/questions-bank.js?v=999"></script>
-    <script src="js/modules/audit/pa-scoring.js?v=999"></script>
-    <script src="js/modules/audit/pa-state.js?v=999"></script>
-    <script src="js/modules/audit/pa-api.js?v=1000"></script>
-    <script src="js/modules/audit/pa-charts.js?v=999"></script>
-    <script src="js/modules/audit/pa-render.js?v=999"></script>
-    <script src="js/modules/audit/pa-styles.js?v=999"></script>
-    <script src="js/modules/audit/pa-report.js?v=1000"></script>
-    <script src="js/modules/audit/psycho-audit-view.js?v=999"></script>
+    <!-- Psycho-Audit Module v6.0 Premium (in audit/) -->
+    <script src="js/modules/audit/questions-bank.js?v=1100"></script>
+    <script src="js/modules/audit/pa-scoring.js?v=1100"></script>
+    <script src="js/modules/audit/pa-state.js?v=1100"></script>
+    <script src="js/modules/audit/pa-api.js?v=1100"></script>
+    <script src="js/modules/audit/pa-charts.js?v=1100"></script>
+    <script src="js/modules/audit/pa-render.js?v=1100"></script>
+    <script src="js/modules/audit/pa-styles.js?v=1100"></script>
+    <script src="js/modules/audit/pa-report.js?v=1100"></script>
+    <script src="js/modules/audit/pa-therapy-library.js?v=1100"></script>
+    <script src="js/modules/audit/pa-premium-ui.js?v=1100"></script>
+    <script src="js/modules/audit/psycho-audit-view.js?v=1100"></script>
 
     <!-- Behavioral Profile Module (now in signals/) -->
     <script src="js/modules/signals/bh-api.js?v=999"></script>
@@ -1022,6 +1157,9 @@
     <script src="js/modules/signals/bh-styles.js?v=999"></script>
     <script src="js/modules/signals/index.js?v=999"></script>
     <script src="js/modules/signals/behavioral-view.js?v=999"></script>
+
+    <!-- Team Vision -->
+    <script src="js/modules/team-vision/team-vision-view.js?v=1010"></script>
 
     <!-- Report Creator - Psycho Audit Engine -->
     <script src="js/modules/reports/report-creator.js?v=999"></script>
@@ -1037,7 +1175,7 @@
     <script src="js/modules/workspaces/workspaces.js?v=999"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=999"></script>
+    <script src="js/animations.js?v=1200"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
     <script src="js/app-modular.js?v=1003"></script>

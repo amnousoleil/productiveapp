@@ -84,9 +84,23 @@ const ApiDataLoader = (function() {
     }
 
     /**
-     * Load tasks
+     * Load tasks (filtered by current user = personal space)
      */
     async function loadTasks() {
+        const params = { limit: 500 };
+        // Personal space: only my tasks
+        const userId = typeof AppState !== 'undefined' && AppState.currentUser?.id;
+        if (userId && userId !== 'all') {
+            params.userId = userId;
+        }
+        const tasks = await ApiTasks.getAll(params);
+        return normalizeTasks(tasks);
+    }
+
+    /**
+     * Load ALL workspace tasks (for Team Vision)
+     */
+    async function loadAllTasks() {
         const tasks = await ApiTasks.getAll({ limit: 500 });
         return normalizeTasks(tasks);
     }
@@ -129,6 +143,7 @@ const ApiDataLoader = (function() {
             project: t.project_id,
             project_id: t.project_id,
             assigned_to: t.assigned_to,
+            creator_id: t.user_id,
             userId: t.assigned_to,
             userName: typeof Utils !== 'undefined' ? Utils.getUserName(t.assigned_to) : '',
             due_date: t.due_date,
@@ -224,6 +239,7 @@ const ApiDataLoader = (function() {
         loadAll,
         loadProjects,
         loadTasks,
+        loadAllTasks,
         loadNotes,
         reload,
         get isLoading() { return isLoading; }

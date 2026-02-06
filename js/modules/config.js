@@ -121,7 +121,7 @@ const AppConfig = {
         { id: 'general', name: 'Général', icon: '📌', color: '#6b7280', desc: 'Tâches diverses' }
     ],
 
-    // === THÈMES v3.0 — 40 thèmes, 7 catégories ===
+    // === THÈMES v4.0 — 60 thèmes, 10 catégories ===
     THEMES: {
         elegance: [
             { id: 'executive', name: 'Executive', color: '#d4af37', category: 'ÉLÉGANCE' },
@@ -137,7 +137,8 @@ const AppConfig = {
             { id: 'sunset', name: 'Sunset', color: '#f97316', category: 'NATURE' },
             { id: 'desert', name: 'Desert', color: '#e07840', category: 'NATURE' },
             { id: 'lavender', name: 'Lavender', color: '#B07CC8', category: 'NATURE' },
-            { id: 'sakura', name: 'Sakura', color: '#D4688C', category: 'NATURE' }
+            { id: 'sakura', name: 'Sakura', color: '#D4688C', category: 'NATURE' },
+            { id: 'moss', name: 'Moss', color: '#507832', category: 'NATURE' }
         ],
         atmosphere: [
             { id: 'aurora', name: 'Aurora', color: '#93c5fd', category: 'ATMOSPHÈRE' },
@@ -146,7 +147,8 @@ const AppConfig = {
             { id: 'candlelight', name: 'Candlelight', color: '#E8A840', category: 'ATMOSPHÈRE' },
             { id: 'moonlit', name: 'Moonlit', color: '#A0B8D8', category: 'ATMOSPHÈRE' },
             { id: 'golden-hour', name: 'Golden Hour', color: '#D4A040', category: 'ATMOSPHÈRE' },
-            { id: 'storm', name: 'Storm', color: '#6B8DB5', category: 'ATMOSPHÈRE' }
+            { id: 'storm', name: 'Storm', color: '#6B8DB5', category: 'ATMOSPHÈRE' },
+            { id: 'ember', name: 'Ember', color: '#DC5020', category: 'ATMOSPHÈRE' }
         ],
         moderne: [
             { id: 'bubblegum', name: 'Bubblegum', color: '#ff6b9d', category: 'MODERNE' },
@@ -161,21 +163,45 @@ const AppConfig = {
             { id: 'paper', name: 'Paper', color: '#8B7B65', category: 'MINIMALISTE' },
             { id: 'clay', name: 'Clay', color: '#B89878', category: 'MINIMALISTE' },
             { id: 'porcelain', name: 'Porcelain', color: '#6888A8', category: 'MINIMALISTE' },
-            { id: 'espresso', name: 'Espresso', color: '#A87848', category: 'MINIMALISTE' }
+            { id: 'espresso', name: 'Espresso', color: '#A87848', category: 'MINIMALISTE' },
+            { id: 'snow', name: 'Snow', color: '#6880A0', category: 'MINIMALISTE' },
+            { id: 'charcoal', name: 'Charcoal', color: '#909AA4', category: 'MINIMALISTE' }
         ],
         tech: [
             { id: 'matrix', name: 'Matrix', color: '#00ff66', category: 'TECH' },
             { id: 'cyberpunk', name: 'Cyberpunk', color: '#ff00ff', category: 'TECH' },
             { id: 'terminal', name: 'Terminal', color: '#FFB000', category: 'TECH' },
             { id: 'tron', name: 'Tron', color: '#00D4FF', category: 'TECH' },
-            { id: 'hologram', name: 'Hologram', color: '#88DDFF', category: 'TECH' }
+            { id: 'hologram', name: 'Hologram', color: '#88DDFF', category: 'TECH' },
+            { id: 'bioluminescence', name: 'Bioluminescence', color: '#00C8DC', category: 'TECH' }
         ],
         artiste: [
             { id: 'zen', name: 'Zen', color: '#708058', category: 'ARTISTE' },
             { id: 'art-deco', name: 'Art Déco', color: '#C8A040', category: 'ARTISTE' },
             { id: 'watercolor', name: 'Watercolor', color: '#8888C0', category: 'ARTISTE' },
             { id: 'nordic', name: 'Nordic', color: '#5A7A6A', category: 'ARTISTE' },
-            { id: 'cosmic', name: 'Cosmic', color: '#9966FF', category: 'ARTISTE' }
+            { id: 'cosmic', name: 'Cosmic', color: '#9966FF', category: 'ARTISTE' },
+            { id: 'ukiyo-e', name: 'Ukiyo-e', color: '#B45038', category: 'ARTISTE' }
+        ],
+        saisons: [
+            { id: 'printemps', name: 'Printemps', color: '#78B464', category: 'SAISONS' },
+            { id: 'ete', name: 'Été', color: '#2890C0', category: 'SAISONS' },
+            { id: 'automne', name: 'Automne', color: '#C85A28', category: 'SAISONS' },
+            { id: 'hiver', name: 'Hiver', color: '#88B8E0', category: 'SAISONS' }
+        ],
+        precieux: [
+            { id: 'amethyst', name: 'Amethyst', color: '#9060D8', category: 'PRÉCIEUX' },
+            { id: 'jade', name: 'Jade', color: '#40A878', category: 'PRÉCIEUX' },
+            { id: 'ruby', name: 'Ruby', color: '#D83040', category: 'PRÉCIEUX' },
+            { id: 'pearl', name: 'Pearl', color: '#A098B0', category: 'PRÉCIEUX' },
+            { id: 'copper', name: 'Copper', color: '#C87850', category: 'PRÉCIEUX' }
+        ],
+        voyage: [
+            { id: 'sahara', name: 'Sahara', color: '#D2AF5A', category: 'VOYAGE' },
+            { id: 'fjord', name: 'Fjord', color: '#3C8296', category: 'VOYAGE' },
+            { id: 'bamboo', name: 'Bamboo', color: '#64803C', category: 'VOYAGE' },
+            { id: 'bali', name: 'Bali', color: '#00B496', category: 'VOYAGE' },
+            { id: 'provence', name: 'Provence', color: '#8C6EA0', category: 'VOYAGE' }
         ]
     },
 
@@ -191,7 +217,7 @@ const AppConfig = {
     FONT_SIZES: ['small', 'medium', 'large', 'xlarge'],
 
     // === VERSION ===
-    VERSION: '3.0.0'
+    VERSION: '4.0.0'
 };
 
 // Liste plate des thèmes pour compatibilité
@@ -202,7 +228,10 @@ AppConfig.ALL_THEMES = [
     ...AppConfig.THEMES.moderne,
     ...AppConfig.THEMES.minimaliste,
     ...AppConfig.THEMES.tech,
-    ...AppConfig.THEMES.artiste
+    ...AppConfig.THEMES.artiste,
+    ...AppConfig.THEMES.saisons,
+    ...AppConfig.THEMES.precieux,
+    ...AppConfig.THEMES.voyage
 ];
 
 // Exposer globalement pour compatibilité

@@ -24,7 +24,8 @@ const ViewRouter = (function() {
         teamMessaging: 'view-team-messaging',
         campaigns: 'view-campaigns',
         gamification: 'view-gamification',
-        behavioral: 'view-behavioral'
+        behavioral: 'view-behavioral',
+        teamVision: 'view-team-vision'
     };
 
     let currentView = 'dashboard';
@@ -152,6 +153,11 @@ const ViewRouter = (function() {
             case 'behavioral':
                 if (typeof BehavioralView !== 'undefined') {
                     BehavioralView.render();
+                }
+                break;
+            case 'teamVision':
+                if (typeof TeamVisionView !== 'undefined') {
+                    TeamVisionView.refresh();
                 }
                 break;
         }

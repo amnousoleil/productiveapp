@@ -16,7 +16,13 @@ const QUESTION_BANK = (function() {
         { id: 'relationships', label: 'Relations', icon: '🤝', shortLabel: 'Relations' },
         { id: 'resilience', label: 'Résilience', icon: '🛡️', shortLabel: 'Résilience' },
         { id: 'growth', label: 'Croissance', icon: '🌱', shortLabel: 'Croissance' },
-        { id: 'impact', label: 'Impact', icon: '🌍', shortLabel: 'Impact' }
+        { id: 'impact', label: 'Impact', icon: '🌍', shortLabel: 'Impact' },
+        { id: 'emotional_reg', label: 'Régulation émotionnelle', icon: '💎', shortLabel: 'Émotions' },
+        { id: 'somatic', label: 'Intelligence somatique', icon: '🫀', shortLabel: 'Corps' },
+        { id: 'shadow', label: 'Intégration de l\'ombre', icon: '🌑', shortLabel: 'Ombre' },
+        { id: 'spiritual', label: 'Connexion spirituelle', icon: '✨', shortLabel: 'Éveil' },
+        { id: 'inner_child', label: 'Enfant intérieur', icon: '🧒', shortLabel: 'Enfant int.' },
+        { id: 'presence', label: 'Présence & Conscience', icon: '🔮', shortLabel: 'Présence' }
     ];
 
     const QUESTIONS = {
@@ -119,6 +125,66 @@ const QUESTION_BANK = (function() {
             { id: 'impact_6', text: 'Je me sens remplaçable ou insignifiant(e).', positive: false },
             { id: 'impact_7', text: 'Je vois clairement comment mon travail aide les autres.', positive: true },
             { id: 'impact_8', text: 'Je laisse une trace positive dans mes projets.', positive: true }
+        ],
+        emotional_reg: [
+            { id: 'emo_1', text: 'Je sais identifier précisément ce que je ressens dans l\'instant.', positive: true },
+            { id: 'emo_2', text: 'Mes émotions me submergent souvent sans que je puisse les contrôler.', positive: false },
+            { id: 'emo_3', text: 'Je tolère l\'inconfort émotionnel sans fuir ni réagir impulsivement.', positive: true },
+            { id: 'emo_4', text: 'J\'utilise la nourriture, les écrans ou d\'autres distractions pour éviter de ressentir.', positive: false },
+            { id: 'emo_5', text: 'Je peux exprimer ma vulnérabilité sans honte.', positive: true },
+            { id: 'emo_6', text: 'Je refoule mes émotions jusqu\'à ce qu\'elles explosent.', positive: false },
+            { id: 'emo_7', text: 'J\'accueille mes émotions comme des messagères, pas des ennemies.', positive: true },
+            { id: 'emo_8', text: 'Je sais revenir au calme en moins de 10 minutes après une perturbation émotionnelle.', positive: true }
+        ],
+        somatic: [
+            { id: 'soma_1', text: 'Je suis conscient(e) des signaux que mon corps m\'envoie au quotidien.', positive: true },
+            { id: 'soma_2', text: 'Je porte des tensions chroniques (mâchoire, épaules, dos) sans m\'en rendre compte.', positive: false },
+            { id: 'soma_3', text: 'Je prends le temps de respirer consciemment chaque jour.', positive: true },
+            { id: 'soma_4', text: 'Je suis souvent déconnecté(e) de mes sensations corporelles.', positive: false },
+            { id: 'soma_5', text: 'Je sais utiliser mon corps pour réguler mes émotions (mouvement, respiration).', positive: true },
+            { id: 'soma_6', text: 'J\'ignore les signaux de fatigue ou de douleur de mon corps.', positive: false },
+            { id: 'soma_7', text: 'Mon corps est un allié dans ma prise de décision (ressenti viscéral, intuition).', positive: true },
+            { id: 'soma_8', text: 'Je me sens habiter pleinement mon corps, pas seulement ma tête.', positive: true }
+        ],
+        shadow: [
+            { id: 'shad_1', text: 'Je reconnais que j\'ai des défauts et des zones sombres, et je les accepte.', positive: true },
+            { id: 'shad_2', text: 'Ce qui m\'agace chez les autres me renseigne rarement sur moi-même.', positive: false },
+            { id: 'shad_3', text: 'Je suis capable d\'examiner honnêtement mes motivations cachées.', positive: true },
+            { id: 'shad_4', text: 'Je porte un masque social très différent de qui je suis vraiment.', positive: false },
+            { id: 'shad_5', text: 'J\'ai fait la paix avec les aspects de moi que je n\'aimais pas.', positive: true },
+            { id: 'shad_6', text: 'Je projette souvent sur les autres des qualités ou défauts qui sont en réalité les miens.', positive: false },
+            { id: 'shad_7', text: 'Je peux parler ouvertement de mes échecs sans honte excessive.', positive: true },
+            { id: 'shad_8', text: 'J\'ai intégré mes blessures passées au lieu de les laisser me diriger inconsciemment.', positive: true }
+        ],
+        spiritual: [
+            { id: 'spir_1', text: 'Je ressens une connexion avec quelque chose de plus grand que moi.', positive: true },
+            { id: 'spir_2', text: 'Ma vie manque de sens profond ou de direction spirituelle.', positive: false },
+            { id: 'spir_3', text: 'Je pratique régulièrement une forme de méditation, prière ou contemplation.', positive: true },
+            { id: 'spir_4', text: 'Je suis rarement en contact avec un sentiment de gratitude ou d\'émerveillement.', positive: false },
+            { id: 'spir_5', text: 'J\'ai vécu des moments de paix profonde ou de conscience élargie.', positive: true },
+            { id: 'spir_6', text: 'Les questions existentielles (sens de la vie, mort, transcendance) me font fuir.', positive: false },
+            { id: 'spir_7', text: 'Je fais confiance au processus de la vie, même quand je ne comprends pas tout.', positive: true },
+            { id: 'spir_8', text: 'Je cultive activement ma vie intérieure (silence, introspection, contemplation).', positive: true }
+        ],
+        inner_child: [
+            { id: 'child_1', text: 'Je sais accueillir la partie vulnérable en moi sans la juger.', positive: true },
+            { id: 'child_2', text: 'Je me parle souvent de manière dure et critique intérieurement.', positive: false },
+            { id: 'child_3', text: 'Je m\'accorde le droit de jouer, de rire et d\'être spontané(e).', positive: true },
+            { id: 'child_4', text: 'J\'ai des blessures d\'enfance qui influencent encore mes réactions d\'adulte.', positive: false },
+            { id: 'child_5', text: 'Je suis capable de me réconforter moi-même dans les moments difficiles.', positive: true },
+            { id: 'child_6', text: 'Je cherche constamment l\'approbation des autres pour me sentir valable.', positive: false },
+            { id: 'child_7', text: 'Je traite mon enfant intérieur avec la tendresse qu\'il/elle mérite.', positive: true },
+            { id: 'child_8', text: 'Je suis en paix avec mon passé et les figures parentales de mon enfance.', positive: true }
+        ],
+        presence: [
+            { id: 'pres_1', text: 'Je vis pleinement le moment présent plutôt que dans mes pensées.', positive: true },
+            { id: 'pres_2', text: 'Mon esprit est constamment dans le passé ou le futur.', positive: false },
+            { id: 'pres_3', text: 'Je peux observer mes pensées sans m\'identifier à elles.', positive: true },
+            { id: 'pres_4', text: 'Je fonctionne en pilote automatique la plupart du temps.', positive: false },
+            { id: 'pres_5', text: 'Je ressens régulièrement un état de flow ou d\'absorption totale.', positive: true },
+            { id: 'pres_6', text: 'Je suis rarement vraiment "là" dans mes conversations et activités.', positive: false },
+            { id: 'pres_7', text: 'Je perçois la beauté et les détails subtils de mon environnement quotidien.', positive: true },
+            { id: 'pres_8', text: 'Je suis capable de rester en paix même dans le silence et l\'immobilité.', positive: true }
         ]
     };
 
@@ -172,6 +238,36 @@ const QUESTION_BANK = (function() {
             'Mesurez l\'impact concret d\'un de vos projets récents.',
             'Demandez à un bénéficiaire de votre travail comment vous l\'avez aidé.',
             'Identifiez une façon d\'augmenter votre contribution à l\'équipe.'
+        ],
+        emotional_reg: [
+            'Pratiquez le protocole TIPP (Temperature, Intense exercise, Paced breathing, Paired relaxation) lors de la prochaine emotion intense.',
+            'Tenez un journal émotionnel : 3x par jour, nommez l\'émotion + sa localisation dans le corps.',
+            'Apprenez la technique de l\'action opposée (DBT) : quand l\'émotion est injustifiée, agissez à l\'opposé.'
+        ],
+        somatic: [
+            'Pratiquez un body scan de 10 minutes chaque soir avant de dormir (protocole MBSR de Kabat-Zinn).',
+            'Intégrez 3 minutes de respiration consciente 5/5 (cohérence cardiaque) matin et soir.',
+            'Identifiez vos zones de tension chronique et pratiquez la pendulation somatique (Levine).'
+        ],
+        shadow: [
+            'Cette semaine, identifiez un trait qui vous agace chez quelqu\'un. Cherchez sa version cachée en vous.',
+            'Pratiquez l\'exercice du Miroir Intérieur : dialoguez avec la partie de vous que vous rejetez le plus.',
+            'Écrivez une lettre (non envoyée) à la personne qui vous a le plus blessé(e). Que voudriez-vous lui dire ?'
+        ],
+        spiritual: [
+            'Pratiquez 10 minutes de Vipassana (observation des sensations sans réaction) chaque matin cette semaine.',
+            'Avant de dormir, nommez 3 choses pour lesquelles vous êtes profondément reconnaissant(e).',
+            'Essayez le Yoga Nidra (20 min) : état de conscience entre veille et sommeil, profondément régénérateur.'
+        ],
+        inner_child: [
+            'Écrivez une lettre de votre main non-dominante : laissez votre enfant intérieur s\'exprimer librement.',
+            'Pratiquez la rencontre avec l\'enfant intérieur (IFS) : visualisez-le et offrez-lui ce dont il avait besoin.',
+            'Accordez-vous une activité purement ludique cette semaine, sans "utilité" ni justification.'
+        ],
+        presence: [
+            'Pratiquez l\'espace de respiration de 3 minutes (MBCT) : 3x par jour, entre deux activités.',
+            'Mangez un repas en pleine conscience cette semaine : chaque bouchée, sans écran ni distraction.',
+            'Marchez 10 minutes en pleine conscience : chaque pas, chaque sensation, chaque son.'
         ]
     };
 
