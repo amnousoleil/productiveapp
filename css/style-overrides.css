@@ -579,11 +579,13 @@ body .bubble.done .bubble-text {
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
-    display: flex !important;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     padding: 20px;
+}
+#edit-task-modal:not(.hidden) {
+    display: flex;
 }
 /* === MODAL LARGE (task edit, reports) === */
 .modal-box.modal-box-large {
