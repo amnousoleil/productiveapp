@@ -20,30 +20,32 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style-base.css?v=400">
-    <link rel="stylesheet" href="css/style-components.css?v=400">
-    <link rel="stylesheet" href="css/style-themes.css?v=400">
-    <link rel="stylesheet" href="css/style-dragdrop.css?v=400">
-    <link rel="stylesheet" href="css/sidebar.css?v=400">
-    <link rel="stylesheet" href="css/style-sidebar.css?v=400">
-    <link rel="stylesheet" href="css/sidebar-nav.css?v=400">
-    <link rel="stylesheet" href="css/sidebar-themes.css?v=400">
-    <link rel="stylesheet" href="css/animations.css?v=400">
-    <link rel="stylesheet" href="css/dashboard.css?v=400">
-    <link rel="stylesheet" href="css/notes-editor.css?v=400">
-    <link rel="stylesheet" href="css/settings.css?v=400">
-    <link rel="stylesheet" href="css/auth.css?v=400">
-    <link rel="stylesheet" href="css/gamification.css?v=400">
-    <link rel="stylesheet" href="css/messaging.css?v=500">
-    <link rel="stylesheet" href="css/notifications.css?v=400">
-    <link rel="stylesheet" href="css/analytics.css?v=400">
-    <link rel="stylesheet" href="css/reports.css?v=400">
-    <link rel="stylesheet" href="css/style-overrides.css?v=401">
+    <link rel="stylesheet" href="css/style-base.css?v=999">
+    <link rel="stylesheet" href="css/style-components.css?v=999">
+    <link rel="stylesheet" href="css/style-themes.css?v=999">
+    <link rel="stylesheet" href="css/style-dragdrop.css?v=999">
+    <link rel="stylesheet" href="css/sidebar.css?v=999">
+    <link rel="stylesheet" href="css/style-sidebar.css?v=999">
+    <link rel="stylesheet" href="css/sidebar-nav.css?v=999">
+    <link rel="stylesheet" href="css/sidebar-themes.css?v=999">
+    <link rel="stylesheet" href="css/animations.css?v=999">
+    <link rel="stylesheet" href="css/dashboard.css?v=999">
+    <link rel="stylesheet" href="css/notes-editor.css?v=1001">
+    <link rel="stylesheet" href="css/notes-ai.css?v=1001">
+    <link rel="stylesheet" href="css/settings.css?v=999">
+    <link rel="stylesheet" href="css/auth.css?v=999">
+    <link rel="stylesheet" href="css/gamification.css?v=999">
+    <link rel="stylesheet" href="css/messaging.css?v=999">
+    <link rel="stylesheet" href="css/campaigns.css?v=110">
+    <link rel="stylesheet" href="css/notifications.css?v=999">
+    <link rel="stylesheet" href="css/analytics.css?v=999">
+    <link rel="stylesheet" href="css/reports.css?v=999">
+    <link rel="stylesheet" href="css/style-overrides.css?v=1001">
     <!-- NEW: Auth Login Module CSS -->
-    <link rel="stylesheet" href="js/modules/auth/login.css?v=301">
-    <link rel="stylesheet" href="css/style-views.css?v=400">
-    <link rel="stylesheet" href="css/galaxy.css?v=400">
-    <link rel="stylesheet" href="css/pwa.css?v=400">
+    <link rel="stylesheet" href="js/modules/auth/login.css?v=999">
+    <link rel="stylesheet" href="css/style-views.css?v=1002">
+    <link rel="stylesheet" href="css/galaxy.css?v=999">
+    <link rel="stylesheet" href="css/pwa.css?v=999">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -157,7 +159,7 @@
         </div>
 
         <!-- Galaxy View -->
-        <div id="view-galaxy" class="view-container" style="display:flex; flex-direction:column;">
+        <div id="view-galaxy" class="view-container">
             <div id="galaxy-toolbar" style="display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface, #1a1a2e); border-bottom:1px solid var(--border, #333); flex-shrink:0;">
                 <h2 style="margin:0; font-size:16px; color:var(--text, #fff); display:flex; align-items:center; gap:8px;">
                     <span style="font-size:20px;">&#127756;</span> Galaxie View
@@ -213,6 +215,11 @@
         <!-- Team Messaging View -->
         <div id="view-team-messaging" class="view-container">
             <!-- Rendered by Messaging.js -->
+        </div>
+
+        <!-- Campaigns View -->
+        <div id="view-campaigns" class="view view-container">
+            <!-- Rendered by campaigns.js -->
         </div>
 
         <!-- Tasks View (wraps existing app-container) -->
@@ -876,154 +883,163 @@
 
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
-    <script src="js/modules/config.js?v=400"></script>
-    <script src="js/modules/state.js?v=400"></script>
-    <script src="js/modules/utils.js?v=400"></script>
+    <script src="js/modules/config.js?v=999"></script>
+    <script src="js/modules/state.js?v=999"></script>
+    <script src="js/modules/utils.js?v=999"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
-    <script src="js/modules/services/api-config.js?v=400"></script>
-    <script src="js/modules/services/api-tokens.js?v=400"></script>
-    <script src="js/modules/services/api-fetch.js?v=400"></script>
-    <script src="js/modules/services/api.js?v=400"></script>
-    <script src="js/modules/services/api-auth.js?v=400"></script>
-    <script src="js/modules/services/api-projects.js?v=400"></script>
-    <script src="js/modules/services/api-notes.js?v=400"></script>
-    <script src="js/modules/services/api-tasks.js?v=400"></script>
-    <script src="js/modules/services/api-ai.js?v=1"></script>
-    <script src="js/modules/services/api-galaxy.js?v=1"></script>
-    <script src="js/modules/services/api-data-loader.js?v=400"></script>
-    <script src="js/modules/services/websocket.js?v=400"></script>
-    <script src="js/modules/theme-auto.js?v=400"></script>
+    <script src="js/modules/services/api-config.js?v=999"></script>
+    <script src="js/modules/services/api-tokens.js?v=999"></script>
+    <script src="js/modules/services/api-fetch.js?v=999"></script>
+    <script src="js/modules/services/api.js?v=999"></script>
+    <script src="js/modules/services/api-auth.js?v=999"></script>
+    <script src="js/modules/services/api-projects.js?v=999"></script>
+    <script src="js/modules/services/api-notes.js?v=999"></script>
+    <script src="js/modules/services/api-tasks.js?v=999"></script>
+    <script src="js/modules/services/api-ai.js?v=999"></script>
+    <script src="js/modules/services/api-galaxy.js?v=999"></script>
+    <script src="js/modules/services/api-data-loader.js?v=999"></script>
+    <script src="js/modules/services/websocket.js?v=999"></script>
+    <script src="js/modules/theme-auto.js?v=999"></script>
 
     <!-- 3. Services (legacy, kept for compatibility) -->
-    <script src="js/services/api.service.js?v=400"></script>
+    <script src="js/services/api.service.js?v=999"></script>
 
     <!-- 4. Modules fonctionnels -->
-    <script src="js/modules/auth/login-ui.js?v=400"></script>
-    <script src="js/modules/auth/login-legacy.js?v=400"></script>
-    <script src="js/modules/auth/auth.js?v=400"></script>
-    <script src="js/modules/themes.js?v=400"></script>
-    <script src="js/modules/confirm-modal.js?v=400"></script>
-    <script src="js/modules/tasks/tasks.js?v=400"></script>
-    <script src="js/modules/projects/projects.js?v=82"></script>
-    <script src="js/modules/notes/journal.js?v=400"></script>
-    <script src="js/modules/ai/chat-actions.js?v=400"></script>
-    <script src="js/modules/ai/chatbot.js?v=82"></script>
-    <script src="js/modules/effects.js?v=400"></script>
-    <script src="js/modules/reports/report.js?v=400"></script>
-    <script src="js/modules/services/backup.js?v=400"></script>
-    <script src="js/modules/sidebar/sidebar-core.js?v=400"></script>
-    <script src="js/modules/sidebar/sidebar-render.js?v=400"></script>
-    <script src="js/modules/sidebar/sidebar-events.js?v=400"></script>
-    <script src="js/modules/sidebar/sidebar-init.js?v=400"></script>
-    <script src="js/modules/router.js?v=400"></script>
-    <script src="js/modules/dashboard/dash-insights.js?v=400"></script>
-    <script src="js/modules/dashboard/dash-charts.js?v=400"></script>
-    <script src="js/modules/dashboard/dashboard.js?v=400"></script>
-    <script src="js/modules/notes/notes-core.js?v=400"></script>
-    <script src="js/modules/notes/notes-render.js?v=400"></script>
-    <script src="js/modules/notes/notes-toolbar.js?v=400"></script>
-    <script src="js/modules/notes/notes-slash.js?v=400"></script>
-    <script src="js/modules/notes/notes-editor.js?v=400"></script>
-    <script src="js/modules/notes/notes-init.js?v=400"></script>
-    <script src="js/modules/projects/projects-view.js?v=400"></script>
+    <script src="js/modules/auth/login-ui.js?v=999"></script>
+    <script src="js/modules/auth/login-legacy.js?v=999"></script>
+    <script src="js/modules/auth/auth.js?v=999"></script>
+    <script src="js/modules/themes.js?v=999"></script>
+    <script src="js/modules/confirm-modal.js?v=999"></script>
+    <script src="js/modules/tasks/tasks.js?v=999"></script>
+    <script src="js/modules/projects/projects.js?v=999"></script>
+    <script src="js/modules/notes/journal.js?v=999"></script>
+    <script src="js/modules/ai/chat-actions.js?v=999"></script>
+    <script src="js/modules/ai/chatbot.js?v=999"></script>
+    <script src="js/modules/effects.js?v=999"></script>
+    <script src="js/modules/reports/report.js?v=999"></script>
+    <script src="js/modules/services/backup.js?v=999"></script>
+    <script src="js/modules/sidebar/sidebar-core.js?v=999"></script>
+    <script src="js/modules/sidebar/sidebar-render.js?v=999"></script>
+    <script src="js/modules/sidebar/sidebar-events.js?v=999"></script>
+    <script src="js/modules/sidebar/sidebar-init.js?v=999"></script>
+    <script src="js/modules/router.js?v=999"></script>
+    <script src="js/modules/dashboard/dash-insights.js?v=999"></script>
+    <script src="js/modules/dashboard/dash-charts.js?v=999"></script>
+    <script src="js/modules/dashboard/dashboard.js?v=999"></script>
+    <script src="js/modules/notes/notes-core.js?v=999"></script>
+    <script src="js/modules/notes/notes-render.js?v=999"></script>
+    <script src="js/modules/notes/notes-toolbar.js?v=999"></script>
+    <script src="js/modules/notes/notes-slash.js?v=999"></script>
+    <script src="js/modules/notes/notes-editor.js?v=999"></script>
+    <script src="js/modules/notes/notes-ai.js?v=1001"></script>
+    <script src="js/modules/notes/notes-init.js?v=999"></script>
+    <script src="js/modules/projects/projects-view.js?v=999"></script>
     <!-- Settings Module -->
-    <script src="js/modules/settings/settings-state.js?v=400"></script>
-    <script src="js/modules/settings/settings-data.js?v=400"></script>
-    <script src="js/modules/settings/settings-actions.js?v=400"></script>
-    <script src="js/modules/settings/settings-render.js?v=400"></script>
-    <script src="js/modules/settings/settings-team.js?v=400"></script>
-    <script src="js/modules/settings/settings-styles.js?v=400"></script>
-    <script src="js/modules/settings/settings-view.js?v=400"></script>
+    <script src="js/modules/settings/settings-state.js?v=999"></script>
+    <script src="js/modules/settings/settings-data.js?v=999"></script>
+    <script src="js/modules/settings/settings-actions.js?v=999"></script>
+    <script src="js/modules/settings/settings-render.js?v=999"></script>
+    <script src="js/modules/settings/settings-team.js?v=999"></script>
+    <script src="js/modules/settings/settings-styles.js?v=999"></script>
+    <script src="js/modules/settings/settings-view.js?v=999"></script>
     <!-- Analytics Module -->
-    <script src="js/modules/analytics/analytics-api.js?v=79"></script>
-    <script src="js/modules/analytics/analytics-charts.js?v=400"></script>
-    <script src="js/modules/analytics/analytics-styles.js?v=400"></script>
-    <script src="js/modules/analytics/analytics-view.js?v=400"></script>
+    <script src="js/modules/analytics/analytics-api.js?v=999"></script>
+    <script src="js/modules/analytics/analytics-charts.js?v=999"></script>
+    <script src="js/modules/analytics/analytics-styles.js?v=999"></script>
+    <script src="js/modules/analytics/analytics-view.js?v=999"></script>
     <!-- Reports Module -->
-    <script src="js/modules/reports/reports-api.js?v=400"></script>
-    <script src="js/modules/reports/reports-cards.js?v=400"></script>
-    <script src="js/modules/reports/reports-list.js?v=400"></script>
-    <script src="js/modules/reports/reports-detail.js?v=400"></script>
-    <script src="js/modules/reports/reports-styles.js?v=400"></script>
-    <script src="js/modules/reports/reports-view.js?v=400"></script>
+    <script src="js/modules/reports/reports-api.js?v=999"></script>
+    <script src="js/modules/reports/reports-cards.js?v=999"></script>
+    <script src="js/modules/reports/reports-list.js?v=999"></script>
+    <script src="js/modules/reports/reports-detail.js?v=999"></script>
+    <script src="js/modules/reports/reports-styles.js?v=999"></script>
+    <script src="js/modules/services/api-reports-ai.js?v=999"></script>
+    <script src="js/modules/reports/ai-reports-view.js?v=999"></script>
+    <script src="js/modules/reports/reports-view.js?v=999"></script>
 
     <!-- 5. Messaging Module - TeamTalk Premium -->
-    <script src="js/modules/messaging/messaging-api.js?v=500"></script>
-    <script src="js/modules/messaging/messaging-ui.js?v=500"></script>
-    <script src="js/modules/messaging/messaging-conversations.js?v=500"></script>
-    <script src="js/modules/messaging/messaging-chat.js?v=500"></script>
-    <script src="js/modules/messaging/messaging-events.js?v=500"></script>
-    <script src="js/modules/messaging/messaging.js?v=500"></script>
+    <script src="js/modules/messaging/messaging-api.js?v=999"></script>
+    <script src="js/modules/messaging/messaging-ui.js?v=999"></script>
+    <script src="js/modules/messaging/messaging-conversations.js?v=999"></script>
+    <script src="js/modules/messaging/messaging-chat.js?v=999"></script>
+    <script src="js/modules/messaging/messaging-events.js?v=999"></script>
+    <script src="js/modules/messaging/messaging.js?v=999"></script>
+
+    <!-- 6. Campaigns Module - Email Campaigns -->
+    <script src="js/modules/campaigns/campaigns-api.js?v=110"></script>
+    <script src="js/modules/campaigns/campaigns-ui.js?v=110"></script>
+    <script src="js/modules/campaigns/campaigns.js?v=110"></script>
+
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
-    <script src="js/modules/gamification/gv-helpers.js?v=400"></script>
-    <script src="js/modules/gamification/gv-styles.js?v=400"></script>
-    <script src="js/modules/gamification/gv-api.js?v=400"></script>
-    <script src="js/modules/gamification/gv-render.js?v=400"></script>
-    <script src="js/modules/gamification/gamification-view.js?v=400"></script>
+    <script src="js/modules/gamification/gv-helpers.js?v=999"></script>
+    <script src="js/modules/gamification/gv-styles.js?v=999"></script>
+    <script src="js/modules/gamification/gv-api.js?v=999"></script>
+    <script src="js/modules/gamification/gv-render.js?v=999"></script>
+    <script src="js/modules/gamification/gamification-view.js?v=999"></script>
     <!-- Chat Module (now in messaging/) -->
-    <script src="js/modules/messaging/chat-history.js?v=400"></script>
-    <script src="js/modules/messaging/chat-responses.js?v=400"></script>
-    <script src="js/modules/messaging/chat-styles.js?v=400"></script>
-    <script src="js/modules/messaging/chat-ui.js?v=400"></script>
-    <script src="js/modules/messaging/chat-view.js?v=400"></script>
+    <script src="js/modules/messaging/chat-history.js?v=999"></script>
+    <script src="js/modules/messaging/chat-responses.js?v=999"></script>
+    <script src="js/modules/messaging/chat-styles.js?v=999"></script>
+    <script src="js/modules/messaging/chat-ui.js?v=999"></script>
+    <script src="js/modules/messaging/chat-view.js?v=999"></script>
 
     <!-- 7. Notifications Module -->
-    <script src="js/modules/notifications/notifications-api.js?v=400"></script>
-    <script src="js/modules/notifications/notifications-ui.js?v=400"></script>
-    <script src="js/modules/notifications/notifications-list.js?v=400"></script>
-    <script src="js/modules/notifications/notifications-badge.js?v=400"></script>
-    <script src="js/modules/notifications/notifications.js?v=400"></script>
+    <script src="js/modules/notifications/notifications-api.js?v=999"></script>
+    <script src="js/modules/notifications/notifications-ui.js?v=999"></script>
+    <script src="js/modules/notifications/notifications-list.js?v=999"></script>
+    <script src="js/modules/notifications/notifications-badge.js?v=999"></script>
+    <script src="js/modules/notifications/notifications.js?v=999"></script>
 
     <!-- 10. Modules externes -->
-    <script src="js/dragdrop.js?v=400"></script>
+    <script src="js/dragdrop.js?v=999"></script>
     <!-- Galaxie View - Excalidraw integration (now in canvases/) -->
-    <script src="js/modules/canvases/galaxie-view.js?v=400"></script>
+    <script src="js/modules/canvases/galaxie-view.js?v=999"></script>
     <!-- Old canvas-based galaxy.js kept for fallback -->
-    <!-- <script src="js/galaxy.js?v=400"></script> -->
+    <!-- <script src="js/galaxy.js?v=999"></script> -->
 
     <!-- Accounting Module -->
-    <script src="js/modules/accounting/accounting-api.js?v=400"></script>
-    <script src="js/modules/accounting/accounting.js?v=400"></script>
+    <script src="js/modules/accounting/accounting-api.js?v=999"></script>
+    <script src="js/modules/accounting/accounting.js?v=999"></script>
 
     <!-- Psycho-Audit Module (now in audit/) -->
-    <script src="js/modules/audit/questions-bank.js?v=400"></script>
-    <script src="js/modules/audit/pa-scoring.js?v=400"></script>
-    <script src="js/modules/audit/pa-state.js?v=400"></script>
-    <script src="js/modules/audit/pa-api.js?v=400"></script>
-    <script src="js/modules/audit/pa-charts.js?v=400"></script>
-    <script src="js/modules/audit/pa-render.js?v=400"></script>
-    <script src="js/modules/audit/pa-styles.js?v=400"></script>
-    <script src="js/modules/audit/pa-report.js?v=400"></script>
-    <script src="js/modules/audit/psycho-audit-view.js?v=400"></script>
+    <script src="js/modules/audit/questions-bank.js?v=999"></script>
+    <script src="js/modules/audit/pa-scoring.js?v=999"></script>
+    <script src="js/modules/audit/pa-state.js?v=999"></script>
+    <script src="js/modules/audit/pa-api.js?v=1000"></script>
+    <script src="js/modules/audit/pa-charts.js?v=999"></script>
+    <script src="js/modules/audit/pa-render.js?v=999"></script>
+    <script src="js/modules/audit/pa-styles.js?v=999"></script>
+    <script src="js/modules/audit/pa-report.js?v=1000"></script>
+    <script src="js/modules/audit/psycho-audit-view.js?v=999"></script>
 
     <!-- Behavioral Profile Module (now in signals/) -->
-    <script src="js/modules/signals/bh-api.js?v=400"></script>
-    <script src="js/modules/signals/bh-charts.js?v=400"></script>
-    <script src="js/modules/signals/bh-render.js?v=400"></script>
-    <script src="js/modules/signals/bh-styles.js?v=400"></script>
-    <script src="js/modules/signals/index.js?v=400"></script>
-    <script src="js/modules/signals/behavioral-view.js?v=400"></script>
+    <script src="js/modules/signals/bh-api.js?v=999"></script>
+    <script src="js/modules/signals/bh-charts.js?v=999"></script>
+    <script src="js/modules/signals/bh-render.js?v=999"></script>
+    <script src="js/modules/signals/bh-styles.js?v=999"></script>
+    <script src="js/modules/signals/index.js?v=999"></script>
+    <script src="js/modules/signals/behavioral-view.js?v=999"></script>
 
     <!-- Report Creator - Psycho Audit Engine -->
-    <script src="js/modules/reports/report-creator.js?v=300"></script>
+    <script src="js/modules/reports/report-creator.js?v=999"></script>
 
     <!-- NEW: Auth Login Module -->
-    <script src="js/modules/auth/login.js?v=300"></script>
+    <script src="js/modules/auth/login.js?v=999"></script>
 
     <!-- NEW: Core Modules -->
-    <script src="js/modules/files/files.js?v=75"></script>
-    <script src="js/modules/onboarding/onboarding.js?v=75"></script>
-    <script src="js/modules/plans/plans.js?v=75"></script>
-    <script src="js/modules/users/users.js?v=75"></script>
-    <script src="js/modules/workspaces/workspaces.js?v=75"></script>
+    <script src="js/modules/files/files.js?v=999"></script>
+    <script src="js/modules/onboarding/onboarding.js?v=999"></script>
+    <script src="js/modules/plans/plans.js?v=999"></script>
+    <script src="js/modules/users/users.js?v=999"></script>
+    <script src="js/modules/workspaces/workspaces.js?v=999"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=400"></script>
+    <script src="js/animations.js?v=999"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=400"></script>
+    <script src="js/app-modular.js?v=1001"></script>
 
     <!-- Email Login Functions -->
     <script>

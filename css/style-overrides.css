@@ -500,21 +500,69 @@ body .bubble.done .bubble-text {
 }
 
 /* Texte NOIR sur thèmes CLAIRS pour lisibilité */
-[data-theme="minimal"] .bubble .bubble-text,
-[data-theme="minimal"] .bubble.inprogress .bubble-text,
-[data-theme="minimal"] .bubble.done .bubble-text,
-[data-theme="minimal"] .task-bubble .task-text,
-[data-theme="minimal"] .task-bubble.inprogress .task-text,
-[data-theme="minimal"] .task-bubble.done .task-text,
+[data-theme="ivory"] .bubble .bubble-text,
+[data-theme="ivory"] .bubble.inprogress .bubble-text,
+[data-theme="ivory"] .bubble.done .bubble-text,
+[data-theme="ivory"] .task-bubble .task-text,
+[data-theme="ivory"] .task-bubble.inprogress .task-text,
+[data-theme="ivory"] .task-bubble.done .task-text,
+[data-theme="sakura"] .bubble .bubble-text,
+[data-theme="sakura"] .bubble.inprogress .bubble-text,
+[data-theme="sakura"] .bubble.done .bubble-text,
+[data-theme="sakura"] .task-bubble .task-text,
+[data-theme="sakura"] .task-bubble.inprogress .task-text,
+[data-theme="sakura"] .task-bubble.done .task-text,
+[data-theme="pastel"] .bubble .bubble-text,
+[data-theme="pastel"] .bubble.inprogress .bubble-text,
+[data-theme="pastel"] .bubble.done .bubble-text,
+[data-theme="pastel"] .task-bubble .task-text,
+[data-theme="pastel"] .task-bubble.inprogress .task-text,
+[data-theme="pastel"] .task-bubble.done .task-text,
+[data-theme="mint"] .bubble .bubble-text,
+[data-theme="mint"] .bubble.inprogress .bubble-text,
+[data-theme="mint"] .bubble.done .bubble-text,
+[data-theme="mint"] .task-bubble .task-text,
+[data-theme="mint"] .task-bubble.inprogress .task-text,
+[data-theme="mint"] .task-bubble.done .task-text,
+[data-theme="paper"] .bubble .bubble-text,
+[data-theme="paper"] .bubble.inprogress .bubble-text,
+[data-theme="paper"] .bubble.done .bubble-text,
+[data-theme="paper"] .task-bubble .task-text,
+[data-theme="paper"] .task-bubble.inprogress .task-text,
+[data-theme="paper"] .task-bubble.done .task-text,
+[data-theme="porcelain"] .bubble .bubble-text,
+[data-theme="porcelain"] .bubble.inprogress .bubble-text,
+[data-theme="porcelain"] .bubble.done .bubble-text,
+[data-theme="porcelain"] .task-bubble .task-text,
+[data-theme="porcelain"] .task-bubble.inprogress .task-text,
+[data-theme="porcelain"] .task-bubble.done .task-text,
+[data-theme="zen"] .bubble .bubble-text,
+[data-theme="zen"] .bubble.inprogress .bubble-text,
+[data-theme="zen"] .bubble.done .bubble-text,
+[data-theme="zen"] .task-bubble .task-text,
+[data-theme="zen"] .task-bubble.inprogress .task-text,
+[data-theme="zen"] .task-bubble.done .task-text,
+[data-theme="watercolor"] .bubble .bubble-text,
+[data-theme="watercolor"] .bubble.inprogress .bubble-text,
+[data-theme="watercolor"] .bubble.done .bubble-text,
+[data-theme="watercolor"] .task-bubble .task-text,
+[data-theme="watercolor"] .task-bubble.inprogress .task-text,
+[data-theme="watercolor"] .task-bubble.done .task-text,
+[data-theme="nordic"] .bubble .bubble-text,
+[data-theme="nordic"] .bubble.inprogress .bubble-text,
+[data-theme="nordic"] .bubble.done .bubble-text,
+[data-theme="nordic"] .task-bubble .task-text,
+[data-theme="nordic"] .task-bubble.inprogress .task-text,
+[data-theme="nordic"] .task-bubble.done .task-text,
 [data-theme="academie"] .bubble .bubble-text,
 [data-theme="academie"] .bubble.inprogress .bubble-text,
 [data-theme="academie"] .bubble.done .bubble-text,
 [data-theme="academie"] .task-bubble .task-text,
 [data-theme="academie"] .task-bubble.inprogress .task-text,
 [data-theme="academie"] .task-bubble.done .task-text {
-    color: #1a1a1a !important;
+    color: var(--text, #1a1a1a) !important;
     font-weight: 600 !important;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.3) !important;
+    text-shadow: none !important;
 }
 
 /* Texte blanc sur thèmes sombres */
@@ -1973,10 +2021,14 @@ body.logged-in .chatbot-fab {
     visibility: visible;
 }
 
+/* 3D Relief Premium Modal - TeamTalk inspired */
 .confirm-modal {
     position: relative;
-    background: var(--bg-card, #1e1e28);
-    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    background: linear-gradient(180deg,
+        rgba(35, 32, 45, 0.98) 0%,
+        rgba(25, 23, 32, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top-color: rgba(255, 255, 255, 0.15);
     border-radius: 24px;
     padding: 40px;
     max-width: 400px;
@@ -1984,30 +2036,29 @@ body.logged-in .chatbot-fab {
     text-align: center;
     transform: scale(0.8) translateY(40px);
     transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* 3D relief shadow - subtle depth effect */
     box-shadow:
-        0 0 60px var(--accent-glow, rgba(99, 102, 241, 0.15)),
-        0 30px 60px rgba(0, 0, 0, 0.5);
+        0 2px 0 rgba(255, 255, 255, 0.03) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.3) inset,
+        0 25px 60px -15px rgba(0, 0, 0, 0.5),
+        0 10px 30px -10px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
     overflow: hidden;
+    backdrop-filter: blur(20px);
 }
 
-/* Accent glow border */
+/* 3D Relief border - Premium TeamTalk style (no rotation) */
 .confirm-modal::before {
     content: '';
     position: absolute;
     inset: -1px;
-    background: linear-gradient(45deg,
-        transparent 30%,
-        var(--accent, #6366f1) 50%,
-        transparent 70%);
+    background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%);
     border-radius: 25px;
     z-index: -1;
-    animation: rotateBorder 4s linear infinite;
-    opacity: 0.5;
-}
-
-@keyframes rotateBorder {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    pointer-events: none;
 }
 
 /* Top accent line */
@@ -2851,4 +2902,323 @@ body.logged-in .sidebar-mobile-overlay.active {
     .project-empty-title {
         font-size: 1.2rem;
     }
+}
+
+/* ================================================
+   3D RELIEF PREMIUM STYLING - Theme Aware
+   Uses CSS variables to respect active theme
+   ================================================ */
+
+/* === Relief Variables - Theme Aware === */
+:root {
+    /* Relief uses theme colors via CSS variables */
+    --relief-inset-light: rgba(255, 255, 255, 0.05);
+    --relief-inset-dark: rgba(0, 0, 0, 0.15);
+    --relief-border-light: rgba(255, 255, 255, 0.08);
+    --relief-shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+/* === Task Cards - Subtle 3D with Theme Colors === */
+.bubble,
+.task-card,
+.dashboard-card,
+.stat-card,
+.note-card {
+    /* Let theme background show through, just add depth */
+    border: 1px solid var(--border, var(--relief-border-light)) !important;
+    border-top-color: var(--relief-border-light) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 -1px 0 var(--relief-inset-dark) inset,
+        var(--relief-shadow-soft) !important;
+    transition: all 0.25s ease !important;
+}
+
+.bubble:hover,
+.task-card:hover,
+.dashboard-card:hover {
+    border-color: var(--accent, currentColor) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 -1px 0 var(--relief-inset-dark) inset,
+        0 15px 40px -10px rgba(0, 0, 0, 0.4),
+        0 0 25px var(--accent-glow, rgba(99, 102, 241, 0.15)) !important;
+    transform: translateY(-2px);
+}
+
+/* === Input Fields - Glass with Theme === */
+.modal-input,
+.modal-textarea,
+.modal-select,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.3)) !important;
+    border: 1px solid var(--border, var(--relief-border-light)) !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-dark) inset !important;
+    transition: all 0.3s ease !important;
+}
+
+.modal-input:focus,
+.modal-textarea:focus,
+.modal-select:focus,
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent, #6366f1) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-dark) inset,
+        0 0 0 3px var(--accent-glow, rgba(99, 102, 241, 0.15)) !important;
+    outline: none !important;
+}
+
+/* === Buttons - 3D with Theme Accent === */
+.btn,
+.btn-primary,
+.btn-secondary,
+.modal-action-btn,
+.confirm-modal-btn {
+    position: relative;
+    border-radius: 12px !important;
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1)) !important;
+    border-top-color: var(--relief-border-light) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 -1px 0 var(--relief-inset-dark) inset,
+        0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.btn:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.modal-action-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 -1px 0 var(--relief-inset-dark) inset,
+        0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn:active,
+.btn-primary:active,
+.btn-secondary:active {
+    transform: translateY(0) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-dark) inset !important;
+}
+
+/* === Dashboard Widgets - Theme Aware === */
+.dash-chart-card,
+.analytics-card,
+.settings-card,
+.report-card {
+    background: var(--bg-card, var(--surface, rgba(26, 26, 46, 0.9))) !important;
+    border: 1px solid var(--border, var(--relief-border-light)) !important;
+    border-top-color: var(--relief-border-light) !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 15px 40px -15px rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(10px);
+}
+
+/* === Sidebar Items - Respects Theme === */
+.sidebar-nav-item,
+.nav-item {
+    border-radius: 10px !important;
+    transition: all 0.25s ease !important;
+}
+
+.sidebar-nav-item:hover,
+.nav-item:hover {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.05)) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.sidebar-nav-item.active,
+.nav-item.active {
+    background: var(--accent-muted, rgba(99, 102, 241, 0.1)) !important;
+    border: 1px solid var(--accent, currentColor) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        0 0 15px var(--accent-glow, rgba(99, 102, 241, 0.1)) !important;
+}
+
+/* === Chatbot Panel - Theme Glass === */
+.chatbot-panel {
+    background: var(--bg-card, var(--surface, rgba(26, 26, 46, 0.98))) !important;
+    border: 1px solid var(--border, var(--relief-border-light)) !important;
+    border-top-color: var(--relief-border-light) !important;
+    box-shadow: 
+        0 1px 0 var(--relief-inset-light) inset,
+        -10px 0 40px rgba(0, 0, 0, 0.4),
+        0 0 40px var(--accent-glow, rgba(99, 102, 241, 0.05)) !important;
+    backdrop-filter: blur(15px);
+}
+
+/* === FAB Button - Theme Accent === */
+.chatbot-fab,
+.fab-btn {
+    background: var(--accent, linear-gradient(145deg, #6366f1, #4f46e5)) !important;
+    border: none !important;
+    box-shadow: 
+        0 2px 0 rgba(255, 255, 255, 0.15) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.2) inset,
+        0 8px 25px rgba(0, 0, 0, 0.35),
+        0 0 25px var(--accent-glow, rgba(99, 102, 241, 0.25)) !important;
+}
+
+.chatbot-fab:hover,
+.fab-btn:hover {
+    transform: translateY(-3px) scale(1.05) !important;
+    box-shadow: 
+        0 2px 0 rgba(255, 255, 255, 0.2) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.25) inset,
+        0 15px 40px rgba(0, 0, 0, 0.45),
+        0 0 40px var(--accent-glow, rgba(99, 102, 241, 0.35)) !important;
+}
+
+/* === Scrollbars - Theme Accent === */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.2));
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent, #6366f1);
+    opacity: 0.5;
+    border-radius: 4px;
+    border: 1px solid var(--relief-inset-light);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    opacity: 0.8;
+}
+
+/* === Remove ALL Rotating Animations === */
+.modal-box::before,
+.confirm-modal::before,
+.card::before {
+    animation: none !important;
+}
+
+/* === DISABLE Divine Rotate Animations (golden spinning backgrounds) === */
+#view-team-messaging::before,
+#view-campaigns::before,
+.ai-btn::after,
+.msg-container::before {
+    animation: none !important;
+    opacity: 0 !important;
+}
+
+/* Force disable ALL rotating animations (golden spinning) */
+@keyframes divineRotate { from, to { transform: none; } }
+@keyframes campaignDivineRotate { from, to { transform: none; } }
+@keyframes ai-btnRotate { from, to { transform: none; } }
+@keyframes ai-ambientRotate { from, to { transform: none; } }
+@keyframes borderRotate { from, to { transform: none; } }
+@keyframes ringRotate { from, to { transform: none; } }
+@keyframes sparkleRotate { from, to { transform: none; } }
+@keyframes sunRotate { from, to { transform: none; } }
+@keyframes pageFlip { from, to { transform: none; } }
+
+/* Disable ALL ::before pseudo-elements that rotate */
+*[class*="view-"]::before,
+*[class*="modal"]::before,
+.ai-btn::after {
+    animation: none !important;
+}
+
+/* === CRITICAL: Force hide modals with .hidden class === */
+#edit-task-modal.hidden,
+#theme-modal.hidden,
+#project-modal.hidden,
+#premium-report-modal.hidden,
+#premium-results-modal.hidden,
+.modal.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* === Modal Styles - Theme Aware === */
+.modal-box,
+.confirm-modal {
+    background: var(--bg-card, var(--surface, rgba(30, 30, 45, 0.98))) !important;
+    border: 1px solid var(--border, var(--relief-border-light)) !important;
+    border-top-color: var(--relief-border-light) !important;
+    box-shadow: 
+        0 2px 0 var(--relief-inset-light) inset,
+        0 -2px 0 var(--relief-inset-dark) inset,
+        0 25px 60px -15px rgba(0, 0, 0, 0.5),
+        0 0 0 1px var(--relief-inset-light) !important;
+    backdrop-filter: blur(20px);
+}
+
+/* === Theme-specific overrides === */
+
+/* Light themes (Minimal, Academie) */
+[data-theme="minimal"],
+[data-theme="academie"] {
+    --relief-inset-light: rgba(255, 255, 255, 0.5);
+    --relief-inset-dark: rgba(0, 0, 0, 0.08);
+    --relief-border-light: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="minimal"] .bubble,
+[data-theme="minimal"] .task-card,
+[data-theme="minimal"] .modal-box,
+[data-theme="academie"] .bubble,
+[data-theme="academie"] .task-card,
+[data-theme="academie"] .modal-box {
+    box-shadow: 
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 -1px 0 rgba(0, 0, 0, 0.05) inset,
+        0 10px 30px -10px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Matrix/Hacker themes - Green glow */
+[data-theme="matrix"],
+[data-theme="hacker"] {
+    --accent-glow: rgba(0, 255, 100, 0.2);
+}
+
+/* Cyberpunk theme - Pink glow */
+[data-theme="cyberpunk"] {
+    --accent-glow: rgba(255, 0, 150, 0.2);
+}
+
+/* Ocean theme - Blue glow */
+[data-theme="ocean"] {
+    --accent-glow: rgba(0, 150, 255, 0.2);
+}
+
+/* Forest theme - Green glow */
+[data-theme="forest"] {
+    --accent-glow: rgba(34, 197, 94, 0.2);
+}
+
+/* Sunset theme - Orange glow */
+[data-theme="sunset"] {
+    --accent-glow: rgba(255, 150, 50, 0.2);
+}
+
+/* Aurora theme - Purple glow */
+[data-theme="aurora"] {
+    --accent-glow: rgba(150, 100, 255, 0.2);
 }

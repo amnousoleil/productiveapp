@@ -33,7 +33,7 @@ body {
 .main-content {
     margin-left: 60px;
     min-height: 100vh;
-    background: var(--bg-primary);
+    background: transparent; /* Let body gradient show through */
     transition: margin-left var(--transition);
 }
 

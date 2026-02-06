@@ -1,49 +1,39 @@
 /**
- * ProductiveApp Service Worker v4.0
- * PWA avec cache intelligent et mode offline
+ * ProductiveApp Service Worker v5.0
+ * PWA avec cache intelligent - network-first pour CSS/JS
  */
 
-const CACHE_NAME = 'productiveapp-v4';
-const STATIC_CACHE = 'static-v4';
-const API_CACHE = 'api-v4';
+const CACHE_VERSION = 'v8-fix-external';
+const STATIC_CACHE = 'static-' + CACHE_VERSION;
+const API_CACHE = 'api-' + CACHE_VERSION;
 
-// Fichiers à mettre en cache immédiatement
-const STATIC_FILES = [
+// Fichiers critiques à pré-cacher
+const PRECACHE_FILES = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/css/style-base.css',
-  '/css/style-components.css',
-  '/css/style-themes.css',
-  '/js/modules/config.js',
-  '/js/modules/state.js',
-  '/js/modules/utils.js',
-  '/js/app-modular.js'
+  '/manifest.json'
 ];
 
-// Installation - Cache les fichiers statiques
+// Installation - Cache les fichiers critiques et force l'activation
 self.addEventListener('install', (event) => {
-  console.log('🔧 SW: Installing...');
+  console.log('🔧 SW v6: Installing...');
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then(cache => {
-        console.log('📦 SW: Caching static files');
-        return cache.addAll(STATIC_FILES);
-      })
+      .then(cache => cache.addAll(PRECACHE_FILES))
       .then(() => self.skipWaiting())
   );
 });
 
-// Activation - Nettoie les vieux caches
+// Activation - Supprime TOUS les anciens caches
 self.addEventListener('activate', (event) => {
-  console.log('✅ SW: Activated');
+  console.log('✅ SW v5: Activated - clearing old caches');
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames
-          .filter(name => !name.includes('v4'))
+          .filter(name => name !== STATIC_CACHE && name !== API_CACHE)
           .map(name => {
-            console.log('🗑️ SW: Deleting old cache:', name);
+            console.log('🗑️ SW: Deleting cache:', name);
             return caches.delete(name);
           })
       );
@@ -51,24 +41,64 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch - Stratégie cache-first pour static, network-first pour API
+// Fetch strategy
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // API calls - Network first, cache fallback
+  // CRITICAL: Skip external URLs (CDNs, fonts, images from other domains)
+  // Let the browser handle these directly without service worker interference
+  if (url.origin !== self.location.origin) {
+    return; // Don't intercept - let browser handle normally
+  }
+
+  // API calls - Network first
   if (url.pathname.startsWith('/api/')) {
     event.respondWith(networkFirstStrategy(event.request));
     return;
   }
 
-  // Static files - Cache first, network fallback
+  // CSS & JS files - ALWAYS network first (theme changes must be immediate)
+  if (url.pathname.match(/\.(css|js)$/)) {
+    event.respondWith(networkFirstStrategy(event.request));
+    return;
+  }
+
+  // index.html - Network first (cache busting versions)
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    event.respondWith(networkFirstStrategy(event.request));
+    return;
+  }
+
+  // Images, fonts, other static assets - Cache first (rarely change)
   event.respondWith(cacheFirstStrategy(event.request));
 });
 
-// Cache-first strategy
+// Network-first: try network, fallback to cache
+async function networkFirstStrategy(request) {
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    if (request.url.includes('/api/')) {
+      return new Response(JSON.stringify({
+        success: false,
+        error: { code: 'OFFLINE', message: 'Mode hors ligne' }
+      }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    }
+    return new Response('Offline', { status: 503 });
+  }
+}
+
+// Cache-first: try cache, fallback to network (for images/fonts)
 async function cacheFirstStrategy(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
@@ -85,43 +115,18 @@ async function cacheFirstStrategy(request) {
   }
 }
 
-// Network-first strategy for API
-async function networkFirstStrategy(request) {
-  try {
-    const response = await fetch(request);
-    if (response.ok) {
-      const cache = await caches.open(API_CACHE);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    const cached = await caches.match(request);
-    if (cached) return cached;
-    return new Response(JSON.stringify({
-      success: false,
-      error: { code: 'OFFLINE', message: 'Mode hors ligne' }
-    }), {
-      status: 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-}
-
 // Push notifications
 self.addEventListener('push', (event) => {
   if (!event.data) return;
-
   const data = event.data.json();
-  const options = {
-    body: data.body || 'Nouvelle notification',
-    icon: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png',
-    badge: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png',
-    vibrate: [100, 50, 100],
-    data: data.url || '/'
-  };
-
   event.waitUntil(
-    self.registration.showNotification(data.title || 'ProductiveApp', options)
+    self.registration.showNotification(data.title || 'ProductiveApp', {
+      body: data.body || 'Nouvelle notification',
+      icon: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png',
+      badge: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png',
+      vibrate: [100, 50, 100],
+      data: data.url || '/'
+    })
   );
 });
 
@@ -138,4 +143,4 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-console.log('🚀 ProductiveApp Service Worker v4.0 loaded');
+console.log('🚀 ProductiveApp Service Worker v8 loaded - External URLs bypass enabled');

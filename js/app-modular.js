@@ -111,9 +111,30 @@ const App = {
                 if (typeof initAnimation === 'function') initAnimation();
             }, 100);
 
+            // CRITICAL: Ensure all modals are closed on startup
+            this.closeAllModals();
+
             console.log(`✅ ProductiveApp v${this.VERSION} prête !`);
         } catch (error) {
             console.error('❌ App.init() error:', error);
+        }
+    },
+
+    /**
+     * Close all modals on startup (prevents stale modals from appearing)
+     */
+    closeAllModals() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                console.log('🔒 Closed stale modal:', modal.id);
+            }
+        });
+        // Also close any confirm modals
+        const confirmModal = document.querySelector('.confirm-modal-overlay');
+        if (confirmModal) {
+            confirmModal.classList.remove('active');
         }
     },
 
