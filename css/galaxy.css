@@ -527,3 +527,25 @@
 .galaxy-overlay:not(.hidden) {
     animation: galaxyFadeIn 0.3s ease;
 }
+
+/* === GALAXY VIEW CONTAINER (Excalidraw iframe) === */
+#view-galaxy.active {
+    display: flex !important;
+    flex-direction: column;
+    padding: 0;
+    max-width: none;
+    height: 100vh;
+}
+#view-galaxy #galaxy-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--surface, #1a1a2e);
+    border-bottom: 1px solid var(--border, #333);
+    flex-shrink: 0;
+}
+#view-galaxy #galaxy-iframe {
+    flex: 1;
+    min-height: 0;
+}

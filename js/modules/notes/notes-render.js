@@ -99,6 +99,7 @@ const NotesRender = (function() {
                           placeholder="Tapez '/' pour les commandes..."
                           oninput="NotesEditor.handleInput(this)"
                           onkeydown="NotesEditor.handleKeydown(event)">${escapeHtml(note.content)}</textarea>
+                ${typeof NotesAI !== 'undefined' ? NotesAI.getFabHTML() : ''}
             </div>
             <div class="notes-editor-footer">
                 <div class="save-indicator saved">${renderSaveIndicator('saved')}</div>

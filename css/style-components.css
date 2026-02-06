@@ -113,14 +113,14 @@
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    background: rgba(0, 0, 0, 0.95);
+    background: var(--bg-secondary, rgba(0, 0, 0, 0.95));
     backdrop-filter: blur(20px) saturate(180%);
     border: 2px solid var(--accent);
     border-radius: var(--radius-lg);
     box-shadow:
         0 10px 40px rgba(0,0,0,0.6),
         0 0 30px var(--accent-glow),
-        inset 0 1px 0 rgba(255,255,255,0.1);
+        inset 0 1px 0 var(--border, rgba(255,255,255,0.1));
     min-width: 220px;
     opacity: 0;
     visibility: hidden;
@@ -144,8 +144,8 @@
     padding: 16px 20px;
     background: transparent;
     border: none;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    color: #f5f5f5;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+    color: var(--text, #f5f5f5);
     font-size: 1rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -258,7 +258,7 @@
 
 .bubble.inprogress .bubble-text,
 .task-bubble.inprogress .task-text {
-    color: #f5f5f5 !important;
+    color: var(--text, #f5f5f5) !important;
     font-weight: 600 !important;
 }
 
@@ -307,7 +307,7 @@
 .bubble.done .bubble-text,
 .task-bubble.done .task-text {
     text-decoration: line-through !important;
-    color: #f5f5f5 !important;
+    color: var(--bubble-done-text, var(--text, #f5f5f5)) !important;
     opacity: 1 !important;
 }
 
@@ -564,7 +564,7 @@
 .task-text {
     font-size: 0.95rem !important;
     line-height: 1.5 !important;
-    color: #f5f5f5 !important;
+    color: var(--text, #f5f5f5) !important;
 }
 
 /* === BOUTONS D'ACTION - CORRIGÉ === */
@@ -607,14 +607,14 @@
     font-size: 0.7rem !important;
     padding: 2px 8px !important;
     border-radius: 8px !important;
-    background: rgba(255,255,255,0.1) !important;
+    background: var(--bg-card, rgba(255,255,255,0.1)) !important;
     color: var(--text-muted) !important;
 }
 
 .task-priority.urgent,
 .bubble-priority.urgent {
     background: rgba(239, 68, 68, 0.3) !important;
-    color: #ff6b6b !important;
+    color: var(--danger, #ff6b6b) !important;
 }
 
 /* === Boutons d'action - Style === */
@@ -629,9 +629,9 @@
     font-weight: 500 !important;
 }
 
-.task-action-btn.start { background: #fbbf24 !important; color: #000 !important; }
-.task-action-btn.complete { background: #22c55e !important; color: #fff !important; }
-.task-action-btn.delete { background: #ef4444 !important; color: #fff !important; }
+.task-action-btn.start { background: var(--warning, #fbbf24) !important; color: #000 !important; }
+.task-action-btn.complete { background: var(--success, #22c55e) !important; color: #fff !important; }
+.task-action-btn.delete { background: var(--danger, #ef4444) !important; color: #fff !important; }
 
 .task-action-btn:hover { transform: scale(1.1) !important; }
 
@@ -648,6 +648,11 @@
    ============================================= */
 
 /* === MODAL OVERLAY (shared by all modals) === */
+/* CRITICAL: .modal.hidden must hide the modal */
+.modal.hidden {
+    display: none !important;
+}
+
 .modal {
     position: fixed;
     inset: 0;
@@ -667,22 +672,27 @@
     to { opacity: 1; }
 }
 
-/* === MODAL BOX (premium centered card) === */
+/* === MODAL BOX (3D Relief Premium - TeamTalk inspired) === */
 .modal-box {
     position: relative;
-    background: var(--bg-card, var(--bg-secondary));
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-secondary, rgba(35, 32, 45, 0.98));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
+    border-top-color: var(--border-strong, rgba(255, 255, 255, 0.15));
     border-radius: 24px;
     padding: 36px;
     max-width: 480px;
     width: 92%;
     text-align: center;
     animation: modalBoxIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    /* 3D relief shadow - subtle depth effect */
     box-shadow:
-        0 0 80px rgba(0, 0, 0, 0.6),
-        0 0 40px var(--accent-glow, rgba(99, 102, 241, 0.1)),
-        0 30px 60px rgba(0, 0, 0, 0.4);
+        0 2px 0 rgba(255, 255, 255, 0.03) inset,
+        0 -2px 0 rgba(0, 0, 0, 0.3) inset,
+        0 25px 60px -15px rgba(0, 0, 0, 0.5),
+        0 10px 30px -10px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
     overflow: visible;
+    backdrop-filter: blur(20px);
 }
 
 @keyframes modalBoxIn {
@@ -696,25 +706,18 @@
     }
 }
 
-/* Accent glow border effect */
+/* 3D Relief border effect - Premium TeamTalk style (no rotation) */
 .modal-box::before {
     content: '';
     position: absolute;
-    inset: -2px;
-    background: linear-gradient(45deg,
-        transparent 30%,
-        var(--accent, #6366f1) 50%,
-        transparent 70%);
-    border-radius: 26px;
+    inset: -1px;
+    background: linear-gradient(145deg,
+        rgba(255, 255, 255, 0.12) 0%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 100%);
+    border-radius: 25px;
     z-index: -1;
-    animation: modalBorderGlow 4s linear infinite;
-    opacity: 0.4;
     pointer-events: none;
-}
-
-@keyframes modalBorderGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 /* Top accent line */
@@ -742,7 +745,7 @@
 .modal-input {
     width: 100%;
     padding: 14px 18px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     border-radius: 14px;
     background: var(--bg-primary, rgba(0, 0, 0, 0.3));
     color: var(--text-primary, var(--text));
@@ -795,13 +798,13 @@
 }
 
 .modal-actions .btn-secondary {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-card, rgba(255, 255, 255, 0.06));
     color: var(--text-secondary, rgba(255, 255, 255, 0.8));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
 }
 
 .modal-actions .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.1));
     color: var(--text-primary, #fff);
     transform: translateY(-2px);
 }
@@ -1687,7 +1690,7 @@
     width: 36px;
     height: 36px;
     border: none;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-card, rgba(255, 255, 255, 0.05));
     color: var(--text-muted, #888);
     font-size: 1.5rem;
     line-height: 1;
@@ -1700,7 +1703,7 @@
     z-index: 10;
 }
 .theme-modal-close:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.12));
     color: var(--text, #fff);
     transform: scale(1.1);
 }

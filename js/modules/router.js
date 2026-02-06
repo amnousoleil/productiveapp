@@ -22,6 +22,7 @@ const ViewRouter = (function() {
         accounting: 'view-accounting',
         psychoAudit: 'view-psycho-audit',
         teamMessaging: 'view-team-messaging',
+        campaigns: 'view-campaigns',
         gamification: 'view-gamification',
         behavioral: 'view-behavioral'
     };
@@ -115,8 +116,9 @@ const ViewRouter = (function() {
                 // Tasks are already rendered by the existing system
                 break;
             case 'galaxy':
-                // Galaxy uses embedded iframe in #view-galaxy, no extra init needed
-                // The iframe src="/galaxy/index.html" loads Excalidraw directly
+                if (typeof GalaxieView !== 'undefined') {
+                    GalaxieView.refresh();
+                }
                 break;
             case 'accounting':
                 if (typeof AccountingView !== 'undefined') {
@@ -135,6 +137,11 @@ const ViewRouter = (function() {
             case 'teamMessaging':
                 if (typeof Messaging !== 'undefined') {
                     Messaging.refresh();
+                }
+                break;
+            case 'campaigns':
+                if (typeof CampaignsModule !== 'undefined') {
+                    CampaignsModule.show();
                 }
                 break;
             case 'gamification':

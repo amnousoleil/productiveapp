@@ -210,12 +210,26 @@
 .skeleton {
     background: linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.05) 25%,
-        rgba(255, 255, 255, 0.1) 50%,
-        rgba(255, 255, 255, 0.05) 75%
+        var(--skeleton-base, rgba(255, 255, 255, 0.05)) 25%,
+        var(--skeleton-shine, rgba(255, 255, 255, 0.1)) 50%,
+        var(--skeleton-base, rgba(255, 255, 255, 0.05)) 75%
     );
     background-size: 200% 100%;
     animation: skeleton 1.5s ease-in-out infinite;
+}
+
+/* Light theme skeleton overrides */
+[data-theme="ivory"] .skeleton,
+[data-theme="sakura"] .skeleton,
+[data-theme="pastel"] .skeleton,
+[data-theme="mint"] .skeleton,
+[data-theme="paper"] .skeleton,
+[data-theme="porcelain"] .skeleton,
+[data-theme="zen"] .skeleton,
+[data-theme="watercolor"] .skeleton,
+[data-theme="nordic"] .skeleton {
+    --skeleton-base: rgba(0, 0, 0, 0.05);
+    --skeleton-shine: rgba(0, 0, 0, 0.1);
 }
 
 @keyframes skeleton {
@@ -243,10 +257,23 @@
     background: linear-gradient(
         90deg,
         transparent,
-        rgba(255, 255, 255, 0.2),
+        var(--progress-shine, rgba(255, 255, 255, 0.2)),
         transparent
     );
     animation: progressSlide 1.5s ease-in-out infinite;
+}
+
+/* Light theme progress overrides */
+[data-theme="ivory"] .progress-line::after,
+[data-theme="sakura"] .progress-line::after,
+[data-theme="pastel"] .progress-line::after,
+[data-theme="mint"] .progress-line::after,
+[data-theme="paper"] .progress-line::after,
+[data-theme="porcelain"] .progress-line::after,
+[data-theme="zen"] .progress-line::after,
+[data-theme="watercolor"] .progress-line::after,
+[data-theme="nordic"] .progress-line::after {
+    --progress-shine: rgba(0, 0, 0, 0.15);
 }
 
 @keyframes progressSlide {

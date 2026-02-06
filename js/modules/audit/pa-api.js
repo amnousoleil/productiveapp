@@ -25,14 +25,17 @@ const PaApi = (function() {
 
         try {
             var response = await Api.get('/audit/workspace/' + workspaceId + '/psycho');
-            var audits = Array.isArray(response.data) ? response.data : [];
+            var raw = response.data;
+            var audits = Array.isArray(raw) ? raw : (raw && Array.isArray(raw.data) ? raw.data : []);
             // Normalize API response to local format
             return audits.map(function(a) {
+                var ans = a.answers;
+                if (typeof ans === 'string') { try { ans = JSON.parse(ans); } catch(e) { ans = {}; } }
                 return {
                     id: a.id,
                     date: a.created_at || a.date,
                     score: a.score,
-                    answers: a.answers || {}
+                    answers: ans || {}
                 };
             });
         } catch (e) {
@@ -65,7 +68,7 @@ const PaApi = (function() {
             // Award XP for completing audit
             await awardXP(workspaceId);
 
-            return response.data?.audit || audit;
+            return response.data?.data || response.data?.audit || audit;
         } catch (e) {
             console.warn('PaApi: Save failed', e);
             return audit;

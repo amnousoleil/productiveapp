@@ -186,7 +186,7 @@
     align-items: center;
     gap: 14px;
     padding: 16px 18px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-card, rgba(255, 255, 255, 0.03));
     border: 1px solid transparent;
     border-radius: 12px;
     cursor: pointer;
@@ -194,7 +194,7 @@
 }
 
 .quick-action:hover {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-tertiary, rgba(255, 255, 255, 0.06));
     border-color: var(--dashboard-border);
     transform: translateX(4px);
 }
@@ -218,7 +218,7 @@
 .quick-action span {
     font-size: 14px;
     font-weight: 500;
-    color: #e4e4e7;
+    color: var(--text, #e4e4e7);
 }
 
 /* === ACTIVITY LIST === */
@@ -237,7 +237,7 @@
 }
 
 .activity-item:hover {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-card, rgba(255, 255, 255, 0.03));
 }
 
 .activity-icon {
@@ -248,8 +248,8 @@
     align-items: center;
     justify-content: center;
     font-size: 16px;
-    background: rgba(255, 255, 255, 0.05);
-    color: #a1a1aa;
+    background: var(--bg-card, rgba(255, 255, 255, 0.05));
+    color: var(--text-muted, #a1a1aa);
     flex-shrink: 0;
 }
 
@@ -262,7 +262,7 @@
     display: block;
     font-size: 14px;
     font-weight: 500;
-    color: #fafafa;
+    color: var(--text, #fafafa);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -270,13 +270,13 @@
 
 .activity-content p {
     font-size: 12px;
-    color: #71717a;
+    color: var(--text-muted, #71717a);
     margin: 3px 0 0;
 }
 
 .activity-time {
     font-size: 12px;
-    color: #52525b;
+    color: var(--text-muted, #52525b);
     flex-shrink: 0;
     font-weight: 500;
 }
@@ -288,7 +288,7 @@
 
 .progress-bar-container {
     height: 8px;
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--bg-card, rgba(255, 255, 255, 0.06));
     border-radius: 4px;
     overflow: hidden;
     display: flex;
@@ -311,7 +311,7 @@
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: #a1a1aa;
+    color: var(--text-muted, #a1a1aa);
     font-weight: 500;
 }
 

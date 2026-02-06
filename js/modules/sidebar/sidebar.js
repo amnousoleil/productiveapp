@@ -29,6 +29,7 @@ const Sidebar = (function() {
         { id: 'divider1', type: 'divider' },
         { id: 'mahayawen', icon: 'bot', label: 'Mahayawen', tooltip: 'Assistant IA Mahayawen', badge: true },
         { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'TeamTalk' },
+        { id: 'campaigns', icon: 'mail', label: 'Campagnes', tooltip: 'Email Campaigns', tag: 'NEW' },
         { id: 'journal', icon: 'book-open', label: 'Journal', tooltip: 'Journal d\'activité' },
         { id: 'divider2', type: 'divider' },
         { id: 'psycho-audit', icon: 'brain', label: 'Psycho-Audit', tooltip: 'Analyse comportementale', tag: 'NEW' },
@@ -264,6 +265,9 @@ const Sidebar = (function() {
                 break;
             case 'team-messaging':
                 if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('teamMessaging');
+                break;
+            case 'campaigns':
+                if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('campaigns');
                 break;
             case 'journal':
                 // Navigate to tasks then scroll

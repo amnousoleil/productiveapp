@@ -9,9 +9,9 @@
 
 ---
 
-> **Dernière mise à jour** : 2026-02-06 18:00
-> **Version** : 4.1.0
-> **Statut** : ✅ Production STABLE - PWA + WebSocket + Charts
+> **Dernière mise à jour** : 2026-02-06 22:30
+> **Version** : 4.3.0
+> **Statut** : ✅ Production STABLE - PWA + WebSocket + Charts + 3D Relief UI + Notes AI
 
 ---
 
@@ -88,6 +88,47 @@
 **Probleme** : Le modal d'edition s'ouvrait automatiquement au login.
 **Cause** : `#edit-task-modal { display: flex !important }` ecrasait `.hidden`.
 **Solution** : Ajoute `#edit-task-modal.hidden { display: none !important }` en premier.
+
+### UI Premium v4.2 - 3D Relief (2026-02-06)
+**Améliorations visuelles inspirées de TeamTalk :**
+- **Suppression des animations rotatives** sur tous les modals (modalBorderGlow, rotateBorder)
+- **Style 3D relief** : Subtle depth avec inset shadows et gradients
+- **Glass effect** : backdrop-filter blur sur les panels et modals
+- **Borders premium** : border-top plus clair pour effet de lumière
+- **Hover effects** : translateY et glow subtils, pas de rotations
+
+**Fichiers modifiés :**
+- `css/style-components.css` : `.modal.hidden` rule, `.modal-box::before` sans rotation
+- `css/style-overrides.css` : `.confirm-modal` style 3D, section "3D RELIEF PREMIUM STYLING"
+
+**Variables CSS ajoutées :**
+```css
+--relief-light: rgba(255, 255, 255, 0.08);
+--relief-dark: rgba(0, 0, 0, 0.3);
+--relief-glass: rgba(255, 255, 255, 0.03);
+--relief-shadow: 0 2px 0 rgba(255, 255, 255, 0.02) inset, ...;
+```
+
+### Notes AI v4.3 - Assistant IA pour notes (2026-02-06)
+**Fonctionnalités IA intégrées aux notes :**
+- **Correction orthographique** : Corrige automatiquement fautes et grammaire
+- **Reformulation** : Rend le texte plus clair et fluide
+- **Résumé** : Condense le texte en gardant l'essentiel
+- **Complétion** : Ajoute des détails pertinents
+- **Mode professionnel** : Transforme en version formelle et structurée
+
+**Fichiers créés :**
+- `js/modules/notes/notes-ai.js` - Module IA (14KB)
+- `css/notes-ai.css` - Styles FAB et modal preview (8KB)
+
+**UI :**
+- Bouton IA (robot) dans la toolbar des notes
+- FAB (Floating Action Button) en bas à droite de l'éditeur
+- Modal de preview avant application des changements
+
+**Raccourcis clavier :**
+- `Ctrl+Shift+A` : Ouvrir/fermer le menu IA
+- `Ctrl+Shift+C` : Correction rapide (dans textarea)
 
 ---
 

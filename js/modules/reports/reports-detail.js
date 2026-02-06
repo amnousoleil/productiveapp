@@ -17,7 +17,7 @@ const ReportsDetail = (function() {
      * Generer le HTML du contenu du detail
      */
     function renderContent(report, icons) {
-        var m = report.metrics || {};
+        var m = typeof report.metrics === 'string' ? JSON.parse(report.metrics) : (report.metrics || {});
         var periodStart = new Date(report.period_start);
         var periodEnd = new Date(report.period_end);
 

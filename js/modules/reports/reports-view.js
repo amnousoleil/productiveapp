@@ -2,6 +2,7 @@
  * REPORTS VIEW - ProductiveApp v4.0
  * Orchestrateur principal du module Rapports
  * Sous-modules: reports-api, reports-cards, reports-list, reports-detail, reports-styles
+ * Integre AIReportsView pour les charts et insights IA
  */
 
 const ReportsView = (function() {
@@ -32,7 +33,8 @@ const ReportsView = (function() {
         summary: null,
         reports: [],
         selectedReport: null,
-        loading: false
+        loading: false,
+        activeTab: 'dashboard'
     };
 
     function getPeriodLabel() {
@@ -65,23 +67,64 @@ const ReportsView = (function() {
                         <button class="btn btn-primary" id="generate-report-btn">${icons.plus} Generer le rapport</button>
                     </div>
                 </div>
-                <div class="reports-filters">
-                    <div class="period-selector">
-                        <button class="period-btn ${state.periodType === 'week' ? 'active' : ''}" data-period="week">Semaine</button>
-                        <button class="period-btn ${state.periodType === 'month' ? 'active' : ''}" data-period="month">Mois</button>
-                        <button class="period-btn ${state.periodType === 'year' ? 'active' : ''}" data-period="year">Annee</button>
+
+                <!-- Tab Navigation -->
+                <div class="reports-tabs">
+                    <button class="reports-tab ${state.activeTab === 'dashboard' ? 'active' : ''}" data-tab="dashboard">
+                        ${icons.chart} Tableau de bord
+                    </button>
+                    <button class="reports-tab ${state.activeTab === 'insights' ? 'active' : ''}" data-tab="insights">
+                        <span style="font-size:16px">&#10024;</span> Insights IA
+                    </button>
+                    <button class="reports-tab ${state.activeTab === 'audit' ? 'active' : ''}" data-tab="audit">
+                        <span style="font-size:16px">&#128270;</span> Audit Premium
+                    </button>
+                </div>
+
+                <!-- Tab: Dashboard -->
+                <div class="reports-tab-content ${state.activeTab === 'dashboard' ? 'active' : ''}" id="tab-dashboard">
+                    <div class="reports-filters">
+                        <div class="period-selector">
+                            <button class="period-btn ${state.periodType === 'week' ? 'active' : ''}" data-period="week">Semaine</button>
+                            <button class="period-btn ${state.periodType === 'month' ? 'active' : ''}" data-period="month">Mois</button>
+                            <button class="period-btn ${state.periodType === 'year' ? 'active' : ''}" data-period="year">Annee</button>
+                        </div>
+                        <div class="period-navigation">
+                            <button class="nav-btn" id="prev-period">${icons.chevronLeft}</button>
+                            <span class="period-label" id="period-label">${getPeriodLabel()}</span>
+                            <button class="nav-btn" id="next-period">${icons.chevronRight}</button>
+                        </div>
                     </div>
-                    <div class="period-navigation">
-                        <button class="nav-btn" id="prev-period">${icons.chevronLeft}</button>
-                        <span class="period-label" id="period-label">${getPeriodLabel()}</span>
-                        <button class="nav-btn" id="next-period">${icons.chevronRight}</button>
+                    <div class="reports-summary" id="reports-summary"><div class="summary-loading">Chargement...</div></div>
+                    <div class="reports-section">
+                        <h2 class="section-title">${icons.calendar} Historique des rapports</h2>
+                        <div class="reports-list" id="reports-list"><div class="reports-loading">Chargement...</div></div>
                     </div>
                 </div>
-                <div class="reports-summary" id="reports-summary"><div class="summary-loading">Chargement...</div></div>
-                <div class="reports-section">
-                    <h2 class="section-title">${icons.calendar} Historique des rapports</h2>
-                    <div class="reports-list" id="reports-list"><div class="reports-loading">Chargement...</div></div>
+
+                <!-- Tab: AI Insights -->
+                <div class="reports-tab-content ${state.activeTab === 'insights' ? 'active' : ''}" id="tab-insights">
+                    <div id="reports-ai-container"></div>
                 </div>
+
+                <!-- Tab: Premium Audit -->
+                <div class="reports-tab-content ${state.activeTab === 'audit' ? 'active' : ''}" id="tab-audit">
+                    <div id="reports-audit-container">
+                        <div style="text-align:center; padding:40px 20px;">
+                            <div style="font-size:48px; margin-bottom:16px;">&#128270;</div>
+                            <h3 style="color:var(--text, #fff); margin-bottom:8px;">Audit Psycho-Comportemental</h3>
+                            <p style="color:var(--text-muted, #888); margin-bottom:24px; max-width:500px; margin-left:auto; margin-right:auto;">
+                                Analyse approfondie par IA de vos habitudes de travail, productivite et patterns comportementaux.
+                                6 types de rapports: Executif, Productivite, Habitudes, Projet, Equipe, Complet.
+                            </p>
+                            <button class="btn btn-primary" id="launch-audit-btn" style="padding:12px 32px; font-size:16px;">
+                                Lancer un audit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report detail modal -->
                 <div class="report-detail-modal" id="report-detail-modal" style="display: none;">
                     <div class="modal-backdrop"></div>
                     <div class="modal-content">
@@ -96,11 +139,63 @@ const ReportsView = (function() {
         `;
 
         ReportsStyles.inject();
+        injectTabStyles();
         bindEvents();
         await loadData();
+
+        // If insights tab is active, render AIReportsView
+        if (state.activeTab === 'insights') {
+            renderInsightsTab();
+        }
+    }
+
+    function injectTabStyles() {
+        if (document.getElementById('reports-tab-styles')) return;
+        var style = document.createElement('style');
+        style.id = 'reports-tab-styles';
+        style.textContent = `
+            .reports-tabs {
+                display: flex;
+                gap: 4px;
+                margin-bottom: 24px;
+                background: var(--surface, #1a1a2e);
+                padding: 4px;
+                border-radius: 12px;
+            }
+            .reports-tab {
+                flex: 1;
+                padding: 12px 20px;
+                border: none;
+                background: transparent;
+                color: var(--text-muted, #888);
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: 500;
+                font-size: 14px;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            .reports-tab:hover { color: var(--text, #fff); }
+            .reports-tab.active {
+                background: var(--primary, #E07840);
+                color: white;
+            }
+            .reports-tab svg { width: 16px; height: 16px; }
+            .reports-tab-content { display: none; }
+            .reports-tab-content.active { display: block; }
+        `;
+        document.head.appendChild(style);
     }
 
     function bindEvents() {
+        // Tab clicks
+        document.querySelectorAll('.reports-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() { switchTab(tab.dataset.tab); });
+        });
+
         document.querySelectorAll('.period-btn').forEach(function(btn) {
             btn.addEventListener('click', function() { setPeriod(btn.dataset.period); });
         });
@@ -109,6 +204,52 @@ const ReportsView = (function() {
         document.getElementById('generate-report-btn')?.addEventListener('click', generateReport);
         document.getElementById('close-detail')?.addEventListener('click', closeDetail);
         document.querySelector('.modal-backdrop')?.addEventListener('click', closeDetail);
+
+        // Audit launch
+        document.getElementById('launch-audit-btn')?.addEventListener('click', function() {
+            if (typeof ReportCreator !== 'undefined' && ReportCreator.open) {
+                ReportCreator.open();
+            } else {
+                console.warn('ReportCreator not available');
+            }
+        });
+    }
+
+    function switchTab(tabId) {
+        state.activeTab = tabId;
+
+        // Update tab buttons
+        document.querySelectorAll('.reports-tab').forEach(function(tab) {
+            tab.classList.toggle('active', tab.dataset.tab === tabId);
+        });
+
+        // Update tab content
+        document.querySelectorAll('.reports-tab-content').forEach(function(content) {
+            content.classList.remove('active');
+        });
+
+        var targetContent = document.getElementById('tab-' + tabId);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        }
+
+        // Render AI insights on first activation
+        if (tabId === 'insights') {
+            renderInsightsTab();
+        }
+    }
+
+    function renderInsightsTab() {
+        var container = document.getElementById('reports-ai-container');
+        if (!container) return;
+        if (container.dataset.rendered === 'true') return;
+
+        if (typeof AIReportsView !== 'undefined' && AIReportsView.render) {
+            AIReportsView.render(container);
+            container.dataset.rendered = 'true';
+        } else {
+            container.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding:40px;">Module AI Reports non disponible</p>';
+        }
     }
 
     async function setPeriod(period) {
@@ -182,10 +323,13 @@ const ReportsView = (function() {
     }
 
     async function refresh() {
+        // Reset AI tab rendered state so it re-renders on next visit
+        var aiContainer = document.getElementById('reports-ai-container');
+        if (aiContainer) aiContainer.dataset.rendered = 'false';
         await render();
     }
 
-    return { render: render, refresh: refresh, setPeriod: setPeriod, generateReport: generateReport };
+    return { render: render, refresh: refresh, setPeriod: setPeriod, generateReport: generateReport, switchTab: switchTab };
 })();
 
 if (typeof window !== 'undefined') {

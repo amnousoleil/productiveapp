@@ -3,7 +3,7 @@
  * PWA avec cache intelligent - network-first pour CSS/JS
  */
 
-const CACHE_VERSION = 'v8-fix-external';
+const CACHE_VERSION = 'v9-modal-layout-fix';
 const STATIC_CACHE = 'static-' + CACHE_VERSION;
 const API_CACHE = 'api-' + CACHE_VERSION;
 
@@ -143,4 +143,4 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-console.log('🚀 ProductiveApp Service Worker v8 loaded - External URLs bypass enabled');
+console.log('🚀 ProductiveApp Service Worker v9 loaded - Modal + Layout fixes');

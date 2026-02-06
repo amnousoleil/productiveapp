@@ -32,6 +32,7 @@ const Sidebar = (function() {
         { id: 'divider1', type: 'divider' },
         { id: 'mahayawen', icon: 'bot', label: 'Mahayawen', tooltip: 'Assistant IA', badge: true },
         { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'TeamTalk' },
+        { id: 'campaigns', icon: 'mail', label: 'Campagnes', tooltip: 'Email Campaigns', tag: 'NEW' },
         { id: 'journal', icon: 'book-open', label: 'Journal', tooltip: 'Journal d\'activité' },
         { id: 'divider2', type: 'divider' },
         { id: 'accounting', icon: 'calculator', label: 'Comptabilité', tooltip: 'Gestion comptable', tag: 'NEW' },
@@ -139,7 +140,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'accounting', 'psychoAudit', 'teamMessaging', 'reports', 'analytics', 'gamification', 'behavioral'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);
