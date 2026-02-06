@@ -5,10 +5,10 @@
 
 /* === VARIABLES === */
 :root {
-    --dashboard-bg: #14141a;
-    --dashboard-card: #1c1c24;
-    --dashboard-card-hover: #242430;
-    --dashboard-border: rgba(255, 255, 255, 0.08);
+    --dashboard-bg: var(--bg-primary, #14141a);
+    --dashboard-card: var(--bg-tertiary, #1c1c24);
+    --dashboard-card-hover: var(--bg-card, #242430);
+    --dashboard-border: var(--border, rgba(255, 255, 255, 0.08));
 }
 
 /* Theme-aware dashboard - uses theme variables when available */

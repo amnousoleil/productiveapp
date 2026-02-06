@@ -1,0 +1,43 @@
+{
+  "name": "ProductiveApp",
+  "short_name": "Productive",
+  "description": "Gestion de tâches Kanban avec IA intégrée",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#d4af37",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "business"],
+  "lang": "fr",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Nouvelle tâche",
+      "short_name": "Tâche",
+      "description": "Créer une nouvelle tâche",
+      "url": "/?action=new-task",
+      "icons": [{ "src": "https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Chat IA",
+      "short_name": "Chat",
+      "description": "Ouvrir l'assistant IA",
+      "url": "/?view=messaging",
+      "icons": [{ "src": "https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png", "sizes": "96x96" }]
+    }
+  ]
+}

@@ -11,14 +11,14 @@
 :root {
     --sb-width-open: 260px;
     --sb-width-closed: 64px;
-    --sb-bg: #0a0a0f;
-    --sb-border: rgba(255, 255, 255, 0.06);
-    --sb-text: #71717a;
-    --sb-text-hover: #a1a1aa;
-    --sb-text-active: #fafafa;
-    --sb-accent: #6366f1;
-    --sb-hover: rgba(255, 255, 255, 0.06);
-    --sb-active: rgba(99, 102, 241, 0.15);
+    --sb-bg: var(--bg-secondary, #0a0a0f);
+    --sb-border: var(--border, rgba(255, 255, 255, 0.06));
+    --sb-text: var(--text-muted, #71717a);
+    --sb-text-hover: var(--text, #a1a1aa);
+    --sb-text-active: var(--text, #fafafa);
+    --sb-accent: var(--accent, #6366f1);
+    --sb-hover: var(--bg-card, rgba(255, 255, 255, 0.06));
+    --sb-active: var(--bg-card, rgba(99, 102, 241, 0.15));
     --sb-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

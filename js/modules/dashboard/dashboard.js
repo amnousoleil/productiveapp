@@ -327,6 +327,9 @@ const Dashboard = (function() {
                     </div>
                 </div>
             </div>
+
+            <!-- Interactive Charts Section -->
+            <div id="dashboard-charts-container"></div>
         `;
 
         // Load API widgets asynchronously
@@ -344,6 +347,13 @@ const Dashboard = (function() {
         const insightsContainer = document.getElementById('dashboard-insights-container');
         if (insightsContainer && typeof DashInsights !== 'undefined') {
             insightsContainer.innerHTML = DashInsights.render();
+        }
+
+        // Load Charts section
+        const chartsContainer = document.getElementById('dashboard-charts-container');
+        if (chartsContainer && typeof DashCharts !== 'undefined') {
+            chartsContainer.innerHTML = DashCharts.renderChartsSection();
+            await DashCharts.init();
         }
     }
 

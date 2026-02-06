@@ -1,13 +1,15 @@
 /**
- * Messaging API Module
+ * Messaging API Module - Premium Edition
  * Handles all API calls to /api/v1/messaging
  * Maps backend snake_case responses to frontend camelCase
+ * Includes file upload support
  */
 
 const MessagingAPI = (function() {
     'use strict';
 
     const BASE_PATH = '/messaging';
+    const UPLOAD_PATH = '/uploads';
 
     function getWorkspaceId() {
         return ApiTokens.getWorkspaceId();
@@ -23,7 +25,7 @@ const MessagingAPI = (function() {
             const user = AppConfig.USERS.find(u => u.id === userId);
             if (user) return user.avatar;
         }
-        return '👤';
+        return '&#128100;';
     }
 
     /**
@@ -38,7 +40,7 @@ const MessagingAPI = (function() {
     }
 
     /**
-     * Map backend conversation → frontend format
+     * Map backend conversation to frontend format
      */
     function mapConversation(conv) {
         if (!conv) return null;
@@ -73,11 +75,23 @@ const MessagingAPI = (function() {
     }
 
     /**
-     * Map backend message → frontend format
+     * Map backend message to frontend format
      */
     function mapMessage(msg) {
         if (!msg) return null;
         const senderId = msg.sender_id;
+
+        // Parse attachments if string
+        let attachments = msg.attachments;
+        if (typeof attachments === 'string') {
+            try {
+                attachments = JSON.parse(attachments);
+            } catch (e) {
+                attachments = [];
+            }
+        }
+        attachments = attachments || [];
+
         return {
             id: msg.id,
             conversationId: msg.conversation_id,
@@ -91,7 +105,16 @@ const MessagingAPI = (function() {
             isPinned: msg.is_pinned || false,
             replyTo: msg.reply_to || null,
             reactions: msg.reactions || [],
-            messageType: msg.message_type || 'text'
+            messageType: msg.message_type || 'text',
+            attachments: attachments.map(att => ({
+                type: att.type || 'file',
+                url: att.url,
+                name: att.name || att.filename,
+                size: att.size
+            })),
+            attachmentUrl: attachments[0]?.url || null,
+            attachmentName: attachments[0]?.name || attachments[0]?.filename || null,
+            attachmentSize: attachments[0]?.size || null
         };
     }
 
@@ -121,12 +144,11 @@ const MessagingAPI = (function() {
 
         const response = await ApiFetch.fetchWithAuth(url);
         const rawMsgs = response.data || [];
-        // Backend returns DESC order, reverse to get chronological
         return rawMsgs.map(mapMessage).reverse();
     }
 
     /**
-     * Send a message
+     * Send a text message
      */
     async function sendMessage(conversationId, content) {
         const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/messages`, {
@@ -138,6 +160,50 @@ const MessagingAPI = (function() {
     }
 
     /**
+     * Send a message with attachments
+     */
+    async function sendMessageWithAttachments(conversationId, content, attachments) {
+        const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/messages`, {
+            method: 'POST',
+            body: JSON.stringify({
+                content: content || '',
+                message_type: attachments[0]?.type === 'image' ? 'image' : 'file',
+                attachments: attachments
+            })
+        });
+        const rawMsg = response.data?.message || response.data;
+        return mapMessage(rawMsg);
+    }
+
+    /**
+     * Upload a file
+     */
+    async function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Use fetch directly for multipart/form-data
+        const token = ApiTokens.getAccessToken();
+        const response = await fetch(`/api/v1${UPLOAD_PATH}/message`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error('Upload failed');
+        }
+
+        const data = await response.json();
+        return {
+            url: data.data?.url || data.url,
+            filename: data.data?.filename || data.filename || file.name
+        };
+    }
+
+    /**
      * Mark conversation as read
      */
     async function markAsRead(conversationId) {
@@ -146,7 +212,6 @@ const MessagingAPI = (function() {
                 method: 'POST'
             });
         } catch (error) {
-            // Non-critical, don't propagate
             console.warn('MessagingAPI: Failed to mark as read');
         }
     }
@@ -158,7 +223,6 @@ const MessagingAPI = (function() {
         const workspaceId = getWorkspaceId();
         if (!workspaceId) throw new Error('No workspace ID');
 
-        // Auto-detect type
         const convType = type || (participantIds.length === 1 ? 'direct' : 'group');
 
         const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`, {
@@ -190,13 +254,12 @@ const MessagingAPI = (function() {
 
     /**
      * Get team members for new conversation
-     * Uses AppConfig.USERS (team members defined in config)
      */
     function getUsers() {
         if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
             const currentUserId = (typeof AppState !== 'undefined') ? AppState.currentUser?.id : null;
             return AppConfig.USERS
-                .filter(u => u.id !== currentUserId)
+                .filter(u => u.id !== currentUserId && u.id !== 'all')
                 .map(u => ({
                     id: u.id,
                     name: u.name,
@@ -245,10 +308,49 @@ const MessagingAPI = (function() {
         });
     }
 
+    /**
+     * Get conversation details
+     */
+    async function getConversation(conversationId) {
+        const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}`);
+        return mapConversation(response.data);
+    }
+
+    /**
+     * Add participant to conversation
+     */
+    async function addParticipant(conversationId, userId) {
+        return ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/participants`, {
+            method: 'POST',
+            body: JSON.stringify({ user_id: userId })
+        });
+    }
+
+    /**
+     * Remove participant from conversation
+     */
+    async function removeParticipant(conversationId, userId) {
+        return ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/participants/${userId}`, {
+            method: 'DELETE'
+        });
+    }
+
+    /**
+     * Leave conversation
+     */
+    async function leaveConversation(conversationId) {
+        return ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/leave`, {
+            method: 'POST'
+        });
+    }
+
     return {
         getConversations,
+        getConversation,
         getMessages,
         sendMessage,
+        sendMessageWithAttachments,
+        uploadFile,
         markAsRead,
         createConversation,
         searchMessages,
@@ -257,6 +359,9 @@ const MessagingAPI = (function() {
         removeReaction,
         updateMessage,
         deleteMessage,
+        addParticipant,
+        removeParticipant,
+        leaveConversation,
         getUserAvatar,
         getUserName
     };
