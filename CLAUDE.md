@@ -1,8 +1,17 @@
 # 🤖 CLAUDE.md - ProductiveApp Documentation
 
-> **Dernière mise à jour** : 2026-02-06 14:00
-> **Version** : 4.0.0
-> **Statut** : ✅ Production STABLE - N8N SUPPRIMÉ - Backend TypeScript Direct + PostgreSQL
+## ⛔ REGLE CRITIQUE - NE PAS VIOLER
+
+**NE JAMAIS CHANGER LE MOT DE PASSE** de `contact@mahagiri.fr` sans demande EXPLICITE et VALIDEE par l'utilisateur !
+- Mot de passe actuel : `444@`
+- Si l'utilisateur mentionne un probleme de connexion, DEMANDER D'ABORD avant de changer quoi que ce soit
+- Cette regle s'applique a TOUTES les sessions Claude Code
+
+---
+
+> **Dernière mise à jour** : 2026-02-06 18:00
+> **Version** : 4.1.0
+> **Statut** : ✅ Production STABLE - PWA + WebSocket + Charts
 
 ---
 
@@ -42,6 +51,43 @@
 - `js/modules/services/api-galaxy.js` - **NOUVEAU** - Module Galaxy backend
 - `js/galaxy.js` - Migration vers ApiGalaxy avec debounced saves
 - `/etc/nginx/snippets/security-headers.conf` - N8N retiré de CSP
+
+---
+
+## 🚀 MISE A JOUR v4.1 - PWA + WebSocket + Charts (2026-02-06)
+
+### Nouvelles fonctionnalites
+
+| Fonctionnalite | Fichiers | Description |
+|----------------|----------|-------------|
+| **PWA** | `manifest.json`, `sw.js`, `css/pwa.css` | App installable + mode offline + cache intelligent |
+| **WebSocket** | `js/modules/services/websocket.js` | Notifications temps reel + auto-reconnect |
+| **Theme Auto** | `js/modules/theme-auto.js` | Detection dark/light selon preference systeme |
+| **Dashboard Charts** | `js/modules/dashboard/dash-charts.js` | Graphiques Chart.js (weekly, donut, trend 30j) |
+| **PDF Premium** | `js/modules/reports/report.js` | Export PDF avec header, stats cards, design sombre |
+
+### PWA (Progressive Web App)
+- **manifest.json** : Permet l'installation sur telephone/desktop
+- **sw.js** : Service Worker v4 avec cache intelligent
+  - Cache-first pour fichiers statiques (CSS, JS, images)
+  - Network-first pour API (`/api/v1/*`)
+  - Support notifications push
+- **css/pwa.css** : Styles pour toasts XP, install prompt, offline indicator
+
+### WebSocket
+- Auto-reconnect avec backoff exponentiel
+- Listeners pour : task_update, notification, xp_gained, achievement
+- Toasts visuels pour XP et achievements
+
+### Dashboard Charts (Chart.js)
+- Graphique barres : Productivite hebdomadaire
+- Graphique donut : Repartition des taches (done/progress/todo)
+- Graphique ligne : Tendance 30 jours
+
+### Bug corrige : Modal edit-task
+**Probleme** : Le modal d'edition s'ouvrait automatiquement au login.
+**Cause** : `#edit-task-modal { display: flex !important }` ecrasait `.hidden`.
+**Solution** : Ajoute `#edit-task-modal.hidden { display: none !important }` en premier.
 
 ---
 
