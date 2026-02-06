@@ -78,27 +78,54 @@ const AuthLogin = {
         container.id = this.CONTAINER_ID;
         container.className = 'auth-login-overlay';
         container.innerHTML = `
-            <div class="auth-login-box">
-                <div class="auth-login-logo">
-                    <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo">
-                </div>
-                <h1 class="auth-login-title">ProductiveApp</h1>
+            <div class="auth-particles">
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
+                <span></span><span></span>
+            </div>
 
-                <!-- PHASE 1: Login Form -->
-                <div id="auth-login-form" class="auth-phase">
-                    <p class="auth-subtitle">Connexion équipe</p>
-                    <div class="auth-inputs">
-                        <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
-                        <input type="password" id="auth-password" placeholder="Mot de passe" autocomplete="current-password">
+            <div class="auth-login-layout">
+                <div class="auth-login-left">
+                    <div class="auth-login-box">
+                        <div class="auth-login-logo">
+                            <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo">
+                        </div>
+                        <h1 class="auth-login-title">ProductiveApp</h1>
+                        <p class="auth-login-tagline">By Maha Giri</p>
+
+                        <!-- PHASE 1: Login Form -->
+                        <div id="auth-login-form" class="auth-phase">
+                            <p class="auth-subtitle">Connexion</p>
+                            <div class="auth-inputs">
+                                <div class="auth-input-wrapper">
+                                    <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    <input type="email" id="auth-email" placeholder="Email" autocomplete="email">
+                                </div>
+                                <div class="auth-input-wrapper">
+                                    <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    <input type="password" id="auth-password" placeholder="Mot de passe" autocomplete="current-password">
+                                </div>
+                            </div>
+                            <div id="auth-error" class="auth-error"></div>
+                            <button id="auth-submit-btn" class="auth-btn">
+                                <span class="auth-btn-text">Se connecter</span>
+                                <svg class="auth-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- PHASE 2: Member Picker -->
+                        <div id="auth-member-picker" class="auth-phase hidden">
+                            <p class="auth-subtitle">Qui es-tu ?</p>
+                            <div id="auth-member-grid" class="auth-member-grid"></div>
+                        </div>
                     </div>
-                    <div id="auth-error" class="auth-error"></div>
-                    <button id="auth-submit-btn" class="auth-btn">Se connecter</button>
                 </div>
 
-                <!-- PHASE 2: Member Picker -->
-                <div id="auth-member-picker" class="auth-phase hidden">
-                    <p class="auth-subtitle">Qui es-tu ?</p>
-                    <div id="auth-member-grid" class="auth-member-grid"></div>
+                <div class="auth-login-right">
+                    <div class="auth-master-image">
+                        <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png" alt="Maha Giri">
+                    </div>
+                    <div class="auth-master-overlay"></div>
                 </div>
             </div>
         `;
@@ -180,7 +207,7 @@ const AuthLogin = {
         // Loading state
         if (submitBtn) {
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Connexion...';
+            submitBtn.innerHTML = '<span class="auth-btn-text">Connexion...</span>';
         }
 
         try {
@@ -198,7 +225,7 @@ const AuthLogin = {
         } finally {
             if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Se connecter';
+                submitBtn.innerHTML = '<span class="auth-btn-text">Se connecter</span><svg class="auth-btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
             }
         }
     },
@@ -260,8 +287,8 @@ const AuthLogin = {
             }
         };
 
-        grid.innerHTML = AppConfig.USERS.map(member => `
-            <button class="auth-member-btn" data-member-id="${member.id}">
+        grid.innerHTML = AppConfig.USERS.map((member, i) => `
+            <button class="auth-member-btn" data-member-id="${member.id}" style="animation-delay: ${i * 0.08}s">
                 <img src="${member.loginImg}" alt="${member.name}" class="auth-member-avatar">
                 <span class="auth-member-name">${member.name}</span>
                 <span class="auth-member-role">${getRoleIcon(member.role, member.id)} ${getRoleLabel(member.role, member.id)}</span>

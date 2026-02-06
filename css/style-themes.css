@@ -1,653 +1,672 @@
 /* =============================================
-   PRODUCTIVEAPP - THEMES CSS v2.0
-   14 thèmes organisés par catégories
+   PRODUCTIVEAPP - THEMES CSS v3.0
+   40 thèmes organisés en 7 catégories
    ============================================= */
 
 /* ==============================================
-   CATÉGORIE 1: PRO / CEO
-   Thèmes sobres, SANS glow, SANS animations
-   Couleurs premium, lisibilité maximale
+   CATÉGORIE 1: ÉLÉGANCE
    ============================================== */
 
-/* =============================================
-   THEME: EXECUTIVE
-   Dégradé noir/gris anthracite, accents dorés
-   Ultra luxe et sobre
-   ============================================= */
 [data-theme="executive"] {
-    --bg-primary: #0d0d0d;
-    --bg-secondary: #1a1a1a;
-    --bg-tertiary: #262626;
-    --bg-card: rgba(212, 175, 55, 0.05);
-
-    --text: #f5f5f5;
-    --text-muted: #a0a0a0;
-
-    --accent: #d4af37;
-    --accent-light: #f0d975;
-    --accent-glow: rgba(212, 175, 55, 0);
-
-    --success: #5a7a4d;
-    --success-glow: rgba(90, 122, 77, 0);
-
-    --warning: #c9a554;
-    --danger: #8b4a4a;
-
-    --border: rgba(212, 175, 55, 0.15);
-    --border-strong: rgba(212, 175, 55, 0.3);
-
-    /* Bulles sobres - aucun glow */
-    --bubble-bg: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
-    --bubble-border: #3a3a3a;
-    --bubble-glow: none;
-
-    --bubble-inprogress-bg: linear-gradient(145deg, #3a3a2a 0%, #2f2f1f 100%);
-    --bubble-inprogress-border: #d4af37;
-    --bubble-inprogress-glow: none;
-
-    --bubble-done-bg: linear-gradient(145deg, #2a2f2a 0%, #1f241f 100%);
-    --bubble-done-border: #5a7a4d;
-    --bubble-done-glow: none;
-    --bubble-done-text: #a0b090;
+    --bg-primary: #0d0d0d; --bg-secondary: #1a1a1a; --bg-tertiary: #262626;
+    --bg-card: rgba(212,175,55,0.05);
+    --text: #f5f5f5; --text-muted: #a0a0a0;
+    --accent: #d4af37; --accent-light: #f0d975; --accent-glow: rgba(212,175,55,0);
+    --success: #5a7a4d; --success-glow: rgba(90,122,77,0);
+    --warning: #c9a554; --danger: #8b4a4a;
+    --border: rgba(212,175,55,0.15); --border-strong: rgba(212,175,55,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.04) 100%);
+    --bubble-border: rgba(212,175,55,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%);
+    --bubble-inprogress-border: rgba(212,175,55,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(90,122,77,0.12) 0%, rgba(90,122,77,0.06) 100%);
+    --bubble-done-border: rgba(90,122,77,0.4); --bubble-done-glow: none; --bubble-done-text: #7aa585;
 }
 
-/* =============================================
-   THEME: CORPORATE
-   Bleu marine profond, blanc, gris
-   Style cabinet d'avocats
-   ============================================= */
 [data-theme="corporate"] {
-    --bg-primary: #0a1628;
-    --bg-secondary: #0f1e35;
-    --bg-tertiary: #152842;
-    --bg-card: rgba(100, 149, 237, 0.08);
-
-    --text: #e8eef5;
-    --text-muted: #8a9fb5;
-
-    --accent: #6495ed;
-    --accent-light: #89b4f7;
-    --accent-glow: rgba(100, 149, 237, 0);
-
-    --success: #4a7c59;
-    --success-glow: rgba(74, 124, 89, 0);
-
-    --warning: #b8934a;
-    --danger: #a65c5c;
-
-    --border: rgba(100, 149, 237, 0.2);
-    --border-strong: rgba(100, 149, 237, 0.4);
-
-    /* Bulles professionnelles - aucun glow */
-    --bubble-bg: linear-gradient(145deg, #1a2f4a 0%, #152842 100%);
-    --bubble-border: #2a4565;
-    --bubble-glow: none;
-
-    --bubble-inprogress-bg: linear-gradient(145deg, #2a4565 0%, #1f3752 100%);
-    --bubble-inprogress-border: #6495ed;
-    --bubble-inprogress-glow: none;
-
-    --bubble-done-bg: linear-gradient(145deg, #1a3a2f 0%, #152f25 100%);
-    --bubble-done-border: #4a7c59;
-    --bubble-done-glow: none;
-    --bubble-done-text: #7aa585;
+    --bg-primary: #0a1628; --bg-secondary: #0f1e35; --bg-tertiary: #152842;
+    --bg-card: rgba(100,149,237,0.08);
+    --text: #e8eef5; --text-muted: #8a9fb5;
+    --accent: #6495ed; --accent-light: #89b4f7; --accent-glow: rgba(100,149,237,0);
+    --success: #4a7c59; --success-glow: rgba(74,124,89,0);
+    --warning: #b8934a; --danger: #a65c5c;
+    --border: rgba(100,149,237,0.2); --border-strong: rgba(100,149,237,0.4);
+    --bubble-bg: linear-gradient(145deg, rgba(100,149,237,0.08) 0%, rgba(100,149,237,0.04) 100%);
+    --bubble-border: rgba(100,149,237,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(100,149,237,0.15) 0%, rgba(100,149,237,0.08) 100%);
+    --bubble-inprogress-border: rgba(100,149,237,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(74,124,89,0.12) 0%, rgba(74,124,89,0.06) 100%);
+    --bubble-done-border: rgba(74,124,89,0.4); --bubble-done-glow: none; --bubble-done-text: #7aa585;
 }
 
-/* =============================================
-   THEME: MINIMAL
-   Blanc cassé doux, texte gris foncé
-   Épuré Apple-style - Facile pour les yeux
-   ============================================= */
-[data-theme="minimal"] {
-    --bg-primary: #f8f8f6;
-    --bg-secondary: #f2f2f0;
-    --bg-tertiary: #eaeae8;
-    --bg-card: rgba(0, 0, 0, 0.025);
-
-    --text: #1a1a1a;
-    --text-muted: #6a6a6a;
-
-    --accent: #007aff;
-    --accent-light: #4da3ff;
-    --accent-glow: rgba(0, 122, 255, 0);
-
-    --success: #34c759;
-    --success-glow: rgba(52, 199, 89, 0);
-
-    --warning: #ff9500;
-    --danger: #ff3b30;
-
-    --border: rgba(0, 0, 0, 0.1);
-    --border-strong: rgba(0, 0, 0, 0.2);
-
-    /* Bulles minimalistes - aucun glow, TEXTE NOIR */
-    --bubble-bg: linear-gradient(145deg, #f8f8f8 0%, #f0f0f0 100%);
-    --bubble-border: #e0e0e0;
-    --bubble-glow: none;
-    --bubble-text-color: #1a1a1a;
-
-    --bubble-inprogress-bg: linear-gradient(145deg, #e8f4ff 0%, #d0e8ff 100%);
-    --bubble-inprogress-border: #007aff;
-    --bubble-inprogress-glow: none;
-    --bubble-inprogress-text: #1a1a1a;
-
-    --bubble-done-bg: linear-gradient(145deg, #e8f5ea 0%, #d0ebd5 100%);
-    --bubble-done-border: #34c759;
-    --bubble-done-glow: none;
-    --bubble-done-text: #1a1a1a;
+[data-theme="ivory"] {
+    --bg-primary: #FAF7F0; --bg-secondary: #F5F0E6; --bg-tertiary: #EDE8DC;
+    --bg-card: rgba(139,115,85,0.06);
+    --text: #3D3226; --text-muted: #8B7B6B;
+    --accent: #8B7355; --accent-light: #B8A080; --accent-glow: rgba(139,115,85,0);
+    --success: #5A8A50; --success-glow: rgba(90,138,80,0);
+    --warning: #C49840; --danger: #C45050;
+    --border: rgba(139,115,85,0.15); --border-strong: rgba(139,115,85,0.3);
+    --bubble-bg: linear-gradient(145deg, #F5F0E6 0%, #EDE8DC 100%);
+    --bubble-border: rgba(139,115,85,0.25); --bubble-glow: none; --bubble-text-color: #3D3226;
+    --bubble-inprogress-bg: linear-gradient(145deg, #EDE4D0 0%, #E5DCC4 100%);
+    --bubble-inprogress-border: rgba(139,115,85,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3D3226;
+    --bubble-done-bg: linear-gradient(145deg, #e0eedc 0%, #d0e4cc 100%);
+    --bubble-done-border: #5A8A50; --bubble-done-glow: none; --bubble-done-text: #2a5a20;
 }
 
-/* =============================================
-   THEME: ACADÉMIE 📚
-   Gris ardoise, bulles beige doré - lisible
-   ============================================= */
+[data-theme="sterling"] {
+    --bg-primary: #1a1e24; --bg-secondary: #252b34; --bg-tertiary: #303845;
+    --bg-card: rgba(192,200,210,0.06);
+    --text: #E8ECF0; --text-muted: #8898A8;
+    --accent: #C0C8D0; --accent-light: #D8DDE5; --accent-glow: rgba(192,200,210,0);
+    --success: #5A8A68; --success-glow: rgba(90,138,104,0);
+    --warning: #B8A050; --danger: #B85858;
+    --border: rgba(192,200,210,0.15); --border-strong: rgba(192,200,210,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(192,200,210,0.08) 0%, rgba(192,200,210,0.04) 100%);
+    --bubble-border: rgba(192,200,210,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(192,200,210,0.15) 0%, rgba(192,200,210,0.08) 100%);
+    --bubble-inprogress-border: rgba(192,200,210,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(90,138,104,0.12) 0%, rgba(90,138,104,0.06) 100%);
+    --bubble-done-border: rgba(90,138,104,0.4); --bubble-done-glow: none; --bubble-done-text: #7aaa88;
+}
+
+[data-theme="diplomat"] {
+    --bg-primary: #1a0810; --bg-secondary: #2d101a; --bg-tertiary: #3d1828;
+    --bg-card: rgba(196,50,74,0.08);
+    --text: #F5E0E5; --text-muted: #B88898;
+    --accent: #C4324A; --accent-light: #E05A72; --accent-glow: rgba(196,50,74,0);
+    --success: #5A8A68; --success-glow: rgba(90,138,104,0);
+    --warning: #C4A050; --danger: #E04040;
+    --border: rgba(196,50,74,0.2); --border-strong: rgba(196,50,74,0.4);
+    --bubble-bg: linear-gradient(145deg, rgba(196,50,74,0.08) 0%, rgba(196,50,74,0.04) 100%);
+    --bubble-border: rgba(196,50,74,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(196,50,74,0.15) 0%, rgba(196,50,74,0.08) 100%);
+    --bubble-inprogress-border: rgba(196,50,74,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(90,138,104,0.12) 0%, rgba(90,138,104,0.06) 100%);
+    --bubble-done-border: rgba(90,138,104,0.4); --bubble-done-glow: none; --bubble-done-text: #7aaa88;
+}
+
 [data-theme="academie"] {
-    --bg-primary: #2c2f33;
-    --bg-secondary: #36393f;
-    --bg-tertiary: #40444b;
-    --bg-card: rgba(218, 185, 130, 0.12);
-
-    --text: #f0ebe0;
-    --text-muted: #b8b0a0;
-
-    --accent: #daa520;
-    --accent-light: #f0c850;
-    --accent-glow: rgba(218, 165, 32, 0);
-
-    --success: #8faa5a;
-    --success-glow: rgba(143, 170, 90, 0);
-
-    --warning: #e8b84a;
-    --danger: #d4644a;
-
-    --border: rgba(218, 185, 130, 0.25);
-    --border-strong: rgba(218, 185, 130, 0.5);
-
-    /* Bulles beige doré - très lisibles, aucun glow */
+    --bg-primary: #2c2f33; --bg-secondary: #36393f; --bg-tertiary: #40444b;
+    --bg-card: rgba(218,185,130,0.12);
+    --text: #f0ebe0; --text-muted: #b8b0a0;
+    --accent: #daa520; --accent-light: #f0c850; --accent-glow: rgba(218,165,32,0);
+    --success: #8faa5a; --success-glow: rgba(143,170,90,0);
+    --warning: #e8b84a; --danger: #d4644a;
+    --border: rgba(218,185,130,0.25); --border-strong: rgba(218,185,130,0.5);
     --bubble-bg: linear-gradient(145deg, #f7e8c8 0%, #e8d4a8 100%);
-    --bubble-border: #b8954a;
-    --bubble-glow: none;
-    --bubble-text-color: #1a1510;
-
+    --bubble-border: #b8954a; --bubble-glow: none; --bubble-text-color: #1a1510;
     --bubble-inprogress-bg: linear-gradient(145deg, #ffe8a0 0%, #f5d878 100%);
-    --bubble-inprogress-border: #c9952a;
-    --bubble-inprogress-glow: none;
-    --bubble-inprogress-text: #1a1510;
-
+    --bubble-inprogress-border: #c9952a; --bubble-inprogress-glow: none; --bubble-inprogress-text: #1a1510;
     --bubble-done-bg: linear-gradient(145deg, #d8e4b8 0%, #c8d8a0 100%);
-    --bubble-done-border: #8aaa4a;
-    --bubble-done-glow: none;
-    --bubble-done-text: #2a3520;
+    --bubble-done-border: #8aaa4a; --bubble-done-glow: none; --bubble-done-text: #2a3520;
 }
-
-/* =============================================
-   THEME: SLATE
-   Gris ardoise, accents bleu acier
-   Moderne et pro
-   ============================================= */
-[data-theme="slate"] {
-    --bg-primary: #1e293b;
-    --bg-secondary: #2d3b52;
-    --bg-tertiary: #3d4e68;
-    --bg-card: rgba(148, 163, 184, 0.08);
-
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-
-    --accent: #64748b;
-    --accent-light: #94a3b8;
-    --accent-glow: rgba(100, 116, 139, 0);
-
-    --success: #4d7c5a;
-    --success-glow: rgba(77, 124, 90, 0);
-
-    --warning: #a8905a;
-    --danger: #9a5a5a;
-
-    --border: rgba(148, 163, 184, 0.2);
-    --border-strong: rgba(148, 163, 184, 0.4);
-
-    /* Bulles ardoise - aucun glow */
-    --bubble-bg: linear-gradient(145deg, #2d3b52 0%, #263445 100%);
-    --bubble-border: #3d4e68;
-    --bubble-glow: none;
-
-    --bubble-inprogress-bg: linear-gradient(145deg, #3d4e68 0%, #334255 100%);
-    --bubble-inprogress-border: #64748b;
-    --bubble-inprogress-glow: none;
-
-    --bubble-done-bg: linear-gradient(145deg, #2d453b 0%, #263a32 100%);
-    --bubble-done-border: #4d7c5a;
-    --bubble-done-glow: none;
-    --bubble-done-text: #7aa585;
-}
-
-/* =============================================
-   THEME: OBSIDIAN
-   Noir profond uniforme, texte blanc cassé
-   Premium dark
-   ============================================= */
-[data-theme="obsidian"] {
-    --bg-primary: #0b0b0b;
-    --bg-secondary: #141414;
-    --bg-tertiary: #1e1e1e;
-    --bg-card: rgba(255, 255, 255, 0.03);
-
-    --text: #e3e3e3;
-    --text-muted: #8b8b8b;
-
-    --accent: #a0a0a0;
-    --accent-light: #c0c0c0;
-    --accent-glow: rgba(160, 160, 160, 0);
-
-    --success: #6b8b6b;
-    --success-glow: rgba(107, 139, 107, 0);
-
-    --warning: #b8a56b;
-    --danger: #a66b6b;
-
-    --border: rgba(255, 255, 255, 0.1);
-    --border-strong: rgba(255, 255, 255, 0.2);
-
-    /* Bulles obsidienne - aucun glow */
-    --bubble-bg: linear-gradient(145deg, #1e1e1e 0%, #181818 100%);
-    --bubble-border: #2a2a2a;
-    --bubble-glow: none;
-
-    --bubble-inprogress-bg: linear-gradient(145deg, #282828 0%, #1f1f1f 100%);
-    --bubble-inprogress-border: #a0a0a0;
-    --bubble-inprogress-glow: none;
-
-    --bubble-done-bg: linear-gradient(145deg, #1e2a1e 0%, #18211 8 100%);
-    --bubble-done-border: #6b8b6b;
-    --bubble-done-glow: none;
-    --bubble-done-text: #95b095;
-}
-
 
 /* ==============================================
-   CATÉGORIE 2: CRÉATIF / FUN
-   Thèmes avec personnalité, glow léger autorisé
-   Couleurs vives mais harmonieuses
+   CATÉGORIE 2: NATURE
    ============================================== */
 
-/* =============================================
-   THEME: SUNSET 🌅
-   Orange, rose, violet - chaleureux
-   ============================================= */
-[data-theme="sunset"] {
-    --bg-primary: #1a0a05;
-    --bg-secondary: #2d1810;
-    --bg-tertiary: #4a2515;
-    --bg-card: rgba(249, 115, 22, 0.12);
-
-    --text: #ffe8d5;
-    --text-muted: #d0a070;
-
-    --accent: #f97316;
-    --accent-light: #fb923c;
-    --accent-glow: rgba(249, 115, 22, 0.3);
-
-    --success: #fbbf24;
-    --success-glow: rgba(251, 191, 36, 0.4);
-
-    --warning: #fbbf24;
-    --danger: #dc2626;
-
-    --border: rgba(249, 115, 22, 0.25);
-    --border-strong: rgba(249, 115, 22, 0.5);
-
-    /* Crimson-amber gradient - distinct from Desert */
-    --bubble-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.25) 0%, rgba(249, 115, 22, 0.3) 100%);
-    --bubble-border: rgba(220, 38, 38, 0.6);
-    --bubble-glow: 0 4px 20px rgba(220, 38, 38, 0.25), 0 0 30px rgba(249, 115, 22, 0.15);
-
-    /* Dynamic in-progress with crimson gradient */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 146, 60, 0.45) 0%, rgba(220, 38, 38, 0.25) 100%);
-    --bubble-inprogress-border: rgba(251, 146, 60, 0.85);
-    --bubble-inprogress-glow: 0 6px 25px rgba(251, 146, 60, 0.35), 0 0 40px rgba(220, 38, 38, 0.2);
-
-    /* Sunset golden done state */
-    --bubble-done-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(245, 158, 11, 0.15) 100%);
-    --bubble-done-border: rgba(251, 191, 36, 0.75);
-    --bubble-done-glow: 0 4px 15px rgba(251, 191, 36, 0.25), 0 0 25px rgba(245, 158, 11, 0.15);
-    --bubble-done-text: #fbbf24;
-}
-
-/* =============================================
-   THEME: OCEAN 🌊
-   Bleus profonds, turquoise - apaisant
-   ============================================= */
 [data-theme="ocean"] {
-    --bg-primary: #051923;
-    --bg-secondary: #003554;
-    --bg-tertiary: #006494;
-    --bg-card: rgba(0, 180, 216, 0.12);
-
-    --text: #e8f4f8;
-    --text-muted: #88b8d0;
-
-    --accent: #00b4d8;
-    --accent-light: #48cae4;
-    --accent-glow: rgba(0, 180, 216, 0.3);
-
-    --success: #06d6a0;
-    --success-glow: rgba(6, 214, 160, 0.3);
-
-    --warning: #ffb703;
-    --danger: #ef476f;
-
-    --border: rgba(0, 180, 216, 0.25);
-    --border-strong: rgba(0, 180, 216, 0.5);
-
-    /* Bulles océan avec glow léger */
-    --bubble-bg: linear-gradient(135deg, rgba(0, 180, 216, 0.2) 0%, rgba(0, 100, 148, 0.15) 100%);
-    --bubble-border: rgba(0, 180, 216, 0.5);
-    --bubble-glow: 0 4px 20px rgba(0, 180, 216, 0.2), 0 0 30px rgba(0, 180, 216, 0.1);
-
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(72, 202, 228, 0.35) 0%, rgba(0, 180, 216, 0.2) 100%);
-    --bubble-inprogress-border: rgba(72, 202, 228, 0.8);
-    --bubble-inprogress-glow: 0 6px 25px rgba(72, 202, 228, 0.35), 0 0 40px rgba(0, 180, 216, 0.2);
-
-    --bubble-done-bg: linear-gradient(135deg, rgba(6, 214, 160, 0.3) 0%, rgba(4, 170, 128, 0.15) 100%);
-    --bubble-done-border: rgba(6, 214, 160, 0.7);
-    --bubble-done-glow: 0 4px 15px rgba(6, 214, 160, 0.25), 0 0 25px rgba(6, 214, 160, 0.15);
-    --bubble-done-text: #06d6a0;
+    --bg-primary: #051923; --bg-secondary: #003554; --bg-tertiary: #006494;
+    --bg-card: rgba(0,180,216,0.12);
+    --text: #e8f4f8; --text-muted: #88b8d0;
+    --accent: #00b4d8; --accent-light: #48cae4; --accent-glow: rgba(0,180,216,0.3);
+    --success: #06d6a0; --success-glow: rgba(6,214,160,0.3);
+    --warning: #ffb703; --danger: #ef476f;
+    --border: rgba(0,180,216,0.25); --border-strong: rgba(0,180,216,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(0,180,216,0.2) 0%, rgba(0,100,148,0.1) 100%);
+    --bubble-border: rgba(0,180,216,0.5); --bubble-glow: 0 4px 20px rgba(0,180,216,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(72,202,228,0.35) 0%, rgba(0,180,216,0.2) 100%);
+    --bubble-inprogress-border: rgba(72,202,228,0.8); --bubble-inprogress-glow: 0 6px 25px rgba(72,202,228,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(6,214,160,0.25) 0%, rgba(4,170,128,0.12) 100%);
+    --bubble-done-border: rgba(6,214,160,0.6); --bubble-done-glow: 0 4px 15px rgba(6,214,160,0.2); --bubble-done-text: #06d6a0;
 }
 
-/* =============================================
-   THEME: FOREST 🌲
-   Verts naturels, tons bois - organique
-   ============================================= */
 [data-theme="forest"] {
-    --bg-primary: #080c08;
-    --bg-secondary: #0f180f;
-    --bg-tertiary: #1a2a1a;
-    --bg-card: rgba(74, 222, 128, 0.08);
-
-    --text: #e8f5e8;
-    --text-muted: #88b888;
-
-    --accent: #4ade80;
-    --accent-light: #86efac;
-    --accent-glow: rgba(74, 222, 128, 0.3);
-
-    --success: #22c55e;
-    --success-glow: rgba(34, 197, 94, 0.4);
-
-    --warning: #a3e635;
-    --danger: #ef4444;
-
-    --border: rgba(74, 222, 128, 0.2);
-    --border-strong: rgba(74, 222, 128, 0.5);
-
-    /* Multi-tone green gradient - lime/emerald/forest variety */
-    --bubble-bg: linear-gradient(135deg, rgba(74, 222, 128, 0.25) 0%, rgba(16, 185, 129, 0.15) 50%, rgba(5, 150, 105, 0.2) 100%);
-    --bubble-border: rgba(74, 222, 128, 0.5);
-    --bubble-glow: 0 4px 20px rgba(74, 222, 128, 0.2), 0 0 30px rgba(16, 185, 129, 0.1);
-
-    /* Lime boost for in-progress */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(163, 230, 53, 0.4) 0%, rgba(74, 222, 128, 0.25) 100%);
-    --bubble-inprogress-border: rgba(163, 230, 53, 0.85);
-    --bubble-inprogress-glow: 0 6px 25px rgba(163, 230, 53, 0.35), 0 0 40px rgba(74, 222, 128, 0.2);
-
-    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(20, 150, 70, 0.1) 100%);
-    --bubble-done-border: rgba(34, 197, 94, 0.65);
-    --bubble-done-glow: 0 4px 15px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.1);
-    --bubble-done-text: #22c55e;
+    --bg-primary: #0a1208; --bg-secondary: #152010; --bg-tertiary: #1e2d18;
+    --bg-card: rgba(74,170,100,0.08);
+    --text: #e0f0e0; --text-muted: #80a880;
+    --accent: #4aaa64; --accent-light: #70c888; --accent-glow: rgba(74,170,100,0.25);
+    --success: #22c55e; --success-glow: rgba(34,197,94,0.3);
+    --warning: #a3e635; --danger: #ef4444;
+    --border: rgba(74,170,100,0.2); --border-strong: rgba(74,170,100,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(74,170,100,0.2) 0%, rgba(30,120,60,0.1) 100%);
+    --bubble-border: rgba(74,170,100,0.45); --bubble-glow: 0 4px 18px rgba(74,170,100,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(112,200,136,0.35) 0%, rgba(74,170,100,0.2) 100%);
+    --bubble-inprogress-border: rgba(112,200,136,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(112,200,136,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(20,150,70,0.1) 100%);
+    --bubble-done-border: rgba(34,197,94,0.6); --bubble-done-glow: 0 4px 15px rgba(34,197,94,0.2); --bubble-done-text: #22c55e;
 }
 
-/* =============================================
-   THEME: BUBBLEGUM 🍬
-   Rose, violet pastel - fun et jeune
-   ============================================= */
-[data-theme="bubblegum"] {
-    --bg-primary: #1a0a14;
-    --bg-secondary: #2d1025;
-    --bg-tertiary: #3f1836;
-    --bg-card: rgba(255, 107, 157, 0.12);
-
-    --text: #ffe8f5;
-    --text-muted: #d090b0;
-
-    --accent: #ff6b9d;
-    --accent-light: #ff9ec4;
-    --accent-glow: rgba(255, 107, 157, 0.3);
-
-    --success: #38bdf8;
-    --success-glow: rgba(56, 189, 248, 0.4);
-
-    --warning: #ffd93d;
-    --danger: #ff6b6b;
-
-    --border: rgba(255, 107, 157, 0.25);
-    --border-strong: rgba(255, 107, 157, 0.5);
-
-    --bubble-bg: linear-gradient(135deg, rgba(255, 107, 157, 0.25) 0%, rgba(150, 50, 90, 0.15) 100%);
-    --bubble-border: rgba(255, 107, 157, 0.5);
-    --bubble-glow: 0 4px 20px rgba(255, 107, 157, 0.2), 0 0 25px rgba(255, 158, 196, 0.12);
-
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 158, 196, 0.4) 0%, rgba(255, 107, 157, 0.2) 100%);
-    --bubble-inprogress-border: rgba(255, 158, 196, 0.85);
-    --bubble-inprogress-glow: 0 6px 25px rgba(255, 158, 196, 0.3), 0 0 40px rgba(255, 107, 157, 0.18);
-
-    /* Blue done state - cotton candy harmony */
-    --bubble-done-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.3) 0%, rgba(14, 165, 233, 0.15) 100%);
-    --bubble-done-border: rgba(56, 189, 248, 0.7);
-    --bubble-done-glow: 0 4px 15px rgba(56, 189, 248, 0.25), 0 0 25px rgba(14, 165, 233, 0.12);
-    --bubble-done-text: #38bdf8;
+[data-theme="sunset"] {
+    --bg-primary: #1a0a05; --bg-secondary: #2d1810; --bg-tertiary: #4a2515;
+    --bg-card: rgba(249,115,22,0.12);
+    --text: #ffe8d5; --text-muted: #d0a070;
+    --accent: #f97316; --accent-light: #fb923c; --accent-glow: rgba(249,115,22,0.3);
+    --success: #fbbf24; --success-glow: rgba(251,191,36,0.3);
+    --warning: #fbbf24; --danger: #dc2626;
+    --border: rgba(249,115,22,0.25); --border-strong: rgba(249,115,22,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(220,38,38,0.2) 0%, rgba(249,115,22,0.25) 100%);
+    --bubble-border: rgba(249,115,22,0.5); --bubble-glow: 0 4px 20px rgba(249,115,22,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251,146,60,0.4) 0%, rgba(220,38,38,0.2) 100%);
+    --bubble-inprogress-border: rgba(251,146,60,0.8); --bubble-inprogress-glow: 0 6px 25px rgba(251,146,60,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.12) 100%);
+    --bubble-done-border: rgba(251,191,36,0.65); --bubble-done-glow: 0 4px 15px rgba(251,191,36,0.2); --bubble-done-text: #fbbf24;
 }
 
-/* =============================================
-   THEME: AURORA
-   Dégradés néon subtils - moderne et créatif
-   ============================================= */
-[data-theme="aurora"] {
-    --bg-primary: #0a0d14;
-    --bg-secondary: #151a25;
-    --bg-tertiary: #1f2736;
-    --bg-card: rgba(147, 197, 253, 0.08);
-
-    --text: #e8f0fe;
-    --text-muted: #94a3b8;
-
-    --accent: #93c5fd;
-    --accent-light: #bfdbfe;
-    --accent-glow: rgba(147, 197, 253, 0.3);
-
-    --success: #86efac;
-    --success-glow: rgba(134, 239, 172, 0.3);
-
-    --warning: #fcd34d;
-    --danger: #fca5a5;
-
-    --border: rgba(147, 197, 253, 0.2);
-    --border-strong: rgba(147, 197, 253, 0.4);
-
-    /* Aurore boréale - dégradé doux */
-    --bubble-bg: linear-gradient(135deg, rgba(147, 197, 253, 0.2) 0%, rgba(196, 181, 253, 0.15) 50%, rgba(167, 243, 208, 0.1) 100%);
-    --bubble-border: rgba(147, 197, 253, 0.4);
-    --bubble-glow: 0 4px 20px rgba(147, 197, 253, 0.15), 0 0 30px rgba(196, 181, 253, 0.1);
-
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(196, 181, 253, 0.35) 0%, rgba(147, 197, 253, 0.25) 100%);
-    --bubble-inprogress-border: rgba(196, 181, 253, 0.7);
-    --bubble-inprogress-glow: 0 6px 25px rgba(196, 181, 253, 0.3), 0 0 40px rgba(147, 197, 253, 0.15);
-
-    --bubble-done-bg: linear-gradient(135deg, rgba(134, 239, 172, 0.3) 0%, rgba(167, 243, 208, 0.15) 100%);
-    --bubble-done-border: rgba(134, 239, 172, 0.65);
-    --bubble-done-glow: 0 4px 15px rgba(134, 239, 172, 0.2), 0 0 25px rgba(167, 243, 208, 0.12);
-    --bubble-done-text: #86efac;
+[data-theme="desert"] {
+    --bg-primary: #1a1410; --bg-secondary: #2d2117; --bg-tertiary: #3d2e1f;
+    --bg-card: rgba(224,120,64,0.08);
+    --text: #f5e6d3; --text-muted: #a89078;
+    --accent: #e07840; --accent-light: #f4a261; --accent-glow: rgba(224,120,64,0.3);
+    --success: #22c55e; --success-glow: rgba(34,197,94,0.3);
+    --warning: #fbbf24; --danger: #ef4444;
+    --border: rgba(224,120,64,0.2); --border-strong: rgba(224,120,64,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(224,120,64,0.2) 0%, rgba(180,80,40,0.1) 100%);
+    --bubble-border: rgba(224,120,64,0.5); --bubble-glow: 0 4px 20px rgba(224,120,64,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(244,162,97,0.35) 0%, rgba(224,120,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(244,162,97,0.7); --bubble-inprogress-glow: 0 6px 25px rgba(244,162,97,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(34,197,94,0.25) 0%, rgba(22,163,74,0.12) 100%);
+    --bubble-done-border: rgba(34,197,94,0.6); --bubble-done-glow: 0 4px 15px rgba(34,197,94,0.2); --bubble-done-text: #4ade80;
 }
 
+[data-theme="lavender"] {
+    --bg-primary: #150d1a; --bg-secondary: #231628; --bg-tertiary: #352240;
+    --bg-card: rgba(176,124,200,0.08);
+    --text: #F0E5F5; --text-muted: #A888B8;
+    --accent: #B07CC8; --accent-light: #D0A0E8; --accent-glow: rgba(176,124,200,0.25);
+    --success: #68B888; --success-glow: rgba(104,184,136,0.25);
+    --warning: #D8B040; --danger: #D86060;
+    --border: rgba(176,124,200,0.2); --border-strong: rgba(176,124,200,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(176,124,200,0.2) 0%, rgba(120,80,150,0.1) 100%);
+    --bubble-border: rgba(176,124,200,0.45); --bubble-glow: 0 4px 18px rgba(176,124,200,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(208,160,232,0.35) 0%, rgba(176,124,200,0.2) 100%);
+    --bubble-inprogress-border: rgba(208,160,232,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(208,160,232,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,184,136,0.25) 0%, rgba(80,150,110,0.12) 100%);
+    --bubble-done-border: rgba(104,184,136,0.6); --bubble-done-glow: 0 4px 15px rgba(104,184,136,0.2); --bubble-done-text: #68B888;
+}
+
+[data-theme="sakura"] {
+    --bg-primary: #FBF5F6; --bg-secondary: #F5ECF0; --bg-tertiary: #EDE2E8;
+    --bg-card: rgba(212,104,140,0.06);
+    --text: #3A2530; --text-muted: #907080;
+    --accent: #D4688C; --accent-light: #E890A8; --accent-glow: rgba(212,104,140,0);
+    --success: #5A9868; --success-glow: rgba(90,152,104,0);
+    --warning: #D4A840; --danger: #D85050;
+    --border: rgba(212,104,140,0.15); --border-strong: rgba(212,104,140,0.3);
+    --bubble-bg: linear-gradient(145deg, #F5ECF0 0%, #EDE2E8 100%);
+    --bubble-border: rgba(212,104,140,0.25); --bubble-glow: none; --bubble-text-color: #3A2530;
+    --bubble-inprogress-bg: linear-gradient(145deg, #F0DCE4 0%, #E8D0D8 100%);
+    --bubble-inprogress-border: rgba(212,104,140,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A2530;
+    --bubble-done-bg: linear-gradient(145deg, #e0eedc 0%, #d0e4cc 100%);
+    --bubble-done-border: #5A9868; --bubble-done-glow: none; --bubble-done-text: #2a5a20;
+}
 
 /* ==============================================
-   CATÉGORIE 3: GEEK / TECH
-   Thèmes pour passionnés, glow et effets assumés
-   Style tech et futuriste
+   CATÉGORIE 3: ATMOSPHÈRE
    ============================================== */
 
-/* =============================================
-   THEME: MATRIX 💚
-   Vert phosphore sur noir - hacker style
-   ============================================= */
-[data-theme="matrix"] {
-    --bg-primary: #0a0f0a;
-    --bg-secondary: #0f1a0f;
-    --bg-tertiary: #152015;
-    --bg-card: rgba(0, 255, 102, 0.08);
-
-    --text: #e0ffe0;
-    --text-muted: #70b070;
-
-    --accent: #00ff66;
-    --accent-light: #4dff8d;
-    --accent-glow: rgba(0, 255, 102, 0.4);
-
-    --success: #00cc52;
-    --success-glow: rgba(0, 204, 82, 0.4);
-
-    --warning: #66ff00;
-    --danger: #ff3333;
-
-    --border: rgba(0, 255, 102, 0.2);
-    --border-strong: rgba(0, 255, 102, 0.5);
-
-    /* Radioactive yellow-green mix - Fallout style */
-    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 102, 0.25) 0%, rgba(102, 255, 0, 0.15) 100%);
-    --bubble-border: rgba(0, 255, 102, 0.5);
-    --bubble-glow: 0 10px 40px rgba(0, 255, 102, 0.4), 0 0 70px rgba(102, 255, 0, 0.25), 0 0 100px rgba(255, 255, 0, 0.1);
-
-    /* Intense radioactive pulse for in-progress - ULTRA BOOST */
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(102, 255, 0, 0.7) 0%, rgba(0, 255, 102, 0.5) 100%);
-    --bubble-inprogress-border: rgba(102, 255, 0, 1);
-    --bubble-inprogress-glow: 0 15px 90px rgba(102, 255, 0, 1), 0 0 150px rgba(0, 255, 102, 0.8), 0 0 200px rgba(255, 255, 0, 0.5);
-
-    /* Done with yellow radioactive undertone */
-    --bubble-done-bg: linear-gradient(135deg, rgba(0, 180, 80, 0.25) 0%, rgba(0, 120, 60, 0.1) 100%);
-    --bubble-done-border: rgba(0, 180, 80, 0.6);
-    --bubble-done-glow: 0 8px 30px rgba(0, 180, 80, 0.35), 0 0 50px rgba(102, 255, 0, 0.2);
-    --bubble-done-text: #00ff66;
+[data-theme="aurora"] {
+    --bg-primary: #0a0d14; --bg-secondary: #151a25; --bg-tertiary: #1f2736;
+    --bg-card: rgba(147,197,253,0.08);
+    --text: #e8f0fe; --text-muted: #94a3b8;
+    --accent: #93c5fd; --accent-light: #bfdbfe; --accent-glow: rgba(147,197,253,0.3);
+    --success: #86efac; --success-glow: rgba(134,239,172,0.3);
+    --warning: #fcd34d; --danger: #fca5a5;
+    --border: rgba(147,197,253,0.2); --border-strong: rgba(147,197,253,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(147,197,253,0.2) 0%, rgba(196,181,253,0.12) 50%, rgba(134,239,172,0.08) 100%);
+    --bubble-border: rgba(147,197,253,0.4); --bubble-glow: 0 4px 20px rgba(147,197,253,0.15);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(196,181,253,0.35) 0%, rgba(147,197,253,0.2) 100%);
+    --bubble-inprogress-border: rgba(196,181,253,0.7); --bubble-inprogress-glow: 0 6px 25px rgba(196,181,253,0.25);
+    --bubble-done-bg: linear-gradient(135deg, rgba(134,239,172,0.25) 0%, rgba(167,243,208,0.12) 100%);
+    --bubble-done-border: rgba(134,239,172,0.6); --bubble-done-glow: 0 4px 15px rgba(134,239,172,0.2); --bubble-done-text: #86efac;
 }
 
-/* =============================================
-   THEME: CYBERPUNK
-   Violet, rose néon, bleu électrique - futuriste
-   ============================================= */
-[data-theme="cyberpunk"] {
-    --bg-primary: #0d0221;
-    --bg-secondary: #190b3a;
-    --bg-tertiary: #2a1454;
-    --bg-card: rgba(255, 0, 255, 0.08);
-
-    --text: #f0e6ff;
-    --text-muted: #b088d8;
-
-    --accent: #ff00ff;
-    --accent-light: #ff66ff;
-    --accent-glow: rgba(255, 0, 255, 0.5);
-
-    --success: #00ffff;
-    --success-glow: rgba(0, 255, 255, 0.5);
-
-    --warning: #ffff00;
-    --danger: #ff0080;
-
-    --border: rgba(255, 0, 255, 0.3);
-    --border-strong: rgba(255, 0, 255, 0.6);
-
-    /* Néon cyberpunk - glow intense */
-    --bubble-bg: linear-gradient(135deg, rgba(255, 0, 255, 0.25) 0%, rgba(138, 43, 226, 0.15) 100%);
-    --bubble-border: rgba(255, 0, 255, 0.6);
-    --bubble-glow: 0 8px 30px rgba(255, 0, 255, 0.4), 0 0 60px rgba(255, 0, 255, 0.25);
-
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255, 0, 255, 0.45) 0%, rgba(255, 105, 180, 0.3) 100%);
-    --bubble-inprogress-border: rgba(255, 0, 255, 0.9);
-    --bubble-inprogress-glow: 0 10px 50px rgba(255, 0, 255, 0.6), 0 0 100px rgba(255, 105, 180, 0.4);
-
-    --bubble-done-bg: linear-gradient(135deg, rgba(0, 255, 255, 0.35) 0%, rgba(0, 200, 200, 0.2) 100%);
-    --bubble-done-border: rgba(0, 255, 255, 0.8);
-    --bubble-done-glow: 0 8px 40px rgba(0, 255, 255, 0.5), 0 0 70px rgba(0, 255, 255, 0.3);
-    --bubble-done-text: #00ffff;
-}
-
-/* =============================================
-   THEME: TERMINAL
-   Vert monochrome rétro - old school dev
-   ============================================= */
-[data-theme="terminal"] {
-    --bg-primary: #000000;
-    --bg-secondary: #001100;
-    --bg-tertiary: #002200;
-    --bg-card: rgba(0, 255, 0, 0.05);
-
-    --text: #00ff00;
-    --text-muted: #00aa00;
-
-    --accent: #00ff00;
-    --accent-light: #66ff66;
-    --accent-glow: rgba(0, 255, 0, 0.4);
-
-    --success: #00ff00;
-    --success-glow: rgba(0, 255, 0, 0.4);
-
-    --warning: #ffff00;
-    --danger: #ff0000;
-
-    --border: rgba(0, 255, 0, 0.3);
-    --border-strong: rgba(0, 255, 0, 0.6);
-
-    /* Monochrome terminal - glow rétro */
-    --bubble-bg: linear-gradient(135deg, rgba(0, 255, 0, 0.15) 0%, rgba(0, 200, 0, 0.08) 100%);
-    --bubble-border: rgba(0, 255, 0, 0.4);
-    --bubble-glow: 0 6px 25px rgba(0, 255, 0, 0.3), 0 0 50px rgba(0, 255, 0, 0.15);
-
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0, 255, 0, 0.3) 0%, rgba(0, 200, 0, 0.18) 100%);
-    --bubble-inprogress-border: rgba(0, 255, 0, 0.7);
-    --bubble-inprogress-glow: 0 8px 35px rgba(0, 255, 0, 0.5), 0 0 70px rgba(0, 255, 0, 0.3);
-
-    --bubble-done-bg: linear-gradient(135deg, rgba(0, 200, 0, 0.25) 0%, rgba(0, 150, 0, 0.12) 100%);
-    --bubble-done-border: rgba(0, 200, 0, 0.6);
-    --bubble-done-glow: 0 6px 25px rgba(0, 200, 0, 0.35), 0 0 50px rgba(0, 200, 0, 0.2);
-    --bubble-done-text: #00ff00;
-}
-
-/* =============================================
-   THEME: MIDNIGHT 🌙
-   Bleu nuit profond avec accents lumineux
-   ============================================= */
 [data-theme="midnight"] {
-    --bg-primary: #0d0d18;
-    --bg-secondary: #14142a;
-    --bg-tertiary: #1c1c3c;
-    --bg-card: rgba(124, 159, 255, 0.08);
+    --bg-primary: #0d0d18; --bg-secondary: #14142a; --bg-tertiary: #1c1c3c;
+    --bg-card: rgba(124,159,255,0.08);
+    --text: #e0e6ff; --text-muted: #8898c8;
+    --accent: #7c9fff; --accent-light: #a0c0ff; --accent-glow: rgba(124,159,255,0.3);
+    --success: #88d8a0; --success-glow: rgba(136,216,160,0.3);
+    --warning: #ffcc70; --danger: #ff7080;
+    --border: rgba(124,159,255,0.25); --border-strong: rgba(124,159,255,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(124,159,255,0.2) 0%, rgba(100,130,220,0.1) 100%);
+    --bubble-border: rgba(124,159,255,0.5); --bubble-glow: 0 6px 25px rgba(124,159,255,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(160,192,255,0.35) 0%, rgba(124,159,255,0.2) 100%);
+    --bubble-inprogress-border: rgba(160,192,255,0.8); --bubble-inprogress-glow: 0 8px 30px rgba(160,192,255,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(136,216,160,0.25) 0%, rgba(100,180,130,0.12) 100%);
+    --bubble-done-border: rgba(136,216,160,0.6); --bubble-done-glow: 0 4px 15px rgba(136,216,160,0.2); --bubble-done-text: #88d8a0;
+}
 
-    --text: #e0e6ff;
-    --text-muted: #8898c8;
+[data-theme="twilight"] {
+    --bg-primary: #14081a; --bg-secondary: #22102d; --bg-tertiary: #351845;
+    --bg-card: rgba(196,144,224,0.08);
+    --text: #F0E5FA; --text-muted: #A888C0;
+    --accent: #C490E0; --accent-light: #D8B0F0; --accent-glow: rgba(196,144,224,0.3);
+    --success: #68C888; --success-glow: rgba(104,200,136,0.3);
+    --warning: #E8C050; --danger: #E06060;
+    --border: rgba(196,144,224,0.2); --border-strong: rgba(196,144,224,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(196,144,224,0.2) 0%, rgba(140,100,180,0.1) 100%);
+    --bubble-border: rgba(196,144,224,0.45); --bubble-glow: 0 4px 18px rgba(196,144,224,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(216,176,240,0.35) 0%, rgba(196,144,224,0.2) 100%);
+    --bubble-inprogress-border: rgba(216,176,240,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(216,176,240,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,200,136,0.25) 0%, rgba(80,160,110,0.12) 100%);
+    --bubble-done-border: rgba(104,200,136,0.6); --bubble-done-glow: 0 4px 15px rgba(104,200,136,0.2); --bubble-done-text: #68C888;
+}
 
-    --accent: #7c9fff;
-    --accent-light: #a0c0ff;
-    --accent-glow: rgba(124, 159, 255, 0.4);
+[data-theme="candlelight"] {
+    --bg-primary: #1a1208; --bg-secondary: #2d200e; --bg-tertiary: #3d2e16;
+    --bg-card: rgba(232,168,64,0.08);
+    --text: #F5ECD3; --text-muted: #B8A070;
+    --accent: #E8A840; --accent-light: #F0C060; --accent-glow: rgba(232,168,64,0.3);
+    --success: #68A858; --success-glow: rgba(104,168,88,0.25);
+    --warning: #E8C040; --danger: #D85050;
+    --border: rgba(232,168,64,0.2); --border-strong: rgba(232,168,64,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(232,168,64,0.2) 0%, rgba(180,128,40,0.1) 100%);
+    --bubble-border: rgba(232,168,64,0.45); --bubble-glow: 0 4px 18px rgba(232,168,64,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(240,192,96,0.35) 0%, rgba(232,168,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(240,192,96,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(240,192,96,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,168,88,0.25) 0%, rgba(80,136,68,0.12) 100%);
+    --bubble-done-border: rgba(104,168,88,0.6); --bubble-done-glow: 0 4px 15px rgba(104,168,88,0.2); --bubble-done-text: #68A858;
+}
 
-    --success: #88d8a0;
-    --success-glow: rgba(136, 216, 160, 0.4);
+[data-theme="moonlit"] {
+    --bg-primary: #0d1018; --bg-secondary: #161c28; --bg-tertiary: #1f2838;
+    --bg-card: rgba(160,184,216,0.06);
+    --text: #E0E8F5; --text-muted: #8098B0;
+    --accent: #A0B8D8; --accent-light: #C0D0E8; --accent-glow: rgba(160,184,216,0.2);
+    --success: #68B888; --success-glow: rgba(104,184,136,0.2);
+    --warning: #D8B848; --danger: #D86868;
+    --border: rgba(160,184,216,0.15); --border-strong: rgba(160,184,216,0.3);
+    --bubble-bg: linear-gradient(135deg, rgba(160,184,216,0.15) 0%, rgba(120,148,180,0.08) 100%);
+    --bubble-border: rgba(160,184,216,0.35); --bubble-glow: 0 4px 15px rgba(160,184,216,0.12);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(192,208,232,0.3) 0%, rgba(160,184,216,0.18) 100%);
+    --bubble-inprogress-border: rgba(192,208,232,0.7); --bubble-inprogress-glow: 0 6px 20px rgba(192,208,232,0.22);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,184,136,0.2) 0%, rgba(80,150,110,0.1) 100%);
+    --bubble-done-border: rgba(104,184,136,0.5); --bubble-done-glow: 0 4px 12px rgba(104,184,136,0.15); --bubble-done-text: #68B888;
+}
 
-    --warning: #ffcc70;
-    --danger: #ff7080;
+[data-theme="golden-hour"] {
+    --bg-primary: #1a1008; --bg-secondary: #2d1c10; --bg-tertiary: #4a2c18;
+    --bg-card: rgba(212,160,64,0.08);
+    --text: #F5E8D0; --text-muted: #B8A068;
+    --accent: #D4A040; --accent-light: #E8C060; --accent-glow: rgba(212,160,64,0.3);
+    --success: #68A858; --success-glow: rgba(104,168,88,0.25);
+    --warning: #E0B840; --danger: #D85050;
+    --border: rgba(212,160,64,0.2); --border-strong: rgba(212,160,64,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(212,160,64,0.2) 0%, rgba(170,120,40,0.1) 100%);
+    --bubble-border: rgba(212,160,64,0.45); --bubble-glow: 0 4px 18px rgba(212,160,64,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(232,192,96,0.35) 0%, rgba(212,160,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(232,192,96,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(232,192,96,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,168,88,0.25) 0%, rgba(80,136,68,0.12) 100%);
+    --bubble-done-border: rgba(104,168,88,0.6); --bubble-done-glow: 0 4px 15px rgba(104,168,88,0.2); --bubble-done-text: #68A858;
+}
 
-    --border: rgba(124, 159, 255, 0.25);
-    --border-strong: rgba(124, 159, 255, 0.5);
+[data-theme="storm"] {
+    --bg-primary: #0a0e14; --bg-secondary: #141a22; --bg-tertiary: #1e2832;
+    --bg-card: rgba(107,141,181,0.06);
+    --text: #D8E4F0; --text-muted: #7890A8;
+    --accent: #6B8DB5; --accent-light: #90B0D0; --accent-glow: rgba(107,141,181,0.25);
+    --success: #58A878; --success-glow: rgba(88,168,120,0.25);
+    --warning: #C8A840; --danger: #C85858;
+    --border: rgba(107,141,181,0.18); --border-strong: rgba(107,141,181,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(107,141,181,0.18) 0%, rgba(74,112,152,0.09) 100%);
+    --bubble-border: rgba(107,141,181,0.4); --bubble-glow: 0 4px 18px rgba(107,141,181,0.15);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(144,176,208,0.32) 0%, rgba(107,141,181,0.18) 100%);
+    --bubble-inprogress-border: rgba(144,176,208,0.72); --bubble-inprogress-glow: 0 6px 22px rgba(144,176,208,0.25);
+    --bubble-done-bg: linear-gradient(135deg, rgba(88,168,120,0.22) 0%, rgba(68,140,96,0.1) 100%);
+    --bubble-done-border: rgba(88,168,120,0.55); --bubble-done-glow: 0 4px 14px rgba(88,168,120,0.18); --bubble-done-text: #58A878;
+}
 
-    /* Minuit étoilé - glow doux */
-    --bubble-bg: linear-gradient(135deg, rgba(124, 159, 255, 0.2) 0%, rgba(100, 130, 220, 0.12) 100%);
-    --bubble-border: rgba(124, 159, 255, 0.5);
-    --bubble-glow: 0 6px 25px rgba(124, 159, 255, 0.25), 0 0 40px rgba(124, 159, 255, 0.15);
+/* ==============================================
+   CATÉGORIE 4: MODERNE
+   ============================================== */
 
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(160, 192, 255, 0.35) 0%, rgba(124, 159, 255, 0.22) 100%);
-    --bubble-inprogress-border: rgba(160, 192, 255, 0.8);
-    --bubble-inprogress-glow: 0 8px 35px rgba(160, 192, 255, 0.4), 0 0 60px rgba(124, 159, 255, 0.25);
+[data-theme="bubblegum"] {
+    --bg-primary: #1a0a14; --bg-secondary: #2d1025; --bg-tertiary: #3f1836;
+    --bg-card: rgba(255,107,157,0.12);
+    --text: #ffe8f5; --text-muted: #d090b0;
+    --accent: #ff6b9d; --accent-light: #ff9ec4; --accent-glow: rgba(255,107,157,0.3);
+    --success: #38bdf8; --success-glow: rgba(56,189,248,0.3);
+    --warning: #ffd93d; --danger: #ff6b6b;
+    --border: rgba(255,107,157,0.25); --border-strong: rgba(255,107,157,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(255,107,157,0.2) 0%, rgba(150,50,90,0.1) 100%);
+    --bubble-border: rgba(255,107,157,0.5); --bubble-glow: 0 4px 20px rgba(255,107,157,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,158,196,0.35) 0%, rgba(255,107,157,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,158,196,0.8); --bubble-inprogress-glow: 0 6px 25px rgba(255,158,196,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(56,189,248,0.25) 0%, rgba(14,165,233,0.12) 100%);
+    --bubble-done-border: rgba(56,189,248,0.6); --bubble-done-glow: 0 4px 15px rgba(56,189,248,0.2); --bubble-done-text: #38bdf8;
+}
 
-    --bubble-done-bg: linear-gradient(135deg, rgba(136, 216, 160, 0.3) 0%, rgba(100, 180, 130, 0.15) 100%);
-    --bubble-done-border: rgba(136, 216, 160, 0.7);
-    --bubble-done-glow: 0 6px 25px rgba(136, 216, 160, 0.3), 0 0 40px rgba(136, 216, 160, 0.18);
-    --bubble-done-text: #88d8a0;
+[data-theme="neon"] {
+    --bg-primary: #0a0014; --bg-secondary: #14062a; --bg-tertiary: #200e40;
+    --bg-card: rgba(255,20,147,0.08);
+    --text: #F5E0FF; --text-muted: #A070C0;
+    --accent: #FF1493; --accent-light: #FF69B4; --accent-glow: rgba(255,20,147,0.4);
+    --success: #00FFAA; --success-glow: rgba(0,255,170,0.4);
+    --warning: #FFD700; --danger: #FF4040;
+    --border: rgba(255,20,147,0.3); --border-strong: rgba(255,20,147,0.6);
+    --bubble-bg: linear-gradient(135deg, rgba(255,20,147,0.25) 0%, rgba(136,0,255,0.12) 100%);
+    --bubble-border: rgba(255,20,147,0.6); --bubble-glow: 0 6px 28px rgba(255,20,147,0.3);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,105,180,0.4) 0%, rgba(255,20,147,0.25) 100%);
+    --bubble-inprogress-border: rgba(255,105,180,0.9); --bubble-inprogress-glow: 0 8px 35px rgba(255,105,180,0.4);
+    --bubble-done-bg: linear-gradient(135deg, rgba(0,255,170,0.3) 0%, rgba(0,200,130,0.15) 100%);
+    --bubble-done-border: rgba(0,255,170,0.7); --bubble-done-glow: 0 6px 25px rgba(0,255,170,0.3); --bubble-done-text: #00FFAA;
+}
+
+[data-theme="pastel"] {
+    --bg-primary: #F8F2FA; --bg-secondary: #F0E8F4; --bg-tertiary: #E8DEEE;
+    --bg-card: rgba(168,136,200,0.06);
+    --text: #3A3040; --text-muted: #887898;
+    --accent: #A888C8; --accent-light: #C8A8E0; --accent-glow: rgba(168,136,200,0);
+    --success: #68B888; --success-glow: rgba(104,184,136,0);
+    --warning: #D4B050; --danger: #D07070;
+    --border: rgba(168,136,200,0.15); --border-strong: rgba(168,136,200,0.3);
+    --bubble-bg: linear-gradient(145deg, #F0E8F4 0%, #E8DEEE 100%);
+    --bubble-border: rgba(168,136,200,0.25); --bubble-glow: none; --bubble-text-color: #3A3040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E8DCF0 0%, #DCD0E8 100%);
+    --bubble-inprogress-border: rgba(168,136,200,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3040;
+    --bubble-done-bg: linear-gradient(145deg, #dceede 0%, #cce4d0 100%);
+    --bubble-done-border: #68B888; --bubble-done-glow: none; --bubble-done-text: #2a6040;
+}
+
+[data-theme="retrowave"] {
+    --bg-primary: #0d0520; --bg-secondary: #1a0c38; --bg-tertiary: #2a1450;
+    --bg-card: rgba(255,110,199,0.08);
+    --text: #F0E0FF; --text-muted: #A080C8;
+    --accent: #FF6EC7; --accent-light: #FF90D8; --accent-glow: rgba(255,110,199,0.4);
+    --success: #00E5A0; --success-glow: rgba(0,229,160,0.35);
+    --warning: #FFD700; --danger: #FF4060;
+    --border: rgba(255,110,199,0.25); --border-strong: rgba(255,110,199,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(255,110,199,0.22) 0%, rgba(136,102,255,0.12) 100%);
+    --bubble-border: rgba(255,110,199,0.55); --bubble-glow: 0 6px 25px rgba(255,110,199,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,144,216,0.38) 0%, rgba(255,110,199,0.22) 100%);
+    --bubble-inprogress-border: rgba(255,144,216,0.85); --bubble-inprogress-glow: 0 8px 32px rgba(255,144,216,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(0,229,160,0.28) 0%, rgba(0,180,128,0.14) 100%);
+    --bubble-done-border: rgba(0,229,160,0.65); --bubble-done-glow: 0 5px 20px rgba(0,229,160,0.25); --bubble-done-text: #00E5A0;
+}
+
+[data-theme="mint"] {
+    --bg-primary: #F2FAF6; --bg-secondary: #E4F5EC; --bg-tertiary: #D4EEE2;
+    --bg-card: rgba(61,168,120,0.06);
+    --text: #1A3A2A; --text-muted: #588870;
+    --accent: #3DA878; --accent-light: #60C898; --accent-glow: rgba(61,168,120,0);
+    --success: #2CA868; --success-glow: rgba(44,168,104,0);
+    --warning: #C4A040; --danger: #D05050;
+    --border: rgba(61,168,120,0.15); --border-strong: rgba(61,168,120,0.3);
+    --bubble-bg: linear-gradient(145deg, #E4F5EC 0%, #D4EEE2 100%);
+    --bubble-border: rgba(61,168,120,0.25); --bubble-glow: none; --bubble-text-color: #1A3A2A;
+    --bubble-inprogress-bg: linear-gradient(145deg, #D0EEE0 0%, #C0E8D4 100%);
+    --bubble-inprogress-border: rgba(61,168,120,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #1A3A2A;
+    --bubble-done-bg: linear-gradient(145deg, #c8ecd4 0%, #b8e4c6 100%);
+    --bubble-done-border: #2CA868; --bubble-done-glow: none; --bubble-done-text: #1a5a30;
+}
+
+[data-theme="coral"] {
+    --bg-primary: #1a0e0e; --bg-secondary: #2d1818; --bg-tertiary: #3d2525;
+    --bg-card: rgba(255,111,97,0.08);
+    --text: #FFE5E0; --text-muted: #C09088;
+    --accent: #FF6F61; --accent-light: #FF9488; --accent-glow: rgba(255,111,97,0.3);
+    --success: #48C8A0; --success-glow: rgba(72,200,160,0.3);
+    --warning: #F0B840; --danger: #FF4040;
+    --border: rgba(255,111,97,0.2); --border-strong: rgba(255,111,97,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(255,111,97,0.2) 0%, rgba(200,70,60,0.1) 100%);
+    --bubble-border: rgba(255,111,97,0.48); --bubble-glow: 0 4px 18px rgba(255,111,97,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,148,136,0.35) 0%, rgba(255,111,97,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,148,136,0.78); --bubble-inprogress-glow: 0 6px 22px rgba(255,148,136,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(72,200,160,0.25) 0%, rgba(48,168,130,0.12) 100%);
+    --bubble-done-border: rgba(72,200,160,0.6); --bubble-done-glow: 0 4px 15px rgba(72,200,160,0.2); --bubble-done-text: #48C8A0;
+}
+
+/* ==============================================
+   CATÉGORIE 5: MINIMALISTE
+   ============================================== */
+
+[data-theme="obsidian"] {
+    --bg-primary: #0b0b0b; --bg-secondary: #141414; --bg-tertiary: #1e1e1e;
+    --bg-card: rgba(255,255,255,0.03);
+    --text: #e3e3e3; --text-muted: #8b8b8b;
+    --accent: #a0a0a0; --accent-light: #c0c0c0; --accent-glow: rgba(160,160,160,0);
+    --success: #6b8b6b; --success-glow: rgba(107,139,107,0);
+    --warning: #b8a56b; --danger: #a66b6b;
+    --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+    --bubble-bg: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    --bubble-border: rgba(255,255,255,0.12); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.04) 100%);
+    --bubble-inprogress-border: rgba(160,160,160,0.5); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(107,139,107,0.1) 0%, rgba(107,139,107,0.05) 100%);
+    --bubble-done-border: rgba(107,139,107,0.35); --bubble-done-glow: none; --bubble-done-text: #95b095;
+}
+
+[data-theme="paper"] {
+    --bg-primary: #F8F4EC; --bg-secondary: #F0ECE2; --bg-tertiary: #E8E4D8;
+    --bg-card: rgba(139,123,101,0.05);
+    --text: #3A3228; --text-muted: #887868;
+    --accent: #8B7B65; --accent-light: #B0A088; --accent-glow: rgba(139,123,101,0);
+    --success: #5A8A50; --success-glow: rgba(90,138,80,0);
+    --warning: #B89840; --danger: #C05050;
+    --border: rgba(139,123,101,0.15); --border-strong: rgba(139,123,101,0.3);
+    --bubble-bg: linear-gradient(145deg, #F0ECE2 0%, #E8E4D8 100%);
+    --bubble-border: rgba(139,123,101,0.2); --bubble-glow: none; --bubble-text-color: #3A3228;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E8E0D0 0%, #E0D8C8 100%);
+    --bubble-inprogress-border: rgba(139,123,101,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3228;
+    --bubble-done-bg: linear-gradient(145deg, #deeadc 0%, #d0e2cc 100%);
+    --bubble-done-border: #5A8A50; --bubble-done-glow: none; --bubble-done-text: #2a5a20;
+}
+
+[data-theme="clay"] {
+    --bg-primary: #201A14; --bg-secondary: #302820; --bg-tertiary: #40362C;
+    --bg-card: rgba(184,152,120,0.06);
+    --text: #E8DCD0; --text-muted: #A89880;
+    --accent: #B89878; --accent-light: #D0B898; --accent-glow: rgba(184,152,120,0);
+    --success: #68A868; --success-glow: rgba(104,168,104,0);
+    --warning: #C8A840; --danger: #C86060;
+    --border: rgba(184,152,120,0.15); --border-strong: rgba(184,152,120,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(184,152,120,0.1) 0%, rgba(184,152,120,0.05) 100%);
+    --bubble-border: rgba(184,152,120,0.28); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(184,152,120,0.18) 0%, rgba(184,152,120,0.1) 100%);
+    --bubble-inprogress-border: rgba(184,152,120,0.55); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(104,168,104,0.12) 0%, rgba(104,168,104,0.06) 100%);
+    --bubble-done-border: rgba(104,168,104,0.4); --bubble-done-glow: none; --bubble-done-text: #78b878;
+}
+
+[data-theme="porcelain"] {
+    --bg-primary: #F2F5FA; --bg-secondary: #E8EEF5; --bg-tertiary: #DEE6F0;
+    --bg-card: rgba(104,136,168,0.05);
+    --text: #2A3440; --text-muted: #6880A0;
+    --accent: #6888A8; --accent-light: #88A8C8; --accent-glow: rgba(104,136,168,0);
+    --success: #4A9868; --success-glow: rgba(74,152,104,0);
+    --warning: #C4A040; --danger: #C85050;
+    --border: rgba(104,136,168,0.12); --border-strong: rgba(104,136,168,0.25);
+    --bubble-bg: linear-gradient(145deg, #E8EEF5 0%, #DEE6F0 100%);
+    --bubble-border: rgba(104,136,168,0.2); --bubble-glow: none; --bubble-text-color: #2A3440;
+    --bubble-inprogress-bg: linear-gradient(145deg, #DCE4F0 0%, #D0DCE8 100%);
+    --bubble-inprogress-border: rgba(104,136,168,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #2A3440;
+    --bubble-done-bg: linear-gradient(145deg, #d8eedc 0%, #c8e4d0 100%);
+    --bubble-done-border: #4A9868; --bubble-done-glow: none; --bubble-done-text: #2a5a38;
+}
+
+[data-theme="espresso"] {
+    --bg-primary: #140E0A; --bg-secondary: #241A12; --bg-tertiary: #34261C;
+    --bg-card: rgba(168,120,72,0.06);
+    --text: #F0E4D4; --text-muted: #A89070;
+    --accent: #A87848; --accent-light: #C89868; --accent-glow: rgba(168,120,72,0);
+    --success: #5A9858; --success-glow: rgba(90,152,88,0);
+    --warning: #C8A040; --danger: #C85858;
+    --border: rgba(168,120,72,0.15); --border-strong: rgba(168,120,72,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(168,120,72,0.1) 0%, rgba(168,120,72,0.05) 100%);
+    --bubble-border: rgba(168,120,72,0.28); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(168,120,72,0.18) 0%, rgba(168,120,72,0.1) 100%);
+    --bubble-inprogress-border: rgba(168,120,72,0.55); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(90,152,88,0.12) 0%, rgba(90,152,88,0.06) 100%);
+    --bubble-done-border: rgba(90,152,88,0.4); --bubble-done-glow: none; --bubble-done-text: #78b078;
+}
+
+/* ==============================================
+   CATÉGORIE 6: TECH
+   ============================================== */
+
+[data-theme="matrix"] {
+    --bg-primary: #0a0f0a; --bg-secondary: #0f1a0f; --bg-tertiary: #152015;
+    --bg-card: rgba(0,255,102,0.08);
+    --text: #e0ffe0; --text-muted: #70b070;
+    --accent: #00ff66; --accent-light: #4dff8d; --accent-glow: rgba(0,255,102,0.4);
+    --success: #00cc52; --success-glow: rgba(0,204,82,0.4);
+    --warning: #66ff00; --danger: #ff3333;
+    --border: rgba(0,255,102,0.2); --border-strong: rgba(0,255,102,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(0,255,102,0.22) 0%, rgba(102,255,0,0.12) 100%);
+    --bubble-border: rgba(0,255,102,0.5); --bubble-glow: 0 8px 35px rgba(0,255,102,0.35);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(102,255,0,0.5) 0%, rgba(0,255,102,0.35) 100%);
+    --bubble-inprogress-border: rgba(102,255,0,0.9); --bubble-inprogress-glow: 0 12px 60px rgba(102,255,0,0.7);
+    --bubble-done-bg: linear-gradient(135deg, rgba(0,180,80,0.22) 0%, rgba(0,120,60,0.1) 100%);
+    --bubble-done-border: rgba(0,180,80,0.55); --bubble-done-glow: 0 6px 25px rgba(0,180,80,0.3); --bubble-done-text: #00ff66;
+}
+
+[data-theme="cyberpunk"] {
+    --bg-primary: #0d0221; --bg-secondary: #190b3a; --bg-tertiary: #2a1454;
+    --bg-card: rgba(255,0,255,0.08);
+    --text: #f0e6ff; --text-muted: #b088d8;
+    --accent: #ff00ff; --accent-light: #ff66ff; --accent-glow: rgba(255,0,255,0.5);
+    --success: #00ffff; --success-glow: rgba(0,255,255,0.5);
+    --warning: #ffff00; --danger: #ff0080;
+    --border: rgba(255,0,255,0.3); --border-strong: rgba(255,0,255,0.6);
+    --bubble-bg: linear-gradient(135deg, rgba(255,0,255,0.22) 0%, rgba(138,43,226,0.12) 100%);
+    --bubble-border: rgba(255,0,255,0.55); --bubble-glow: 0 8px 30px rgba(255,0,255,0.35);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,0,255,0.4) 0%, rgba(255,105,180,0.25) 100%);
+    --bubble-inprogress-border: rgba(255,0,255,0.9); --bubble-inprogress-glow: 0 10px 45px rgba(255,0,255,0.5);
+    --bubble-done-bg: linear-gradient(135deg, rgba(0,255,255,0.3) 0%, rgba(0,200,200,0.15) 100%);
+    --bubble-done-border: rgba(0,255,255,0.75); --bubble-done-glow: 0 8px 35px rgba(0,255,255,0.4); --bubble-done-text: #00ffff;
+}
+
+[data-theme="terminal"] {
+    --bg-primary: #0a0800; --bg-secondary: #141000; --bg-tertiary: #1e1800;
+    --bg-card: rgba(255,176,0,0.06);
+    --text: #FFE0A0; --text-muted: #B89848;
+    --accent: #FFB000; --accent-light: #FFD060; --accent-glow: rgba(255,176,0,0.4);
+    --success: #80D060; --success-glow: rgba(128,208,96,0.35);
+    --warning: #FFD700; --danger: #FF4040;
+    --border: rgba(255,176,0,0.25); --border-strong: rgba(255,176,0,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(255,176,0,0.18) 0%, rgba(200,140,0,0.08) 100%);
+    --bubble-border: rgba(255,176,0,0.45); --bubble-glow: 0 6px 25px rgba(255,176,0,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,208,96,0.35) 0%, rgba(255,176,0,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,208,96,0.8); --bubble-inprogress-glow: 0 8px 35px rgba(255,208,96,0.4);
+    --bubble-done-bg: linear-gradient(135deg, rgba(128,208,96,0.25) 0%, rgba(100,170,70,0.12) 100%);
+    --bubble-done-border: rgba(128,208,96,0.6); --bubble-done-glow: 0 5px 20px rgba(128,208,96,0.25); --bubble-done-text: #80D060;
+}
+
+[data-theme="tron"] {
+    --bg-primary: #000810; --bg-secondary: #001020; --bg-tertiary: #001830;
+    --bg-card: rgba(0,212,255,0.06);
+    --text: #D0F0FF; --text-muted: #6098C0;
+    --accent: #00D4FF; --accent-light: #40E0FF; --accent-glow: rgba(0,212,255,0.4);
+    --success: #00FF88; --success-glow: rgba(0,255,136,0.35);
+    --warning: #FFDD00; --danger: #FF4060;
+    --border: rgba(0,212,255,0.2); --border-strong: rgba(0,212,255,0.45);
+    --bubble-bg: linear-gradient(135deg, rgba(0,212,255,0.18) 0%, rgba(0,128,160,0.08) 100%);
+    --bubble-border: rgba(0,212,255,0.45); --bubble-glow: 0 6px 25px rgba(0,212,255,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(64,224,255,0.35) 0%, rgba(0,212,255,0.2) 100%);
+    --bubble-inprogress-border: rgba(64,224,255,0.8); --bubble-inprogress-glow: 0 8px 35px rgba(64,224,255,0.4);
+    --bubble-done-bg: linear-gradient(135deg, rgba(0,255,136,0.25) 0%, rgba(0,200,100,0.12) 100%);
+    --bubble-done-border: rgba(0,255,136,0.6); --bubble-done-glow: 0 5px 20px rgba(0,255,136,0.25); --bubble-done-text: #00FF88;
+}
+
+[data-theme="hologram"] {
+    --bg-primary: #0d1018; --bg-secondary: #141820; --bg-tertiary: #1c2230;
+    --bg-card: rgba(136,221,255,0.06);
+    --text: #E0F0FF; --text-muted: #7098B8;
+    --accent: #88DDFF; --accent-light: #A8E8FF; --accent-glow: rgba(136,221,255,0.3);
+    --success: #80FFD0; --success-glow: rgba(128,255,208,0.3);
+    --warning: #FFE060; --danger: #FF7088;
+    --border: rgba(136,221,255,0.18); --border-strong: rgba(136,221,255,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(136,221,255,0.15) 0%, rgba(255,136,221,0.08) 50%, rgba(136,255,187,0.06) 100%);
+    --bubble-border: rgba(136,221,255,0.4); --bubble-glow: 0 5px 22px rgba(136,221,255,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,136,221,0.3) 0%, rgba(136,221,255,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,136,221,0.7); --bubble-inprogress-glow: 0 7px 28px rgba(255,136,221,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(128,255,208,0.22) 0%, rgba(100,200,168,0.1) 100%);
+    --bubble-done-border: rgba(128,255,208,0.55); --bubble-done-glow: 0 4px 18px rgba(128,255,208,0.2); --bubble-done-text: #80FFD0;
+}
+
+/* ==============================================
+   CATÉGORIE 7: ARTISTE
+   ============================================== */
+
+[data-theme="zen"] {
+    --bg-primary: #F5F2EA; --bg-secondary: #EDE8DC; --bg-tertiary: #E0DCCE;
+    --bg-card: rgba(112,128,88,0.05);
+    --text: #3A3830; --text-muted: #808068;
+    --accent: #708058; --accent-light: #90A070; --accent-glow: rgba(112,128,88,0);
+    --success: #5A9858; --success-glow: rgba(90,152,88,0);
+    --warning: #B8A040; --danger: #C05050;
+    --border: rgba(112,128,88,0.12); --border-strong: rgba(112,128,88,0.25);
+    --bubble-bg: linear-gradient(145deg, #EDE8DC 0%, #E0DCCE 100%);
+    --bubble-border: rgba(112,128,88,0.2); --bubble-glow: none; --bubble-text-color: #3A3830;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E0DCC8 0%, #D8D4BE 100%);
+    --bubble-inprogress-border: rgba(112,128,88,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3830;
+    --bubble-done-bg: linear-gradient(145deg, #d8eacc 0%, #c8e0bc 100%);
+    --bubble-done-border: #5A9858; --bubble-done-glow: none; --bubble-done-text: #2a5a20;
+}
+
+[data-theme="art-deco"] {
+    --bg-primary: #0a0808; --bg-secondary: #141210; --bg-tertiary: #1e1a18;
+    --bg-card: rgba(200,160,64,0.06);
+    --text: #F0E8D0; --text-muted: #A89870;
+    --accent: #C8A040; --accent-light: #E0C060; --accent-glow: rgba(200,160,64,0.25);
+    --success: #68A868; --success-glow: rgba(104,168,104,0.2);
+    --warning: #E0C050; --danger: #D05050;
+    --border: rgba(200,160,64,0.18); --border-strong: rgba(200,160,64,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(200,160,64,0.15) 0%, rgba(160,120,40,0.08) 100%);
+    --bubble-border: rgba(200,160,64,0.38); --bubble-glow: 0 4px 16px rgba(200,160,64,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(224,192,96,0.3) 0%, rgba(200,160,64,0.18) 100%);
+    --bubble-inprogress-border: rgba(224,192,96,0.68); --bubble-inprogress-glow: 0 6px 22px rgba(224,192,96,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,168,104,0.18) 0%, rgba(80,136,80,0.08) 100%);
+    --bubble-done-border: rgba(104,168,104,0.48); --bubble-done-glow: 0 4px 14px rgba(104,168,104,0.15); --bubble-done-text: #78b878;
+}
+
+[data-theme="watercolor"] {
+    --bg-primary: #F8F2F8; --bg-secondary: #F0E8F0; --bg-tertiary: #E5DCE8;
+    --bg-card: rgba(136,136,192,0.05);
+    --text: #383040; --text-muted: #887898;
+    --accent: #8888C0; --accent-light: #A8A8D8; --accent-glow: rgba(136,136,192,0);
+    --success: #68B888; --success-glow: rgba(104,184,136,0);
+    --warning: #C8A848; --danger: #C86868;
+    --border: rgba(136,136,192,0.12); --border-strong: rgba(136,136,192,0.25);
+    --bubble-bg: linear-gradient(145deg, #F0E8F0 0%, #E5DCE8 100%);
+    --bubble-border: rgba(136,136,192,0.2); --bubble-glow: none; --bubble-text-color: #383040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E5DCF0 0%, #D8D0E8 100%);
+    --bubble-inprogress-border: rgba(136,136,192,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #383040;
+    --bubble-done-bg: linear-gradient(145deg, #d8eede 0%, #c8e4d0 100%);
+    --bubble-done-border: #68B888; --bubble-done-glow: none; --bubble-done-text: #2a6040;
+}
+
+[data-theme="nordic"] {
+    --bg-primary: #F5F0E8; --bg-secondary: #ECE6DC; --bg-tertiary: #E0D8CC;
+    --bg-card: rgba(90,122,106,0.05);
+    --text: #303828; --text-muted: #708068;
+    --accent: #5A7A6A; --accent-light: #78A890; --accent-glow: rgba(90,122,106,0);
+    --success: #48A058; --success-glow: rgba(72,160,88,0);
+    --warning: #B8A040; --danger: #C05050;
+    --border: rgba(90,122,106,0.12); --border-strong: rgba(90,122,106,0.25);
+    --bubble-bg: linear-gradient(145deg, #ECE6DC 0%, #E0D8CC 100%);
+    --bubble-border: rgba(90,122,106,0.2); --bubble-glow: none; --bubble-text-color: #303828;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E0DCC8 0%, #D4D0BC 100%);
+    --bubble-inprogress-border: rgba(90,122,106,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #303828;
+    --bubble-done-bg: linear-gradient(145deg, #d4eacc 0%, #c4e0bc 100%);
+    --bubble-done-border: #48A058; --bubble-done-glow: none; --bubble-done-text: #285a20;
+}
+
+[data-theme="cosmic"] {
+    --bg-primary: #050210; --bg-secondary: #0a0520; --bg-tertiary: #120835;
+    --bg-card: rgba(153,102,255,0.06);
+    --text: #E0D5FF; --text-muted: #8878B8;
+    --accent: #9966FF; --accent-light: #B888FF; --accent-glow: rgba(153,102,255,0.4);
+    --success: #68E0A0; --success-glow: rgba(104,224,160,0.35);
+    --warning: #F0D050; --danger: #FF5070;
+    --border: rgba(153,102,255,0.22); --border-strong: rgba(153,102,255,0.45);
+    --bubble-bg: linear-gradient(135deg, rgba(153,102,255,0.2) 0%, rgba(100,60,200,0.1) 100%);
+    --bubble-border: rgba(153,102,255,0.48); --bubble-glow: 0 6px 25px rgba(153,102,255,0.22);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(184,136,255,0.38) 0%, rgba(153,102,255,0.22) 100%);
+    --bubble-inprogress-border: rgba(184,136,255,0.8); --bubble-inprogress-glow: 0 8px 32px rgba(184,136,255,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(104,224,160,0.25) 0%, rgba(80,180,130,0.12) 100%);
+    --bubble-done-border: rgba(104,224,160,0.6); --bubble-done-glow: 0 5px 20px rgba(104,224,160,0.22); --bubble-done-text: #68E0A0;
 }

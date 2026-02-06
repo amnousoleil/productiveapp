@@ -24,7 +24,7 @@ const NotesRender = (function() {
         const date = new Date(dateStr);
         const now = new Date();
         const diff = now - date;
-        if (diff < 60000) return 'À l\'instant';
+        if (diff < 60000) return 'A l\'instant';
         if (diff < 3600000) return `Il y a ${Math.floor(diff / 60000)}m`;
         if (diff < 86400000) return `Il y a ${Math.floor(diff / 3600000)}h`;
         return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
@@ -36,10 +36,11 @@ const NotesRender = (function() {
     }
 
     function renderNoteItem(note, isActive) {
+        const publicBadge = note.isPublic ? '<span class="note-badge-public" title="Note publique">&#127760;</span>' : '';
         return `
             <div class="note-item ${isActive ? 'active' : ''}"
                  onclick="NotesEditor.selectNote('${note.id}')">
-                <h4 class="note-item-title">${escapeHtml(note.title) || 'Sans titre'}</h4>
+                <h4 class="note-item-title">${publicBadge}${escapeHtml(note.title) || 'Sans titre'}</h4>
                 <p class="note-item-preview">${escapeHtml(note.content?.substring(0, 80)) || 'Note vide...'}</p>
                 <div class="note-item-meta">
                     <span>${formatDate(note.updatedAt)}</span>
@@ -59,8 +60,8 @@ const NotesRender = (function() {
         return `
             <div class="notes-empty">
                 ${icons['file-text']}
-                <h3>Aucune note sélectionnée</h3>
-                <p>Sélectionnez une note ou créez-en une nouvelle</p>
+                <h3>Aucune note selectionnee</h3>
+                <p>Selectionnez une note ou creez-en une nouvelle</p>
                 <button class="btn btn-primary" onclick="NotesEditor.createNew()">
                     ${icons.plus} Nouvelle note
                 </button>
@@ -69,6 +70,11 @@ const NotesRender = (function() {
     }
 
     function renderEditor(note, toolbarHtml) {
+        const isPublic = note.isPublic || false;
+        const visibilityIcon = isPublic ? '&#127760;' : '&#128274;';
+        const visibilityLabel = isPublic ? 'Publique' : 'Privee';
+        const visibilityClass = isPublic ? 'note-public' : 'note-private';
+
         return `
             <div class="notes-editor-header">
                 <input type="text"
@@ -76,9 +82,16 @@ const NotesRender = (function() {
                        placeholder="Titre de la note..."
                        value="${escapeHtml(note.title)}"
                        oninput="NotesEditor.handleAutoSave()">
-                <button class="btn btn-icon btn-secondary" onclick="NotesEditor.confirmDelete('${note.id}')" title="Supprimer">
-                    ${icons.trash}
-                </button>
+                <div class="note-header-actions">
+                    <button class="btn btn-icon btn-secondary note-visibility-toggle ${visibilityClass}"
+                            onclick="NotesEditor.toggleVisibility('${note.id}')"
+                            title="${visibilityLabel}">
+                        ${visibilityIcon}
+                    </button>
+                    <button class="btn btn-icon btn-secondary" onclick="NotesEditor.confirmDelete('${note.id}')" title="Supprimer">
+                        ${icons.trash}
+                    </button>
+                </div>
             </div>
             ${toolbarHtml}
             <div class="notes-editor-content">
@@ -88,13 +101,25 @@ const NotesRender = (function() {
                           onkeydown="NotesEditor.handleKeydown(event)">${escapeHtml(note.content)}</textarea>
             </div>
             <div class="notes-editor-footer">
-                <div class="save-indicator saved">✓ Sauvegardé</div>
+                <div class="save-indicator saved">${renderSaveIndicator('saved')}</div>
                 <div class="word-count">${countWords(note.content)} mots</div>
             </div>
         `;
     }
 
     function renderLayout(notesCount) {
+        // Build project filter options
+        let projectOptions = '';
+        if (typeof AppState !== 'undefined' && AppState.projects) {
+            projectOptions = AppState.projects.map(p =>
+                `<option value="${p.id}">${p.icon || ''} ${p.name}</option>`
+            ).join('');
+        } else if (typeof AppConfig !== 'undefined' && AppConfig.DEFAULT_PROJECTS) {
+            projectOptions = AppConfig.DEFAULT_PROJECTS.map(p =>
+                `<option value="${p.id}">${p.icon || ''} ${p.name}</option>`
+            ).join('');
+        }
+
         return `
             <div class="view-header">
                 <h1 class="view-title">
@@ -112,6 +137,11 @@ const NotesRender = (function() {
                 <div class="notes-sidebar">
                     <div class="notes-sidebar-header">
                         <h3>Mes notes (${notesCount})</h3>
+                        <select class="notes-project-filter"
+                                onchange="NotesEditor.filterByProject(this.value)">
+                            <option value="">Tous les projets</option>
+                            ${projectOptions}
+                        </select>
                     </div>
                     <div class="notes-search">
                         <span class="notes-search-icon">${icons.search}</span>
@@ -129,9 +159,9 @@ const NotesRender = (function() {
 
     function renderSaveIndicator(status) {
         const labels = {
-            saving: '⏳ Sauvegarde...',
-            saved: '✓ Sauvegardé',
-            unsaved: '• Non sauvegardé'
+            saving: '&#9203; Sauvegarde...',
+            saved: '&#10003; Sauvegarde',
+            unsaved: '&#8226; Non sauvegarde'
         };
         return labels[status] || '';
     }

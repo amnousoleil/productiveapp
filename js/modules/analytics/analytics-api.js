@@ -23,12 +23,20 @@ const AnalyticsAPI = (function() {
         if (!workspaceId) return getMockDailyStats(days);
 
         try {
+            // Backend expects ISO datetime format with from/to
+            var to = new Date();
+            var from = new Date();
+            from.setDate(from.getDate() - days);
+
+            var fromStr = from.toISOString();
+            var toStr = to.toISOString();
+
             var response = await ApiFetch.fetchWithAuth(
-                '/analytics/workspace/' + workspaceId + '/daily-stats?days=' + days
+                '/analytics/workspace/' + workspaceId + '/daily-stats?from=' + encodeURIComponent(fromStr) + '&to=' + encodeURIComponent(toStr)
             );
-            return response.data || response;
+            return response.data?.stats || response.data || response;
         } catch (error) {
-            console.warn('API failed, using mock daily stats');
+            console.warn('API failed, using mock daily stats:', error.message);
             return getMockDailyStats(days);
         }
     }
@@ -53,18 +61,28 @@ const AnalyticsAPI = (function() {
 
     /**
      * Get activity summary
+     * @param {number} days - Number of days (default 30)
      */
-    async function getActivitySummary() {
+    async function getActivitySummary(days) {
+        days = days || 30;
         var workspaceId = getWorkspaceId();
         if (!workspaceId) return getMockActivitySummary();
 
         try {
+            // Backend expects ISO datetime format with from/to
+            var to = new Date();
+            var from = new Date();
+            from.setDate(from.getDate() - days);
+
+            var fromStr = from.toISOString();
+            var toStr = to.toISOString();
+
             var response = await ApiFetch.fetchWithAuth(
-                '/analytics/workspace/' + workspaceId + '/activity/summary'
+                '/analytics/workspace/' + workspaceId + '/activity/summary?from=' + encodeURIComponent(fromStr) + '&to=' + encodeURIComponent(toStr)
             );
-            return response.data || response;
+            return response.data?.summary || response.data || response;
         } catch (error) {
-            console.warn('API failed, using mock activity summary');
+            console.warn('API failed, using mock activity summary:', error.message);
             return getMockActivitySummary();
         }
     }

@@ -6,24 +6,27 @@
 const NotesModule = (function() {
     'use strict';
 
-    const STORAGE_KEY = 'productiveapp_notes';
     const AUTOSAVE_DELAY = 1000;
 
     let notes = [];
     let currentNoteId = null;
     let autosaveTimeout = null;
     let saveStatus = 'saved';
-    let useApi = true;
 
     function generateId() {
         return 'note_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    // ========== STORAGE ==========
+    // ========== STORAGE (scoped by member) ==========
+
+    function getStorageKey() {
+        const memberId = localStorage.getItem('selectedMemberId') || 'default';
+        return `productiveapp_notes_${memberId}`;
+    }
 
     function saveToLocal() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+            localStorage.setItem(getStorageKey(), JSON.stringify(notes));
         } catch (e) {
             console.warn('Notes: localStorage save failed', e);
         }
@@ -31,7 +34,7 @@ const NotesModule = (function() {
 
     function loadFromLocal() {
         try {
-            const saved = localStorage.getItem(STORAGE_KEY);
+            const saved = localStorage.getItem(getStorageKey());
             if (saved) notes = JSON.parse(saved);
         } catch (e) {
             console.warn('Notes: localStorage load failed', e);
@@ -42,7 +45,8 @@ const NotesModule = (function() {
     // ========== API OPERATIONS ==========
 
     async function loadNotes() {
-        if (useApi && typeof ApiNotes !== 'undefined') {
+        // Always try API first (no permanent fallback)
+        if (typeof ApiNotes !== 'undefined') {
             try {
                 const apiNotes = await ApiNotes.getAll();
                 notes = apiNotes.map(n => ({
@@ -50,17 +54,19 @@ const NotesModule = (function() {
                     title: n.title || '',
                     content: n.content || '',
                     projectId: n.project_id || null,
+                    parentId: n.parent_id || null,
+                    memberId: n.member_id || null,
+                    isPublic: n.is_public || false,
                     tags: n.tags || [],
                     isPinned: n.is_pinned || false,
                     createdAt: n.created_at,
                     updatedAt: n.updated_at
                 }));
                 saveToLocal();
-                console.log('📝 Notes loaded from API:', notes.length);
+                console.log('Notes loaded from API:', notes.length);
                 return notes;
             } catch (e) {
                 console.warn('Notes: API load failed, using localStorage', e);
-                useApi = false;
             }
         }
         loadFromLocal();
@@ -73,13 +79,16 @@ const NotesModule = (function() {
             title: '',
             content: '',
             projectId,
+            parentId: null,
+            memberId: localStorage.getItem('selectedMemberId') || null,
+            isPublic: false,
             tags: [],
             isPinned: false,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
 
-        if (useApi && typeof ApiNotes !== 'undefined') {
+        if (typeof ApiNotes !== 'undefined') {
             try {
                 const apiNote = await ApiNotes.create({
                     title: note.title,
@@ -112,14 +121,17 @@ const NotesModule = (function() {
             updatedAt: new Date().toISOString()
         };
 
-        if (useApi && typeof ApiNotes !== 'undefined') {
+        if (typeof ApiNotes !== 'undefined') {
             try {
-                await ApiNotes.update(id, {
-                    title: updates.title,
-                    content: updates.content,
-                    project_id: updates.projectId,
-                    tags: updates.tags
-                });
+                const apiData = {};
+                if (updates.title !== undefined) apiData.title = updates.title;
+                if (updates.content !== undefined) apiData.content = updates.content;
+                if (updates.projectId !== undefined) apiData.project_id = updates.projectId;
+                if (updates.parentId !== undefined) apiData.parent_id = updates.parentId;
+                if (updates.tags !== undefined) apiData.tags = updates.tags;
+                if (updates.isPublic !== undefined) apiData.is_public = updates.isPublic;
+                if (updates.isPinned !== undefined) apiData.is_pinned = updates.isPinned;
+                await ApiNotes.update(id, apiData);
             } catch (e) {
                 console.warn('Notes: API update failed', e);
             }
@@ -133,7 +145,7 @@ const NotesModule = (function() {
         const index = notes.findIndex(n => n.id === id);
         if (index === -1) return false;
 
-        if (useApi && typeof ApiNotes !== 'undefined') {
+        if (typeof ApiNotes !== 'undefined') {
             try {
                 await ApiNotes.remove(id);
             } catch (e) {
@@ -189,6 +201,15 @@ const NotesModule = (function() {
         }
     }
 
+    // ========== RESET (called when switching members) ==========
+
+    function reset() {
+        notes = [];
+        currentNoteId = null;
+        saveStatus = 'saved';
+        clearAutosaveTimeout();
+    }
+
     return {
         AUTOSAVE_DELAY,
         loadNotes,
@@ -208,6 +229,7 @@ const NotesModule = (function() {
         getAutosaveTimeout,
         setAutosaveTimeout,
         clearAutosaveTimeout,
+        reset,
         get currentNoteId() { return currentNoteId; }
     };
 })();

@@ -5,13 +5,33 @@
 
 const AppConfig = {
     // === CONFIGURATION API ===
+    // MIGRÉ DE N8N VERS PRODUCTIVE-CORE BACKEND (2026-02-06)
     API: {
-        TASKS: 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks',
-        JOURNAL: 'https://n8n.srv1053121.hstgr.cloud/webhook/journal',
-        PROJECTS: 'https://n8n.srv1053121.hstgr.cloud/webhook/projects',
-        CORRECT: 'https://n8n.srv1053121.hstgr.cloud/webhook/correct',
-        CHATBOT: 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400-91f2-48ea-b115-26a330247dcc',
-        BACKUP: 'https://n8n.srv1053121.hstgr.cloud/webhook/backup'
+        // Base URL du backend
+        BASE: '/api/v1',
+
+        // Endpoints principaux (productive-core)
+        TASKS: '/api/v1/tasks',
+        PROJECTS: '/api/v1/projects',
+        NOTES: '/api/v1/notes',           // Remplace JOURNAL
+
+        // Endpoints IA (OpenAI direct)
+        AI_CHAT: '/api/v1/ai/chat',       // Chatbot intelligent
+        AI_CORRECT: '/api/v1/ai/correct', // Correction de texte
+        AI_GENERATE: '/api/v1/ai/generate', // Génération de contenu
+
+        // Endpoints rapports IA
+        AI_REPORTS: '/api/v1/reports/ai',
+
+        // Autres endpoints
+        AUTH: '/api/v1/auth',
+        USERS: '/api/v1/users',
+        WORKSPACES: '/api/v1/workspaces',
+        CANVASES: '/api/v1/canvases',     // Galaxy view
+
+        // LEGACY N8N (désactivé - garder pour référence)
+        // _LEGACY_TASKS: 'https://n8n.srv1053121.hstgr.cloud/webhook/tasks',
+        // _LEGACY_CHATBOT: 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400-91f2-48ea-b115-26a330247dcc',
     },
 
     // === IDENTIFIANT TENANT ===
@@ -21,7 +41,7 @@ const AppConfig = {
     // Un seul compte pour toute l'équipe, puis sélection du membre
     TEAM_AUTH: {
         email: 'contact@mahagiri.fr',
-        password: 'Autopdutop63.G+htrhs7'
+        password: '444@'
     },
 
     // === MEMBRES DE L'ÉQUIPE ===
@@ -71,6 +91,13 @@ const AppConfig = {
             role: 'team'
         },
         {
+            id: 'f74dabfd-4b33-4c6d-847d-f7cb7965ec4a',
+            name: 'Satyavir',
+            avatar: '🔱',
+            loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png',
+            role: 'team'
+        },
+        {
             id: 'all',
             name: 'Tout le monde',
             avatar: '👥',
@@ -94,28 +121,61 @@ const AppConfig = {
         { id: 'general', name: 'Général', icon: '📌', color: '#6b7280', desc: 'Tâches diverses' }
     ],
 
-    // === THÈMES ===
+    // === THÈMES v3.0 — 40 thèmes, 7 catégories ===
     THEMES: {
-        pro: [
-            { id: 'executive', name: 'Executive', color: '#d4af37', category: 'PRO/CEO' },
-            { id: 'corporate', name: 'Corporate', color: '#6495ed', category: 'PRO/CEO' },
-            { id: 'minimal', name: 'Minimal', color: '#007aff', category: 'PRO/CEO' },
-            { id: 'slate', name: 'Slate', color: '#64748b', category: 'PRO/CEO' },
-            { id: 'obsidian', name: 'Obsidian', color: '#a0a0a0', category: 'PRO/CEO' },
-            { id: 'academie', name: 'Académie', color: '#daa520', category: 'PRO/CEO' }
+        elegance: [
+            { id: 'executive', name: 'Executive', color: '#d4af37', category: 'ÉLÉGANCE' },
+            { id: 'corporate', name: 'Corporate', color: '#6495ed', category: 'ÉLÉGANCE' },
+            { id: 'ivory', name: 'Ivory', color: '#8B7355', category: 'ÉLÉGANCE' },
+            { id: 'sterling', name: 'Sterling', color: '#C0C8D0', category: 'ÉLÉGANCE' },
+            { id: 'diplomat', name: 'Diplomat', color: '#C4324A', category: 'ÉLÉGANCE' },
+            { id: 'academie', name: 'Académie', color: '#daa520', category: 'ÉLÉGANCE' }
         ],
-        creative: [
-            { id: 'sunset', name: 'Sunset', color: '#f97316', category: 'CRÉATIF/FUN' },
-            { id: 'ocean', name: 'Ocean', color: '#00b4d8', category: 'CRÉATIF/FUN' },
-            { id: 'forest', name: 'Forest', color: '#4ade80', category: 'CRÉATIF/FUN' },
-            { id: 'bubblegum', name: 'Bubblegum', color: '#ff6b9d', category: 'CRÉATIF/FUN' },
-            { id: 'aurora', name: 'Aurora', color: '#93c5fd', category: 'CRÉATIF/FUN' }
+        nature: [
+            { id: 'ocean', name: 'Ocean', color: '#00b4d8', category: 'NATURE' },
+            { id: 'forest', name: 'Forest', color: '#4aaa64', category: 'NATURE' },
+            { id: 'sunset', name: 'Sunset', color: '#f97316', category: 'NATURE' },
+            { id: 'desert', name: 'Desert', color: '#e07840', category: 'NATURE' },
+            { id: 'lavender', name: 'Lavender', color: '#B07CC8', category: 'NATURE' },
+            { id: 'sakura', name: 'Sakura', color: '#D4688C', category: 'NATURE' }
         ],
-        geek: [
-            { id: 'matrix', name: 'Matrix', color: '#00ff66', category: 'GEEK/TECH' },
-            { id: 'cyberpunk', name: 'Cyberpunk', color: '#ff00ff', category: 'GEEK/TECH' },
-            { id: 'terminal', name: 'Terminal', color: '#00ff00', category: 'GEEK/TECH' },
-            { id: 'midnight', name: 'Midnight', color: '#7c9fff', category: 'GEEK/TECH' }
+        atmosphere: [
+            { id: 'aurora', name: 'Aurora', color: '#93c5fd', category: 'ATMOSPHÈRE' },
+            { id: 'midnight', name: 'Midnight', color: '#7c9fff', category: 'ATMOSPHÈRE' },
+            { id: 'twilight', name: 'Twilight', color: '#C490E0', category: 'ATMOSPHÈRE' },
+            { id: 'candlelight', name: 'Candlelight', color: '#E8A840', category: 'ATMOSPHÈRE' },
+            { id: 'moonlit', name: 'Moonlit', color: '#A0B8D8', category: 'ATMOSPHÈRE' },
+            { id: 'golden-hour', name: 'Golden Hour', color: '#D4A040', category: 'ATMOSPHÈRE' },
+            { id: 'storm', name: 'Storm', color: '#6B8DB5', category: 'ATMOSPHÈRE' }
+        ],
+        moderne: [
+            { id: 'bubblegum', name: 'Bubblegum', color: '#ff6b9d', category: 'MODERNE' },
+            { id: 'neon', name: 'Neon', color: '#FF1493', category: 'MODERNE' },
+            { id: 'pastel', name: 'Pastel', color: '#A888C8', category: 'MODERNE' },
+            { id: 'retrowave', name: 'Retrowave', color: '#FF6EC7', category: 'MODERNE' },
+            { id: 'mint', name: 'Mint', color: '#3DA878', category: 'MODERNE' },
+            { id: 'coral', name: 'Coral', color: '#FF6F61', category: 'MODERNE' }
+        ],
+        minimaliste: [
+            { id: 'obsidian', name: 'Obsidian', color: '#a0a0a0', category: 'MINIMALISTE' },
+            { id: 'paper', name: 'Paper', color: '#8B7B65', category: 'MINIMALISTE' },
+            { id: 'clay', name: 'Clay', color: '#B89878', category: 'MINIMALISTE' },
+            { id: 'porcelain', name: 'Porcelain', color: '#6888A8', category: 'MINIMALISTE' },
+            { id: 'espresso', name: 'Espresso', color: '#A87848', category: 'MINIMALISTE' }
+        ],
+        tech: [
+            { id: 'matrix', name: 'Matrix', color: '#00ff66', category: 'TECH' },
+            { id: 'cyberpunk', name: 'Cyberpunk', color: '#ff00ff', category: 'TECH' },
+            { id: 'terminal', name: 'Terminal', color: '#FFB000', category: 'TECH' },
+            { id: 'tron', name: 'Tron', color: '#00D4FF', category: 'TECH' },
+            { id: 'hologram', name: 'Hologram', color: '#88DDFF', category: 'TECH' }
+        ],
+        artiste: [
+            { id: 'zen', name: 'Zen', color: '#708058', category: 'ARTISTE' },
+            { id: 'art-deco', name: 'Art Déco', color: '#C8A040', category: 'ARTISTE' },
+            { id: 'watercolor', name: 'Watercolor', color: '#8888C0', category: 'ARTISTE' },
+            { id: 'nordic', name: 'Nordic', color: '#5A7A6A', category: 'ARTISTE' },
+            { id: 'cosmic', name: 'Cosmic', color: '#9966FF', category: 'ARTISTE' }
         ]
     },
 
@@ -136,9 +196,13 @@ const AppConfig = {
 
 // Liste plate des thèmes pour compatibilité
 AppConfig.ALL_THEMES = [
-    ...AppConfig.THEMES.pro,
-    ...AppConfig.THEMES.creative,
-    ...AppConfig.THEMES.geek
+    ...AppConfig.THEMES.elegance,
+    ...AppConfig.THEMES.nature,
+    ...AppConfig.THEMES.atmosphere,
+    ...AppConfig.THEMES.moderne,
+    ...AppConfig.THEMES.minimaliste,
+    ...AppConfig.THEMES.tech,
+    ...AppConfig.THEMES.artiste
 ];
 
 // Exposer globalement pour compatibilité

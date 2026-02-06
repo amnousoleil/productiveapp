@@ -103,6 +103,7 @@ const App = {
             if (typeof GalaxieView !== 'undefined' && GalaxieView.init) GalaxieView.init();
             if (typeof AccountingView !== 'undefined' && AccountingView.init) AccountingView.init();
             if (typeof PsychoAuditView !== 'undefined' && PsychoAuditView.init) PsychoAuditView.init();
+            if (typeof AIReportsView !== 'undefined' && AIReportsView.init) AIReportsView.init();
 
             // Initialiser le drag & drop
             setTimeout(() => {

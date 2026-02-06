@@ -1,6 +1,7 @@
 /**
  * Messaging API Module
  * Handles all API calls to /api/v1/messaging
+ * Maps backend snake_case responses to frontend camelCase
  */
 
 const MessagingAPI = (function() {
@@ -12,73 +13,132 @@ const MessagingAPI = (function() {
         return ApiTokens.getWorkspaceId();
     }
 
+    // ========== Data Mapping ==========
+
+    /**
+     * Get avatar from AppConfig.USERS by user ID
+     */
+    function getUserAvatar(userId) {
+        if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
+            const user = AppConfig.USERS.find(u => u.id === userId);
+            if (user) return user.avatar;
+        }
+        return '👤';
+    }
+
+    /**
+     * Get display name from AppConfig.USERS by user ID
+     */
+    function getUserName(userId, fallback) {
+        if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
+            const user = AppConfig.USERS.find(u => u.id === userId);
+            if (user) return user.name;
+        }
+        return fallback || 'Utilisateur';
+    }
+
+    /**
+     * Map backend conversation → frontend format
+     */
+    function mapConversation(conv) {
+        if (!conv) return null;
+        return {
+            id: conv.id,
+            type: conv.type,
+            name: conv.name,
+            description: conv.description,
+            isPrivate: conv.is_private,
+            createdBy: conv.created_by,
+            participants: (conv.participants || []).map(p => {
+                const userId = p.user_id || p.user?.id;
+                return {
+                    id: userId,
+                    name: getUserName(userId, p.user?.name),
+                    avatar: p.user?.avatar_url || getUserAvatar(userId),
+                    online: p.user?.status === 'online',
+                    role: p.role
+                };
+            }),
+            lastMessage: conv.last_message ? {
+                id: conv.last_message.id,
+                content: conv.last_message.content,
+                senderId: conv.last_message.sender_id,
+                senderName: getUserName(conv.last_message.sender_id, conv.last_message.sender_name),
+                createdAt: conv.last_message.created_at
+            } : null,
+            unreadCount: conv.unread_count || 0,
+            createdAt: conv.created_at,
+            updatedAt: conv.updated_at
+        };
+    }
+
+    /**
+     * Map backend message → frontend format
+     */
+    function mapMessage(msg) {
+        if (!msg) return null;
+        const senderId = msg.sender_id;
+        return {
+            id: msg.id,
+            conversationId: msg.conversation_id,
+            content: msg.content,
+            senderId: senderId,
+            senderName: getUserName(senderId, msg.sender?.name),
+            senderAvatar: msg.sender?.avatar_url || getUserAvatar(senderId),
+            createdAt: msg.created_at,
+            status: msg.deleted_at ? 'deleted' : 'sent',
+            isEdited: msg.is_edited || false,
+            isPinned: msg.is_pinned || false,
+            replyTo: msg.reply_to || null,
+            reactions: msg.reactions || [],
+            messageType: msg.message_type || 'text'
+        };
+    }
+
+    // ========== API Calls ==========
+
     /**
      * Get all conversations for current user
      */
     async function getConversations() {
-        try {
-            const workspaceId = getWorkspaceId();
-            if (!workspaceId) {
-                console.warn('⚠️ No workspace ID');
-                return getMockConversations();
-            }
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`);
-            console.log('💬 Conversations:', response);
-            return response.data || response;
-        } catch (error) {
-            console.warn('⚠️ API failed, using mock data');
-            return getMockConversations();
+        const workspaceId = getWorkspaceId();
+        if (!workspaceId) {
+            console.warn('MessagingAPI: No workspace ID');
+            return [];
         }
+
+        const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`);
+        const rawConvs = response.data || [];
+        return rawConvs.map(mapConversation);
     }
 
     /**
      * Get messages for a conversation
-     * @param {string} conversationId
-     * @param {number} limit
-     * @param {string} before - Cursor for pagination
      */
     async function getMessages(conversationId, limit = 50, before = null) {
-        try {
-            let url = `${BASE_PATH}/conversations/${conversationId}/messages?limit=${limit}`;
-            if (before) url += `&before=${before}`;
-            const response = await ApiFetch.fetchWithAuth(url);
-            console.log('📨 Messages:', response);
-            return response.data || response;
-        } catch (error) {
-            console.warn('⚠️ API failed, using mock messages');
-            return getMockMessages(conversationId);
-        }
+        let url = `${BASE_PATH}/conversations/${conversationId}/messages?limit=${limit}`;
+        if (before) url += `&before=${before}`;
+
+        const response = await ApiFetch.fetchWithAuth(url);
+        const rawMsgs = response.data || [];
+        // Backend returns DESC order, reverse to get chronological
+        return rawMsgs.map(mapMessage).reverse();
     }
 
     /**
      * Send a message
-     * @param {string} conversationId
-     * @param {string} content
      */
     async function sendMessage(conversationId, content) {
-        try {
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/messages`, {
-                method: 'POST',
-                body: JSON.stringify({ content })
-            });
-            console.log('✉️ Message sent:', response);
-            return response.data || response;
-        } catch (error) {
-            console.error('❌ Failed to send message:', error);
-            // Return optimistic response for UX
-            return {
-                id: 'temp-' + Date.now(),
-                content,
-                senderId: 'me',
-                createdAt: new Date().toISOString(),
-                status: 'sending'
-            };
-        }
+        const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/conversations/${conversationId}/messages`, {
+            method: 'POST',
+            body: JSON.stringify({ content })
+        });
+        const rawMsg = response.data?.message || response.data;
+        return mapMessage(rawMsg);
     }
 
     /**
      * Mark conversation as read
-     * @param {string} conversationId
      */
     async function markAsRead(conversationId) {
         try {
@@ -86,106 +146,103 @@ const MessagingAPI = (function() {
                 method: 'POST'
             });
         } catch (error) {
-            console.error('❌ Failed to mark as read:', error);
+            // Non-critical, don't propagate
+            console.warn('MessagingAPI: Failed to mark as read');
         }
     }
 
     /**
      * Create new conversation
-     * @param {Array} participantIds
-     * @param {string} name - Optional for group chats
      */
-    async function createConversation(participantIds, name = null) {
-        try {
-            const workspaceId = getWorkspaceId();
-            if (!workspaceId) throw new Error('No workspace ID');
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`, {
-                method: 'POST',
-                body: JSON.stringify({ participantIds, name })
-            });
-            return response.data || response;
-        } catch (error) {
-            console.error('❌ Failed to create conversation:', error);
-            throw error;
-        }
+    async function createConversation(participantIds, name = null, type = null) {
+        const workspaceId = getWorkspaceId();
+        if (!workspaceId) throw new Error('No workspace ID');
+
+        // Auto-detect type
+        const convType = type || (participantIds.length === 1 ? 'direct' : 'group');
+
+        const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/conversations`, {
+            method: 'POST',
+            body: JSON.stringify({
+                type: convType,
+                participant_ids: participantIds,
+                name: name
+            })
+        });
+
+        const rawConv = response.data?.conversation || response.data;
+        return mapConversation(rawConv);
     }
 
     /**
-     * Search conversations
-     * @param {string} query
+     * Search messages in workspace
      */
-    async function searchConversations(query) {
-        try {
-            const workspaceId = getWorkspaceId();
-            if (!workspaceId) return [];
-            const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/workspace/${workspaceId}/search?q=${encodeURIComponent(query)}`);
-            return response.data || response;
-        } catch (error) {
-            console.warn('⚠️ Search failed');
-            return [];
-        }
+    async function searchMessages(query) {
+        const workspaceId = getWorkspaceId();
+        if (!workspaceId) return [];
+
+        const response = await ApiFetch.fetchWithAuth(
+            `${BASE_PATH}/workspace/${workspaceId}/search?q=${encodeURIComponent(query)}`
+        );
+        const rawMsgs = response.data || [];
+        return rawMsgs.map(mapMessage);
     }
 
     /**
-     * Get users for new conversation
+     * Get team members for new conversation
+     * Uses AppConfig.USERS (team members defined in config)
      */
-    async function getUsers() {
-        try {
-            const response = await ApiFetch.fetchWithAuth('/users');
-            return response.data || response;
-        } catch (error) {
-            return getMockUsers();
+    function getUsers() {
+        if (typeof AppConfig !== 'undefined' && AppConfig.USERS) {
+            const currentUserId = (typeof AppState !== 'undefined') ? AppState.currentUser?.id : null;
+            return AppConfig.USERS
+                .filter(u => u.id !== currentUserId)
+                .map(u => ({
+                    id: u.id,
+                    name: u.name,
+                    avatar: u.avatar
+                }));
         }
+        return [];
     }
 
-    // ========== Mock Data ==========
-
-    function getMockConversations() {
-        return [
-            {
-                id: 'conv-1',
-                name: null,
-                participants: [{ id: 'user-1', name: 'Maha', avatar: '👑', online: true }],
-                lastMessage: { content: 'Super, on fait ça demain !', createdAt: new Date(Date.now() - 300000).toISOString() },
-                unreadCount: 2
-            },
-            {
-                id: 'conv-2',
-                name: null,
-                participants: [{ id: 'user-2', name: 'Brice', avatar: '🚀', online: false }],
-                lastMessage: { content: 'J\'ai terminé le rapport', createdAt: new Date(Date.now() - 3600000).toISOString() },
-                unreadCount: 0
-            },
-            {
-                id: 'conv-3',
-                name: 'Team ProductiveApp',
-                participants: [
-                    { id: 'user-1', name: 'Maha', avatar: '👑' },
-                    { id: 'user-2', name: 'Brice', avatar: '🚀' }
-                ],
-                lastMessage: { content: 'Réunion à 15h', createdAt: new Date(Date.now() - 7200000).toISOString() },
-                unreadCount: 5
-            }
-        ];
+    /**
+     * Add reaction to message
+     */
+    async function addReaction(messageId, emoji) {
+        return ApiFetch.fetchWithAuth(`${BASE_PATH}/messages/${messageId}/reactions`, {
+            method: 'POST',
+            body: JSON.stringify({ emoji })
+        });
     }
 
-    function getMockMessages(conversationId) {
-        const messages = [
-            { id: 'm1', content: 'Salut ! Comment ça va ?', senderId: 'user-1', createdAt: new Date(Date.now() - 600000).toISOString(), status: 'read' },
-            { id: 'm2', content: 'Ça va bien et toi ? J\'ai vu ta proposition pour le projet.', senderId: 'me', createdAt: new Date(Date.now() - 550000).toISOString(), status: 'read' },
-            { id: 'm3', content: 'Oui c\'est top ! On peut en discuter demain si tu veux.', senderId: 'user-1', createdAt: new Date(Date.now() - 400000).toISOString(), status: 'read' },
-            { id: 'm4', content: 'Parfait, je bloque mon créneau.', senderId: 'me', createdAt: new Date(Date.now() - 350000).toISOString(), status: 'sent' },
-            { id: 'm5', content: 'Super, on fait ça demain !', senderId: 'user-1', createdAt: new Date(Date.now() - 300000).toISOString(), status: 'read' }
-        ];
-        return messages;
+    /**
+     * Remove reaction from message
+     */
+    async function removeReaction(messageId, emoji) {
+        return ApiFetch.fetchWithAuth(`${BASE_PATH}/messages/${messageId}/reactions/${encodeURIComponent(emoji)}`, {
+            method: 'DELETE'
+        });
     }
 
-    function getMockUsers() {
-        return [
-            { id: 'user-1', name: 'Maha', avatar: '👑', email: 'maha@productive.app' },
-            { id: 'user-2', name: 'Brice', avatar: '🚀', email: 'brice@productive.app' },
-            { id: 'user-3', name: 'Team', avatar: '👥', email: 'team@productive.app' }
-        ];
+    /**
+     * Update a message
+     */
+    async function updateMessage(messageId, content) {
+        const response = await ApiFetch.fetchWithAuth(`${BASE_PATH}/messages/${messageId}`, {
+            method: 'PUT',
+            body: JSON.stringify({ content })
+        });
+        return mapMessage(response.data?.message || response.data);
+    }
+
+    /**
+     * Delete a message
+     */
+    async function deleteMessage(messageId) {
+        return ApiFetch.fetchWithAuth(`${BASE_PATH}/messages/${messageId}`, {
+            method: 'DELETE'
+        });
     }
 
     return {
@@ -194,10 +251,14 @@ const MessagingAPI = (function() {
         sendMessage,
         markAsRead,
         createConversation,
-        searchConversations,
+        searchMessages,
         getUsers,
-        getMockConversations,
-        getMockMessages
+        addReaction,
+        removeReaction,
+        updateMessage,
+        deleteMessage,
+        getUserAvatar,
+        getUserName
     };
 })();
 

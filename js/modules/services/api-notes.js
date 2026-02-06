@@ -10,6 +10,11 @@ const ApiNotes = (function() {
         return ApiTokens.getWorkspaceId();
     }
 
+    function getMemberId() {
+        const id = localStorage.getItem('selectedMemberId');
+        return (id && id !== 'all') ? id : null;
+    }
+
     function buildUrl(path) {
         const workspaceId = getWorkspaceId();
         if (!workspaceId) {
@@ -19,21 +24,26 @@ const ApiNotes = (function() {
     }
 
     /**
-     * Get all notes in workspace
+     * Get all notes in workspace (filtered by member_id)
      */
     async function getAll(params = {}) {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.set('page', params.page);
-        if (params.limit) queryParams.set('limit', params.limit);
+        if (params.limit) queryParams.set('limit', params.limit || '100');
         if (params.projectId) queryParams.set('project_id', params.projectId);
-        if (params.search) queryParams.set('search', params.search);
+        if (params.search) queryParams.set('q', params.search);
         if (params.tags) queryParams.set('tags', params.tags.join(','));
         if (params.isPinned !== undefined) queryParams.set('is_pinned', params.isPinned);
+
+        // Always pass member_id for per-member isolation
+        const memberId = getMemberId();
+        if (memberId) {
+            queryParams.set('member_id', memberId);
+        }
 
         const query = queryParams.toString();
         const url = buildUrl('') + (query ? `?${query}` : '');
         const response = await Api.get(url);
-        // Backend returns array directly in data, not data.notes
         return Array.isArray(response.data) ? response.data : [];
     }
 
@@ -46,18 +56,26 @@ const ApiNotes = (function() {
     }
 
     /**
-     * Create new note
+     * Create new note (with member_id)
      */
     async function create(data) {
+        const memberId = getMemberId();
+        if (memberId) {
+            data.member_id = memberId;
+        }
         const response = await Api.post(buildUrl(''), data);
         return response.data?.note;
     }
 
     /**
-     * Update note
+     * Update note (PUT to workspace-scoped route)
      */
     async function update(noteId, data) {
-        const response = await Api.patch(buildUrl(`/${noteId}`), data);
+        const memberId = getMemberId();
+        if (memberId) {
+            data.member_id = memberId;
+        }
+        const response = await Api.put(buildUrl(`/${noteId}`), data);
         return response.data?.note;
     }
 
@@ -139,7 +157,7 @@ const ApiNotes = (function() {
      * Get deleted notes (trash)
      */
     async function getDeleted() {
-        const response = await Api.get(buildUrl('/trash'));
+        const response = await Api.get(buildUrl('/deleted'));
         return Array.isArray(response.data) ? response.data : [];
     }
 
@@ -147,8 +165,7 @@ const ApiNotes = (function() {
      * Search notes
      */
     async function search(query) {
-        const response = await Api.get(buildUrl(`?search=${encodeURIComponent(query)}`));
-        return Array.isArray(response.data) ? response.data : [];
+        return getAll({ search: query });
     }
 
     return {

@@ -319,23 +319,76 @@ const Chatbot = {
         const loadingDiv = this.addMessage('Réflexion...', 'assistant loading');
 
         try {
-            const context = this.buildContext();
-            const aiResponse = await ApiService.sendChatMessage({
-                message,
-                context,
-                user: AppState.currentUser.name,
-                userId: AppState.currentUser.id
-            });
+            let aiResponse;
+            let hadActions = false;
+
+            // Utiliser le nouveau backend AI si disponible
+            if (typeof ApiAi !== 'undefined' && ApiAi.isAvailable()) {
+                console.log('🤖 Using backend AI (smart routing)');
+                const result = await ApiAi.chat({ message });
+                aiResponse = result.content;
+                hadActions = result.actions && result.actions.length > 0;
+
+                // Log cost for monitoring
+                console.log(`💰 AI Cost: $${result.cost?.toFixed(6)} (${result.model})`);
+
+                // Process backend actions
+                if (hadActions) {
+                    for (const action of result.actions) {
+                        await this.executeAction(action);
+                    }
+                }
+            } else {
+                // Fallback to N8N
+                console.log('🤖 Using N8N fallback');
+                const context = this.buildContext();
+                aiResponse = await ApiService.sendChatMessage({
+                    message,
+                    context,
+                    user: AppState.currentUser.name,
+                    userId: AppState.currentUser.id
+                });
+                hadActions = aiResponse && aiResponse.includes('ACTION:');
+                aiResponse = await this.processAIActions(aiResponse);
+            }
 
             loadingDiv.remove();
-            const hadActions = aiResponse && aiResponse.includes('ACTION:');
-            const cleanedResponse = await this.processAIActions(aiResponse);
             if (hadActions) await Tasks.load();
-            this.addMessage(cleanedResponse || 'OK!', 'assistant');
+            this.addMessage(aiResponse || 'OK!', 'assistant');
         } catch (e) {
             loadingDiv.remove();
             this.addMessage('Erreur de connexion', 'assistant');
             console.error('❌ Erreur chatbot:', e);
+        }
+    },
+
+    /**
+     * Execute an action from the AI
+     */
+    async executeAction(action) {
+        console.log('🎯 Executing action:', action.type, action.data);
+
+        switch (action.type) {
+            case 'CREATE_TASK':
+                await Tasks.create({
+                    text: action.data.title,
+                    priority: action.data.priority,
+                    project: action.data.project
+                });
+                break;
+
+            case 'COMPLETE_TASK':
+                await Tasks.handleAction(action.data.taskId, 'done');
+                break;
+
+            case 'DELETE_TASK':
+                await Tasks.handleAction(action.data.taskId, 'delete');
+                break;
+
+            case 'UPDATE_TASK':
+                // TODO: Implement task update
+                console.log('⚠️ UPDATE_TASK not yet implemented');
+                break;
         }
     },
 

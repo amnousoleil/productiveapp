@@ -383,35 +383,29 @@ const ApiService = {
     },
 
     // =============================================
-    // API CORRECTION TEXTE (IA)
+    // API CORRECTION TEXTE (IA) - MIGRÉ VERS BACKEND
     // =============================================
 
     /**
      * Corrige ou reformule un texte via l'IA
      * @param {string} text - Texte à corriger
-     * @param {string} mode - 'fix' ou 'reformulate'
+     * @param {string} mode - 'fix', 'ortho', 'reformulate', ou 'all'
      * @returns {Promise<string>} - Texte corrigé
      */
     async correctText(text, mode = 'fix') {
         if (!text || text.trim().length < 5) return text;
 
         try {
-            const response = await fetch(AppConfig.API.CORRECT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, mode })
-            });
+            // Utiliser le backend si disponible
+            if (typeof ApiAi !== 'undefined' && ApiAi.isAvailable()) {
+                console.log('📝 Using backend AI for text correction');
+                const aiMode = mode === 'fix' ? 'ortho' : 'all';
+                const corrected = await ApiAi.correct(text, aiMode);
+                return corrected || text;
+            }
 
-            const data = await response.json();
-            console.log('📝 Réponse correction brute:', data);
-
-            const result = Array.isArray(data)
-                ? Utils.extractText(data[0])
-                : Utils.extractText(data);
-
-            if (result) return result;
-
-            console.log('⚠️ Format réponse correction inattendu:', data);
+            // Fallback: retourner le texte original
+            console.warn('⚠️ AI correction not available, returning original text');
             return text;
         } catch (error) {
             console.error('❌ Erreur correction:', error);
@@ -425,34 +419,22 @@ const ApiService = {
 
     /**
      * Envoie un message au chatbot
+     * DEPRECATED: Utilisez ApiAi.chat() à la place (backend direct)
+     * Cette fonction est gardée pour compatibilité avec ancien code
      * @param {Object} payload - Données du message
      * @returns {Promise<string>} - Réponse du chatbot
      */
     async sendChatMessage(payload) {
-        try {
-            const response = await fetch(AppConfig.API.CHATBOT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...payload,
-                    tenant_id: AppConfig.TENANT_ID
-                })
-            });
-
-            let aiResponse = await response.text();
-
-            try {
-                const json = JSON.parse(aiResponse);
-                aiResponse = json.response || json.text || aiResponse;
-            } catch (e) {
-                // Pas du JSON, on garde le texte brut
-            }
-
-            return aiResponse;
-        } catch (error) {
-            console.error('❌ Erreur chatbot:', error);
-            throw error;
+        // Rediriger vers le backend si disponible
+        if (typeof ApiAi !== 'undefined' && ApiAi.isAvailable()) {
+            console.log('🔄 Redirecting to backend AI');
+            const result = await ApiAi.chat({ message: payload.message || payload.context });
+            return result.content;
         }
+
+        // N8N n'est plus disponible
+        console.error('❌ Backend AI not available and N8N disabled');
+        throw new Error('Service IA non disponible. Veuillez vous reconnecter.');
     },
 
     // =============================================

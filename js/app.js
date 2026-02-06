@@ -18,9 +18,9 @@ const CHATBOT_WEBHOOK_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/f199f400
 
 // === UTILISATEURS ===
 const USERS = [
-    { id: 'maha', name: 'Maître Maha Giri', avatar: '👑', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png', password: 'Autopdutop63.G+htrhs7', role: 'boss' },
-    { id: 'brice', name: 'Brice', avatar: '🚀', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697ff503b4fa8_ChatGPTImage2f%C3%A9vr.202601_51_06.png', password: 'Autopdutop63.G+htrhs7', role: 'team' },
-    { id: 'team', name: 'Team', avatar: '👥', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png', password: null, role: 'shared' }
+    { id: 'maha', name: 'Maître Maha Giri', avatar: '👑', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fae4f07fb8_ChatGPTImage1f%C3%A9vr.202609_58_10.png', role: 'boss' },
+    { id: 'brice', name: 'Brice', avatar: '🚀', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697ff503b4fa8_ChatGPTImage2f%C3%A9vr.202601_51_06.png', role: 'team' },
+    { id: 'team', name: 'Team', avatar: '👥', loginImg: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fafd36f577_ChatGPTImage1f%C3%A9vr.202620_55_54.png', role: 'shared' }
 ];
 
 // === PROJETS PAR DÉFAUT ===

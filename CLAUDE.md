@@ -1,8 +1,8 @@
 # 🤖 CLAUDE.md - ProductiveApp Documentation
 
-> **Dernière mise à jour** : 2026-02-02 12:00
-> **Version** : 3.0.0
-> **Statut** : ✅ Production STABLE - Architecture Modulaire + Backup PostgreSQL
+> **Dernière mise à jour** : 2026-02-06 14:00
+> **Version** : 4.0.0
+> **Statut** : ✅ Production STABLE - N8N SUPPRIMÉ - Backend TypeScript Direct + PostgreSQL
 
 ---
 
@@ -22,27 +22,50 @@
 
 ---
 
-## 🏗️ Architecture technique v3.0 (MODULAIRE)
+## 🚨 MIGRATION N8N → BACKEND DIRECT (2026-02-06)
+
+### Résumé
+**N8N EST COMPLÈTEMENT SUPPRIMÉ !** L'application utilise maintenant directement le backend TypeScript (`productive-core-backend`) sans aucun intermédiaire N8N.
+
+### Ce qui a changé
+| Avant (v3.0) | Après (v4.0) |
+|--------------|--------------|
+| N8N webhooks pour toutes les API | API REST directe `/api/v1/*` |
+| AI via N8N → GPT | Backend direct → OpenAI avec routage intelligent |
+| Galaxy View → localStorage | Galaxy View → PostgreSQL (canvases) |
+| CSP: connect-src inclut N8N | CSP: connect-src 'self' seulement |
+
+### Fichiers modifiés
+- `js/modules/config.js` - Endpoints changés de N8N vers `/api/v1/*`
+- `js/services/api.service.js` - `correctText()` et `sendChatMessage()` utilisent `ApiAi`
+- `js/modules/services/api-ai.js` - **NOUVEAU** - Module IA backend
+- `js/modules/services/api-galaxy.js` - **NOUVEAU** - Module Galaxy backend
+- `js/galaxy.js` - Migration vers ApiGalaxy avec debounced saves
+- `/etc/nginx/snippets/security-headers.conf` - N8N retiré de CSP
+
+---
+
+## 🏗️ Architecture technique v4.0 (BACKEND DIRECT)
 
 ### Stack
 - **Frontend** : HTML5 + CSS3 + JavaScript vanilla (ES6+) - Architecture Modulaire
-- **Backend** : N8N workflows (automation via webhooks)
-- **Base de données** : PostgreSQL (via N8N API)
-- **Backup** : PostgreSQL automatique (30 min) + LocalStorage (5 min)
+- **Backend** : productive-core-backend (TypeScript/Node.js) - API REST directe
+- **Base de données** : PostgreSQL `productive_app`
+- **IA** : OpenAI API avec routage intelligent (gpt-4o-mini par défaut, gpt-4o si complexe)
 - **Serveur** : VPS Ubuntu + Nginx (port 8080) + Traefik (reverse proxy 80/443)
 - **SSL** : Let's Encrypt (auto-renouvelé via Traefik)
 - **Déploiement** : Git push → webhook auto-deploy
 
-### Structure modulaire (v3.0 - 2026-02-02)
+### Structure modulaire (v4.0 - 2026-02-06)
 
 ```
 /var/www/productiveapp/
-├── index.html                 # Point d'entrée (565 lignes)
+├── index.html                 # Point d'entrée (~1090 lignes)
 │
 ├── css/                       # 🎨 Tous les fichiers CSS
 │   ├── style-base.css        # Variables, reset, layout
 │   ├── style-components.css  # Composants UI
-│   ├── style-themes.css      # 16 thèmes visuels
+│   ├── style-themes.css      # 40 thèmes visuels
 │   ├── style-dragdrop.css    # Drag & drop
 │   ├── style-overrides.css   # Overrides spécifiques
 │   └── galaxy.css            # Galaxy view
@@ -50,54 +73,72 @@
 ├── js/                        # ⚙️ JavaScript - Architecture Modulaire
 │   │
 │   ├── modules/              # 📦 MODULES FONCTIONNELS
-│   │   ├── config.js         # Configuration (API, users, themes)
+│   │   ├── config.js         # Configuration (API endpoints)
 │   │   ├── state.js          # Gestion d'état centralisée
 │   │   ├── utils.js          # Fonctions utilitaires
-│   │   ├── auth.js           # Authentification
-│   │   ├── themes.js         # Gestion des thèmes
-│   │   ├── tasks.js          # Logique tâches (CRUD, rendu)
-│   │   ├── projects.js       # Logique projets
-│   │   ├── journal.js        # Journal d'activité
-│   │   ├── chatbot.js        # Chatbot IA + média
-│   │   ├── effects.js        # Animations et effets
-│   │   ├── report.js         # Rapports et export
-│   │   └── backup.js         # Sauvegarde PostgreSQL
+│   │   │
+│   │   ├── services/         # 🔌 API BACKEND MODULES (v4.0)
+│   │   │   ├── api-config.js    # Config API (base URL, timeout)
+│   │   │   ├── api-tokens.js    # Gestion JWT tokens
+│   │   │   ├── api-fetch.js     # Fetch wrapper avec auth
+│   │   │   ├── api.js           # API générique (get/post/put/delete)
+│   │   │   ├── api-auth.js      # Login/logout/me
+│   │   │   ├── api-tasks.js     # CRUD tâches
+│   │   │   ├── api-projects.js  # CRUD projets
+│   │   │   ├── api-notes.js     # CRUD notes
+│   │   │   ├── api-ai.js        # ✨ Chat/Correct/Generate (OpenAI)
+│   │   │   ├── api-galaxy.js    # ✨ Galaxy View (canvases)
+│   │   │   └── api-data-loader.js # Chargeur de données
+│   │   │
+│   │   ├── auth/             # Authentification
+│   │   ├── tasks/            # Logique tâches
+│   │   ├── projects/         # Logique projets
+│   │   ├── notes/            # Notes & journal
+│   │   ├── ai/               # Chatbot IA
+│   │   ├── reports/          # Rapports
+│   │   └── ...               # Autres modules
 │   │
-│   ├── services/             # 🔌 SERVICES
-│   │   └── api.service.js    # Service API centralisé
+│   ├── services/             # 🔌 SERVICES (legacy)
+│   │   └── api.service.js    # Redirige vers ApiAi
 │   │
 │   ├── app-modular.js        # 🚀 Orchestrateur principal
-│   ├── app.js                # (Legacy - conservé pour backup)
 │   ├── dragdrop.js           # Drag & drop Kanban
-│   └── galaxy.js             # Vue Galaxy
+│   └── galaxy.js             # Vue Galaxy + ApiGalaxy
 │
 ├── assets/                    # 🖼️ Ressources statiques
 │   └── images/icons/
 │
-├── docs/                      # 📚 Documentation
-│   └── N8N-BACKUP-WORKFLOW.md
-│
 ├── CLAUDE.md                  # 📖 Ce fichier (mémoire du projet)
-├── README-ARCHITECTURE.md     # 🏗️ Documentation architecture
-├── INFRASTRUCTURE.md          # 🚀 Infrastructure serveur
-├── BACKUP-RESTORE.md          # 🛡️ Guide sauvegarde/restauration
 └── .git/                      # 🔧 Repository Git
 ```
 
-**Ordre de chargement JavaScript** (IMPORTANT) :
+**Ordre de chargement JavaScript** (IMPORTANT - v4.0) :
 ```html
 <!-- 1. Configuration et utilitaires -->
 <script src="js/modules/config.js"></script>
 <script src="js/modules/state.js"></script>
 <script src="js/modules/utils.js"></script>
 
-<!-- 2. Services -->
+<!-- 2. API Backend Modules (NOUVEAU v4.0) -->
+<script src="js/modules/services/api-config.js"></script>
+<script src="js/modules/services/api-tokens.js"></script>
+<script src="js/modules/services/api-fetch.js"></script>
+<script src="js/modules/services/api.js"></script>
+<script src="js/modules/services/api-auth.js"></script>
+<script src="js/modules/services/api-tasks.js"></script>
+<script src="js/modules/services/api-projects.js"></script>
+<script src="js/modules/services/api-notes.js"></script>
+<script src="js/modules/services/api-ai.js"></script>      <!-- OpenAI direct -->
+<script src="js/modules/services/api-galaxy.js"></script>  <!-- Galaxy PostgreSQL -->
+<script src="js/modules/services/api-data-loader.js"></script>
+
+<!-- 3. Services legacy (compatibilité) -->
 <script src="js/services/api.service.js"></script>
 
-<!-- 3. Modules fonctionnels -->
-<script src="js/modules/auth.js"></script>
+<!-- 4. Modules fonctionnels -->
+<script src="js/modules/auth/auth.js"></script>
 <script src="js/modules/themes.js"></script>
-<script src="js/modules/tasks.js"></script>
+<script src="js/modules/tasks/tasks.js"></script>
 <script src="js/modules/projects.js"></script>
 <script src="js/modules/journal.js"></script>
 <script src="js/modules/chatbot.js"></script>
@@ -115,10 +156,10 @@
 
 ---
 
-## 🔌 Backend API (productive-core) - 2026-02-03
+## 🔌 Backend API (productive-core-backend) - 2026-02-06
 
 ### Emplacement
-- **Sources** : `/root/productive-core/`
+- **Sources** : `/root/productive-core-backend/`
 - **Port** : 3000 (proxié via Nginx sur `/api/v1`)
 - **Base de données** : PostgreSQL `productive_app`
 
@@ -131,8 +172,15 @@
 | `/api/v1/auth/refresh` | POST | Refresh token JWT |
 | `/api/v1/workspaces` | GET | Liste des workspaces |
 | `/api/v1/tasks/workspace/:id` | GET/POST | CRUD tâches |
-| `/api/v1/tasks/workspace/:id/active-users` | GET | **NOUVEAU** - Utilisateurs actifs |
+| `/api/v1/tasks/workspace/:id/active-users` | GET | Utilisateurs actifs |
 | `/api/v1/projects/workspace/:id` | GET/POST | CRUD projets |
+| `/api/v1/notes/workspace/:id` | GET/POST | CRUD notes |
+| `/api/v1/ai/chat` | POST | **✨ NOUVEAU** - Chat IA avec routage intelligent |
+| `/api/v1/ai/correct` | POST | **✨ NOUVEAU** - Correction texte IA |
+| `/api/v1/ai/generate` | POST | **✨ NOUVEAU** - Génération contenu IA |
+| `/api/v1/canvases/workspace/:id` | GET/POST | **✨ NOUVEAU** - Galaxy View |
+| `/api/v1/canvases/:id` | GET/PUT/DELETE | CRUD canvas individuel |
+| `/api/v1/reports/ai` | GET/POST | Rapports IA |
 
 ### Fonctionnalité : Reset tâches au logout (2026-02-03)
 
@@ -160,25 +208,117 @@ TOKEN=$(curl -s -X POST http://localhost:3000/api/v1/auth/login \
 ```
 
 ### Credentials test
-- **Email** : `demo@productive.app`
-- **Password** : `Demo@123`
+- **Email** : `contact@mahagiri.fr`
+- **Password** : `Maha2026`
 - **Workspace ID** : `fd92221a-aaa2-42c9-9d06-f158b5adccc3`
 
 ---
 
-## 🎯 Versions actuelles (2026-02-02)
+## 🤖 IA - Routage Intelligent (v4.0 - 2026-02-06)
 
-| Composant | Version | Lignes | Description |
-|-----------|---------|--------|-------------|
-| **config.js** | v1 | 111 | API, users, themes, constantes |
-| **state.js** | v1 | 269 | Gestion d'état centralisée |
-| **utils.js** | v1 | 280 | Fonctions utilitaires |
-| **api.service.js** | v1 | 522 | Service API unifié |
-| **auth.js** | v1 | 215 | Authentification |
-| **tasks.js** | v1 | 600 | Logique tâches |
-| **projects.js** | v1 | 289 | Logique projets |
-| **journal.js** | v1 | 126 | Journal d'activité |
-| **chatbot.js** | v1 | 688 | Chatbot IA complet |
+### Architecture
+```
+Message utilisateur
+       ↓
+Analyse complexité (regex + longueur)
+       ↓
+   Score < 7 → gpt-4o-mini (90% des cas, économique)
+   Score ≥ 7 → gpt-4o (10% des cas, complexe)
+       ↓
+Si échec mini → retry avec gpt-4o
+```
+
+### Critères de complexité
+| Critère | Points |
+|---------|--------|
+| Longueur message > 500 chars | +2 |
+| Mots-clés complexes (analyse, stratégie, compare) | +3 |
+| Questions multiples | +2 |
+| Demande de code | +3 |
+
+### Module frontend: `api-ai.js`
+```javascript
+const ApiAi = {
+    chat(options)      // Chat avec contexte tâches/projets
+    correct(text, mode)  // Correction orthographe (ortho) ou complète (all)
+    generate(prompt)     // Génération de contenu
+    isAvailable()        // Vérifie auth + API dispo
+};
+```
+
+### Utilisation dans le code
+```javascript
+// Chatbot - envoi message
+const response = await ApiAi.chat({
+    message: userMessage,
+    history: chatHistory
+});
+
+// Correction automatique
+const corrected = await ApiAi.correct(text, 'ortho');
+```
+
+---
+
+## 🌌 Galaxy View - PostgreSQL (v4.0 - 2026-02-06)
+
+### Stockage
+Galaxy View sauvegarde maintenant dans PostgreSQL via l'API canvases:
+- **Table** : `canvases`
+- **Colonnes** : `elements` (JSON: nodes, connections), `app_state` (JSON: zoom, pan, theme)
+- **Canvas par utilisateur** : Nommé "Galaxy View"
+
+### Module frontend: `api-galaxy.js`
+```javascript
+const ApiGalaxy = {
+    load()                  // Charge nodes + connections
+    save(nodes, connections, appState)  // Sauvegarde complète
+    saveNode(node, all...)  // Convenience method (appelle save)
+    deleteNode(id, all...)  // Convenience method (appelle save)
+    clearCache()            // Reset canvas ID (logout)
+    isAvailable()           // Vérifie auth + workspace
+};
+```
+
+### Debounced Save
+Pour éviter les appels API excessifs, galaxy.js utilise un debounce de 1 seconde:
+```javascript
+let saveTimeout = null;
+function debouncedSave() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveToBackend();
+    }, 1000);
+}
+```
+
+### Fallback
+- **Primaire** : Backend PostgreSQL (ApiGalaxy)
+- **Fallback** : localStorage (si API non disponible)
+- **Migration auto** : Si données en localStorage, migration vers backend à la connexion
+
+---
+
+## 🎯 Versions actuelles (2026-02-06)
+
+| Composant | Version | Description |
+|-----------|---------|-------------|
+| **config.js** | v80 | Configuration API (endpoints backend) |
+| **state.js** | v74 | Gestion d'état centralisée |
+| **utils.js** | v74 | Fonctions utilitaires |
+| **api-config.js** | v80 | ✨ Config API backend |
+| **api-tokens.js** | v78 | ✨ Gestion JWT tokens |
+| **api-fetch.js** | v78 | ✨ Fetch wrapper auth |
+| **api.js** | v78 | ✨ API générique |
+| **api-auth.js** | v78 | ✨ Login/logout |
+| **api-tasks.js** | v81 | ✨ CRUD tâches |
+| **api-projects.js** | v81 | ✨ CRUD projets |
+| **api-notes.js** | v74 | ✨ CRUD notes |
+| **api-ai.js** | v1 | ✨ **NOUVEAU** - Chat/Correct OpenAI |
+| **api-galaxy.js** | v1 | ✨ **NOUVEAU** - Galaxy PostgreSQL |
+| **api.service.js** | v80 | Legacy (redirige vers ApiAi) |
+| **galaxy.js** | v80 | Galaxy View + debounced save |
+| **chatbot.js** | v82 | Chatbot IA (utilise ApiAi) |
 | **effects.js** | v1 | 340 | Animations |
 | **report.js** | v1 | 165 | Rapports |
 | **backup.js** | v1 | 266 | Sauvegarde PostgreSQL |

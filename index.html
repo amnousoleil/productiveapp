@@ -26,13 +26,13 @@
     <link rel="stylesheet" href="css/settings.css?v=74">
     <link rel="stylesheet" href="css/auth.css?v=74">
     <link rel="stylesheet" href="css/gamification.css?v=74">
-    <link rel="stylesheet" href="css/messaging.css?v=74">
+    <link rel="stylesheet" href="css/messaging.css?v=80">
     <link rel="stylesheet" href="css/notifications.css?v=74">
     <link rel="stylesheet" href="css/analytics.css?v=74">
     <link rel="stylesheet" href="css/reports.css?v=74">
     <link rel="stylesheet" href="css/style-overrides.css?v=74">
     <!-- NEW: Auth Login Module CSS -->
-    <link rel="stylesheet" href="js/modules/login/login.css?v=74">
+    <link rel="stylesheet" href="js/modules/auth/login.css?v=301">
     <link rel="stylesheet" href="css/style-views.css?v=74">
     <link rel="stylesheet" href="css/galaxy.css?v=74">
 
@@ -111,9 +111,7 @@
     -->
 
     <!-- ========== CANVAS ANIMATIONS ========== -->
-    <!-- DISABLED: Canvas animations disabled to avoid duplicate animations with CSS hover effects
     <canvas id="matrix-bg"></canvas>
-    -->
 
     <!-- ========== VIEWS CONTAINER ========== -->
     <main class="main-content">
@@ -382,111 +380,267 @@
 
     <!-- ========== MODALS ========== -->
     
-    <!-- Modal Thème PREMIUM -->
+    <!-- Modal Thème PREMIUM v3.0 — 40 thèmes, 7 catégories -->
     <div id="theme-modal" class="modal hidden">
         <div class="modal-box theme-selector-modal">
-            <h3>🎨 Sélectionne ton ambiance</h3>
+            <button id="close-theme-modal" class="theme-modal-close" title="Fermer">&times;</button>
+            <h3>Choisis ton ambiance</h3>
 
-            <!-- Catégorie PRO / CEO -->
+            <!-- ÉLÉGANCE -->
             <div class="theme-category">
-                <h4 class="category-title">💼 PRO / CEO</h4>
-                <p class="category-desc">Sobres, élégants, sans distraction</p>
+                <h4 class="category-title">ÉLÉGANCE</h4>
+                <p class="category-desc">Sobres, raffinés, haute couture</p>
                 <div class="theme-grid">
                     <div class="theme-card" data-theme="executive">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #262626 100%);"></div>
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 50%, #d4af37 100%);"></div>
                         <span class="theme-name">Executive</span>
                         <span class="theme-subtitle">Or & Anthracite</span>
                     </div>
                     <div class="theme-card" data-theme="corporate">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a1628 0%, #0f1e35 50%, #152842 100%);"></div>
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a1628 0%, #0f1e35 50%, #6495ed 100%);"></div>
                         <span class="theme-name">Corporate</span>
                         <span class="theme-subtitle">Bleu Marine</span>
                     </div>
-                    <div class="theme-card" data-theme="minimal">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #ffffff 0%, #fafafa 50%, #f5f5f5 100%);"></div>
-                        <span class="theme-name">Minimal</span>
-                        <span class="theme-subtitle">Apple Style</span>
+                    <div class="theme-card" data-theme="ivory">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #FAF7F0 0%, #F5F0E6 50%, #EDE8DC 100%);"></div>
+                        <span class="theme-name">Ivory</span>
+                        <span class="theme-subtitle">Crème Chaleureux</span>
                     </div>
-                    <div class="theme-card" data-theme="slate">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1e293b 0%, #2d3b52 50%, #3d4e68 100%);"></div>
-                        <span class="theme-name">Slate</span>
-                        <span class="theme-subtitle">Ardoise</span>
+                    <div class="theme-card" data-theme="sterling">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a1e24 0%, #252b34 50%, #C0C8D0 100%);"></div>
+                        <span class="theme-name">Sterling</span>
+                        <span class="theme-subtitle">Platine</span>
                     </div>
-                    <div class="theme-card" data-theme="obsidian">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0b0b0b 0%, #141414 50%, #1e1e1e 100%);"></div>
-                        <span class="theme-name">Obsidian</span>
-                        <span class="theme-subtitle">Premium Dark</span>
+                    <div class="theme-card" data-theme="diplomat">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a0810 0%, #2d101a 50%, #C4324A 100%);"></div>
+                        <span class="theme-name">Diplomat</span>
+                        <span class="theme-subtitle">Bordeaux</span>
                     </div>
                     <div class="theme-card" data-theme="academie">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #2c2f33 0%, #36393f 50%, #f7e8c8 100%);"></div>
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #2c2f33 0%, #36393f 50%, #daa520 100%);"></div>
                         <span class="theme-name">Académie</span>
                         <span class="theme-subtitle">Beige Doré</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Catégorie CRÉATIF / FUN -->
+            <!-- NATURE -->
             <div class="theme-category">
-                <h4 class="category-title">🎨 CRÉATIF / FUN</h4>
-                <p class="category-desc">Colorés, dynamiques, personnalisés</p>
+                <h4 class="category-title">NATURE</h4>
+                <p class="category-desc">Inspirés par la beauté du monde</p>
                 <div class="theme-grid">
-                    <div class="theme-card" data-theme="sunset">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #dc2626 0%, #f97316 50%, #fb923c 100%);"></div>
-                        <span class="theme-name">Sunset</span>
-                        <span class="theme-subtitle">Chaleureux</span>
-                    </div>
                     <div class="theme-card" data-theme="ocean">
                         <div class="theme-preview-mini" style="background: linear-gradient(135deg, #051923 0%, #003554 50%, #00b4d8 100%);"></div>
                         <span class="theme-name">Ocean</span>
                         <span class="theme-subtitle">Apaisant</span>
                     </div>
                     <div class="theme-card" data-theme="forest">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #080c08 0%, #0f180f 50%, #4ade80 100%);"></div>
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a1208 0%, #152010 50%, #4aaa64 100%);"></div>
                         <span class="theme-name">Forest</span>
-                        <span class="theme-subtitle">Organique</span>
+                        <span class="theme-subtitle">Émeraude</span>
                     </div>
-                    <div class="theme-card" data-theme="bubblegum">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a0a14 0%, #2d1025 50%, #ff6b9d 100%);"></div>
-                        <span class="theme-name">Bubblegum</span>
-                        <span class="theme-subtitle">Fun & Jeune</span>
+                    <div class="theme-card" data-theme="sunset">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #4a2515 0%, #f97316 50%, #fbbf24 100%);"></div>
+                        <span class="theme-name">Sunset</span>
+                        <span class="theme-subtitle">Chaleureux</span>
                     </div>
-                    <div class="theme-card" data-theme="aurora">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0d14 0%, #93c5fd 30%, #c4b5fd 60%, #a7f3d0 100%);"></div>
-                        <span class="theme-name">Aurora</span>
-                        <span class="theme-subtitle">Moderne</span>
+                    <div class="theme-card" data-theme="desert">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a1410 0%, #2d2117 50%, #e07840 100%);"></div>
+                        <span class="theme-name">Desert</span>
+                        <span class="theme-subtitle">Sable & Terre</span>
+                    </div>
+                    <div class="theme-card" data-theme="lavender">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #150d1a 0%, #231628 50%, #B07CC8 100%);"></div>
+                        <span class="theme-name">Lavender</span>
+                        <span class="theme-subtitle">Champs Violets</span>
+                    </div>
+                    <div class="theme-card" data-theme="sakura">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #FBF5F6 0%, #F5ECF0 50%, #D4688C 100%);"></div>
+                        <span class="theme-name">Sakura</span>
+                        <span class="theme-subtitle">Cerisier</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Catégorie GEEK / TECH -->
+            <!-- ATMOSPHÈRE -->
             <div class="theme-category">
-                <h4 class="category-title">⚡ GEEK / TECH</h4>
-                <p class="category-desc">Futuristes, néon, effets assumés</p>
+                <h4 class="category-title">ATMOSPHÈRE</h4>
+                <p class="category-desc">Ambiances immersives, lumières d'ailleurs</p>
                 <div class="theme-grid">
-                    <div class="theme-card" data-theme="matrix">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0f0a 0%, #00ff66 100%);"></div>
-                        <span class="theme-name">Matrix</span>
-                        <span class="theme-subtitle">Hacker</span>
-                    </div>
-                    <div class="theme-card" data-theme="cyberpunk">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0221 0%, #ff00ff 50%, #00ffff 100%);"></div>
-                        <span class="theme-name">Cyberpunk</span>
-                        <span class="theme-subtitle">Futuriste</span>
-                    </div>
-                    <div class="theme-card" data-theme="terminal">
-                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #000000 0%, #001100 50%, #00ff00 100%);"></div>
-                        <span class="theme-name">Terminal</span>
-                        <span class="theme-subtitle">Old School</span>
+                    <div class="theme-card" data-theme="aurora">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0d14 0%, #93c5fd 30%, #c4b5fd 60%, #86efac 100%);"></div>
+                        <span class="theme-name">Aurora</span>
+                        <span class="theme-subtitle">Boréale</span>
                     </div>
                     <div class="theme-card" data-theme="midnight">
                         <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0d18 0%, #14142a 50%, #7c9fff 100%);"></div>
                         <span class="theme-name">Midnight</span>
                         <span class="theme-subtitle">Nuit Étoilée</span>
                     </div>
+                    <div class="theme-card" data-theme="twilight">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #14081a 0%, #22102d 50%, #C490E0 100%);"></div>
+                        <span class="theme-name">Twilight</span>
+                        <span class="theme-subtitle">Crépuscule</span>
+                    </div>
+                    <div class="theme-card" data-theme="candlelight">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a1208 0%, #2d200e 50%, #E8A840 100%);"></div>
+                        <span class="theme-name">Candlelight</span>
+                        <span class="theme-subtitle">Lueur Intime</span>
+                    </div>
+                    <div class="theme-card" data-theme="moonlit">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d1018 0%, #161c28 50%, #A0B8D8 100%);"></div>
+                        <span class="theme-name">Moonlit</span>
+                        <span class="theme-subtitle">Clair de Lune</span>
+                    </div>
+                    <div class="theme-card" data-theme="golden-hour">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a1008 0%, #2d1c10 50%, #D4A040 100%);"></div>
+                        <span class="theme-name">Golden Hour</span>
+                        <span class="theme-subtitle">Heure Dorée</span>
+                    </div>
+                    <div class="theme-card" data-theme="storm">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0e14 0%, #141a22 50%, #6B8DB5 100%);"></div>
+                        <span class="theme-name">Storm</span>
+                        <span class="theme-subtitle">Orage Électrique</span>
+                    </div>
                 </div>
             </div>
 
-            <button id="close-theme-modal" class="btn-secondary">Fermer</button>
+            <!-- MODERNE -->
+            <div class="theme-category">
+                <h4 class="category-title">MODERNE</h4>
+                <p class="category-desc">Audacieux, tendance, personnalité</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="bubblegum">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a0a14 0%, #2d1025 50%, #ff6b9d 100%);"></div>
+                        <span class="theme-name">Bubblegum</span>
+                        <span class="theme-subtitle">Candy Pop</span>
+                    </div>
+                    <div class="theme-card" data-theme="neon">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0014 0%, #FF1493 50%, #00FFAA 100%);"></div>
+                        <span class="theme-name">Neon</span>
+                        <span class="theme-subtitle">Night Club</span>
+                    </div>
+                    <div class="theme-card" data-theme="pastel">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F8F2FA 0%, #F0E8F4 50%, #A888C8 100%);"></div>
+                        <span class="theme-name">Pastel</span>
+                        <span class="theme-subtitle">Rêveur</span>
+                    </div>
+                    <div class="theme-card" data-theme="retrowave">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0520 0%, #FF6EC7 50%, #8866FF 100%);"></div>
+                        <span class="theme-name">Retrowave</span>
+                        <span class="theme-subtitle">Synthwave 80s</span>
+                    </div>
+                    <div class="theme-card" data-theme="mint">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F2FAF6 0%, #E4F5EC 50%, #3DA878 100%);"></div>
+                        <span class="theme-name">Mint</span>
+                        <span class="theme-subtitle">Fraîcheur</span>
+                    </div>
+                    <div class="theme-card" data-theme="coral">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #1a0e0e 0%, #2d1818 50%, #FF6F61 100%);"></div>
+                        <span class="theme-name">Coral</span>
+                        <span class="theme-subtitle">Récif Vivant</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MINIMALISTE -->
+            <div class="theme-category">
+                <h4 class="category-title">MINIMALISTE</h4>
+                <p class="category-desc">L'essentiel, sans superflu</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="obsidian">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0b0b0b 0%, #141414 50%, #1e1e1e 100%);"></div>
+                        <span class="theme-name">Obsidian</span>
+                        <span class="theme-subtitle">Noir Premium</span>
+                    </div>
+                    <div class="theme-card" data-theme="paper">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F8F4EC 0%, #F0ECE2 50%, #E8E4D8 100%);"></div>
+                        <span class="theme-name">Paper</span>
+                        <span class="theme-subtitle">Papier Ancien</span>
+                    </div>
+                    <div class="theme-card" data-theme="clay">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #201A14 0%, #302820 50%, #B89878 100%);"></div>
+                        <span class="theme-name">Clay</span>
+                        <span class="theme-subtitle">Terre Cuite</span>
+                    </div>
+                    <div class="theme-card" data-theme="porcelain">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F2F5FA 0%, #E8EEF5 50%, #DEE6F0 100%);"></div>
+                        <span class="theme-name">Porcelain</span>
+                        <span class="theme-subtitle">Blanc Froid</span>
+                    </div>
+                    <div class="theme-card" data-theme="espresso">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #140E0A 0%, #241A12 50%, #A87848 100%);"></div>
+                        <span class="theme-name">Espresso</span>
+                        <span class="theme-subtitle">Café Noir</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TECH -->
+            <div class="theme-category">
+                <h4 class="category-title">TECH</h4>
+                <p class="category-desc">Futuristes, néon, effets assumés</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="matrix">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0f0a 0%, #152015 50%, #00ff66 100%);"></div>
+                        <span class="theme-name">Matrix</span>
+                        <span class="theme-subtitle">Hacker</span>
+                    </div>
+                    <div class="theme-card" data-theme="cyberpunk">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0d0221 0%, #ff00ff 50%, #00ffff 100%);"></div>
+                        <span class="theme-name">Cyberpunk</span>
+                        <span class="theme-subtitle">Néon</span>
+                    </div>
+                    <div class="theme-card" data-theme="terminal">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0800 0%, #141000 50%, #FFB000 100%);"></div>
+                        <span class="theme-name">Terminal</span>
+                        <span class="theme-subtitle">Ambre Rétro</span>
+                    </div>
+                    <div class="theme-card" data-theme="tron">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #000810 0%, #001830 50%, #00D4FF 100%);"></div>
+                        <span class="theme-name">Tron</span>
+                        <span class="theme-subtitle">Grille Bleue</span>
+                    </div>
+                    <div class="theme-card" data-theme="hologram">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #88DDFF 0%, #FF88DD 33%, #88FFBB 66%, #FFDD88 100%);"></div>
+                        <span class="theme-name">Hologram</span>
+                        <span class="theme-subtitle">Iridescent</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ARTISTE -->
+            <div class="theme-category">
+                <h4 class="category-title">ARTISTE</h4>
+                <p class="category-desc">Esthétiques raffinées, inspirations culturelles</p>
+                <div class="theme-grid">
+                    <div class="theme-card" data-theme="zen">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F5F2EA 0%, #EDE8DC 50%, #708058 100%);"></div>
+                        <span class="theme-name">Zen</span>
+                        <span class="theme-subtitle">Wabi-Sabi</span>
+                    </div>
+                    <div class="theme-card" data-theme="art-deco">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #0a0808 0%, #141210 50%, #C8A040 100%);"></div>
+                        <span class="theme-name">Art Déco</span>
+                        <span class="theme-subtitle">Années Folles</span>
+                    </div>
+                    <div class="theme-card" data-theme="watercolor">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F8F2F8 0%, #F0E8F0 50%, #8888C0 100%);"></div>
+                        <span class="theme-name">Watercolor</span>
+                        <span class="theme-subtitle">Aquarelle</span>
+                    </div>
+                    <div class="theme-card" data-theme="nordic">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #F5F0E8 0%, #ECE6DC 50%, #5A7A6A 100%);"></div>
+                        <span class="theme-name">Nordic</span>
+                        <span class="theme-subtitle">Scandinave</span>
+                    </div>
+                    <div class="theme-card" data-theme="cosmic">
+                        <div class="theme-preview-mini" style="background: linear-gradient(135deg, #050210 0%, #0a0520 50%, #9966FF 100%);"></div>
+                        <span class="theme-name">Cosmic</span>
+                        <span class="theme-subtitle">Galaxie</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -698,52 +852,54 @@
 
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
-    <script src="js/modules/config.js?v=74"></script>
+    <script src="js/modules/config.js?v=80"></script>
     <script src="js/modules/state.js?v=74"></script>
     <script src="js/modules/utils.js?v=74"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
-    <script src="js/modules/api/api-config.js?v=78"></script>
-    <script src="js/modules/api/api-tokens.js?v=78"></script>
-    <script src="js/modules/api/api-fetch.js?v=78"></script>
-    <script src="js/modules/api/api.js?v=78"></script>
-    <script src="js/modules/api/api-auth.js?v=78"></script>
-    <script src="js/modules/api/api-projects.js?v=81"></script>
-    <script src="js/modules/api/api-notes.js?v=74"></script>
-    <script src="js/modules/api/api-tasks.js?v=81"></script>
-    <script src="js/modules/api/api-data-loader.js?v=74"></script>
+    <script src="js/modules/services/api-config.js?v=80"></script>
+    <script src="js/modules/services/api-tokens.js?v=78"></script>
+    <script src="js/modules/services/api-fetch.js?v=78"></script>
+    <script src="js/modules/services/api.js?v=78"></script>
+    <script src="js/modules/services/api-auth.js?v=78"></script>
+    <script src="js/modules/services/api-projects.js?v=81"></script>
+    <script src="js/modules/services/api-notes.js?v=74"></script>
+    <script src="js/modules/services/api-tasks.js?v=81"></script>
+    <script src="js/modules/services/api-ai.js?v=1"></script>
+    <script src="js/modules/services/api-galaxy.js?v=1"></script>
+    <script src="js/modules/services/api-data-loader.js?v=74"></script>
 
     <!-- 3. Services (legacy, kept for compatibility) -->
-    <script src="js/services/api.service.js?v=74"></script>
+    <script src="js/services/api.service.js?v=80"></script>
 
     <!-- 4. Modules fonctionnels -->
     <script src="js/modules/auth/login-ui.js?v=74"></script>
     <script src="js/modules/auth/login-legacy.js?v=74"></script>
-    <script src="js/modules/auth.js?v=78"></script>
+    <script src="js/modules/auth/auth.js?v=78"></script>
     <script src="js/modules/themes.js?v=74"></script>
     <script src="js/modules/confirm-modal.js?v=74"></script>
-    <script src="js/modules/tasks.js?v=81"></script>
-    <script src="js/modules/projects.js?v=82"></script>
-    <script src="js/modules/journal.js?v=74"></script>
-    <script src="js/modules/chatbot/chat-actions.js?v=74"></script>
-    <script src="js/modules/chatbot.js?v=74"></script>
+    <script src="js/modules/tasks/tasks.js?v=81"></script>
+    <script src="js/modules/projects/projects.js?v=82"></script>
+    <script src="js/modules/notes/journal.js?v=74"></script>
+    <script src="js/modules/ai/chat-actions.js?v=74"></script>
+    <script src="js/modules/ai/chatbot.js?v=82"></script>
     <script src="js/modules/effects.js?v=74"></script>
-    <script src="js/modules/report.js?v=74"></script>
-    <script src="js/modules/backup.js?v=74"></script>
+    <script src="js/modules/reports/report.js?v=74"></script>
+    <script src="js/modules/services/backup.js?v=74"></script>
     <script src="js/modules/sidebar/sidebar-core.js?v=74"></script>
     <script src="js/modules/sidebar/sidebar-render.js?v=74"></script>
     <script src="js/modules/sidebar/sidebar-events.js?v=74"></script>
     <script src="js/modules/sidebar/sidebar-init.js?v=74"></script>
     <script src="js/modules/router.js?v=74"></script>
     <script src="js/modules/dashboard/dash-insights.js?v=74"></script>
-    <script src="js/modules/dashboard.js?v=74"></script>
+    <script src="js/modules/dashboard/dashboard.js?v=74"></script>
     <script src="js/modules/notes/notes-core.js?v=74"></script>
     <script src="js/modules/notes/notes-render.js?v=74"></script>
     <script src="js/modules/notes/notes-toolbar.js?v=74"></script>
     <script src="js/modules/notes/notes-slash.js?v=74"></script>
     <script src="js/modules/notes/notes-editor.js?v=74"></script>
     <script src="js/modules/notes/notes-init.js?v=74"></script>
-    <script src="js/modules/projects-view.js?v=74"></script>
+    <script src="js/modules/projects/projects-view.js?v=74"></script>
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=74"></script>
     <script src="js/modules/settings/settings-data.js?v=74"></script>
@@ -751,12 +907,12 @@
     <script src="js/modules/settings/settings-render.js?v=74"></script>
     <script src="js/modules/settings/settings-team.js?v=74"></script>
     <script src="js/modules/settings/settings-styles.js?v=74"></script>
-    <script src="js/modules/settings-view.js?v=74"></script>
+    <script src="js/modules/settings/settings-view.js?v=74"></script>
     <!-- Analytics Module -->
-    <script src="js/modules/analytics/analytics-api.js?v=78"></script>
+    <script src="js/modules/analytics/analytics-api.js?v=79"></script>
     <script src="js/modules/analytics/analytics-charts.js?v=74"></script>
     <script src="js/modules/analytics/analytics-styles.js?v=74"></script>
-    <script src="js/modules/analytics-view.js?v=74"></script>
+    <script src="js/modules/analytics/analytics-view.js?v=74"></script>
     <!-- Reports Module -->
     <script src="js/modules/reports/reports-api.js?v=78"></script>
     <script src="js/modules/reports/reports-cards.js?v=74"></script>
@@ -766,25 +922,25 @@
     <script src="js/modules/reports/reports-view.js?v=74"></script>
 
     <!-- 5. Messaging Module -->
-    <script src="js/modules/messaging/messaging-api.js?v=78"></script>
-    <script src="js/modules/messaging/messaging-ui.js?v=74"></script>
-    <script src="js/modules/messaging/messaging-conversations.js?v=74"></script>
-    <script src="js/modules/messaging/messaging-chat.js?v=74"></script>
-    <script src="js/modules/messaging/messaging-events.js?v=74"></script>
-    <script src="js/modules/messaging/messaging.js?v=74"></script>
+    <script src="js/modules/messaging/messaging-api.js?v=80"></script>
+    <script src="js/modules/messaging/messaging-ui.js?v=80"></script>
+    <script src="js/modules/messaging/messaging-conversations.js?v=80"></script>
+    <script src="js/modules/messaging/messaging-chat.js?v=80"></script>
+    <script src="js/modules/messaging/messaging-events.js?v=80"></script>
+    <script src="js/modules/messaging/messaging.js?v=80"></script>
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
     <script src="js/modules/gamification/gv-helpers.js?v=74"></script>
     <script src="js/modules/gamification/gv-styles.js?v=74"></script>
     <script src="js/modules/gamification/gv-api.js?v=78"></script>
     <script src="js/modules/gamification/gv-render.js?v=74"></script>
-    <script src="js/modules/gamification-view.js?v=74"></script>
-    <!-- Chat Module -->
-    <script src="js/modules/chat/chat-history.js?v=74"></script>
-    <script src="js/modules/chat/chat-responses.js?v=74"></script>
-    <script src="js/modules/chat/chat-styles.js?v=74"></script>
-    <script src="js/modules/chat/chat-ui.js?v=74"></script>
-    <script src="js/modules/chat/chat-view.js?v=74"></script>
+    <script src="js/modules/gamification/gamification-view.js?v=74"></script>
+    <!-- Chat Module (now in messaging/) -->
+    <script src="js/modules/messaging/chat-history.js?v=74"></script>
+    <script src="js/modules/messaging/chat-responses.js?v=74"></script>
+    <script src="js/modules/messaging/chat-styles.js?v=74"></script>
+    <script src="js/modules/messaging/chat-ui.js?v=74"></script>
+    <script src="js/modules/messaging/chat-view.js?v=74"></script>
 
     <!-- 7. Notifications Module -->
     <script src="js/modules/notifications/notifications-api.js?v=78"></script>
@@ -795,39 +951,49 @@
 
     <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=74"></script>
-    <!-- Galaxie View - Excalidraw integration -->
-    <script src="js/modules/galaxie-view.js?v=74"></script>
+    <!-- Galaxie View - Excalidraw integration (now in canvases/) -->
+    <script src="js/modules/canvases/galaxie-view.js?v=74"></script>
     <!-- Old canvas-based galaxy.js kept for fallback -->
-    <!-- <script src="js/galaxy.js?v=74"></script> -->
+    <!-- <script src="js/galaxy.js?v=80"></script> -->
 
     <!-- Accounting Module -->
-    <script src="js/modules/accounting-api.js?v=78"></script>
-    <script src="js/modules/accounting.js?v=74"></script>
+    <script src="js/modules/accounting/accounting-api.js?v=78"></script>
+    <script src="js/modules/accounting/accounting.js?v=74"></script>
 
-    <!-- Psycho-Audit Module -->
-    <script src="js/modules/psycho-audit/questions-bank.js?v=74"></script>
-    <script src="js/modules/psycho-audit/pa-scoring.js?v=74"></script>
-    <script src="js/modules/psycho-audit/pa-state.js?v=74"></script>
-    <script src="js/modules/psycho-audit/pa-api.js?v=78"></script>
-    <script src="js/modules/psycho-audit/pa-charts.js?v=74"></script>
-    <script src="js/modules/psycho-audit/pa-render.js?v=74"></script>
-    <script src="js/modules/psycho-audit/pa-styles.js?v=74"></script>
-    <script src="js/modules/psycho-audit/pa-report.js?v=74"></script>
-    <script src="js/modules/psycho-audit-view.js?v=74"></script>
+    <!-- Psycho-Audit Module (now in audit/) -->
+    <script src="js/modules/audit/questions-bank.js?v=74"></script>
+    <script src="js/modules/audit/pa-scoring.js?v=74"></script>
+    <script src="js/modules/audit/pa-state.js?v=74"></script>
+    <script src="js/modules/audit/pa-api.js?v=78"></script>
+    <script src="js/modules/audit/pa-charts.js?v=74"></script>
+    <script src="js/modules/audit/pa-render.js?v=74"></script>
+    <script src="js/modules/audit/pa-styles.js?v=74"></script>
+    <script src="js/modules/audit/pa-report.js?v=74"></script>
+    <script src="js/modules/audit/psycho-audit-view.js?v=74"></script>
 
-    <!-- Behavioral Profile Module -->
-    <script src="js/modules/behavioral/bh-api.js?v=78"></script>
-    <script src="js/modules/behavioral/bh-charts.js?v=74"></script>
-    <script src="js/modules/behavioral/bh-render.js?v=74"></script>
-    <script src="js/modules/behavioral/bh-styles.js?v=74"></script>
-    <script src="js/modules/behavioral/index.js?v=74"></script>
-    <script src="js/modules/behavioral-view.js?v=74"></script>
+    <!-- Behavioral Profile Module (now in signals/) -->
+    <script src="js/modules/signals/bh-api.js?v=78"></script>
+    <script src="js/modules/signals/bh-charts.js?v=74"></script>
+    <script src="js/modules/signals/bh-render.js?v=74"></script>
+    <script src="js/modules/signals/bh-styles.js?v=74"></script>
+    <script src="js/modules/signals/index.js?v=74"></script>
+    <script src="js/modules/signals/behavioral-view.js?v=74"></script>
 
     <!-- Report Creator - Psycho Audit Engine -->
-    <script src="js/modules/report-creator.js?v=74"></script>
+    <script src="js/modules/reports/report-creator.js?v=300"></script>
 
     <!-- NEW: Auth Login Module -->
-    <script src="js/modules/login/login.js?v=80"></script>
+    <script src="js/modules/auth/login.js?v=300"></script>
+
+    <!-- NEW: Core Modules -->
+    <script src="js/modules/files/files.js?v=75"></script>
+    <script src="js/modules/onboarding/onboarding.js?v=75"></script>
+    <script src="js/modules/plans/plans.js?v=75"></script>
+    <script src="js/modules/users/users.js?v=75"></script>
+    <script src="js/modules/workspaces/workspaces.js?v=75"></script>
+
+    <!-- Canvas animations (theme-based) -->
+    <script src="js/animations.js?v=80"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
     <script src="js/app-modular.js?v=74"></script>

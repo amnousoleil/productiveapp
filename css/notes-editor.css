@@ -399,3 +399,54 @@
     color: var(--text-quaternary);
     font-size: 13px;
 }
+
+/* === NOTE HEADER ACTIONS === */
+.note-header-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* === VISIBILITY TOGGLE === */
+.note-visibility-toggle {
+    font-size: 16px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 150ms ease;
+}
+
+.note-visibility-toggle.note-private {
+    opacity: 0.6;
+}
+
+.note-visibility-toggle.note-public {
+    background: rgba(99, 102, 241, 0.15);
+    opacity: 1;
+}
+
+/* === PUBLIC BADGE === */
+.note-badge-public {
+    margin-right: 4px;
+    font-size: 12px;
+}
+
+/* === PROJECT FILTER === */
+.notes-project-filter {
+    width: 100%;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: var(--bg-primary, #0a0a0d);
+    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.06));
+    border-radius: 8px;
+    color: var(--text-primary, #fafafa);
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+.notes-project-filter option {
+    background: var(--bg-secondary, #0f0f12);
+    color: var(--text-primary, #fafafa);
+}

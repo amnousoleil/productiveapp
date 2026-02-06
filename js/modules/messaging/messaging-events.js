@@ -20,7 +20,6 @@ const MessagingEvents = (function() {
         initNewConversation();
 
         initialized = true;
-        console.log('✅ Messaging events initialized');
     }
 
     /**
@@ -52,14 +51,12 @@ const MessagingEvents = (function() {
      * Initialize message input events
      */
     function initInputEvents() {
-        // Use event delegation since input is dynamically created
         document.addEventListener('keydown', handleInputKeydown);
         document.addEventListener('input', handleInputResize);
     }
 
     /**
      * Handle input keydown (Enter to send, Shift+Enter for newline)
-     * @param {KeyboardEvent} e
      */
     function handleInputKeydown(e) {
         if (e.target.id !== 'msg-input') return;
@@ -72,7 +69,6 @@ const MessagingEvents = (function() {
 
     /**
      * Auto-resize textarea as user types
-     * @param {InputEvent} e
      */
     function handleInputResize(e) {
         if (e.target.id !== 'msg-input') return;
@@ -87,7 +83,6 @@ const MessagingEvents = (function() {
      */
     function initKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
-            // Don't trigger shortcuts when typing in input
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
             // Ctrl/Cmd + K to focus search
@@ -114,7 +109,6 @@ const MessagingEvents = (function() {
 
     /**
      * Navigate conversations with arrow keys
-     * @param {number} direction - -1 for up, 1 for down
      */
     function navigateConversations(direction) {
         const conversations = MessagingConversations.getAll();
@@ -135,7 +129,6 @@ const MessagingEvents = (function() {
      * Initialize new conversation button
      */
     function initNewConversation() {
-        // Use event delegation
         document.addEventListener('click', (e) => {
             if (e.target.closest('#msg-new-btn')) {
                 showNewConversationModal();
@@ -149,62 +142,137 @@ const MessagingEvents = (function() {
     }
 
     /**
-     * Show new conversation modal
+     * Show new conversation modal using the app's modal system
      */
     async function showNewConversationModal() {
-        // Simple prompt for now - could be replaced with a proper modal
-        const users = await MessagingAPI.getUsers();
-        const userList = users.map((u, i) => `${i + 1}. ${u.name}`).join('\n');
+        const users = MessagingAPI.getUsers();
 
-        const choice = prompt(`Nouvelle conversation avec :\n${userList}\n\nEntrez le numéro :`);
-        if (!choice) return;
-
-        const idx = parseInt(choice) - 1;
-        if (idx >= 0 && idx < users.length) {
-            try {
-                const conv = await MessagingAPI.createConversation([users[idx].id]);
-                await MessagingConversations.load();
-                MessagingConversations.selectConversation(conv.id);
-            } catch (error) {
-                console.error('❌ Failed to create conversation:', error);
-                alert('Erreur lors de la création de la conversation');
+        if (!users.length) {
+            if (typeof Utils !== 'undefined' && Utils.showToast) {
+                Utils.showToast('Aucun membre disponible', 'error');
             }
+            return;
         }
+
+        // Build user selection HTML
+        const userListHtml = users.map(u => `
+            <div class="msg-user-option" data-user-id="${u.id}" tabindex="0">
+                <span class="msg-user-avatar">${u.avatar || '&#128100;'}</span>
+                <span class="msg-user-name">${u.name}</span>
+            </div>
+        `).join('');
+
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.id = 'msg-new-conv-modal';
+        modal.innerHTML = `
+            <div class="modal-box" style="max-width: 400px;">
+                <h3 class="modal-title">Nouvelle conversation</h3>
+                <div class="msg-user-list" style="max-height: 300px; overflow-y: auto; margin: 16px 0;">
+                    ${userListHtml}
+                </div>
+                <div class="modal-actions">
+                    <button class="modal-btn" id="msg-cancel-new">Annuler</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        // Handle clicks
+        modal.querySelectorAll('.msg-user-option').forEach(option => {
+            option.addEventListener('click', async () => {
+                const userId = option.dataset.userId;
+                modal.remove();
+
+                try {
+                    const conv = await MessagingAPI.createConversation([userId]);
+                    await MessagingConversations.load();
+                    if (conv && conv.id) {
+                        MessagingConversations.selectConversation(conv.id);
+                    }
+                } catch (error) {
+                    console.error('Failed to create conversation:', error);
+                    if (typeof Utils !== 'undefined' && Utils.showToast) {
+                        Utils.showToast('Erreur lors de la création', 'error');
+                    }
+                }
+            });
+        });
+
+        // Cancel
+        modal.querySelector('#msg-cancel-new').addEventListener('click', () => modal.remove());
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
     }
 
     /**
      * Toggle emoji picker
-     * @param {HTMLElement} btn
      */
     function toggleEmojiPicker(btn) {
-        // Simple emoji insertion for now
-        const emojis = ['😊', '👍', '❤️', '🎉', '🔥', '✨', '💪', '🙏', '😂', '🤔'];
-        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        const emojis = ['😊', '👍', '❤️', '🎉', '🔥', '✨', '💪', '🙏', '😂', '🤔', '👏', '🚀', '💯', '🤝', '😎'];
 
-        const input = document.getElementById('msg-input');
-        if (input) {
-            const start = input.selectionStart;
-            const end = input.selectionEnd;
-            const text = input.value;
-            input.value = text.substring(0, start) + emoji + text.substring(end);
-            input.selectionStart = input.selectionEnd = start + emoji.length;
-            input.focus();
+        // Check if picker already open
+        const existing = document.getElementById('msg-emoji-picker');
+        if (existing) {
+            existing.remove();
+            return;
         }
-    }
 
-    /**
-     * Handle scroll for infinite loading
-     */
-    function initScrollHandler() {
-        document.addEventListener('scroll', (e) => {
-            if (e.target.id !== 'msg-messages') return;
+        const picker = document.createElement('div');
+        picker.id = 'msg-emoji-picker';
+        picker.className = 'msg-emoji-picker';
+        picker.innerHTML = emojis.map(e => `<span class="msg-emoji-item">${e}</span>`).join('');
 
-            const el = e.target;
-            if (el.scrollTop < 50) {
-                // Load more messages (pagination)
-                console.log('📜 Load more messages...');
-            }
-        }, true);
+        // Position above the button
+        const rect = btn.getBoundingClientRect();
+        picker.style.cssText = `
+            position: fixed;
+            bottom: ${window.innerHeight - rect.top + 8}px;
+            right: ${window.innerWidth - rect.right}px;
+            z-index: 1000;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+            animation: bubbleIn 0.2s ease;
+        `;
+
+        document.body.appendChild(picker);
+
+        picker.querySelectorAll('.msg-emoji-item').forEach(item => {
+            item.style.cssText = 'cursor: pointer; font-size: 1.4rem; padding: 6px; text-align: center; border-radius: 8px; transition: background 0.15s;';
+            item.addEventListener('mouseenter', () => item.style.background = 'var(--hover)');
+            item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+            item.addEventListener('click', () => {
+                const input = document.getElementById('msg-input');
+                if (input) {
+                    const start = input.selectionStart;
+                    const end = input.selectionEnd;
+                    const text = input.value;
+                    input.value = text.substring(0, start) + item.textContent + text.substring(end);
+                    input.selectionStart = input.selectionEnd = start + item.textContent.length;
+                    input.focus();
+                }
+                picker.remove();
+            });
+        });
+
+        // Close on click outside
+        setTimeout(() => {
+            document.addEventListener('click', function closePicker(e) {
+                if (!picker.contains(e.target) && e.target !== btn) {
+                    picker.remove();
+                    document.removeEventListener('click', closePicker);
+                }
+            });
+        }, 10);
     }
 
     /**

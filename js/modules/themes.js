@@ -3,31 +3,37 @@
 // Gestion des thèmes visuels
 // =============================================
 
+// Migration map for removed/renamed themes
+const THEME_MIGRATIONS = {
+    'minimal': 'ivory',
+    'slate': 'sterling'
+};
+
 const Themes = {
-    /**
-     * Applique un thème
-     * @param {string} themeId - ID du thème
-     */
     setTheme(themeId) {
+        // Migrate old theme IDs
+        if (THEME_MIGRATIONS[themeId]) {
+            themeId = THEME_MIGRATIONS[themeId];
+        }
         document.documentElement.setAttribute('data-theme', themeId);
         localStorage.setItem('theme', themeId);
 
-        // Reset animations si disponible
         if (typeof resetAnimationForTheme === 'function') {
             resetAnimationForTheme();
         }
 
-        console.log('🎨 Thème appliqué:', themeId);
+        console.log('Theme applied:', themeId);
     },
 
-    /**
-     * Charge le thème sauvegardé
-     */
     loadTheme() {
-        const saved = localStorage.getItem('theme') || 'executive';
+        let saved = localStorage.getItem('theme') || 'executive';
+        // Migrate old theme IDs
+        if (THEME_MIGRATIONS[saved]) {
+            saved = THEME_MIGRATIONS[saved];
+            localStorage.setItem('theme', saved);
+        }
         this.setTheme(saved);
 
-        // Marquer la carte active si le modal est ouvert
         const activeCard = document.querySelector(`.theme-card[data-theme="${saved}"]`);
         if (activeCard) {
             document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
@@ -98,6 +104,7 @@ const Themes = {
         }
 
         if (themeModal) {
+            // Click outside modal box to close
             themeModal.addEventListener('click', (e) => {
                 if (e.target === themeModal) {
                     this.closeThemeModal();
@@ -105,7 +112,17 @@ const Themes = {
             });
         }
 
-        // Gérer les clics sur les cartes de thèmes
+        // Escape key to close
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = Utils.$('theme-modal');
+                if (modal && !modal.classList.contains('hidden')) {
+                    this.closeThemeModal();
+                }
+            }
+        });
+
+        // Theme card clicks
         document.querySelectorAll('.theme-card').forEach(card => {
             card.addEventListener('click', () => {
                 const themeId = card.dataset.theme;

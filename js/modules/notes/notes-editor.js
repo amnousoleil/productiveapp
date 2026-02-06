@@ -7,6 +7,7 @@ const NotesEditor = (function() {
     'use strict';
 
     let searchQuery = '';
+    let projectFilter = null;
 
     /**
      * Handle autosave with debounce
@@ -70,18 +71,37 @@ const NotesEditor = (function() {
     }
 
     /**
-     * Render notes list with search filter
+     * Filter by project
+     */
+    function filterByProject(projectId) {
+        projectFilter = projectId || null;
+        renderNotesList();
+    }
+
+    /**
+     * Render notes list with search + project filter
      */
     function renderNotesList() {
         const container = document.querySelector('.notes-list');
         if (!container) return;
 
-        const notes = searchQuery
+        let filteredNotes = searchQuery
             ? NotesModule.searchNotes(searchQuery)
             : NotesModule.getSortedNotes('updatedAt');
-        const currentId = NotesModule.currentNoteId;
 
-        container.innerHTML = NotesRender.renderNotesList(notes, currentId);
+        // Apply project filter
+        if (projectFilter) {
+            filteredNotes = filteredNotes.filter(n => n.projectId === projectFilter);
+        }
+
+        const currentId = NotesModule.currentNoteId;
+        container.innerHTML = NotesRender.renderNotesList(filteredNotes, currentId);
+
+        // Update count
+        const countEl = document.querySelector('.notes-sidebar-header h3');
+        if (countEl) {
+            countEl.textContent = `Mes notes (${filteredNotes.length})`;
+        }
     }
 
     /**
@@ -124,8 +144,10 @@ const NotesEditor = (function() {
         renderNotesList();
     }
 
-    async function createNew() {
-        await NotesModule.createNew();
+    async function createNew(projectId) {
+        // Use current project filter if no explicit projectId
+        const pid = projectId || projectFilter || null;
+        await NotesModule.createNew(pid);
         render();
 
         setTimeout(() => {
@@ -141,6 +163,20 @@ const NotesEditor = (function() {
         }
         await NotesModule.deleteNote(id);
         render();
+    }
+
+    /**
+     * Toggle note public/private visibility
+     */
+    async function toggleVisibility(noteId) {
+        const note = NotesModule.getNote(noteId);
+        if (!note) return;
+
+        await NotesModule.updateNote(noteId, {
+            isPublic: !note.isPublic
+        });
+        renderEditor();
+        renderNotesList();
     }
 
     /**
@@ -172,7 +208,9 @@ const NotesEditor = (function() {
         handleSearch,
         selectNote,
         createNew,
-        confirmDelete
+        confirmDelete,
+        toggleVisibility,
+        filterByProject
     };
 })();
 

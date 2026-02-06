@@ -1363,12 +1363,65 @@ function handleContextMenuClick(e) {
 }
 
 // =============================================
-// API N8N + POSTGRESQL
+// API GALAXY - BACKEND POSTGRESQL (via canvases)
+// Migré 2026-02-06 - Utilise ApiGalaxy module
 // =============================================
 
-const API_URL = 'https://n8n.srv1053121.hstgr.cloud/webhook/galaxy';
-
 async function loadFromAPI() {
+    // Essayer d'abord le backend PostgreSQL
+    if (typeof ApiGalaxy !== 'undefined' && ApiGalaxy.isAvailable()) {
+        try {
+            console.log('📂 Galaxy: Loading from backend...');
+            const data = await ApiGalaxy.load();
+
+            if (data.nodes && data.nodes.length > 0) {
+                galaxyNodes = data.nodes.map(node => ({
+                    id: node.id,
+                    x: parseFloat(node.x) || 0,
+                    y: parseFloat(node.y) || 0,
+                    text: node.text || node.title || 'Sans titre',
+                    color: node.color || COLORS[0],
+                    shape: node.shape || 'circle',
+                    width: node.width,
+                    height: node.height
+                }));
+
+                galaxyConnections = (data.connections || []).map(conn => ({
+                    id: conn.id,
+                    from: conn.from,
+                    to: conn.to
+                }));
+
+                // Restaurer l'état de l'app si disponible
+                if (data.appState) {
+                    currentTheme = data.appState.theme || 'dark';
+                }
+
+                // Toujours commencer centré
+                zoom = 1;
+                panOffsetX = window.innerWidth / 2;
+                panOffsetY = window.innerHeight / 2;
+
+                console.log('✅ Galaxy loaded from DB:', galaxyNodes.length, 'nodes,', galaxyConnections.length, 'connections');
+                return;
+            }
+        } catch (e) {
+            console.error('❌ Error loading from backend:', e);
+        }
+    }
+
+    // Fallback vers localStorage
+    console.log('📂 Galaxy: Fallback to localStorage...');
+    const loaded = loadFromLocalStorage();
+
+    // Si localStorage a des données et backend est disponible, migrer vers backend
+    if (loaded && galaxyNodes.length > 0 && typeof ApiGalaxy !== 'undefined' && ApiGalaxy.isAvailable()) {
+        console.log('📤 Migrating localStorage data to backend...');
+        await ApiGalaxy.save(galaxyNodes, galaxyConnections, { theme: currentTheme });
+    }
+}
+
+/* LEGACY N8N CODE - Supprimé (référence historique)
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
@@ -1380,29 +1433,6 @@ async function loadFromAPI() {
         });
 
         if (!response.ok) throw new Error('Erreur chargement API');
-
-        const data = await response.json();
-
-        // Charger les nodes
-        if (data.nodes && Array.isArray(data.nodes)) {
-            galaxyNodes = data.nodes.map(node => ({
-                id: node.id,
-                x: parseFloat(node.x),
-                y: parseFloat(node.y),
-                text: node.title || 'Sans titre',
-                color: node.color || COLORS[0]
-            }));
-        }
-
-        // Charger les connexions
-        const connResponse = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'getConnections',
-                user_id: window.currentUser?.id || 'maha'
-            })
-        });
 
         if (connResponse.ok) {
             const connData = await connResponse.json();
@@ -1421,130 +1451,100 @@ async function loadFromAPI() {
         // Fallback localStorage en cas d'erreur
         loadFromLocalStorage();
     }
+    END LEGACY N8N CODE */
 }
 
+// =============================================
+// FONCTIONS API (utilisent debouncedSave pour backend)
+// =============================================
+
 async function saveNodeToAPI(node, action = 'update') {
-    try {
-        const payload = {
-            action: action,
-            user_id: window.currentUser?.id || 'maha',
-            title: node.text,
-            description: '',
-            x: node.x.toString(),
-            y: node.y.toString(),
-            color: node.color,
-            status: 'active'
-        };
-
-        if (action === 'update' && node.id) {
-            payload.id = node.id;
-        }
-
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) throw new Error('Erreur sauvegarde node');
-
-        const data = await response.json();
-
-        // Mettre à jour l'ID si c'est une création
-        if (action === 'create' && data.id) {
-            node.id = data.id;
-        }
-
-        console.log('💾 Node sauvegardé:', node.text);
-    } catch (e) {
-        console.error('❌ Erreur sauvegarde node:', e);
-    }
+    // Sauvegarde vers backend + localStorage avec debounce
+    debouncedSave();
+    console.log('💾 Node sauvegardé:', node.text);
 }
 
 async function deleteNodeFromAPI(nodeId) {
-    try {
-        await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'delete',
-                user_id: window.currentUser?.id || 'maha',
-                id: nodeId
-            })
-        });
-        console.log('🗑️ Node supprimé:', nodeId);
-    } catch (e) {
-        console.error('❌ Erreur suppression node:', e);
-    }
+    // Sauvegarde vers backend + localStorage avec debounce
+    debouncedSave();
+    console.log('🗑️ Node supprimé:', nodeId);
 }
 
 async function saveConnectionToAPI(conn) {
-    try {
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'connect',
-                user_id: window.currentUser?.id || 'maha',
-                from_node: conn.from,
-                to_node: conn.to,
-                style: 'default'
-            })
-        });
+    // Sauvegarde vers backend + localStorage avec debounce
+    debouncedSave();
+    console.log('🔗 Connexion sauvegardée');
+}
 
-        const data = await response.json();
-        if (data.id) {
-            conn.id = data.id;
+async function deleteConnectionFromAPI(connId) {
+    // Sauvegarde vers backend + localStorage avec debounce
+    debouncedSave();
+    console.log('🔗 Connexion supprimée:', connId);
+}
+
+// =============================================
+// SAUVEGARDE - Backend PostgreSQL + localStorage fallback
+// =============================================
+
+// Debounce pour éviter trop de sauvegardes
+let saveTimeout = null;
+function debouncedSave() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveToBackend();
+    }, 1000); // 1 seconde de debounce
+}
+
+// Sauvegarde vers le backend (PostgreSQL via API canvases)
+async function saveToBackend() {
+    // Toujours sauvegarder en localStorage comme backup
+    saveToLocalStorage();
+
+    // Sauvegarder vers le backend si disponible
+    if (typeof ApiGalaxy !== 'undefined' && ApiGalaxy.isAvailable()) {
+        try {
+            await ApiGalaxy.save(galaxyNodes, galaxyConnections, {
+                theme: currentTheme,
+                zoom: zoom,
+                panX: panOffsetX,
+                panY: panOffsetY
+            });
+        } catch (e) {
+            console.error('❌ Erreur sauvegarde backend:', e);
         }
-
-        console.log('🔗 Connexion sauvegardée');
-    } catch (e) {
-        console.error('❌ Erreur sauvegarde connexion:', e);
     }
 }
 
-async function deleteConnectionFromAPI(fromNode, toNode) {
-    try {
-        // L'API devrait supporter une action deleteConnection
-        // Pour l'instant on log juste
-        console.log('🗑️ Connexion supprimée:', fromNode, '->', toNode);
-    } catch (e) {
-        console.error('❌ Erreur suppression connexion:', e);
-    }
-}
-
-// Fallback localStorage (au cas où API fail)
+// Fallback localStorage (backup local)
 function saveToLocalStorage() {
     const data = {
         nodes: galaxyNodes,
         connections: galaxyConnections,
         theme: currentTheme
-        // Ne plus sauvegarder zoom/pan pour toujours commencer centré
     };
     localStorage.setItem('galaxyView', JSON.stringify(data));
     console.log('💾 Sauvegardé en localStorage:', galaxyNodes.length, 'nodes');
 }
 
+// Chargement depuis localStorage (fallback)
 function loadFromLocalStorage() {
     const saved = localStorage.getItem('galaxyView');
-    if (!saved) return;
+    if (!saved) return false;
 
     try {
         const data = JSON.parse(saved);
         galaxyNodes = data.nodes || [];
         galaxyConnections = data.connections || [];
-
-        // FORCER le thème dark (ignorer localStorage)
         currentTheme = 'dark';
-
-        // Reset zoom et pan pour toujours commencer centré
         zoom = 1;
         panOffsetX = window.innerWidth / 2;
         panOffsetY = window.innerHeight / 2;
 
-        console.log('📂 Chargé (localStorage):', galaxyNodes.length, 'nœud(s)', '- Thème:', currentTheme);
+        console.log('📂 Chargé (localStorage):', galaxyNodes.length, 'nœud(s)');
+        return true;
     } catch (e) {
-        console.error('Erreur chargement:', e);
+        console.error('Erreur chargement localStorage:', e);
+        return false;
     }
 }
 

@@ -97,6 +97,12 @@
                 </div>
             </div>
 
+            <!-- Workspace Selector -->
+            ${typeof WorkspacesModule !== 'undefined' && WorkspacesModule.workspaces?.length > 0
+                ? WorkspacesModule.renderPremiumSelector()
+                : ''
+            }
+
             <!-- Navigation -->
             <nav class="sidebar-nav">
                 ${Sidebar.navItems.map(item => renderNavItem(item, sidebarState)).join('')}
