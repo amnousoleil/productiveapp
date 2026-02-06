@@ -380,3 +380,40 @@ window.App = App;
 
 // Exposer Sidebar
 window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
+
+// CRITICAL: Close all modals IMMEDIATELY on page load (before anything else)
+(function() {
+    'use strict';
+
+    function forceCloseAllModals() {
+        // Close standard modals
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            modal.style.visibility = 'hidden';
+            modal.style.opacity = '0';
+        });
+
+        // Close confirm modals
+        document.querySelectorAll('.confirm-modal-overlay').forEach(modal => {
+            modal.classList.remove('active');
+        });
+
+        // Close any campaign modals
+        document.querySelectorAll('.campaigns-modal-overlay').forEach(modal => {
+            modal.classList.remove('active');
+        });
+
+        console.log('🔒 Force closed all modals on page load');
+    }
+
+    // Run immediately if DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', forceCloseAllModals);
+    } else {
+        forceCloseAllModals();
+    }
+
+    // Also run on window load as backup
+    window.addEventListener('load', forceCloseAllModals);
+})();

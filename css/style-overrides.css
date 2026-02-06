@@ -3222,3 +3222,73 @@ select:focus {
 [data-theme="aurora"] {
     --accent-glow: rgba(150, 100, 255, 0.2);
 }
+
+/* =============================================
+   CAMPAIGNS LAYOUT FIXES
+   ============================================= */
+
+/* Remove rotating divine light animation */
+#view-campaigns::before {
+    animation: none !important;
+    display: none !important;
+}
+
+/* Fix campaigns view to take full width */
+#view-campaigns {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Campaigns content takes full width with proper padding */
+.campaigns-content {
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+/* Campaigns panels - center content with max-width */
+.campaigns-panel {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.campaigns-list-panel,
+.templates-panel {
+    padding: 32px 48px !important;
+    width: 100% !important;
+    max-width: 1400px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Stats row - full width and centered */
+.campaign-stats-row {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-bottom: 24px !important;
+}
+
+/* Table container - full width */
+.campaigns-table-container {
+    width: 100% !important;
+}
+
+/* Templates grid - better distribution */
+.templates-grid {
+    width: 100% !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+}
+
+/* Contacts panel - proper layout */
+.contacts-panel {
+    width: 100% !important;
+}
+
+/* Header and tabs - full width with centered content */
+.campaigns-header,
+.campaigns-tabs {
+    width: 100% !important;
+    padding-left: 48px !important;
+    padding-right: 48px !important;
+}

@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="css/notifications.css?v=999">
     <link rel="stylesheet" href="css/analytics.css?v=999">
     <link rel="stylesheet" href="css/reports.css?v=999">
-    <link rel="stylesheet" href="css/style-overrides.css?v=1001">
+    <link rel="stylesheet" href="css/style-overrides.css?v=1003">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=999">
     <link rel="stylesheet" href="css/style-views.css?v=1002">
@@ -55,6 +55,10 @@
 
     <!-- Rough.js pour style hand-drawn Excalidraw -->
     <script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+
+    <!-- Three.js for 3D Galaxy View -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.162.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -160,26 +164,22 @@
 
         <!-- Galaxy View -->
         <div id="view-galaxy" class="view-container">
-            <div id="galaxy-toolbar" style="display:flex; align-items:center; gap:12px; padding:10px 16px; background:var(--surface, #1a1a2e); border-bottom:1px solid var(--border, #333); flex-shrink:0;">
-                <h2 style="margin:0; font-size:16px; color:var(--text, #fff); display:flex; align-items:center; gap:8px;">
-                    <span style="font-size:20px;">&#127756;</span> Galaxie View
-                </h2>
+            <div id="galaxy-toolbar">
+                <h2 class="galaxy-toolbar-title">&#127756; Galaxie View</h2>
                 <div style="flex:1;"></div>
-                <button id="galaxy-sync-btn" class="btn btn-sm" style="padding:6px 14px; font-size:13px; background:var(--primary, #E07840); color:#fff; border:none; border-radius:8px; cursor:pointer;">
-                    Sync Projets
-                </button>
-                <button id="galaxy-save-btn" class="btn btn-sm" style="padding:6px 14px; font-size:13px; background:var(--surface-hover, #252540); color:var(--text, #fff); border:1px solid var(--border, #444); border-radius:8px; cursor:pointer;">
-                    Sauvegarder
-                </button>
-                <span id="galaxy-status" style="font-size:12px; color:var(--text-muted, #888);"></span>
+                <button id="galaxy-sync-btn" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-primary">Sync Projets</button>
+                <button id="galaxy-save-btn" class="btn btn-sm galaxy-ctrl-btn">Sauvegarder</button>
+                <div class="galaxy-toolbar-sep"></div>
+                <button id="galaxy-reset-view" class="btn btn-sm galaxy-ctrl-btn" title="Reset camera">&#8634;</button>
+                <button id="galaxy-toggle-labels" class="btn btn-sm galaxy-ctrl-btn active" title="Labels">Aa</button>
+                <button id="galaxy-toggle-orbits" class="btn btn-sm galaxy-ctrl-btn active" title="Orbites">&#9737;</button>
+                <button id="galaxy-toggle-autorotate" class="btn btn-sm galaxy-ctrl-btn active" title="Auto-rotation">&#10227;</button>
+                <span id="galaxy-status"></span>
             </div>
-            <iframe
-                id="galaxy-iframe"
-                src="/galaxy/index.html"
-                style="width: 100%; flex:1; border: none; display: block;"
-                allow="fullscreen"
-                loading="lazy"
-            ></iframe>
+            <div id="galaxy-3d-container">
+                <canvas id="galaxy-3d-canvas"></canvas>
+                <div id="galaxy-tooltip" class="galaxy-tooltip"></div>
+            </div>
         </div>
 
         <!-- Journal View -->
@@ -995,7 +995,8 @@
     <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=999"></script>
     <!-- Galaxie View - Excalidraw integration (now in canvases/) -->
-    <script src="js/modules/canvases/galaxie-view.js?v=999"></script>
+    <script src="js/modules/canvases/galaxy-3d.js?v=100"></script>
+    <script src="js/modules/canvases/galaxie-view.js?v=100"></script>
     <!-- Old canvas-based galaxy.js kept for fallback -->
     <!-- <script src="js/galaxy.js?v=999"></script> -->
 
@@ -1039,7 +1040,7 @@
     <script src="js/animations.js?v=999"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=1001"></script>
+    <script src="js/app-modular.js?v=1003"></script>
 
     <!-- Email Login Functions -->
     <script>
