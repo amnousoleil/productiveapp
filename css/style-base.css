@@ -10,67 +10,33 @@
     box-sizing: border-box;
 }
 
-/* === VARIABLES PAR DÉFAUT (Desert) === */
+/* === VARIABLES GLOBALES (spacing, radius, transitions) === */
+/* Les variables de couleur sont définies par les thèmes dans style-themes.css */
 :root {
-    --bg-primary: #1a1410;
-    --bg-secondary: #2d2117;
-    --bg-tertiary: #3d2e1f;
-    --bg-card: rgba(224, 120, 64, 0.08);
-    
-    --text: #f5e6d3;
-    --text-muted: #a89078;
-    
-    --accent: #e07840;
-    --accent-light: #f4a261;
-    --accent-glow: rgba(224, 120, 64, 0.4);
-    
-    --success: #22c55e;
-    --success-glow: rgba(34, 197, 94, 0.4);
-    
-    --warning: #fbbf24;
-    --danger: #ef4444;
-    
-    --border: rgba(224, 120, 64, 0.2);
-    --border-strong: rgba(224, 120, 64, 0.5);
-    
-    /* Bulles */
-    --bubble-bg: linear-gradient(135deg, rgba(224, 120, 64, 0.25) 0%, rgba(180, 80, 40, 0.1) 100%);
-    --bubble-border: rgba(224, 120, 64, 0.5);
-    --bubble-glow: 0 8px 32px rgba(224, 120, 64, 0.3), 0 0 48px rgba(224, 120, 64, 0.15);
-    
-    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35) 0%, rgba(249, 115, 22, 0.15) 100%);
-    --bubble-inprogress-border: rgba(251, 191, 36, 0.7);
-    --bubble-inprogress-glow: 0 8px 40px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.2);
-    
-    --bubble-done-bg: linear-gradient(135deg, rgba(34, 197, 94, 0.3) 0%, rgba(22, 163, 74, 0.12) 100%);
-    --bubble-done-border: rgba(34, 197, 94, 0.6);
-    --bubble-done-glow: 0 8px 32px rgba(34, 197, 94, 0.35), 0 0 48px rgba(34, 197, 94, 0.2);
-    --bubble-done-text: #4ade80;
-    
-    /* Variable aliases (used by components, resolved from theme vars) */
-    --text-primary: var(--text);
-    --text-secondary: var(--text-muted);
-    --text-tertiary: var(--text-muted);
-    --border-primary: var(--border);
-    --accent-muted: var(--border);
-
     /* Spacing */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 16px;
     --space-lg: 24px;
     --space-xl: 32px;
-    
+
     /* Border radius */
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 20px;
     --radius-xl: 50px;
-    
+
     /* Transitions */
     --transition-fast: 0.2s ease;
     --transition-normal: 0.3s ease;
     --transition-bounce: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    /* Variable aliases (will resolve from theme vars) */
+    --text-primary: var(--text);
+    --text-secondary: var(--text-muted);
+    --text-tertiary: var(--text-muted);
+    --border-primary: var(--border);
+    --accent-muted: var(--border);
 }
 
 /* === HTML & BODY - Anti-overscroll === */

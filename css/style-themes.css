@@ -3,6 +3,24 @@
    60 thèmes organisés en 10 catégories
    ============================================= */
 
+/* === FALLBACK PAR DÉFAUT (executive theme) === */
+/* Appliqué sur :root avant que JavaScript ne charge le thème sauvegardé */
+:root {
+    --bg-primary: #0d0d0d; --bg-secondary: #1a1a1a; --bg-tertiary: #262626;
+    --bg-card: rgba(212,175,55,0.05);
+    --text: #f5f5f5; --text-muted: #a0a0a0;
+    --accent: #d4af37; --accent-light: #f0d975; --accent-glow: rgba(212,175,55,0);
+    --success: #5a7a4d; --success-glow: rgba(90,122,77,0);
+    --warning: #c9a554; --danger: #8b4a4a;
+    --border: rgba(212,175,55,0.15); --border-strong: rgba(212,175,55,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.04) 100%);
+    --bubble-border: rgba(212,175,55,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%);
+    --bubble-inprogress-border: rgba(212,175,55,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(90,122,77,0.12) 0%, rgba(90,122,77,0.06) 100%);
+    --bubble-done-border: rgba(90,122,77,0.4); --bubble-done-glow: none; --bubble-done-text: #7aa585;
+}
+
 /* ==============================================
    CATÉGORIE 1: ÉLÉGANCE
    ============================================== */

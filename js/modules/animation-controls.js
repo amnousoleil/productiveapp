@@ -9,6 +9,8 @@ var AnimationControls = (function() {
     // ---- Constants ----
     var STORAGE_KEY_INTENSITY = 'productiveapp_animation_intensity';
     var STORAGE_KEY_PRESET = 'productiveapp_animation_preset';
+    var STORAGE_KEY_VERSION = 'productiveapp_animation_version';
+    var CURRENT_VERSION = '2.0-cinematic'; // Force migration to cinematic default
 
     var PRESETS = {
         zen:          { label: 'Zen',       icon: '\u2728',     intensity: 15 },
@@ -20,8 +22,8 @@ var AnimationControls = (function() {
     var PRESET_ORDER = ['zen', 'elegant', 'dynamic', 'spectacular', 'cinematic'];
 
     // ---- State ----
-    var currentIntensity = 45;
-    var currentPreset = 'elegant';
+    var currentIntensity = 100;
+    var currentPreset = 'cinematic';
     var panelOpen = false;
     var fabEl = null;
     var panelEl = null;
@@ -49,10 +51,25 @@ var AnimationControls = (function() {
 
     function loadState() {
         try {
+            var savedVersion = localStorage.getItem(STORAGE_KEY_VERSION);
+
+            // MIGRATION: Force cinematic mode if upgrading from old version
+            if (savedVersion !== CURRENT_VERSION) {
+                console.log('AnimationControls: Migrating to v' + CURRENT_VERSION + ' - Forcing Cinematic mode');
+                currentIntensity = 100;
+                currentPreset = 'cinematic';
+                // Save the new defaults
+                localStorage.setItem(STORAGE_KEY_INTENSITY, '100');
+                localStorage.setItem(STORAGE_KEY_PRESET, 'cinematic');
+                localStorage.setItem(STORAGE_KEY_VERSION, CURRENT_VERSION);
+                return;
+            }
+
+            // Load saved preferences (only if version matches)
             var savedIntensity = localStorage.getItem(STORAGE_KEY_INTENSITY);
             var savedPreset = localStorage.getItem(STORAGE_KEY_PRESET);
             if (savedIntensity !== null) {
-                currentIntensity = Math.max(0, Math.min(100, parseInt(savedIntensity, 10) || 45));
+                currentIntensity = Math.max(0, Math.min(100, parseInt(savedIntensity, 10) || 100));
             }
             if (savedPreset && PRESETS[savedPreset]) {
                 currentPreset = savedPreset;
@@ -64,6 +81,7 @@ var AnimationControls = (function() {
         try {
             localStorage.setItem(STORAGE_KEY_INTENSITY, String(currentIntensity));
             localStorage.setItem(STORAGE_KEY_PRESET, currentPreset);
+            localStorage.setItem(STORAGE_KEY_VERSION, CURRENT_VERSION);
         } catch (e) { /* ignore */ }
     }
 
@@ -174,7 +192,7 @@ var AnimationControls = (function() {
         if (resetBtn) {
             resetBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
-                setPreset('elegant');
+                setPreset('cinematic');
             });
         }
     }
@@ -248,7 +266,7 @@ var AnimationControls = (function() {
     }
 
     function findClosestPreset(value) {
-        var closest = 'elegant';
+        var closest = 'cinematic';
         var minDiff = Infinity;
         for (var i = 0; i < PRESET_ORDER.length; i++) {
             var key = PRESET_ORDER[i];
@@ -326,4 +344,4 @@ if (typeof window !== 'undefined') {
     window.AnimationControls = AnimationControls;
 }
 
-console.log('animation-controls.js v1.0 loaded');
+console.log('animation-controls.js v2.0 loaded - Cinematic mode default');
