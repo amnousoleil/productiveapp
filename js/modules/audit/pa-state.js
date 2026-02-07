@@ -14,6 +14,7 @@ const PaState = (function() {
 
     let state = {
         answers: {},
+        textResponses: {},
         showResults: false,
         currentAudit: null,
         history: []
@@ -46,6 +47,8 @@ const PaState = (function() {
     function setAnswers(answers) { state.answers = answers; }
     function setAnswer(qId, value) { state.answers[qId] = value; }
     function getAnswers() { return state.answers; }
+    function setTextAnswer(qId, text) { state.textResponses[qId] = text; }
+    function getTextResponses() { return state.textResponses; }
     function setShowResults(show) { state.showResults = show; }
     function setCurrentAudit(audit) { state.currentAudit = audit; }
     function setHistory(history) { state.history = history; }
@@ -53,6 +56,7 @@ const PaState = (function() {
 
     function reset() {
         state.answers = {};
+        state.textResponses = {};
         state.showResults = false;
         state.currentAudit = null;
         selectNewQuestions();
@@ -148,6 +152,8 @@ const PaState = (function() {
         getAnswers: getAnswers,
         setAnswer: setAnswer,
         setAnswers: setAnswers,
+        setTextAnswer: setTextAnswer,
+        getTextResponses: getTextResponses,
         setShowResults: setShowResults,
         setCurrentAudit: setCurrentAudit,
         setHistory: setHistory,

@@ -191,6 +191,7 @@ const AccInvoices = (function() {
         if (s==='draft'||s==='pending') b += '<button data-act="edit" style="'+_abtn('var(--text-primary)')+'">Modifier</button>';
         if (s==='draft') b += '<button data-act="validate" style="'+_abtn('var(--success-color)')+'">Valider</button>';
         if (s==='validated'||s==='sent'||s==='overdue') b += '<button data-act="pay" style="'+_abtn('#059669')+'">Payer</button>';
+        if ((s==='validated'||s==='sent'||s==='overdue') && i.type==='income') b += '<button data-act="stripe" style="'+_abtn('#6366f1')+'">Payer en ligne</button>';
         if (s==='validated') b += '<button data-act="send" style="'+_abtn('#8b5cf6')+'">Envoyer</button>';
         if (s==='sent'||s==='overdue') b += '<button data-act="remind" style="'+_abtn('var(--warning-color)')+'">Relance</button>';
         if (s!=='paid'&&s!=='cancelled') b += '<button data-act="delete" style="'+_abtn('var(--danger-color)')+'">Suppr.</button>';
@@ -231,6 +232,32 @@ const AccInvoices = (function() {
             case 'remind': _remind(id); break;
             case 'delete': _del(id); break;
             case 'duplicate': _dup(id); break;
+            case 'stripe': _stripeCheckout(id); break;
+        }
+    }
+
+    /* ==================== STRIPE CHECKOUT ==================== */
+    async function _stripeCheckout(id) {
+        try {
+            var status = await AccountingApi.getStripeStatus();
+            if (!status || !status.enabled) {
+                _toast('Stripe non configuré. Ajoutez STRIPE_SECRET_KEY dans .env', 'warning');
+                return;
+            }
+            _toast('Création du lien de paiement...', 'info');
+            var baseUrl = window.location.origin + window.location.pathname;
+            var result = await AccountingApi.createCheckoutSession(
+                id,
+                baseUrl + '?payment=success&invoice=' + id,
+                baseUrl + '?payment=cancel&invoice=' + id
+            );
+            if (result && result.checkout_url) {
+                window.open(result.checkout_url, '_blank');
+            } else {
+                _toast('Lien de paiement généré', 'success');
+            }
+        } catch (err) {
+            _toast('Erreur Stripe : ' + (err.message || 'Impossible de créer le paiement'), 'error');
         }
     }
 

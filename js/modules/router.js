@@ -26,7 +26,8 @@ const ViewRouter = (function() {
         gamification: 'Gamification',
         behavioral: 'Mon Profil',
         teamVision: 'Vision équipe',
-        giriVision: 'Giri Vision'
+        giriVision: 'Giri Vision',
+        calendar: 'Calendrier'
     };
 
     // Available views
@@ -47,7 +48,8 @@ const ViewRouter = (function() {
         gamification: 'view-gamification',
         behavioral: 'view-behavioral',
         teamVision: 'view-team-vision',
-        giriVision: 'view-giri-vision'
+        giriVision: 'view-giri-vision',
+        calendar: 'view-calendar'
     };
 
     let currentView = 'dashboard';
@@ -182,6 +184,11 @@ const ViewRouter = (function() {
             case 'giriVision':
                 if (typeof GiriVisionView !== 'undefined') {
                     GiriVisionView.refresh();
+                }
+                break;
+            case 'calendar':
+                if (typeof CalendarView !== 'undefined') {
+                    CalendarView.refresh();
                 }
                 break;
         }

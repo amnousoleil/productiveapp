@@ -29,6 +29,7 @@ const Sidebar = (function() {
         { id: 'notes', icon: 'file-text', label: 'Notes', tooltip: 'Éditeur de notes' },
         { id: 'projects', icon: 'folder', label: 'Projets', tooltip: 'Vos projets' },
         { id: 'galaxy', icon: 'sparkles', label: 'Galaxie', tooltip: 'Vue galaxie 3D' },
+        { id: 'calendar', icon: 'calendar', label: 'Calendrier', tooltip: 'Vue calendrier' },
         { id: 'divider1', type: 'divider' },
         { id: 'mahayawen', icon: 'bot', label: 'Assistant IA', tooltip: 'Chatbot intelligent', badge: true },
         { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'Messagerie d\'équipe' },
@@ -144,7 +145,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);

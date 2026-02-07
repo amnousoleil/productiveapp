@@ -70,7 +70,7 @@ const MessagingConversations = (function() {
         return `
             <div class="msg-conv-item ${isActive ? 'active' : ''}" data-id="${conv.id}">
                 <div class="msg-conv-avatar">
-                    ${avatar.startsWith('http')
+                    ${(avatar.startsWith('http') || avatar.startsWith('/uploads'))
                         ? `<img src="${avatar}" alt="${name}">`
                         : avatar}
                 </div>

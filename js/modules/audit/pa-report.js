@@ -12,18 +12,18 @@ const PaReport = (function() {
     let lastReport = null;
 
     var SYSTEM_PROMPT = [
-        'Tu es un expert mondial en developpement humain, psychologie positive, neurosciences et performance.',
+        'Tu es un expert mondial en développement humain, psychologie positive, neurosciences et performance.',
         'Tu combines les meilleures approches de :',
         '- Psychologie positive (Seligman, Csikszentmihalyi)',
-        '- Neurosciences du bien-etre (Andrew Huberman)',
-        '- Intelligence emotionnelle (Daniel Goleman)',
-        '- Developpement personnel profond (Carl Jung, Viktor Frankl)',
+        '- Neurosciences du bien-être (Andrew Huberman)',
+        '- Intelligence émotionnelle (Daniel Goleman)',
+        '- Développement personnel profond (Carl Jung, Viktor Frankl)',
         '- Science de la motivation (Deci & Ryan, Self-Determination Theory)',
         '- Haute performance (Jim Loehr, Peak Performance)',
         '',
         'MISSION : Generer un rapport d\'audit psycho-productivite PREMIUM, profond et transformateur.',
         'Le rapport doit aider la personne a SE RETROUVER, a CONNECTER avec ses plus grands potentiels,',
-        'et a activer les mecanismes internes d\'harmonie et de developpement fonctionnel.',
+        'et a activer les mecanismes internes d\'harmonie et de développement fonctionnel.',
         '',
         'FORMAT DU RAPPORT (en markdown) :',
         '',
@@ -44,7 +44,7 @@ const PaReport = (function() {
         '',
         '## Plan d\'Action Transformateur (7 jours)',
         'Un tableau jour par jour avec des actions CONCRETES, REALISABLES et PROGRESSIVES.',
-        'Chaque action doit etre liee a un axe specifique et avoir un objectif clair.',
+        'Chaque action doit être liee a un axe specifique et avoir un objectif clair.',
         'Format: | Jour | Action | Axe cible | Pourquoi |',
         '',
         '## Cle de Voute',
@@ -55,9 +55,9 @@ const PaReport = (function() {
         '- Ecris en francais',
         '- Sois profond mais accessible, jamais condescendant',
         '- Utilise un ton bienveillant mais sans complaisance',
-        '- Chaque recommandation doit etre basee sur un principe scientifique ou philosophique solide',
+        '- Chaque recommandation doit être basee sur un principe scientifique ou philosophique solide',
         '- Maximum 800 mots',
-        '- Pas de blabla generique : chaque phrase doit etre SPECIFIQUE aux resultats de la personne'
+        '- Pas de blabla generique : chaque phrase doit être SPECIFIQUE aux résultats de la personne'
     ].join('\n');
 
     async function generateReport() {
@@ -66,9 +66,10 @@ const PaReport = (function() {
         try {
             var score = PaState.calculateScore();
             var answers = PaState.getAnswers();
+            var textResponses = PaState.getTextResponses();
             var recommendations = PaState.getRecommendations();
             var history = await PaApi.loadHistory();
-            var context = buildContext(score, answers, recommendations, history);
+            var context = buildContext(score, answers, recommendations, history, textResponses);
 
             var report = await callAI(context);
             lastReport = report;
@@ -81,9 +82,10 @@ const PaReport = (function() {
         }
     }
 
-    function buildContext(score, answers, recommendations, history) {
+    function buildContext(score, answers, recommendations, history, textResponses) {
         var QUESTIONS = PaState.QUESTIONS;
         var AXES = PaState.AXES;
+        textResponses = textResponses || {};
 
         // Build detailed axis scores
         var axisScores = {};
@@ -103,10 +105,14 @@ const PaReport = (function() {
             };
         });
 
-        // Build answers detail
+        // Build answers detail (with text responses)
         var answersDetail = QUESTIONS.map(function(q) {
             var axis = AXES.find(function(a) { return a.id === q.axis; });
-            return (axis ? axis.icon + ' ' : '') + q.text + ' → ' + (answers[q.id] || 0) + '/5';
+            var line = (axis ? axis.icon + ' ' : '') + q.text + ' → ' + (answers[q.id] || 0) + '/5';
+            if (textResponses[q.id] && textResponses[q.id].trim()) {
+                line += '\n   Commentaire : "' + textResponses[q.id].trim() + '"';
+            }
+            return line;
         }).join('\n');
 
         // Build axis summary
@@ -131,13 +137,19 @@ const PaReport = (function() {
         // Trend
         var trend = calculateTrend(history);
 
+        // Count text responses
+        var textCount = Object.keys(textResponses).filter(function(k) {
+            return textResponses[k] && textResponses[k].trim();
+        }).length;
+
         return {
             score: score,
             axisSummary: axisSummary,
             answersDetail: answersDetail,
             historyText: historyText,
             recsText: recsText,
-            trend: trend
+            trend: trend,
+            hasTextResponses: textCount > 0
         };
     }
 
@@ -146,7 +158,7 @@ const PaReport = (function() {
         var recent = history.slice(0, 3);
         var avg = recent.reduce(function(s, a) { return s + a.score; }, 0) / recent.length;
         var older = history.slice(3, 6);
-        if (older.length === 0) return 'donnees insuffisantes';
+        if (older.length === 0) return 'donnees insuffisantés';
         var oldAvg = older.reduce(function(s, a) { return s + a.score; }, 0) / older.length;
         if (avg > oldAvg + 5) return 'ascendante (+' + Math.round(avg - oldAvg) + ' pts)';
         if (avg < oldAvg - 5) return 'descendante (' + Math.round(avg - oldAvg) + ' pts)';
@@ -158,7 +170,7 @@ const PaReport = (function() {
      */
     async function callAI(context) {
         var userPrompt = [
-            'Voici les resultats de mon audit psycho-productivite :',
+            'Voici les résultats de mon audit psycho-productivité :',
             '',
             'SCORE GLOBAL : ' + context.score + '/100',
             'TENDANCE : ' + context.trend,
@@ -166,10 +178,10 @@ const PaReport = (function() {
             'SCORES PAR AXE :',
             context.axisSummary,
             '',
-            'DETAIL DES REPONSES :',
+            'DÉTAIL DES RÉPONSES' + (context.hasTextResponses ? ' (avec commentaires personnels)' : '') + ' :',
             context.answersDetail,
             '',
-            'RECOMMANDATIONS SYSTEME :',
+            'RECOMMANDATIONS SYSTÈME :',
             context.recsText,
             '',
             'HISTORIQUE :',

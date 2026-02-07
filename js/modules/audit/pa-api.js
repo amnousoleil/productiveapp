@@ -62,6 +62,7 @@ const PaApi = (function() {
             var response = await Api.post('/audit/workspace/' + workspaceId + '/psycho', {
                 score: audit.score,
                 answers: audit.answers,
+                textResponses: audit.textResponses || {},
                 date: audit.date
             });
 

@@ -1082,3 +1082,158 @@ body {
     --text-tertiary: #71717a;
     --text-quaternary: #a1a1aa;
 }
+
+/* ================================================
+   THEME ENHANCEMENT - Full App Theming v1.0
+   Makes accent color prominent throughout main content
+   ================================================ */
+
+/* --- Body: subtle accent-tinted radial glow --- */
+body.logged-in::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at 20% 0%, var(--accent-glow) 0%, transparent 55%),
+                radial-gradient(ellipse at 85% 100%, var(--accent-glow) 0%, transparent 55%);
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* --- View Title: accent underline bar --- */
+.view-title {
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.view-title::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 36px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    opacity: 0.7;
+}
+
+/* --- Stat Cards: accent top bar --- */
+.stat-card {
+    border-top: 2px solid var(--accent);
+}
+
+.stat-card:hover {
+    box-shadow: 0 8px 24px -4px var(--accent-glow);
+    border-top-color: var(--accent-light);
+}
+
+/* --- Dashboard Sections: accent left border --- */
+.dashboard-section {
+    border-left: 3px solid var(--accent);
+}
+
+/* --- Quick Actions: accent hover glow --- */
+.quick-action:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px -2px var(--accent-glow);
+}
+
+.quick-action-icon {
+    border: 1px solid var(--border);
+}
+
+/* --- Project Cards: accent top bar visible --- */
+.project-card::before {
+    opacity: 0.5;
+}
+
+.project-card:hover::before {
+    opacity: 1;
+}
+
+.project-card:hover {
+    box-shadow: 0 8px 24px -4px var(--accent-glow);
+}
+
+/* --- Note sidebar: accent on active --- */
+.note-item.active {
+    border-left: 3px solid var(--accent);
+}
+
+.note-item:hover {
+    border-left: 3px solid var(--border);
+}
+
+/* --- Activity icons: accent-tinted border --- */
+.activity-icon {
+    border: 1px solid var(--border);
+}
+
+/* --- Progress bars: accent fill --- */
+.progress-bar-container > div:first-child {
+    background: var(--accent);
+}
+
+/* --- Form focus: accent ring --- */
+.form-input:focus,
+.view-container input:focus,
+.view-container textarea:focus,
+.view-container select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-glow) !important;
+}
+
+/* --- Tabs: accent active indicator --- */
+.tab-btn.active,
+.nav-tab.active,
+.section-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--bg-card);
+}
+
+/* --- Scrollbar: accent-tinted thumb --- */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* --- Modal: accent header bar --- */
+.modal-overlay .modal-card {
+    border-top: 3px solid var(--accent);
+}
+
+/* --- Text selection: accent color --- */
+::selection {
+    background: var(--accent);
+    color: white;
+}
+
+/* --- Section dividers use theme border --- */
+.dashboard-section-header {
+    border-bottom-color: var(--border);
+}
+
+/* --- Empty states: accent icon tint --- */
+.notes-empty svg {
+    stroke: var(--accent);
+    opacity: 0.4;
+}

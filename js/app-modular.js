@@ -107,6 +107,19 @@ const App = {
             if (typeof TeamVisionView !== 'undefined' && TeamVisionView.init) TeamVisionView.init();
             if (typeof GiriVisionView !== 'undefined' && GiriVisionView.init) GiriVisionView.init();
 
+            // Power Features
+            if (typeof CommandPalette !== 'undefined' && CommandPalette.init) CommandPalette.init();
+            if (typeof KeyboardShortcuts !== 'undefined' && KeyboardShortcuts.init) KeyboardShortcuts.init();
+            if (typeof QuickAdd !== 'undefined' && QuickAdd.init) QuickAdd.init();
+            if (typeof ZenMode !== 'undefined' && ZenMode.init) ZenMode.init();
+            if (typeof PomodoroTimer !== 'undefined' && PomodoroTimer.init) PomodoroTimer.init();
+            if (typeof TimeTracker !== 'undefined' && TimeTracker.init) TimeTracker.init();
+            if (typeof KanbanBoard !== 'undefined' && KanbanBoard.init) KanbanBoard.init();
+            if (typeof NotificationCenter !== 'undefined' && NotificationCenter.init) NotificationCenter.init();
+            if (typeof CalendarView !== 'undefined' && CalendarView.init) CalendarView.init();
+            if (typeof MobileNav !== 'undefined' && MobileNav.init) MobileNav.init();
+            if (typeof UIPolish !== 'undefined' && UIPolish.init) UIPolish.init();
+
             // Initialiser le routeur de vues (gère le hash URL)
             if (typeof ViewRouter !== 'undefined' && ViewRouter.init) ViewRouter.init();
 
@@ -170,6 +183,12 @@ const App = {
                 // Render data
                 Tasks.render();
                 Journal.render();
+
+                // Record daily login for gamification streak + XP
+                if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordDailyLogin) {
+                    GamificationAPI.recordDailyLogin().catch(() => {});
+                }
+
                 return; // API a répondu, ne pas appeler legacy
             } catch (e) {
                 console.error('⚠️ API Express failed:', e.message, e);

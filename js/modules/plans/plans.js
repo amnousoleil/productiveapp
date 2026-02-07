@@ -78,11 +78,30 @@ const PlansModule = {
     },
 
     /**
+     * Get current plan synchronously from AppState
+     */
+    getCurrentPlanSync() {
+        if (typeof AppState !== 'undefined' && AppState.currentUser) {
+            return AppState.currentUser.plan || 'free';
+        }
+        return 'free';
+    },
+
+    /**
+     * Get member limit for a plan
+     */
+    getMemberLimit(plan) {
+        return this.MEMBER_LIMITS[plan] || 0;
+    },
+
+    /**
      * Verifie si l'utilisateur a acces a une feature
      */
     hasFeature(featureName) {
-        // Implementation basee sur le plan actuel
-        return true; // Par defaut, autoriser
+        var plan = this.getCurrentPlanSync();
+        if (featureName === 'team') return plan !== 'free';
+        if (featureName === 'team_extended') return plan === 'enterprise';
+        return true;
     },
 
     /**

@@ -1,0 +1,26 @@
+/* TOOLTIPS */
+.pa-tooltip {
+    position: fixed;
+    z-index: 100001;
+    padding: 6px 12px;
+    background: var(--bg-tertiary, #2a2a3e);
+    color: var(--text, #fff);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    pointer-events: none;
+    white-space: nowrap;
+    max-width: 280px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s, transform 0.15s;
+}
+.pa-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.pa-tooltip-bottom.show { transform: translateY(0); }
+.pa-tooltip-left.show { transform: translateX(0); }
+.pa-tooltip-right.show { transform: translateX(0); }

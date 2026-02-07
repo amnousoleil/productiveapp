@@ -1,0 +1,494 @@
+/* ================================================
+   QUICK-ADD FAB + FOCUS/ZEN MODE
+   ProductiveApp v1.0
+   Premium floating action button & zen mode overlay
+   ================================================ */
+
+/* ==========================================
+   QUICK-ADD FAB - Main Button
+   ========================================== */
+.quick-add-fab {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light, var(--accent)) 100%);
+    color: #fff;
+    cursor: pointer;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.3),
+        0 0 20px var(--accent-glow, rgba(99, 102, 241, 0.3));
+    transition:
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+}
+
+.quick-add-fab svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+/* Hover */
+.quick-add-fab:hover {
+    transform: scale(1.1);
+    box-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.4),
+        0 0 32px var(--accent-glow, rgba(99, 102, 241, 0.5));
+}
+
+/* Active/pressed */
+.quick-add-fab:active {
+    transform: scale(0.95);
+}
+
+/* Open state - rotate + to x */
+.quick-add-fab.open svg {
+    transform: rotate(45deg);
+}
+
+/* Subtle pulse when closed */
+@keyframes quickAddPulse {
+    0%, 100% {
+        box-shadow:
+            0 4px 16px rgba(0, 0, 0, 0.3),
+            0 0 20px var(--accent-glow, rgba(99, 102, 241, 0.3));
+    }
+    50% {
+        box-shadow:
+            0 4px 16px rgba(0, 0, 0, 0.3),
+            0 0 28px var(--accent-glow, rgba(99, 102, 241, 0.45));
+    }
+}
+
+.quick-add-fab:not(.open) {
+    animation: quickAddPulse 3s ease-in-out infinite;
+}
+
+/* ==========================================
+   QUICK-ADD MENU - Radial Items
+   ========================================== */
+.quick-add-menu {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    z-index: 899;
+    pointer-events: none;
+}
+
+.quick-add-menu-item {
+    position: absolute;
+    bottom: 8px;
+    right: 6px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: scale(0.4) translateY(0);
+    pointer-events: none;
+    transition:
+        opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    outline: none;
+    font-family: inherit;
+}
+
+.quick-add-menu-item svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.quick-add-menu-item:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--accent);
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.4),
+        0 0 12px var(--accent-glow, rgba(99, 102, 241, 0.25));
+    transform: scale(1.1) translateY(var(--item-offset)) !important;
+}
+
+.quick-add-menu-item:active {
+    transform: scale(0.95) translateY(var(--item-offset)) !important;
+}
+
+/* Staggered fan-out positions (upward from FAB) */
+.quick-add-menu-item:nth-child(1) { --item-offset: -70px; }
+.quick-add-menu-item:nth-child(2) { --item-offset: -126px; }
+.quick-add-menu-item:nth-child(3) { --item-offset: -182px; }
+.quick-add-menu-item:nth-child(4) { --item-offset: -238px; }
+
+/* Open state - items visible with staggered animation */
+.quick-add-menu.open .quick-add-menu-item {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.quick-add-menu.open .quick-add-menu-item:nth-child(1) {
+    transform: scale(1) translateY(-70px);
+    transition-delay: 0.03s;
+}
+
+.quick-add-menu.open .quick-add-menu-item:nth-child(2) {
+    transform: scale(1) translateY(-126px);
+    transition-delay: 0.06s;
+}
+
+.quick-add-menu.open .quick-add-menu-item:nth-child(3) {
+    transform: scale(1) translateY(-182px);
+    transition-delay: 0.09s;
+}
+
+.quick-add-menu.open .quick-add-menu-item:nth-child(4) {
+    transform: scale(1) translateY(-238px);
+    transition-delay: 0.12s;
+}
+
+/* Close animation - reverse stagger */
+.quick-add-menu:not(.open) .quick-add-menu-item:nth-child(4) {
+    transition-delay: 0s;
+}
+.quick-add-menu:not(.open) .quick-add-menu-item:nth-child(3) {
+    transition-delay: 0.03s;
+}
+.quick-add-menu:not(.open) .quick-add-menu-item:nth-child(2) {
+    transition-delay: 0.06s;
+}
+.quick-add-menu:not(.open) .quick-add-menu-item:nth-child(1) {
+    transition-delay: 0.09s;
+}
+
+/* ==========================================
+   TOOLTIP - Label to the left
+   ========================================== */
+.quick-add-tooltip {
+    position: absolute;
+    right: 54px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--bg-secondary);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform: translateY(-50%) translateX(8px);
+}
+
+.quick-add-menu-item:hover .quick-add-tooltip {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* ==========================================
+   BACKDROP (optional subtle overlay)
+   ========================================== */
+.quick-add-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.15);
+    z-index: 898;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.quick-add-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ==========================================
+   HIDE WHEN NOT LOGGED IN
+   ========================================== */
+body:not(.logged-in) .quick-add-fab,
+body:not(.logged-in) .quick-add-menu,
+body:not(.logged-in) .quick-add-backdrop {
+    display: none !important;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE
+   ========================================== */
+@media (max-width: 768px) {
+    .quick-add-fab {
+        bottom: 80px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+
+    .quick-add-fab svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .quick-add-menu {
+        bottom: 80px;
+        right: 16px;
+    }
+
+    .quick-add-menu-item {
+        width: 40px;
+        height: 40px;
+    }
+
+    .quick-add-menu-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Tighter spacing on mobile */
+    .quick-add-menu-item:nth-child(1) { --item-offset: -60px; }
+    .quick-add-menu-item:nth-child(2) { --item-offset: -110px; }
+    .quick-add-menu-item:nth-child(3) { --item-offset: -160px; }
+    .quick-add-menu-item:nth-child(4) { --item-offset: -210px; }
+
+    .quick-add-menu.open .quick-add-menu-item:nth-child(1) {
+        transform: scale(1) translateY(-60px);
+    }
+    .quick-add-menu.open .quick-add-menu-item:nth-child(2) {
+        transform: scale(1) translateY(-110px);
+    }
+    .quick-add-menu.open .quick-add-menu-item:nth-child(3) {
+        transform: scale(1) translateY(-160px);
+    }
+    .quick-add-menu.open .quick-add-menu-item:nth-child(4) {
+        transform: scale(1) translateY(-210px);
+    }
+
+    .quick-add-tooltip {
+        display: none;
+    }
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+    .quick-add-fab {
+        animation: none !important;
+    }
+
+    .quick-add-fab svg,
+    .quick-add-menu-item {
+        transition: none !important;
+    }
+}
+
+
+/* ================================================
+   FOCUS / ZEN MODE
+   ================================================ */
+
+/* ==========================================
+   ZEN MODE - Body class toggles
+   ========================================== */
+
+/* Hide sidebar */
+body.zen-mode .sidebar {
+    transform: translateX(-100%);
+    pointer-events: none;
+}
+
+/* Hide animation controls FAB + panel */
+body.zen-mode .anim-ctrl-fab,
+body.zen-mode .anim-ctrl-panel {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.5) !important;
+}
+
+/* Hide chatbot FAB + panel */
+body.zen-mode .chatbot-fab,
+body.zen-mode .chatbot-panel,
+body.zen-mode #chatbot-toggle,
+body.zen-mode #chatbot-window {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.5) !important;
+}
+
+/* Hide quick-add FAB + menu */
+body.zen-mode .quick-add-fab,
+body.zen-mode .quick-add-menu,
+body.zen-mode .quick-add-backdrop {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: scale(0.5) !important;
+}
+
+/* Maximize main content */
+body.zen-mode .main-content {
+    margin-left: 0 !important;
+    max-width: 100% !important;
+    transition: margin-left 0.4s ease;
+}
+
+/* Smooth transition for sidebar hiding */
+body.zen-mode .sidebar {
+    transition: transform 0.4s ease;
+}
+
+/* Ensure sidebar returns smoothly */
+body:not(.zen-mode) .sidebar {
+    transition: transform 0.4s ease, width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   ZEN MODE - Top Indicator Bar
+   ========================================== */
+.zen-mode-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light, var(--accent)) 100%);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(-100%);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+    pointer-events: none;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Visible when zen mode is active */
+body.zen-mode .zen-mode-bar {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.zen-mode-bar-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.9;
+}
+
+.zen-mode-bar-label svg {
+    width: 14px;
+    height: 14px;
+}
+
+.zen-mode-bar-separator {
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.zen-mode-bar-hint {
+    opacity: 0.7;
+    font-size: 11px;
+}
+
+.zen-mode-bar-exit {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-family: inherit;
+    margin-left: 4px;
+}
+
+.zen-mode-bar-exit:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.zen-mode-bar-exit:active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Push content down when zen bar is visible */
+body.zen-mode .main-content {
+    padding-top: 36px;
+}
+
+/* ==========================================
+   ZEN MODE - Mobile
+   ========================================== */
+@media (max-width: 768px) {
+    .zen-mode-bar {
+        height: 32px;
+        font-size: 11px;
+    }
+
+    .zen-mode-bar-hint {
+        display: none;
+    }
+
+    .zen-mode-bar-separator {
+        display: none;
+    }
+
+    body.zen-mode .main-content {
+        padding-top: 32px;
+    }
+}
+
+/* ==========================================
+   ZEN MODE - Reduced motion
+   ========================================== */
+@media (prefers-reduced-motion: reduce) {
+    .zen-mode-bar {
+        transition: none !important;
+    }
+
+    body.zen-mode .sidebar {
+        transition: none !important;
+    }
+
+    body.zen-mode .main-content {
+        transition: none !important;
+    }
+
+    body.zen-mode .anim-ctrl-fab,
+    body.zen-mode .chatbot-fab,
+    body.zen-mode .quick-add-fab {
+        transition: none !important;
+    }
+}

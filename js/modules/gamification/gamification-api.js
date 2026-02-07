@@ -208,6 +208,43 @@ const GamificationAPI = (function() {
     }
 
     /**
+     * Update streak (daily_login, daily_task, etc.)
+     * Backend: POST /gamification/workspace/:workspaceId/streaks
+     * @param {string} type - Streak type (daily_login, daily_note, daily_task, weekly_goal)
+     */
+    async function updateStreak(type = 'daily_login') {
+        const basePath = getBasePath();
+        if (!basePath) return null;
+
+        try {
+            const response = await ApiFetch.fetchWithAuth(`${basePath}/streaks`, {
+                method: 'POST',
+                body: JSON.stringify({ type })
+            });
+            return response.data?.streak || response.streak || response;
+        } catch (error) {
+            console.error('❌ Failed to update streak:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Record daily login (XP + streak update combined)
+     */
+    async function recordDailyLogin() {
+        try {
+            const [xpResult, streakResult] = await Promise.all([
+                recordAction('login_bonus'),
+                updateStreak('daily_login')
+            ]);
+            return { xp: xpResult, streak: streakResult };
+        } catch (error) {
+            console.error('❌ Failed to record daily login:', error);
+            return null;
+        }
+    }
+
+    /**
      * Get all gamification data in one call
      */
     async function getAll() {
@@ -271,8 +308,8 @@ const GamificationAPI = (function() {
         // If we have streak data, extract the days
         if (streaks && streaks.length > 0) {
             streaks.forEach(s => {
-                if (s.activity_date) {
-                    const date = new Date(s.activity_date);
+                if (s.last_activity_date || s.activity_date) {
+                    const date = new Date(s.last_activity_date || s.activity_date);
                     if (date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear()) {
                         activeDays.push(date.getDate());
                     }
@@ -319,6 +356,8 @@ const GamificationAPI = (function() {
         getStreak,
         getLeaderboard,
         recordAction,
+        updateStreak,
+        recordDailyLogin,
         getAll,
         getMockData
     };

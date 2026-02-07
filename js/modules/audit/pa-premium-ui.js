@@ -1,9 +1,9 @@
 /**
- * PSYCHO-AUDIT PREMIUM UI - Multi-tab therapeutic experience
+ * PSYCHO-AUDIT PREMIUM UI - Multi-tab therapeutic expérience
  * ProductiveApp v6.0 - Interface Haut de Gamme
  *
  * Systeme d'onglets :
- * 1. AUDIT - Questionnaire enrichi + resultats
+ * 1. AUDIT - Questionnaire enrichi + résultats
  * 2. THERAPIE - Exercices prescrits selon le profil
  * 3. BIBLIOTHEQUE - Catalogue complet des exercices
  * 4. PROGRAMMES - Protocoles 12 semaines
@@ -26,8 +26,8 @@ const PaPremiumUI = (function() {
     function renderTabBar() {
         var tabs = [
             { id: 'audit', icon: '🧠', label: 'Audit' },
-            { id: 'therapy', icon: '💊', label: 'Therapie' },
-            { id: 'library', icon: '📚', label: 'Bibliotheque' },
+            { id: 'therapy', icon: '💊', label: 'Thérapie' },
+            { id: 'library', icon: '📚', label: 'Bibliothèque' },
             { id: 'programs', icon: '🗺️', label: 'Programmes' },
             { id: 'journal', icon: '📓', label: 'Journal' }
         ];
@@ -65,7 +65,7 @@ const PaPremiumUI = (function() {
             '<h1 class="pa-premium-title">Psycho-Audit</h1>' +
             '<span class="pa-premium-badge">Premium</span>' +
             '</div>' +
-            '<p class="pa-premium-subtitle">Therapie comportementale · Developpement personnel · Eveil de conscience</p>' +
+            '<p class="pa-premium-subtitle">Thérapie comportementale · Développement personnel · Éveil de conscience</p>' +
             '</header>';
 
         // Tab bar
@@ -101,7 +101,7 @@ const PaPremiumUI = (function() {
     function renderEnhancedResults() {
         var html = PaRender.renderResults();
 
-        // Ajouter les exercices recommandes apres les resultats
+        // Ajouter les exercices recommandes apres les résultats
         if (typeof PaTherapyLibrary !== 'undefined') {
             var axisScores = PaState.calculateAxisScores();
             var recommended = PaTherapyLibrary.getRecommendedExercises(axisScores);
@@ -109,8 +109,8 @@ const PaPremiumUI = (function() {
 
             if (recommended.length > 0) {
                 html += '<div class="pa-recommended-section">';
-                html += '<h3 class="pa-section-title">Exercices therapeutiques recommandes</h3>';
-                html += '<p class="pa-section-desc">Bases sur vos resultats, voici les exercices valides qui vous aideront le plus</p>';
+                html += '<h3 class="pa-section-title">Exercices thérapeutiques recommandes</h3>';
+                html += '<p class="pa-section-desc">Bases sur vos résultats, voici les exercices valides qui vous aideront le plus</p>';
                 html += '<div class="pa-exercise-cards">';
                 recommended.forEach(function(ex) {
                     var cat = PaTherapyLibrary.getCategory(ex.category);
@@ -154,15 +154,15 @@ const PaPremiumUI = (function() {
             html += '<div class="pa-therapy-empty">';
             html += '<div class="pa-empty-icon">🎯</div>';
             html += '<h3>Completez votre premier audit</h3>';
-            html += '<p>Realisez un audit psycho-productivite pour recevoir des exercices therapeutiques personnalises adaptes a votre profil.</p>';
+            html += '<p>Realisez un audit psycho-productivite pour recevoir des exercices thérapeutiques personnalisés adaptes a votre profil.</p>';
             html += '<button class="pa-btn-primary" onclick="PaPremiumUI.switchTab(\'audit\')">Commencer l\'audit</button>';
             html += '</div>';
         } else {
             var recommended = typeof PaTherapyLibrary !== 'undefined' ? PaTherapyLibrary.getRecommendedExercises(axisScores) : [];
 
             html += '<div class="pa-therapy-header">';
-            html += '<h2>Votre prescription therapeutique</h2>';
-            html += '<p>Exercices selectionnes selon votre profil psycho-productif actuel</p>';
+            html += '<h2>Votre prescription thérapeutique</h2>';
+            html += '<p>Exercices sélectionnes selon votre profil psycho-productif actuel</p>';
             html += '</div>';
 
             // Urgences / Quick wins
@@ -184,9 +184,9 @@ const PaPremiumUI = (function() {
             html += '<div class="pa-daily-routine">';
 
             var dailyRoutine = [
-                { time: 'Matin (10 min)', exercise: 'resil_coherence_cardiaque', reason: 'Calibrer le systeme nerveux pour la journee' },
+                { time: 'Matin (10 min)', exercise: 'resil_cohérence_cardiaque', reason: 'Calibrer le système nerveux pour la journée' },
                 { time: 'Journee (3 min)', exercise: 'mbsr_3min_breathing', reason: 'Ancrage de pleine conscience entre les taches' },
-                { time: 'Soir (15 min)', exercise: 'cbt_thought_record', reason: 'Traiter les evenements de la journee' }
+                { time: 'Soir (15 min)', exercise: 'cbt_thought_record', reason: 'Traiter les evenements de la journée' }
             ];
 
             dailyRoutine.forEach(function(slot) {
@@ -204,7 +204,7 @@ const PaPremiumUI = (function() {
             });
             html += '</div></div>';
 
-            // Exercices personnalises
+            // Exercices personnalisés
             if (recommended.length > 0) {
                 html += '<div class="pa-therapy-section">';
                 html += '<h3 class="pa-section-title"><span class="pa-section-icon">🎯</span> Personnalises pour vos axes faibles</h3>';
@@ -249,7 +249,7 @@ const PaPremiumUI = (function() {
         var categories = typeof PaTherapyLibrary !== 'undefined' ? PaTherapyLibrary.getCategories() : [];
 
         html += '<div class="pa-library-header">';
-        html += '<h2>Bibliotheque Therapeutique</h2>';
+        html += '<h2>Bibliothèque Therapeutique</h2>';
         html += '<p>' + getTotalExerciseCount() + ' exercices valides · 10 approches · 4 niveaux</p>';
         html += '</div>';
 
@@ -400,7 +400,7 @@ const PaPremiumUI = (function() {
         var html = '<div class="pa-journal-tab">';
         html += '<div class="pa-journal-header">';
         html += '<h2>Journal de Conscience</h2>';
-        html += '<p>Votre espace personnel de reflexion et de suivi quotidien</p>';
+        html += '<p>Votre espace personnel de réflexion et de suivi quotidien</p>';
         html += '</div>';
 
         // Quick mood check
@@ -467,7 +467,7 @@ const PaPremiumUI = (function() {
             });
             html += '</div>';
         } else {
-            html += '<p class="pa-tracker-empty">Aucun exercice realise aujourd\'hui. Allez dans l\'onglet Therapie pour commencer !</p>';
+            html += '<p class="pa-tracker-empty">Aucun exercice realise aujourd\'hui. Allez dans l\'onglet Thérapie pour commencer !</p>';
         }
         html += '</div>';
 
@@ -750,7 +750,7 @@ const PaPremiumUI = (function() {
         });
 
         if (entries.length === 0 && gratitudes.length === 0) {
-            alert('Ecrivez au moins une reflexion ou une gratitude avant de sauvegarder.');
+            alert('Ecrivez au moins une réflexion ou une gratitude avant de sauvegarder.');
             return;
         }
 
@@ -765,7 +765,7 @@ const PaPremiumUI = (function() {
         if (log.length > 365) log = log.slice(0, 365);
         localStorage.setItem('pa_journal_log', JSON.stringify(log));
 
-        alert('Journal sauvegarde ! Continuez cette pratique quotidienne pour des resultats optimaux.');
+        alert('Journal sauvegarde ! Continuez cette pratique quotidienne pour des résultats optimaux.');
     }
 
     function getExerciseLog() {
@@ -780,13 +780,13 @@ const PaPremiumUI = (function() {
         var allPrompts = [
             { icon: '🌅', text: 'Quelle est mon intention pour aujourd\'hui ?' },
             { icon: '💡', text: 'Qu\'ai-je appris sur moi-meme recemment ?' },
-            { icon: '🌊', text: 'Quelle emotion m\'a traverse(e) le plus intensement aujourd\'hui ?' },
+            { icon: '🌊', text: 'Quelle émotion m\'a traverse(e) le plus intensement aujourd\'hui ?' },
             { icon: '🔑', text: 'Si je pouvais changer une chose dans ma vie maintenant, ce serait...' },
             { icon: '🌿', text: 'Quel besoin ai-je neglige recemment ?' },
-            { icon: '⚡', text: 'Qu\'est-ce qui me donne le plus d\'energie en ce moment ?' },
+            { icon: '⚡', text: 'Qu\'est-ce qui me donne le plus d\'énergie en ce moment ?' },
             { icon: '🪞', text: 'Quel pattern repetitif ai-je observe dans mon comportement ?' },
-            { icon: '🌍', text: 'Comment puis-je contribuer au bien-etre de quelqu\'un aujourd\'hui ?' },
-            { icon: '🦋', text: 'De quoi ai-je besoin pour me sentir en securite interieure ?' },
+            { icon: '🌍', text: 'Comment puis-je contribuer au bien-être de quelqu\'un aujourd\'hui ?' },
+            { icon: '🦋', text: 'De quoi ai-je besoin pour me sentir en sécurité interieure ?' },
             { icon: '🎯', text: 'Suis-je en train de vivre selon mes valeurs profondes cette semaine ?' }
         ];
 

@@ -114,7 +114,7 @@ const MessagingUI = (function() {
                     </svg>
                 </button>
                 <div class="msg-chat-avatar ${isGroup ? 'group' : ''}">
-                    ${avatar.startsWith && avatar.startsWith('http')
+                    ${avatar.startsWith && (avatar.startsWith('http') || avatar.startsWith('/uploads'))
                         ? `<img src="${avatar}" alt="${escapeHtml(name)}">`
                         : `<span>${avatar}</span>`}
                     ${!isGroup ? `<div class="msg-status-dot ${isOnline ? 'online' : ''}"></div>` : ''}

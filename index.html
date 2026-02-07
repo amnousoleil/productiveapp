@@ -31,10 +31,10 @@
     <link rel="stylesheet" href="css/animations.css?v=1700">
     <link rel="stylesheet" href="css/animation-controls.css?v=1700">
     <link rel="stylesheet" href="css/accounting.css?v=200">
-    <link rel="stylesheet" href="css/dashboard.css?v=1700">
+    <link rel="stylesheet" href="css/dashboard.css?v=1900">
     <link rel="stylesheet" href="css/notes-editor.css?v=1700">
     <link rel="stylesheet" href="css/notes-ai.css?v=1700">
-    <link rel="stylesheet" href="css/settings.css?v=1700">
+    <link rel="stylesheet" href="css/settings.css?v=1900">
     <link rel="stylesheet" href="css/auth.css?v=1700">
     <link rel="stylesheet" href="css/gamification.css?v=1700">
     <link rel="stylesheet" href="css/messaging.css?v=1700">
@@ -45,11 +45,19 @@
     <link rel="stylesheet" href="css/style-overrides.css?v=1800">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
-    <link rel="stylesheet" href="css/style-views.css?v=1800">
+    <link rel="stylesheet" href="css/style-views.css?v=1900">
     <link rel="stylesheet" href="css/galaxy.css?v=1700">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
     <link rel="stylesheet" href="css/giri-vision.css?v=1700">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
+    <link rel="stylesheet" href="css/calendar.css?v=2000">
+    <link rel="stylesheet" href="css/responsive.css?v=2000">
+    <!-- Power Features CSS -->
+    <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
+    <link rel="stylesheet" href="css/command-palette.css?v=2000">
+    <link rel="stylesheet" href="css/quick-add.css?v=2000">
+    <link rel="stylesheet" href="css/productivity-tools.css?v=2000">
+    <link rel="stylesheet" href="css/kanban.css?v=2000">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -219,6 +227,11 @@
         <!-- Giri Vision - Video Consultation -->
         <div id="view-giri-vision" class="view-container">
             <!-- Rendered by GiriVisionView -->
+        </div>
+
+        <!-- Calendar View -->
+        <div id="view-calendar" class="view-container">
+            <!-- Rendered by CalendarView -->
         </div>
 
         <!-- Tasks View (wraps existing app-container) -->
@@ -1042,7 +1055,7 @@
     <script src="js/modules/reports/report.js?v=1700"></script>
     <script src="js/modules/services/backup.js?v=1700"></script>
     <script src="js/modules/sidebar/sidebar-core.js?v=1700"></script>
-    <script src="js/modules/sidebar/sidebar-render.js?v=1700"></script>
+    <script src="js/modules/sidebar/sidebar-render.js?v=1800"></script>
     <script src="js/modules/sidebar/sidebar-events.js?v=1700"></script>
     <script src="js/modules/sidebar/sidebar-init.js?v=1700"></script>
     <script src="js/modules/router.js?v=1700"></script>
@@ -1060,11 +1073,11 @@
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
     <script src="js/modules/settings/settings-data.js?v=1700"></script>
-    <script src="js/modules/settings/settings-actions.js?v=1700"></script>
-    <script src="js/modules/settings/settings-render.js?v=1700"></script>
-    <script src="js/modules/settings/settings-team.js?v=1700"></script>
+    <script src="js/modules/settings/settings-actions.js?v=1800"></script>
+    <script src="js/modules/settings/settings-render.js?v=1800"></script>
+    <script src="js/modules/settings/settings-team.js?v=1800"></script>
     <script src="js/modules/settings/settings-styles.js?v=1700"></script>
-    <script src="js/modules/settings/settings-view.js?v=1700"></script>
+    <script src="js/modules/settings/settings-view.js?v=1800"></script>
     <!-- Animation Controls -->
     <script src="js/modules/animation-controls.js?v=1700"></script>
     <!-- Analytics Module -->
@@ -1084,8 +1097,8 @@
 
     <!-- 5. Messaging Module - TeamTalk Premium -->
     <script src="js/modules/messaging/messaging-api.js?v=1700"></script>
-    <script src="js/modules/messaging/messaging-ui.js?v=1700"></script>
-    <script src="js/modules/messaging/messaging-conversations.js?v=1700"></script>
+    <script src="js/modules/messaging/messaging-ui.js?v=1800"></script>
+    <script src="js/modules/messaging/messaging-conversations.js?v=1800"></script>
     <script src="js/modules/messaging/messaging-chat.js?v=1700"></script>
     <script src="js/modules/messaging/messaging-events.js?v=1700"></script>
     <script src="js/modules/messaging/messaging.js?v=1700"></script>
@@ -1097,6 +1110,7 @@
 
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
+    <script src="js/modules/gamification/gamification-api.js?v=1900"></script>
     <script src="js/modules/gamification/gv-helpers.js?v=1700"></script>
     <script src="js/modules/gamification/gv-styles.js?v=1700"></script>
     <script src="js/modules/gamification/gv-api.js?v=1700"></script>
@@ -1123,34 +1137,35 @@
     <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script>
     <script src="js/modules/canvases/galaxie-view.js?v=1700"></script>
 
-    <!-- FinScan Accounting Module v2.0 -->
-    <script src="js/modules/accounting/acc-state.js?v=200"></script>
-    <script src="js/modules/accounting/accounting-api.js?v=200"></script>
-    <script src="js/modules/accounting/acc-styles.js?v=200"></script>
-    <script src="js/modules/accounting/acc-dashboard.js?v=200"></script>
-    <script src="js/modules/accounting/acc-scanner.js?v=200"></script>
-    <script src="js/modules/accounting/acc-invoices.js?v=200"></script>
-    <script src="js/modules/accounting/acc-documents.js?v=200"></script>
-    <script src="js/modules/accounting/acc-expenses.js?v=200"></script>
-    <script src="js/modules/accounting/acc-tva.js?v=200"></script>
-    <script src="js/modules/accounting/acc-budgets.js?v=200"></script>
-    <script src="js/modules/accounting/acc-bank.js?v=200"></script>
-    <script src="js/modules/accounting/acc-contacts.js?v=200"></script>
-    <script src="js/modules/accounting/acc-alerts.js?v=200"></script>
-    <script src="js/modules/accounting/accounting.js?v=200"></script>
+    <!-- FinScan Accounting Module v3.0 -->
+    <script src="js/modules/accounting/acc-state.js?v=1900"></script>
+    <script src="js/modules/accounting/accounting-api.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-styles.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-dashboard.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-scanner.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-invoices.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-documents.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-expenses.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-tva.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-budgets.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-bank.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-contacts.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-alerts.js?v=1900"></script>
+    <script src="js/modules/accounting/acc-recurring.js?v=1900"></script>
+    <script src="js/modules/accounting/accounting.js?v=1900"></script>
 
     <!-- Psycho-Audit Module v6.0 Premium (in audit/) -->
-    <script src="js/modules/audit/questions-bank.js?v=1700"></script>
-    <script src="js/modules/audit/pa-scoring.js?v=1700"></script>
-    <script src="js/modules/audit/pa-state.js?v=1700"></script>
-    <script src="js/modules/audit/pa-api.js?v=1700"></script>
-    <script src="js/modules/audit/pa-charts.js?v=1700"></script>
-    <script src="js/modules/audit/pa-render.js?v=1700"></script>
-    <script src="js/modules/audit/pa-styles.js?v=1700"></script>
-    <script src="js/modules/audit/pa-report.js?v=1700"></script>
-    <script src="js/modules/audit/pa-therapy-library.js?v=1700"></script>
-    <script src="js/modules/audit/pa-premium-ui.js?v=1700"></script>
-    <script src="js/modules/audit/psycho-audit-view.js?v=1700"></script>
+    <script src="js/modules/audit/questions-bank.js?v=1900"></script>
+    <script src="js/modules/audit/pa-scoring.js?v=1900"></script>
+    <script src="js/modules/audit/pa-state.js?v=1900"></script>
+    <script src="js/modules/audit/pa-api.js?v=1900"></script>
+    <script src="js/modules/audit/pa-charts.js?v=1900"></script>
+    <script src="js/modules/audit/pa-render.js?v=1900"></script>
+    <script src="js/modules/audit/pa-styles.js?v=1900"></script>
+    <script src="js/modules/audit/pa-report.js?v=1900"></script>
+    <script src="js/modules/audit/pa-therapy-library.js?v=1900"></script>
+    <script src="js/modules/audit/pa-premium-ui.js?v=1900"></script>
+    <script src="js/modules/audit/psycho-audit-view.js?v=1900"></script>
 
     <!-- Behavioral Profile Module (now in signals/) -->
     <script src="js/modules/signals/bh-api.js?v=1700"></script>
@@ -1176,15 +1191,29 @@
     <!-- NEW: Core Modules -->
     <script src="js/modules/files/files.js?v=1700"></script>
     <script src="js/modules/onboarding/onboarding.js?v=1700"></script>
-    <script src="js/modules/plans/plans.js?v=1700"></script>
+    <script src="js/modules/plans/plans.js?v=1800"></script>
     <script src="js/modules/users/users.js?v=1700"></script>
     <script src="js/modules/workspaces/workspaces.js?v=1700"></script>
 
     <!-- Canvas animations (theme-based) -->
     <script src="js/animations.js?v=1700"></script>
 
+    <!-- Calendar View -->
+    <script src="js/modules/calendar/calendar-view.js?v=2000"></script>
+
+    <!-- Power Features -->
+    <script src="js/modules/command-palette.js?v=2000"></script>
+    <script src="js/modules/keyboard-shortcuts.js?v=2000"></script>
+    <script src="js/modules/quick-add.js?v=2000"></script>
+    <script src="js/modules/productivity-tools.js?v=2000"></script>
+    <script src="js/modules/kanban-board.js?v=2000"></script>
+    <script src="js/modules/toast.js?v=2000"></script>
+    <script src="js/modules/ui-polish.js?v=2000"></script>
+    <script src="js/modules/mobile-nav.js?v=2000"></script>
+    <script src="js/modules/pomodoro-timer.js?v=2000"></script>
+
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=1700"></script>
+    <script src="js/app-modular.js?v=1900"></script>
 
     <script>
     // Service Worker Registration

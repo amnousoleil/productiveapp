@@ -18,17 +18,24 @@ const PaRender = (function() {
         return '<div class="stars-container">' + stars + '</div>';
     }
 
+    function escapeAttr(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
     function renderQuestionnaire() {
         var answers = PaState.getAnswers();
+        var textResponses = PaState.getTextResponses();
         var QUESTIONS = PaState.QUESTIONS;
         var AXES = PaState.AXES;
 
         var html = '<div class="questionnaire">';
-        html += '<h2>Auto-evaluation hebdomadaire</h2>';
-        html += '<p class="questionnaire-intro">Repondez honnetement de 1 (pas du tout) a 5 (totalement)</p>';
+        html += '<h2>Auto-évaluation hebdomadaire</h2>';
+        html += '<p class="questionnaire-intro">Répondez honnêtement de 1 (pas du tout) à 5 (totalement). Développez votre réponse dans le champ texte si vous le souhaitez.</p>';
 
         AXES.forEach(function(axis) {
             var axisQuestions = QUESTIONS.filter(function(q) { return q.axis === axis.id; });
+            if (axisQuestions.length === 0) return;
             html += '<div class="axis-group">' +
                 '<div class="axis-header">' +
                 '<span class="axis-icon">' + axis.icon + '</span>' +
@@ -37,9 +44,14 @@ const PaRender = (function() {
 
             axisQuestions.forEach(function(q) {
                 var value = answers[q.id] || 0;
+                var textValue = textResponses[q.id] || '';
                 html += '<div class="question-item">' +
                     '<div class="question-text">' + q.text + '</div>' +
                     renderStars(q.id, value) +
+                    '<textarea class="question-textarea" id="text-' + q.id + '" ' +
+                    'placeholder="Développez votre ressenti ici (optionnel)..." ' +
+                    'oninput="PsychoAuditView.setTextAnswer(\'' + q.id + '\', this.value)" ' +
+                    'rows="2">' + escapeAttr(textValue) + '</textarea>' +
                     '</div>';
             });
             html += '</div>';
@@ -52,7 +64,7 @@ const PaRender = (function() {
             '</button>';
 
         if (!allAnswered) {
-            html += '<p class="hint">Repondez aux 10 questions pour continuer</p>';
+            html += '<p class="hint">Répondez à toutes les questions pour continuer</p>';
         }
 
         html += '</div>';
@@ -82,13 +94,13 @@ const PaRender = (function() {
         // Radar chart (using axis scores)
         var radarAnswers = PaState.getAnswersForRadar();
         html += '<div class="radar-section">' +
-            '<h3>Vos 5 axes de developpement</h3>' +
+            '<h3>Vos 5 axes de développement</h3>' +
             '<div class="radar-container">' + PaCharts.generateRadarChart(radarAnswers) + '</div>' +
             '</div>';
 
         // Recommendations
         html += '<div class="recommendations-section">' +
-            '<h3>Recommandations personnalisees</h3>' +
+            '<h3>Recommandations personnalisées</h3>' +
             '<div class="recommendations-list">';
 
         var icons = ['💡', '🎯', '✨'];
@@ -156,7 +168,7 @@ const PaRender = (function() {
         var html = '<div class="psycho-audit-view">' +
             '<header class="audit-header">' +
             '<h1>Audit Psycho-Productivite</h1>' +
-            '<p class="subtitle">Evaluez votre bien-etre au travail et recevez des recommandations personnalisees</p>' +
+            '<p class="subtitle">Evaluez votre bien-etre au travail et recevez des recommandations personnalisées</p>' +
             '</header>';
 
         html += showResults ? renderResults() : renderQuestionnaire();

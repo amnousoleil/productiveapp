@@ -479,6 +479,87 @@ const AccountingApi = (function() {
     }
 
     // =====================================================
+    // PAIEMENTS STRIPE
+    // =====================================================
+
+    async function createCheckoutSession(invoiceId, successUrl, cancelUrl) {
+        return Api.post(buildUrl('/payments/checkout'), {
+            invoice_id: invoiceId,
+            success_url: successUrl || window.location.href + '?payment=success',
+            cancel_url: cancelUrl || window.location.href + '?payment=cancel'
+        });
+    }
+
+    async function getPaymentTransactions(filters) {
+        var params = {};
+        if (filters) {
+            if (filters.status) params.status = filters.status;
+            if (filters.page) params.page = filters.page;
+            if (filters.limit) params.limit = filters.limit;
+        }
+        return Api.get(buildUrl('/payments/transactions') + buildQuery(params));
+    }
+
+    async function getInvoicePayments(invoiceId) {
+        return Api.get(buildUrl('/payments/invoices/' + invoiceId));
+    }
+
+    async function createRefund(transactionId, amount, reason) {
+        return Api.post(buildUrl('/payments/refund'), {
+            transaction_id: transactionId,
+            amount: amount || undefined,
+            reason: reason || undefined
+        });
+    }
+
+    async function getStripeStatus() {
+        return Api.get(buildUrl('/payments/status'));
+    }
+
+    // =====================================================
+    // FACTURES RECURRENTES
+    // =====================================================
+
+    async function getRecurringInvoices(filters) {
+        var params = {};
+        if (filters) {
+            if (filters.status) params.status = filters.status;
+            if (filters.frequency) params.frequency = filters.frequency;
+            if (filters.page) params.page = filters.page;
+            if (filters.limit) params.limit = filters.limit;
+        }
+        return Api.get(buildUrl('/recurring') + buildQuery(params));
+    }
+
+    async function getRecurringInvoice(id) {
+        return Api.get(buildUrl('/recurring/' + id));
+    }
+
+    async function createRecurringInvoice(data) {
+        return Api.post(buildUrl('/recurring'), data);
+    }
+
+    async function updateRecurringInvoice(id, data) {
+        return Api.put(buildUrl('/recurring/' + id), data);
+    }
+
+    async function deleteRecurringInvoice(id) {
+        return Api.del(buildUrl('/recurring/' + id));
+    }
+
+    async function pauseRecurringInvoice(id) {
+        return Api.post(buildUrl('/recurring/' + id + '/pause'));
+    }
+
+    async function resumeRecurringInvoice(id) {
+        return Api.post(buildUrl('/recurring/' + id + '/resume'));
+    }
+
+    async function processRecurringInvoices() {
+        return Api.post(buildUrl('/recurring/process'));
+    }
+
+    // =====================================================
     // INITIALISATION
     // =====================================================
 
@@ -601,6 +682,23 @@ const AccountingApi = (function() {
         exportBalanceSheet: exportBalanceSheet,
         exportGeneric: exportGeneric,
         exportInvoicePDF: exportInvoicePDF,
+
+        // Paiements Stripe
+        createCheckoutSession: createCheckoutSession,
+        getPaymentTransactions: getPaymentTransactions,
+        getInvoicePayments: getInvoicePayments,
+        createRefund: createRefund,
+        getStripeStatus: getStripeStatus,
+
+        // Factures recurrentes
+        getRecurringInvoices: getRecurringInvoices,
+        getRecurringInvoice: getRecurringInvoice,
+        createRecurringInvoice: createRecurringInvoice,
+        updateRecurringInvoice: updateRecurringInvoice,
+        deleteRecurringInvoice: deleteRecurringInvoice,
+        pauseRecurringInvoice: pauseRecurringInvoice,
+        resumeRecurringInvoice: resumeRecurringInvoice,
+        processRecurringInvoices: processRecurringInvoices,
 
         // Init
         initWorkspace: initWorkspace

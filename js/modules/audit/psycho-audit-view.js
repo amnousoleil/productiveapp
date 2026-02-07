@@ -45,12 +45,18 @@ const PsychoAuditView = (function() {
         render();
     }
 
+    function setTextAnswer(questionId, text) {
+        PaState.setTextAnswer(questionId, text);
+        // Do NOT re-render here - it would reset cursor position in textarea
+    }
+
     async function analyze() {
         var score = PaState.calculateScore();
         var audit = {
             date: new Date().toISOString(),
             score: score,
-            answers: Object.assign({}, PaState.getAnswers())
+            answers: Object.assign({}, PaState.getAnswers()),
+            textResponses: Object.assign({}, PaState.getTextResponses())
         };
 
         // Save to API (includes XP reward)
@@ -92,6 +98,7 @@ const PsychoAuditView = (function() {
         refresh: refresh,
         render: render,
         setAnswer: setAnswer,
+        setTextAnswer: setTextAnswer,
         analyze: analyze,
         reset: reset
     };

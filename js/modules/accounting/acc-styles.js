@@ -22,7 +22,7 @@ const AccStyles = (function() {
 
         /* ========== CONTENEUR PRINCIPAL ========== */
         '#view-accounting { padding: 0; height: 100%; display: flex; flex-direction: column; }' +
-        '.acc-wrapper { display: flex; flex-direction: column; height: 100%; overflow: hidden; }' +
+        '.acc-wrapper { display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }' +
 
         /* ========== EN-TETE ========== */
         '.acc-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; border-bottom: 1px solid var(--border-color, #e0e0e0); background: var(--bg-primary, #ffffff); flex-shrink: 0; }' +
@@ -195,7 +195,7 @@ const AccStyles = (function() {
         '.acc-contact-company { font-size: 0.85rem; color: var(--text-secondary, #666); margin-bottom: 8px; }' +
         '.acc-contact-email { font-size: 0.8rem; color: var(--accent-primary, #6c5ce7); }' +
         '.acc-contact-meta { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-color, #f0f0f0); font-size: 0.8rem; color: var(--text-secondary, #666); }' +
-        '.acc-contact-detail { position: fixed; top: 0; right: -420px; width: 420px; height: 100vh; background: var(--bg-primary, #fff); box-shadow: -4px 0 24px rgba(0,0,0,0.15); z-index: 1000; transition: right 0.3s ease; overflow-y: auto; }' +
+        '.acc-contact-detail { position: absolute; top: 0; right: -420px; width: 420px; height: 100%; background: var(--bg-primary, #fff); box-shadow: -4px 0 24px rgba(0,0,0,0.15); z-index: 100; transition: right 0.3s ease; overflow-y: auto; }' +
         '.acc-contact-detail.open { right: 0; }' +
         '.acc-contact-detail-header { padding: 20px; border-bottom: 1px solid var(--border-color, #e0e0e0); display: flex; align-items: center; justify-content: space-between; }' +
         '.acc-contact-detail-body { padding: 20px; }' +
@@ -216,7 +216,7 @@ const AccStyles = (function() {
         '.acc-alert-actions { display: flex; gap: 6px; flex-shrink: 0; }' +
 
         /* ========== MODALES ========== */
-        '.acc-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }' +
+        '.acc-modal-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }' +
         '.acc-modal-overlay.open { opacity: 1; visibility: visible; }' +
         '.acc-modal { background: var(--bg-primary, #fff); border-radius: 16px; width: 90%; max-width: 640px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s ease; }' +
         '.acc-modal-overlay.open .acc-modal { transform: translateY(0); }' +

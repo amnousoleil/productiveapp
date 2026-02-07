@@ -74,6 +74,13 @@ const AccountingView = (function() {
             icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
             render: renderContacts,
             load: loadContacts
+        },
+        {
+            id: 'recurring',
+            label: 'Recurrentes',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,4 23,10 17,10"/><polyline points="1,20 1,14 7,14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>',
+            render: renderRecurring,
+            load: loadRecurring
         }
     ];
 
@@ -273,6 +280,10 @@ const AccountingView = (function() {
         // Post-render hooks (graphiques par ex.)
         if (tab.id === 'dashboard') {
             initDashboardCharts();
+        }
+        if (tab.id === 'recurring' && typeof AccRecurring !== 'undefined') {
+            var rc = document.getElementById('acc-recurring-container');
+            if (rc) AccRecurring.render(rc);
         }
     }
 
@@ -1134,6 +1145,18 @@ const AccountingView = (function() {
 
         html += renderPagination(state.pagination);
         return html;
+    }
+
+    // =====================================================
+    // ONGLET RECURRENTES (delegation vers AccRecurring)
+    // =====================================================
+
+    function loadRecurring() {
+        return Promise.resolve();
+    }
+
+    function renderRecurring() {
+        return '<div id="acc-recurring-container" style="padding:0"></div>';
     }
 
     // =====================================================

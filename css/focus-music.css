@@ -1,0 +1,134 @@
+/* ================================================
+   FOCUS MUSIC + SCRATCH PAD - ProductiveApp
+   ================================================ */
+
+/* Focus Music Player */
+.focus-music-pill {
+    position: fixed; bottom: 24px; left: 250px; z-index: 9997;
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 50px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    backdrop-filter: blur(12px); cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.85;
+}
+.focus-music-pill:hover { opacity: 1; border-color: var(--accent); }
+.focus-music-pill.playing { border-color: var(--accent); opacity: 1; }
+.focus-music-pill.playing .focus-music-bars { opacity: 1; }
+.focus-music-icon { width: 20px; height: 20px; color: var(--accent); flex-shrink: 0; }
+.focus-music-bars {
+    display: flex; align-items: flex-end; gap: 2px; height: 16px; opacity: 0.4;
+    transition: opacity 0.3s;
+}
+.focus-music-bar {
+    width: 3px; background: var(--accent); border-radius: 1px;
+    animation: none;
+}
+.focus-music-pill.playing .focus-music-bar { animation: focusMusicBounce 0.6s ease-in-out infinite alternate; }
+.focus-music-bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.focus-music-bar:nth-child(2) { height: 70%; animation-delay: 0.15s; }
+.focus-music-bar:nth-child(3) { height: 50%; animation-delay: 0.3s; }
+.focus-music-bar:nth-child(4) { height: 80%; animation-delay: 0.1s; }
+@keyframes focusMusicBounce { 0% { height: 30%; } 100% { height: 100%; } }
+.focus-music-label { font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; }
+
+/* Focus Music Panel */
+.focus-music-panel {
+    position: fixed; bottom: 70px; left: 250px; z-index: 9998;
+    width: 280px; background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-xl, 16px); box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    backdrop-filter: blur(16px); overflow: hidden;
+    transform: translateY(10px); opacity: 0; visibility: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.focus-music-panel.open { transform: translateY(0); opacity: 1; visibility: visible; }
+.focus-music-panel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+.focus-music-sounds { padding: 8px; display: flex; flex-direction: column; gap: 2px; max-height: 260px; overflow-y: auto; }
+.focus-music-sound {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: var(--radius-md, 8px); cursor: pointer;
+    transition: background 0.15s;
+}
+.focus-music-sound:hover { background: var(--bg-secondary); }
+.focus-music-sound.active { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+.focus-music-sound-icon { font-size: 1.2rem; flex-shrink: 0; }
+.focus-music-sound-info { flex: 1; }
+.focus-music-sound-name { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+.focus-music-sound-desc { font-size: 0.7rem; color: var(--text-secondary); }
+
+.focus-music-volume { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.focus-music-volume-label { font-size: 0.7rem; color: var(--text-secondary); }
+.focus-music-volume input[type="range"] {
+    flex: 1; height: 4px; -webkit-appearance: none; background: var(--border);
+    border-radius: 2px; outline: none;
+}
+.focus-music-volume input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); cursor: pointer;
+}
+
+body.zen-mode .focus-music-pill { left: 24px; }
+body.zen-mode .focus-music-panel { left: 24px; }
+
+/* ================================================
+   SCRATCH PAD (Quick Capture)
+   ================================================ */
+.scratch-pad-btn {
+    position: fixed; bottom: 160px; right: 24px; z-index: 9996;
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--bg-card); border: 1px solid var(--border);
+    color: var(--text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transition: all 0.2s;
+}
+.scratch-pad-btn:hover { border-color: var(--accent); color: var(--accent); }
+.scratch-pad-btn svg { width: 20px; height: 20px; }
+
+.scratch-pad-panel {
+    position: fixed; bottom: 80px; right: 24px; z-index: 9997;
+    width: 320px; max-height: 400px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-xl, 16px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    backdrop-filter: blur(16px); overflow: hidden;
+    transform: translateY(10px) scale(0.95); opacity: 0; visibility: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.scratch-pad-panel.open { transform: translateY(0) scale(1); opacity: 1; visibility: visible; }
+.scratch-pad-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+}
+.scratch-pad-title { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); }
+.scratch-pad-actions { display: flex; gap: 6px; }
+.scratch-pad-action-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: none;
+    background: transparent; color: var(--text-secondary); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; font-size: 0.8rem;
+}
+.scratch-pad-action-btn:hover { background: var(--bg-secondary); color: var(--accent); }
+.scratch-pad-textarea {
+    width: 100%; min-height: 200px; padding: 16px;
+    border: none; background: transparent;
+    color: var(--text-primary); font-size: 0.85rem; resize: none;
+    font-family: inherit; line-height: 1.6;
+}
+.scratch-pad-textarea:focus { outline: none; }
+.scratch-pad-textarea::placeholder { color: var(--text-secondary); opacity: 0.6; }
+.scratch-pad-footer {
+    padding: 8px 16px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+}
+.scratch-pad-footer-text { font-size: 0.7rem; color: var(--text-secondary); }
+.scratch-pad-save-btn {
+    padding: 6px 12px; border-radius: var(--radius-md, 8px);
+    background: var(--accent); color: #fff; border: none;
+    font-size: 0.75rem; font-weight: 600; cursor: pointer;
+}
+.scratch-pad-save-btn:hover { opacity: 0.85; }
+
+body.zen-mode .scratch-pad-btn,
+body.zen-mode .scratch-pad-panel { display: none; }
