@@ -155,6 +155,230 @@ const SettingsActions = (function() {
         showToast('Animation: ' + presetKey);
     }
 
+    // ===== Avatar Upload + Crop =====
+    var cropState = { img: null, scale: 1, offsetX: 0, offsetY: 0, dragging: false, lastX: 0, lastY: 0, canvas: null, ctx: null };
+
+    function openAvatarUpload() {
+        var input = document.getElementById('avatar-file-input');
+        if (input) input.click();
+    }
+
+    function handleAvatarFile(event) {
+        var file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) { showToast('Fichier non supporte', 'error'); return; }
+        if (file.size > 10 * 1024 * 1024) { showToast('Image trop lourde (max 10 Mo)', 'error'); return; }
+        var reader = new FileReader();
+        reader.onload = function(e) { openCropModal(e.target.result); };
+        reader.readAsDataURL(file);
+        event.target.value = '';
+    }
+
+    function openCropModal(dataUrl) {
+        var existing = document.getElementById('avatar-crop-modal');
+        if (existing) existing.remove();
+
+        var modal = document.createElement('div');
+        modal.id = 'avatar-crop-modal';
+        modal.className = 'avatar-crop-modal';
+        modal.innerHTML =
+            '<div class="avatar-crop-content">' +
+                '<h3>Recadrer la photo</h3>' +
+                '<div class="avatar-crop-canvas-wrap" id="crop-canvas-wrap">' +
+                    '<canvas id="crop-canvas" width="300" height="300"></canvas>' +
+                '</div>' +
+                '<p class="avatar-crop-hint">Glissez pour positionner, molette pour zoomer</p>' +
+                '<div class="avatar-crop-actions">' +
+                    '<button class="crop-cancel" onclick="SettingsActions.closeCropModal()">Annuler</button>' +
+                    '<button class="crop-confirm" onclick="SettingsActions.cropAndUpload()">Confirmer</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(modal);
+
+        var img = new Image();
+        img.onload = function() {
+            cropState.img = img;
+            var size = 300;
+            var ratio = Math.max(size / img.width, size / img.height);
+            cropState.scale = ratio;
+            cropState.offsetX = (size - img.width * ratio) / 2;
+            cropState.offsetY = (size - img.height * ratio) / 2;
+            cropState.canvas = document.getElementById('crop-canvas');
+            cropState.ctx = cropState.canvas.getContext('2d');
+            drawCrop();
+            bindCropEvents();
+        };
+        img.src = dataUrl;
+
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeCropModal();
+        });
+    }
+
+    function drawCrop() {
+        var ctx = cropState.ctx;
+        var size = 300;
+        if (!ctx || !cropState.img) return;
+
+        ctx.clearRect(0, 0, size, size);
+        ctx.drawImage(cropState.img, cropState.offsetX, cropState.offsetY,
+            cropState.img.width * cropState.scale, cropState.img.height * cropState.scale);
+
+        // Circular mask overlay
+        ctx.save();
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.fillRect(0, 0, size, size);
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2 - 10, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        // Circle border
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2 - 10, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(139, 92, 246, 0.6)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+
+    function bindCropEvents() {
+        var wrap = document.getElementById('crop-canvas-wrap');
+        if (!wrap) return;
+
+        wrap.addEventListener('mousedown', function(e) {
+            cropState.dragging = true;
+            cropState.lastX = e.clientX;
+            cropState.lastY = e.clientY;
+        });
+        wrap.addEventListener('touchstart', function(e) {
+            cropState.dragging = true;
+            cropState.lastX = e.touches[0].clientX;
+            cropState.lastY = e.touches[0].clientY;
+            e.preventDefault();
+        }, { passive: false });
+
+        document.addEventListener('mousemove', cropMove);
+        document.addEventListener('touchmove', cropTouchMove, { passive: false });
+        document.addEventListener('mouseup', cropEnd);
+        document.addEventListener('touchend', cropEnd);
+
+        wrap.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            var delta = e.deltaY > 0 ? -0.05 : 0.05;
+            var newScale = Math.max(0.3, Math.min(5, cropState.scale + delta));
+            var cx = 150, cy = 150;
+            cropState.offsetX = cx - (cx - cropState.offsetX) * (newScale / cropState.scale);
+            cropState.offsetY = cy - (cy - cropState.offsetY) * (newScale / cropState.scale);
+            cropState.scale = newScale;
+            drawCrop();
+        }, { passive: false });
+    }
+
+    function cropMove(e) {
+        if (!cropState.dragging) return;
+        cropState.offsetX += e.clientX - cropState.lastX;
+        cropState.offsetY += e.clientY - cropState.lastY;
+        cropState.lastX = e.clientX;
+        cropState.lastY = e.clientY;
+        drawCrop();
+    }
+    function cropTouchMove(e) {
+        if (!cropState.dragging) return;
+        e.preventDefault();
+        cropState.offsetX += e.touches[0].clientX - cropState.lastX;
+        cropState.offsetY += e.touches[0].clientY - cropState.lastY;
+        cropState.lastX = e.touches[0].clientX;
+        cropState.lastY = e.touches[0].clientY;
+        drawCrop();
+    }
+    function cropEnd() { cropState.dragging = false; }
+
+    function closeCropModal() {
+        var modal = document.getElementById('avatar-crop-modal');
+        if (modal) modal.remove();
+        document.removeEventListener('mousemove', cropMove);
+        document.removeEventListener('touchmove', cropTouchMove);
+        document.removeEventListener('mouseup', cropEnd);
+        document.removeEventListener('touchend', cropEnd);
+        cropState.img = null;
+        cropState.canvas = null;
+        cropState.ctx = null;
+    }
+
+    async function cropAndUpload() {
+        if (!cropState.img || !cropState.canvas) return;
+        var confirmBtn = document.querySelector('.crop-confirm');
+        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = '...'; }
+
+        try {
+            // Extract crop region (circle area = center 280x280 of the 300x300 canvas)
+            var outSize = 200;
+            var cropRadius = 140; // 300/2 - 10
+            var offscreen = document.createElement('canvas');
+            offscreen.width = outSize;
+            offscreen.height = outSize;
+            var octx = offscreen.getContext('2d');
+
+            // Draw image at same transform but offset to match crop circle
+            var scaleRatio = outSize / (cropRadius * 2);
+            var sx = cropState.offsetX - (150 - cropRadius);
+            var sy = cropState.offsetY - (150 - cropRadius);
+            octx.drawImage(cropState.img, sx * scaleRatio, sy * scaleRatio,
+                cropState.img.width * cropState.scale * scaleRatio,
+                cropState.img.height * cropState.scale * scaleRatio);
+
+            // Clip to circle
+            octx.globalCompositeOperation = 'destination-in';
+            octx.beginPath();
+            octx.arc(outSize / 2, outSize / 2, outSize / 2, 0, Math.PI * 2);
+            octx.fill();
+
+            var blob = await new Promise(function(resolve) {
+                offscreen.toBlob(resolve, 'image/png');
+            });
+
+            // Upload to existing endpoint
+            var formData = new FormData();
+            formData.append('file', blob, 'avatar.png');
+            var token = typeof ApiTokens !== 'undefined' ? ApiTokens.getAccessToken() : null;
+            var headers = {};
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            var wsId = typeof ApiTokens !== 'undefined' ? ApiTokens.getWorkspaceId() : null;
+            if (wsId) headers['x-workspace-id'] = wsId;
+
+            var uploadResp = await fetch('/api/v1/uploads/message', { method: 'POST', headers: headers, body: formData });
+            var uploadData = await uploadResp.json();
+            var avatarUrl = uploadData.data ? uploadData.data.url : (uploadData.url || null);
+            if (!avatarUrl) throw new Error('Upload echoue');
+
+            // Update user profile in backend
+            await ApiFetch.fetchWithAuth('/users/me', { method: 'PUT', body: JSON.stringify({ avatar_url: avatarUrl }) });
+
+            // Update frontend state
+            if (typeof AppState !== 'undefined' && AppState.currentUser) {
+                AppState.currentUser.avatar = avatarUrl;
+                AppState.currentUser.avatar_url = avatarUrl;
+            }
+            var memberId = localStorage.getItem('selectedMemberId');
+            if (typeof AppConfig !== 'undefined' && memberId) {
+                var configUser = AppConfig.USERS.find(function(u) { return u.id === memberId; });
+                if (configUser) configUser.avatar = avatarUrl;
+            }
+
+            closeCropModal();
+            showToast('Photo de profil mise a jour');
+
+            // Re-render affected components
+            if (typeof SettingsView !== 'undefined') SettingsView.render();
+            if (typeof Sidebar !== 'undefined' && Sidebar.render) Sidebar.render();
+        } catch (e) {
+            console.error('Avatar upload error:', e);
+            showToast('Erreur lors de l\'upload: ' + (e.message || 'inconnue'), 'error');
+            if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = 'Confirmer'; }
+        }
+    }
+
     return {
         saveNotificationSettings: saveNotificationSettings,
         toggleSidebarCompact: toggleSidebarCompact,
@@ -168,7 +392,11 @@ const SettingsActions = (function() {
         saveWorkspace: saveWorkspace,
         setWorkspaceIcon: setWorkspaceIcon,
         setAnimIntensity: setAnimIntensity,
-        setAnimPreset: setAnimPreset
+        setAnimPreset: setAnimPreset,
+        openAvatarUpload: openAvatarUpload,
+        handleAvatarFile: handleAvatarFile,
+        closeCropModal: closeCropModal,
+        cropAndUpload: cropAndUpload
     };
 })();
 

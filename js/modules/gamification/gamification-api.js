@@ -28,7 +28,6 @@ const GamificationAPI = (function() {
 
         try {
             const response = await ApiFetch.fetchWithAuth(`${basePath}/stats`);
-            console.log('📊 Gamification stats raw:', response);
 
             // Map backend stats to frontend profile format
             const stats = response.data?.stats || response.stats || response;
@@ -62,7 +61,6 @@ const GamificationAPI = (function() {
 
         try {
             const response = await ApiFetch.fetchWithAuth(`${basePath}/achievements`);
-            console.log('🏆 Achievements raw:', response);
 
             const achievements = response.data?.achievements || response.achievements || [];
 
@@ -95,7 +93,6 @@ const GamificationAPI = (function() {
 
         try {
             const response = await ApiFetch.fetchWithAuth(`${basePath}/streaks`);
-            console.log('🔥 Streaks raw:', response);
 
             const streaks = response.data?.streaks || response.streaks || [];
 
@@ -127,7 +124,6 @@ const GamificationAPI = (function() {
 
         try {
             const response = await ApiFetch.fetchWithAuth(`${basePath}/leaderboard`);
-            console.log('🏅 Leaderboard raw:', response);
 
             const leaderboard = response.data?.leaderboard || response.leaderboard || [];
 
@@ -192,7 +188,6 @@ const GamificationAPI = (function() {
                     metadata: metadata
                 })
             });
-            console.log('✨ XP recorded:', response);
 
             // Map response to expected format
             const data = response.data || response;

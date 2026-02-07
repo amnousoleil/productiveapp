@@ -648,23 +648,27 @@
    ============================================= */
 
 /* === MODAL OVERLAY (shared by all modals) === */
-/* CRITICAL: .modal.hidden must hide the modal */
-.modal.hidden {
-    display: none !important;
-}
-
+/* Modals: hidden by default, shown only when .hidden is removed */
 .modal {
+    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    display: flex;
     align-items: center;
     justify-content: center;
     z-index: 5000;
     padding: 20px;
+}
+
+.modal:not(.hidden) {
+    display: flex !important;
     animation: modalOverlayIn 0.35s ease forwards;
+}
+
+.modal.hidden {
+    display: none !important;
 }
 
 @keyframes modalOverlayIn {

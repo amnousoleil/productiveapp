@@ -24,10 +24,13 @@
     display: none !important;
     height: 100vh;
     min-height: 100vh;
-    width: 100%;
+    width: auto;
     max-width: none !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin-top: 0;
+    margin-right: 0;
+    margin-bottom: 0;
+    /* margin-left is set by sidebar CSS rules */
     background: linear-gradient(135deg,
         rgba(15, 15, 25, 0.98) 0%,
         rgba(20, 20, 35, 0.95) 50%,
@@ -84,28 +87,39 @@
     z-index: 10;
 }
 
+.campaigns-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.campaigns-header-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(212, 165, 116, 0.2) 0%, rgba(124, 159, 255, 0.15) 100%);
+    border-radius: 12px;
+    color: var(--camp-gold);
+    box-shadow: 0 0 20px rgba(212, 165, 116, 0.15);
+}
+
 .campaigns-header h1 {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--camp-gold) 0%, var(--camp-gold-light) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    line-height: 1.2;
 }
 
-.campaigns-header h1::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: var(--camp-gold);
-    border-radius: 50%;
-    box-shadow: 0 0 12px var(--camp-gold-glow);
-    animation: campaignPulse 2s ease-in-out infinite;
+.campaigns-subtitle {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 2px 0 0 0;
 }
 
 @keyframes campaignPulse {
@@ -163,6 +177,16 @@
     background: rgba(212, 165, 116, 0.3);
 }
 
+.campaigns-tab svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.campaigns-tab.active svg {
+    opacity: 1;
+    color: var(--camp-gold);
+}
+
 /* ==================== CONTENT AREA ==================== */
 
 .campaigns-content {
@@ -175,23 +199,21 @@
 }
 
 .campaigns-panel {
-    display: none;
+    display: none !important;
     width: 100%;
     height: 100%;
     overflow: auto;
 }
 
 .campaigns-panel.active {
-    display: flex;
+    display: flex !important;
 }
 
 /* ==================== CONTACTS PANEL ==================== */
 
-.contacts-panel {
-    display: flex;
+.contacts-panel.active {
+    flex-direction: row;
     gap: 0;
-    width: 100%;
-    height: 100%;
 }
 
 .contacts-sidebar {
@@ -385,13 +407,10 @@
 
 /* ==================== TEMPLATES PANEL ==================== */
 
-.templates-panel {
-    display: flex;
+.templates-panel.active {
     flex-direction: column;
     padding: 24px 32px;
     gap: 24px;
-    width: 100%;
-    height: 100%;
     overflow-y: auto;
 }
 
@@ -484,12 +503,10 @@
 
 /* ==================== CAMPAIGNS LIST PANEL ==================== */
 
-.campaigns-list-panel {
+.campaigns-list-panel.active {
     flex-direction: column;
     padding: 24px 32px;
     gap: 24px;
-    width: 100%;
-    height: 100%;
     overflow-y: auto;
 }
 
@@ -612,9 +629,8 @@
 
 /* ==================== COMPOSER PANEL ==================== */
 
-.composer-panel {
-    display: flex;
-    height: 100%;
+.composer-panel.active {
+    flex-direction: row;
 }
 
 .composer-sidebar {
@@ -1032,6 +1048,11 @@
     font-size: 4rem;
     margin-bottom: 20px;
     opacity: 0.3;
+    color: var(--camp-gold);
+}
+
+.campaigns-empty-icon svg {
+    opacity: 0.6;
 }
 
 .campaigns-empty h3 {

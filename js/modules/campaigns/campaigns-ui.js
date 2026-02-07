@@ -12,7 +12,12 @@ const CampaignsUI = (function() {
         if (!contacts || contacts.length === 0) {
             return `
                 <div class="campaigns-empty">
-                    <div class="campaigns-empty-icon">&#128101;</div>
+                    <div class="campaigns-empty-icon">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                            <line x1="19" y1="8" x2="19" y2="14"/><line x1="16" y1="11" x2="22" y2="11"/>
+                        </svg>
+                    </div>
                     <h3>Aucun contact</h3>
                     <p>Ajoutez des contacts pour commencer vos campagnes</p>
                     <button class="btn-campaign btn-campaign-primary" onclick="CampaignsContacts.showAddModal()">
@@ -47,9 +52,13 @@ const CampaignsUI = (function() {
         if (!contact) {
             return `
                 <div class="campaigns-empty">
-                    <div class="campaigns-empty-icon">&#128100;</div>
-                    <h3>Aucun contact sélectionné</h3>
-                    <p>Sélectionnez un contact dans la liste</p>
+                    <div class="campaigns-empty-icon">
+                        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                        </svg>
+                    </div>
+                    <h3>Aucun contact selectionne</h3>
+                    <p>Selectionnez un contact dans la liste</p>
                 </div>
             `;
         }
@@ -183,9 +192,14 @@ const CampaignsUI = (function() {
             return `
                 <div class="campaigns-table-container">
                     <div class="campaigns-empty">
-                        <div class="campaigns-empty-icon">&#128231;</div>
+                        <div class="campaigns-empty-icon">
+                            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                            </svg>
+                        </div>
                         <h3>Aucune campagne</h3>
-                        <p>Créez votre première campagne email</p>
+                        <p>Creez votre premiere campagne email</p>
                     </div>
                 </div>
             `;

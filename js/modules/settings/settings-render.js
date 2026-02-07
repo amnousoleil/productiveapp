@@ -5,12 +5,36 @@
 const SettingsRender = (function() {
     'use strict';
 
+    function isImageAvatar(val) {
+        return val && (val.indexOf('http') === 0 || val.indexOf('/uploads') === 0);
+    }
+
+    function getAvatarUrl(user) {
+        if (user.avatar_url && isImageAvatar(user.avatar_url)) return user.avatar_url;
+        if (user.avatar && isImageAvatar(user.avatar)) return user.avatar;
+        if (user.loginImg && isImageAvatar(user.loginImg)) return user.loginImg;
+        return null;
+    }
+
     function renderProfile(user, icons) {
+        var imgUrl = getAvatarUrl(user);
+        var avatarInner = imgUrl
+            ? '<img src="' + imgUrl + '" alt="Avatar">'
+            : '<div class="settings-avatar-emoji-inner">' + (user.avatar || '\uD83D\uDC64') + '</div>';
+
+        var cameraIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+            '<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>' +
+            '<circle cx="12" cy="13" r="4"/></svg>';
+
         return '<section class="settings-section">' +
             '<h2 class="settings-section-title">' + icons.user + '<span>Profil</span></h2>' +
             '<div class="settings-card">' +
                 '<div class="settings-profile">' +
-                    '<div class="settings-avatar" id="profile-avatar">' + (user.avatar || '👤') + '</div>' +
+                    '<div class="settings-avatar-upload-area" id="profile-avatar" onclick="SettingsView.openAvatarUpload()" title="Changer la photo">' +
+                        avatarInner +
+                        '<div class="settings-avatar-overlay">' + cameraIcon + '<span>Modifier</span></div>' +
+                    '</div>' +
+                    '<input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="SettingsView.handleAvatarFile(event)">' +
                     '<div class="settings-profile-info">' +
                         '<input type="text" id="profile-name" class="settings-input-inline" value="' + (user.name || '') + '" placeholder="Votre nom">' +
                         '<p>' + (user.email || 'user@example.com') + '</p>' +
@@ -174,7 +198,35 @@ const SettingsRender = (function() {
     }
 
     function renderTeam() {
+        var plan = 'free';
+        if (typeof AppState !== 'undefined' && AppState.currentUser) {
+            plan = AppState.currentUser.plan || 'free';
+        }
+        if (plan === 'free') {
+            return renderTeamUpgradeCTA();
+        }
         return typeof SettingsTeam !== 'undefined' ? SettingsTeam.render() : '';
+    }
+
+    function renderTeamUpgradeCTA() {
+        var usersIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;vertical-align:middle;">' +
+            '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>' +
+            '<path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>';
+        return '<section class="settings-section">' +
+            '<h2 class="settings-section-title">' + usersIcon + '<span>Equipe</span></h2>' +
+            '<div class="settings-card">' +
+                '<div class="team-upgrade-card">' +
+                    '<div class="team-upgrade-icon">\uD83D\uDC65</div>' +
+                    '<h3 class="team-upgrade-title">Collaborez en equipe</h3>' +
+                    '<p class="team-upgrade-desc">Passez a un plan Pro ou Enterprise pour inviter des membres et travailler ensemble.</p>' +
+                    '<div class="team-plans-grid">' +
+                        '<div class="team-plan-card"><div class="plan-name">Pro</div><div class="plan-limit">Jusqu\'a 5 membres</div></div>' +
+                        '<div class="team-plan-card"><div class="plan-name">Enterprise</div><div class="plan-limit">Jusqu\'a 15 membres</div></div>' +
+                    '</div>' +
+                    '<button class="settings-btn primary" onclick="if(typeof ViewRouter!==\'undefined\') ViewRouter.navigate(\'plans\');">Voir les plans</button>' +
+                '</div>' +
+            '</div>' +
+        '</section>';
     }
 
     function renderAnimations(icons) {

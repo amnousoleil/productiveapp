@@ -69,9 +69,10 @@ const CampaignsModule = (function() {
             return;
         }
 
-        // Hide other views
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        view.classList.add('active');
+        // Router already manages view visibility - just ensure active
+        if (!view.classList.contains('active')) {
+            view.classList.add('active');
+        }
 
         // Initialize view if empty
         if (!view.querySelector('.campaigns-header')) {
@@ -86,19 +87,38 @@ const CampaignsModule = (function() {
     function renderMainStructure(container) {
         container.innerHTML = `
             <div class="campaigns-header">
-                <h1>Email Campaigns</h1>
+                <div class="campaigns-header-left">
+                    <div class="campaigns-header-icon">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="2" y="4" width="20" height="16" rx="2"/>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1>Campagnes Email</h1>
+                        <p class="campaigns-subtitle">Contacts, templates et envoi de campagnes</p>
+                    </div>
+                </div>
+                <button class="btn-campaign btn-campaign-primary" onclick="CampaignsComposer.showComposer()">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Nouvelle campagne
+                </button>
             </div>
             <div class="campaigns-tabs">
                 <button class="campaigns-tab active" data-tab="contacts">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                     Contacts <span class="tab-count" id="contacts-count">0</span>
                 </button>
                 <button class="campaigns-tab" data-tab="templates">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     Templates <span class="tab-count" id="templates-count">0</span>
                 </button>
                 <button class="campaigns-tab" data-tab="campaigns">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                     Campagnes <span class="tab-count" id="campaigns-count">0</span>
                 </button>
                 <button class="campaigns-tab" data-tab="composer">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     Composer
                 </button>
             </div>

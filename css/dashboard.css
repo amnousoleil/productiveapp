@@ -320,3 +320,224 @@
     height: 10px;
     border-radius: 3px;
 }
+
+/* === API WIDGETS === */
+.dashboard-api-widgets {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.api-widget {
+    flex: 1;
+    min-width: 200px;
+    background: var(--bg-secondary, #12121a);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.api-widget-icon {
+    font-size: 28px;
+}
+
+.api-widget-content {
+    flex: 1;
+}
+
+.api-widget-title {
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    margin-bottom: 6px;
+}
+
+.api-widget-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text, #fafafa);
+}
+
+.api-widget-label {
+    font-size: 12px;
+    color: var(--text-muted, #71717a);
+}
+
+.api-widget-detail {
+    font-size: 11px;
+    color: var(--text-muted, #71717a);
+    margin-top: 4px;
+}
+
+.api-widget-progress {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.api-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6, #6366f1);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.xp-widget .api-progress-bar {
+    background: linear-gradient(90deg, #f59e0b, #eab308);
+}
+
+.streak-widget {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.05));
+}
+
+.prod-widget .api-progress-bar {
+    background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+/* === DASH CHARTS === */
+.dash-charts-section {
+    margin-top: 24px;
+}
+
+.dash-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.dash-chart-card {
+    background: var(--surface, #12121a);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.dash-chart-wide {
+    grid-column: span 2;
+}
+
+.dash-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.dash-chart-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    margin: 0;
+}
+
+.dash-chart-badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    background: rgba(139, 92, 246, 0.15);
+    color: #a78bfa;
+    border-radius: 20px;
+}
+
+.dash-chart-body {
+    position: relative;
+    height: 180px;
+}
+
+.dash-chart-wide .dash-chart-body {
+    height: 150px;
+}
+
+@media (max-width: 768px) {
+    .dash-charts-grid {
+        grid-template-columns: 1fr;
+    }
+    .dash-chart-wide {
+        grid-column: span 1;
+    }
+}
+
+/* === DASH INSIGHTS === */
+.dash-insights {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.dash-insights::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.dash-insights-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.dash-insights-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5));
+}
+
+.dash-insights-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    letter-spacing: -0.02em;
+}
+
+.dash-insights-content {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-secondary, #a1a1aa);
+    position: relative;
+    z-index: 1;
+}
+
+.dash-insights-content strong {
+    color: var(--primary, #8b5cf6);
+    font-weight: 600;
+}
+
+.dash-insights-content .highlight {
+    color: var(--text, #fafafa);
+    font-weight: 500;
+}
+
+.dash-insights-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-tertiary, #71717a);
+    font-size: 13px;
+}
+
+.dash-insights-loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--primary, #8b5cf6);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

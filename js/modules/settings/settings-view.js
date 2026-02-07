@@ -21,11 +21,9 @@ const SettingsView = (function() {
 
         // Get state
         var user = SettingsState.getCurrentUser();
-        var currentTheme = SettingsState.getCurrentTheme();
         var notifications = SettingsState.getNotificationSettings();
         var sidebarCompact = SettingsState.isSidebarCompact();
         var icons = SettingsState.icons;
-        var themes = SettingsState.themes;
         var version = SettingsState.CONFIG.version;
 
         // Render header
@@ -42,7 +40,6 @@ const SettingsView = (function() {
         // Render all sections
         var sectionsHtml = '<div class="settings-grid">' +
             SettingsRender.renderProfile(user, icons) +
-            SettingsRender.renderTheme(currentTheme, themes, icons) +
             SettingsRender.renderNotifications(notifications, icons) +
             SettingsRender.renderSidebar(sidebarCompact, icons) +
             SettingsRender.renderAnimations(icons) +
@@ -128,6 +125,20 @@ const SettingsView = (function() {
     }
 
     /**
+     * Open avatar file picker
+     */
+    function openAvatarUpload() {
+        SettingsActions.openAvatarUpload();
+    }
+
+    /**
+     * Handle avatar file selection
+     */
+    function handleAvatarFile(event) {
+        SettingsActions.handleAvatarFile(event);
+    }
+
+    /**
      * Refresh/render the view
      */
     function refresh() {
@@ -155,7 +166,9 @@ const SettingsView = (function() {
         saveWorkspace: saveWorkspace,
         setWorkspaceIcon: setWorkspaceIcon,
         setAnimIntensity: setAnimIntensity,
-        setAnimPreset: setAnimPreset
+        setAnimPreset: setAnimPreset,
+        openAvatarUpload: openAvatarUpload,
+        handleAvatarFile: handleAvatarFile
     };
 })();
 

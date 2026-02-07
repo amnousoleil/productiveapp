@@ -658,19 +658,21 @@ body .bubble.done .bubble-text {
 [data-theme="hacker"] .bubble .edit-btn.has-note::after { color: #00ff00; }
 
 /* === EDIT TASK MODAL - CENTERED OVERLAY === */
-#edit-task-modal.hidden {
-    display: none !important;
-}
+/* ALWAYS hidden by default - only JS can show it via .modal-visible class */
 #edit-task-modal {
+    display: none !important;
     position: fixed !important;
     inset: 0;
     background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
-    display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     padding: 20px;
+}
+/* Only visible when JS explicitly adds modal-visible class */
+#edit-task-modal.modal-visible {
+    display: flex !important;
 }
 /* === MODAL LARGE (task edit, reports) === */
 .modal-box.modal-box-large {
@@ -1933,22 +1935,19 @@ body.logged-in .header-left .galaxy-icon-container {
 /* Ajuster le contenu principal pour la sidebar */
 @media (min-width: 769px) {
     /* Par défaut: sidebar OUVERTE (260px) */
-    body.logged-in .app-container,
-    body.logged-in .view-container {
+    body.logged-in .main-content {
         margin-left: 260px !important;
-        transition: margin-left 0.25s ease;
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Quand sidebar REPLIÉE (64px) */
-    body.logged-in.sidebar-collapsed .app-container,
-    body.logged-in.sidebar-collapsed .view-container {
+    body.logged-in.sidebar-collapsed .main-content {
         margin-left: 64px !important;
     }
 }
 
 @media (max-width: 768px) {
-    body.logged-in .app-container,
-    body.logged-in .view-container {
+    body.logged-in .main-content {
         margin-left: 0 !important;
     }
 }

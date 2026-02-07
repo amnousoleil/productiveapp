@@ -68,15 +68,6 @@ const Tasks = {
             const hasWorkspace = typeof ApiTokens !== 'undefined' && ApiTokens.getWorkspaceId();
             const isAuthenticated = typeof ApiTokens !== 'undefined' && ApiTokens.isAuthenticated();
 
-            // DEBUG: Log auth state
-            console.log('🔍 DEBUG Task Create:', {
-                isApiTasksDefined,
-                hasWorkspace,
-                workspaceId: ApiTokens?.getWorkspaceId?.(),
-                isAuthenticated,
-                hasToken: !!ApiTokens?.getAccessToken?.()
-            });
-
             // Use Express API if we have a workspace (even without token for legacy auth)
             if (isApiTasksDefined && (isAuthenticated || hasWorkspace)) {
                 try {
@@ -95,9 +86,7 @@ const Tasks = {
                     if (assignTo) {
                         createData.assigned_to = assignTo;
                     }
-                    console.log('📤 Sending to Express API:', createData);
                     result = await ApiTasks.create(createData);
-                    console.log('✅ Express API response:', result);
                 } catch (e) {
                     console.error('❌ Express API failed:', e.message, e);
                 }
@@ -212,8 +201,6 @@ const Tasks = {
      * @param {string} action - Action (start, done, reopen, delete)
      */
     async handleAction(taskId, action) {
-        console.log('📋 Tasks.handleAction:', taskId, action);
-
         const task = AppState.findTask(taskId);
         if (!task) {
             console.error('❌ Task not found:', taskId);
@@ -222,8 +209,6 @@ const Tasks = {
 
         // Use Express API if authenticated
         const useExpress = typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated();
-        console.log('📋 useExpress:', useExpress, 'ApiTasks defined:', typeof ApiTasks !== 'undefined', 'isAuthenticated:', ApiTokens.isAuthenticated());
-        const statusMap = { inprogress: 'in_progress', done: 'done', todo: 'todo' };
 
         switch (action) {
             case 'start':
@@ -333,7 +318,9 @@ const Tasks = {
         statusButtons += `<button class="btn-danger modal-action-btn" onclick="Tasks.modalAction('${taskId}', 'delete')">🗑️ Supprimer</button>`;
 
         Utils.$('modal-status-actions').innerHTML = statusButtons;
-        Utils.$('edit-task-modal').classList.remove('hidden');
+        const editModal = Utils.$('edit-task-modal');
+        editModal.classList.remove('hidden');
+        editModal.classList.add('modal-visible');
         Utils.$('edit-task-title').focus();
 
         // Attacher l'événement de correction automatique
@@ -378,7 +365,6 @@ const Tasks = {
      * @param {string} action - Action
      */
     async modalAction(taskId, action) {
-        console.log('📋 Tasks.modalAction:', taskId, action);
         try {
             await this.handleAction(taskId, action);
             this.closeEditModal();
@@ -392,7 +378,10 @@ const Tasks = {
      * Ferme le modal d'édition
      */
     closeEditModal() {
-        Utils.$('edit-task-modal').classList.add('hidden');
+        const editModal = Utils.$('edit-task-modal');
+        editModal.classList.remove('modal-visible');
+        editModal.classList.add('hidden');
+        editModal.style.display = 'none';
         Utils.$('edit-task-id').value = '';
         Utils.$('edit-task-title').value = '';
         Utils.$('edit-task-description').value = '';
@@ -402,16 +391,12 @@ const Tasks = {
      * Sauvegarde les modifications d'une tâche
      */
     async saveEdit() {
-        console.log('📋 Tasks.saveEdit() called');
-
         const taskId = Utils.$('edit-task-id').value;
         const newTitle = Utils.$('edit-task-title').value.trim();
         const newDescription = Utils.$('edit-task-description').value.trim();
         const newProjectId = Utils.$('edit-task-project').value;
         const newPriority = parseInt(Utils.$('edit-task-priority').value);
         const newUserId = Utils.$('edit-task-user').value;
-
-        console.log('📋 saveEdit data:', { taskId, newTitle, newProjectId, newPriority, newUserId });
 
         if (!newTitle) {
             Utils.notify('Le titre ne peut pas être vide', 'warning');
@@ -428,7 +413,6 @@ const Tasks = {
         try {
             // Use Express API if authenticated
             if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
-                console.log('📋 Using Express API (ApiTasks)');
                 const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
                 const updateData = {
                     title: newTitle,
@@ -437,11 +421,8 @@ const Tasks = {
                     priority: priorityMap[newPriority] || 'medium',
                     assigned_to: newUserId
                 };
-                console.log('📋 Update data:', updateData);
                 await ApiTasks.update(taskId, updateData);
-                console.log('✅ API update successful');
             } else {
-                console.log('📋 Using N8N API (ApiService)');
                 await ApiService.updateTaskFull(taskId, {
                     title: newTitle,
                     description: newDescription,
@@ -713,17 +694,12 @@ const Tasks = {
      * Initialise les événements
      */
     initEvents() {
-        console.log('📋 Tasks.initEvents() called');
-
         const addBtn = Utils.$('add-task-btn');
         const taskInput = Utils.$('task-input');
         const cancelEditBtn = Utils.$('cancel-edit-task');
         const confirmEditBtn = Utils.$('confirm-edit-task');
         const editModal = Utils.$('edit-task-modal');
         const reformulateBtn = Utils.$('reformulate-btn');
-
-        console.log('📋 confirmEditBtn found:', !!confirmEditBtn);
-        console.log('📋 editModal found:', !!editModal);
 
         if (addBtn) {
             addBtn.addEventListener('click', () => this.create());

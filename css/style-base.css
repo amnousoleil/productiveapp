@@ -103,10 +103,14 @@ body {
 
 /* === MAIN CONTENT (avec sidebar) === */
 .main-content {
-    margin-left: 60px; /* sidebar collapsed width */
+    margin-left: var(--sb-width-open, 260px);
     min-height: 100vh;
-    transition: margin-left 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: none; /* Hidden until logged in */
+}
+
+body.sidebar-collapsed .main-content {
+    margin-left: var(--sb-width-closed, 64px);
 }
 
 /* Show main content only when logged in */

@@ -24,21 +24,25 @@ const Sidebar = (function() {
 
     // Configuration navigation
     const navItems = [
-        { id: 'dashboard', icon: 'home', label: 'Dashboard', tooltip: 'Tableau de bord' },
+        { id: 'dashboard', icon: 'home', label: 'Tableau de bord', tooltip: 'Accueil' },
         { id: 'tasks', icon: 'check-square', label: 'Tâches', tooltip: 'Gérer les tâches' },
         { id: 'notes', icon: 'file-text', label: 'Notes', tooltip: 'Éditeur de notes' },
         { id: 'projects', icon: 'folder', label: 'Projets', tooltip: 'Vos projets' },
-        { id: 'galaxy', icon: 'sparkles', label: 'Galaxy', tooltip: 'Vue Galaxy' },
+        { id: 'galaxy', icon: 'sparkles', label: 'Galaxie', tooltip: 'Vue galaxie 3D' },
         { id: 'divider1', type: 'divider' },
-        { id: 'mahayawen', icon: 'bot', label: 'Mahayawen', tooltip: 'Assistant IA', badge: true },
-        { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'TeamTalk' },
-        { id: 'campaigns', icon: 'mail', label: 'Campagnes', tooltip: 'Email Campaigns', tag: 'NEW' },
+        { id: 'mahayawen', icon: 'bot', label: 'Assistant IA', tooltip: 'Chatbot intelligent', badge: true },
+        { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'Messagerie d\'équipe' },
+        { id: 'campaigns', icon: 'mail', label: 'Campagnes', tooltip: 'Campagnes email' },
         { id: 'journal', icon: 'book-open', label: 'Journal', tooltip: 'Journal d\'activité' },
         { id: 'divider2', type: 'divider' },
-        { id: 'accounting', icon: 'calculator', label: 'Comptabilité', tooltip: 'Gestion comptable', tag: 'NEW' },
-        { id: 'psycho-audit', icon: 'brain', label: 'Psycho-Audit', tooltip: 'Analyse psycho' },
+        { id: 'teamVision', icon: 'users', label: 'Vision équipe', tooltip: 'Vue d\'ensemble équipe' },
+        { id: 'gamification', icon: 'trophy', label: 'Gamification', tooltip: 'Niveaux et succès' },
+        { id: 'accounting', icon: 'calculator', label: 'Comptabilité', tooltip: 'Gestion comptable' },
+        { id: 'psycho-audit', icon: 'brain', label: 'Psycho-Audit', tooltip: 'Analyse psychologique' },
         { id: 'behavioral', icon: 'activity', label: 'Mon Profil', tooltip: 'Profil comportemental' },
-        { id: 'reports', icon: 'file-bar-chart', label: 'Rapports', tooltip: 'Générer rapports' }
+        { id: 'reports', icon: 'file-bar-chart', label: 'Rapports', tooltip: 'Générer rapports' },
+        { id: 'divider3', type: 'divider' },
+        { id: 'giriVision', icon: 'video', label: 'Giri Vision', tooltip: 'Consultations vidéo', tag: 'NEW' }
     ];
 
     const footerItems = [
@@ -140,7 +144,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);
@@ -170,10 +174,18 @@ const Sidebar = (function() {
                 if (typeof ViewRouter !== 'undefined') ViewRouter.navigate('settings');
                 break;
             case 'theme':
-                document.getElementById('theme-btn')?.click();
+                if (typeof Themes !== 'undefined' && Themes.openThemeModal) {
+                    Themes.openThemeModal();
+                } else {
+                    document.getElementById('theme-btn')?.click();
+                }
                 break;
             case 'logout':
-                if (typeof Auth !== 'undefined') Auth.logout();
+                if (typeof AuthLogin !== 'undefined') {
+                    AuthLogin.logout();
+                } else if (typeof Auth !== 'undefined') {
+                    Auth.logout();
+                }
                 break;
         }
     }

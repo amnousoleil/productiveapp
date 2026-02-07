@@ -38,11 +38,8 @@ const AppConfig = {
     TENANT_ID: 'digitalgiri',
 
     // === AUTHENTIFICATION ÉQUIPE ===
-    // Un seul compte pour toute l'équipe, puis sélection du membre
-    TEAM_AUTH: {
-        email: 'contact@mahagiri.fr',
-        password: '444@'
-    },
+    // Credentials retirées pour sécurité - l'utilisateur saisit manuellement
+    TEAM_AUTH: null,
 
     // === MEMBRES DE L'ÉQUIPE ===
     // Profils disponibles après authentification

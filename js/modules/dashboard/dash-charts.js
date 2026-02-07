@@ -272,18 +272,6 @@ const DashCharts = (function() {
                     </div>
                 </div>
             </div>
-            <style>
-                .dash-charts-section{margin-top:24px}
-                .dash-charts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-                .dash-chart-card{background:var(--surface,#12121a);border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:16px;padding:20px}
-                .dash-chart-wide{grid-column:span 2}
-                .dash-chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-                .dash-chart-header h3{font-size:14px;font-weight:600;color:var(--text,#fafafa);margin:0}
-                .dash-chart-badge{font-size:11px;padding:4px 10px;background:rgba(139,92,246,0.15);color:#a78bfa;border-radius:20px}
-                .dash-chart-body{position:relative;height:180px}
-                .dash-chart-wide .dash-chart-body{height:150px}
-                @media(max-width:768px){.dash-charts-grid{grid-template-columns:1fr}.dash-chart-wide{grid-column:span 1}}
-            </style>
         `;
     }
 

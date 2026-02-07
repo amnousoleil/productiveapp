@@ -486,14 +486,12 @@ body.logged-in .sidebar {
    CONTENT MARGIN (pour le contenu principal)
    ========================================== */
 @media (min-width: 769px) {
-    body.logged-in .app-container,
-    body.logged-in .view-container {
+    body.logged-in .main-content {
         margin-left: var(--sb-width-open);
-        transition: margin-left var(--sb-transition);
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    body.logged-in.sidebar-collapsed .app-container,
-    body.logged-in.sidebar-collapsed .view-container {
+    body.logged-in.sidebar-collapsed .main-content {
         margin-left: var(--sb-width-closed);
     }
 }
@@ -516,8 +514,7 @@ body.logged-in .sidebar {
         display: none;
     }
 
-    body.logged-in .app-container,
-    body.logged-in .view-container {
+    body.logged-in .main-content {
         margin-left: 0 !important;
     }
 

@@ -5,27 +5,6 @@
 const DashInsights = (function() {
     'use strict';
 
-    let styleInjected = false;
-
-    function injectStyles() {
-        if (styleInjected) return;
-        const style = document.createElement('style');
-        style.textContent = `
-            .dash-insights{background:linear-gradient(135deg,rgba(139,92,246,0.12) 0%,rgba(59,130,246,0.08) 100%);border:1px solid rgba(139,92,246,0.25);border-radius:16px;padding:20px 24px;margin-bottom:24px;position:relative;overflow:hidden}
-            .dash-insights::before{content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;background:radial-gradient(circle,rgba(139,92,246,0.1) 0%,transparent 70%);pointer-events:none}
-            .dash-insights-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-            .dash-insights-icon{font-size:24px;filter:drop-shadow(0 0 8px rgba(139,92,246,0.5))}
-            .dash-insights-title{font-size:16px;font-weight:600;color:var(--text,#fafafa);letter-spacing:-0.02em}
-            .dash-insights-content{font-size:14px;line-height:1.7;color:var(--text-secondary,#a1a1aa);position:relative;z-index:1}
-            .dash-insights-content strong{color:var(--primary,#8b5cf6);font-weight:600}
-            .dash-insights-content .highlight{color:var(--text,#fafafa);font-weight:500}
-            .dash-insights-loading{display:flex;align-items:center;gap:8px;color:var(--text-tertiary,#71717a);font-size:13px}
-            .dash-insights-loading::after{content:'';width:16px;height:16px;border:2px solid var(--primary,#8b5cf6);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite}
-            @keyframes spin{to{transform:rotate(360deg)}}
-        `;
-        document.head.appendChild(style);
-        styleInjected = true;
-    }
 
     function analyzeData() {
         const tasks = typeof AppState !== 'undefined' ? AppState.tasks || [] : [];
@@ -100,7 +79,6 @@ const DashInsights = (function() {
     }
 
     function generateInsightText(data) {
-        // TODO: remplacer par appel POST /api/v1/ai/generate
         const parts = [];
 
         if (data.urgentPending > 0) {
@@ -133,7 +111,6 @@ const DashInsights = (function() {
     }
 
     function render() {
-        injectStyles();
         const data = analyzeData();
         const text = generateInsightText(data);
 
@@ -141,7 +118,7 @@ const DashInsights = (function() {
             <div class="dash-insights">
                 <div class="dash-insights-header">
                     <span class="dash-insights-icon">✨</span>
-                    <span class="dash-insights-title">Insights</span>
+                    <span class="dash-insights-title">Analyse rapide</span>
                 </div>
                 <div class="dash-insights-content">${text}</div>
             </div>

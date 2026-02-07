@@ -8,6 +8,27 @@
 const ViewRouter = (function() {
     'use strict';
 
+    // View labels (for dynamic page title)
+    const VIEW_LABELS = {
+        dashboard: 'Tableau de bord',
+        tasks: 'Tâches',
+        projects: 'Projets',
+        notes: 'Notes',
+        galaxy: 'Galaxie',
+        journal: 'Journal',
+        settings: 'Paramètres',
+        analytics: 'Analytique',
+        reports: 'Rapports',
+        accounting: 'Comptabilité',
+        psychoAudit: 'Psycho-Audit',
+        teamMessaging: 'TeamTalk',
+        campaigns: 'Campagnes',
+        gamification: 'Gamification',
+        behavioral: 'Mon Profil',
+        teamVision: 'Vision équipe',
+        giriVision: 'Giri Vision'
+    };
+
     // Available views
     const VIEWS = {
         dashboard: 'view-dashboard',
@@ -25,7 +46,8 @@ const ViewRouter = (function() {
         campaigns: 'view-campaigns',
         gamification: 'view-gamification',
         behavioral: 'view-behavioral',
-        teamVision: 'view-team-vision'
+        teamVision: 'view-team-vision',
+        giriVision: 'view-giri-vision'
     };
 
     let currentView = 'dashboard';
@@ -35,9 +57,8 @@ const ViewRouter = (function() {
      * Navigate to a specific view
      */
     function navigate(viewId) {
-        console.log(`🧭 ViewRouter: navigate('${viewId}') called`);
         if (!VIEWS[viewId]) {
-            console.warn(`ViewRouter: Unknown view "${viewId}"`);
+            console.warn(`ViewRouter: vue inconnue "${viewId}"`);
             return false;
         }
 
@@ -51,18 +72,20 @@ const ViewRouter = (function() {
 
         // Show target view
         const targetView = document.getElementById(VIEWS[viewId]);
-        console.log(`🧭 ViewRouter: Target container '${VIEWS[viewId]}' found:`, !!targetView);
         if (targetView) {
             targetView.classList.add('active');
-            console.log(`🧭 ViewRouter: Added 'active' class to ${VIEWS[viewId]}`);
         } else {
-            console.warn(`🧭 ViewRouter: Container ${VIEWS[viewId]} NOT FOUND!`);
+            console.warn(`ViewRouter: conteneur ${VIEWS[viewId]} introuvable`);
         }
 
         // Update sidebar active state
         if (typeof Sidebar !== 'undefined') {
             Sidebar.setActiveItem(viewId);
         }
+
+        // Update page title
+        const label = VIEW_LABELS[viewId] || viewId;
+        document.title = `${label} - ProductiveApp`;
 
         // Update URL hash
         history.pushState({ view: viewId }, '', `#${viewId}`);
@@ -127,12 +150,8 @@ const ViewRouter = (function() {
                 }
                 break;
             case 'psychoAudit':
-                console.log('🧭 ViewRouter: initializeView psychoAudit - PsychoAuditView exists:', typeof PsychoAuditView !== 'undefined');
                 if (typeof PsychoAuditView !== 'undefined') {
-                    console.log('🧭 ViewRouter: Calling PsychoAuditView.refresh()');
                     PsychoAuditView.refresh();
-                } else {
-                    console.warn('🧭 ViewRouter: PsychoAuditView is NOT defined!');
                 }
                 break;
             case 'teamMessaging':
@@ -158,6 +177,11 @@ const ViewRouter = (function() {
             case 'teamVision':
                 if (typeof TeamVisionView !== 'undefined') {
                     TeamVisionView.refresh();
+                }
+                break;
+            case 'giriVision':
+                if (typeof GiriVisionView !== 'undefined') {
+                    GiriVisionView.refresh();
                 }
                 break;
         }

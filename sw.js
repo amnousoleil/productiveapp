@@ -3,7 +3,7 @@
  * PWA avec cache intelligent - network-first pour CSS/JS
  */
 
-const CACHE_VERSION = 'v10-animation-controls';
+const CACHE_VERSION = 'v14-layout-fix';
 const STATIC_CACHE = 'static-' + CACHE_VERSION;
 const API_CACHE = 'api-' + CACHE_VERSION;
 
@@ -115,6 +115,13 @@ async function cacheFirstStrategy(request) {
   }
 }
 
+// Listen for SKIP_WAITING message from client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Push notifications
 self.addEventListener('push', (event) => {
   if (!event.data) return;
@@ -143,4 +150,4 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-console.log('🚀 ProductiveApp Service Worker v9 loaded - Modal + Layout fixes');
+console.log('🚀 ProductiveApp Service Worker v13 loaded - Cache refresh');

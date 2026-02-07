@@ -110,15 +110,21 @@ const ReportsView = (function() {
                 <!-- Tab: Premium Audit -->
                 <div class="reports-tab-content ${state.activeTab === 'audit' ? 'active' : ''}" id="tab-audit">
                     <div id="reports-audit-container">
-                        <div style="text-align:center; padding:40px 20px;">
-                            <div style="font-size:48px; margin-bottom:16px;">&#128270;</div>
-                            <h3 style="color:var(--text, #fff); margin-bottom:8px;">Audit Psycho-Comportemental</h3>
-                            <p style="color:var(--text-muted, #888); margin-bottom:24px; max-width:500px; margin-left:auto; margin-right:auto;">
-                                Analyse approfondie par IA de vos habitudes de travail, productivite et patterns comportementaux.
-                                6 types de rapports: Executif, Productivite, Habitudes, Projet, Equipe, Complet.
+                        <div class="audit-promo-card">
+                            <div class="audit-promo-icon">&#129504;</div>
+                            <h3 class="audit-promo-title">Psycho-Audit Premium</h3>
+                            <p class="audit-promo-desc">
+                                Analyse approfondie de vos habitudes de travail, productivit\u00e9 et patterns comportementaux.
+                                16 axes d'analyse, 128 questions, th\u00e9rapies guid\u00e9es et programmes personnalis\u00e9s.
                             </p>
-                            <button class="btn btn-primary" id="launch-audit-btn" style="padding:12px 32px; font-size:16px;">
-                                Lancer un audit
+                            <div class="audit-promo-features">
+                                <span>&#127919; 16 axes d'analyse</span>
+                                <span>&#128218; Biblioth\u00e8que d'exercices</span>
+                                <span>&#128197; Programmes 12 semaines</span>
+                                <span>&#128214; Journal de suivi</span>
+                            </div>
+                            <button class="audit-promo-btn" id="launch-audit-btn">
+                                Acc\u00e9der au Psycho-Audit Premium
                             </button>
                         </div>
                     </div>
@@ -186,6 +192,66 @@ const ReportsView = (function() {
             .reports-tab svg { width: 16px; height: 16px; }
             .reports-tab-content { display: none; }
             .reports-tab-content.active { display: block; }
+
+            /* Audit Premium promo card */
+            .audit-promo-card {
+                text-align: center;
+                padding: 48px 24px;
+                max-width: 520px;
+                margin: 0 auto;
+            }
+            .audit-promo-icon {
+                font-size: 56px;
+                margin-bottom: 16px;
+                filter: drop-shadow(0 4px 12px rgba(168, 85, 247, 0.4));
+            }
+            .audit-promo-title {
+                font-size: 22px;
+                font-weight: 700;
+                color: var(--text, #fff);
+                margin-bottom: 12px;
+                background: linear-gradient(135deg, #a78bfa, #f472b6);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            .audit-promo-desc {
+                color: var(--text-muted, #999);
+                font-size: 14px;
+                line-height: 1.6;
+                margin-bottom: 20px;
+            }
+            .audit-promo-features {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+                margin-bottom: 28px;
+            }
+            .audit-promo-features span {
+                background: rgba(167, 139, 250, 0.12);
+                border: 1px solid rgba(167, 139, 250, 0.25);
+                padding: 6px 14px;
+                border-radius: 20px;
+                font-size: 12px;
+                color: #c4b5fd;
+            }
+            .audit-promo-btn {
+                background: linear-gradient(135deg, #7c3aed, #a855f7);
+                color: white;
+                border: none;
+                padding: 14px 36px;
+                border-radius: 12px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.25s ease;
+                box-shadow: 0 4px 16px rgba(124, 58, 237, 0.4);
+            }
+            .audit-promo-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(124, 58, 237, 0.5);
+            }
         `;
         document.head.appendChild(style);
     }
@@ -205,12 +271,10 @@ const ReportsView = (function() {
         document.getElementById('close-detail')?.addEventListener('click', closeDetail);
         document.querySelector('.modal-backdrop')?.addEventListener('click', closeDetail);
 
-        // Audit launch
+        // Audit launch - navigate to Psycho-Audit Premium view
         document.getElementById('launch-audit-btn')?.addEventListener('click', function() {
-            if (typeof ReportCreator !== 'undefined' && ReportCreator.open) {
-                ReportCreator.open();
-            } else {
-                console.warn('ReportCreator not available');
+            if (typeof ViewRouter !== 'undefined') {
+                ViewRouter.navigate('psychoAudit');
             }
         });
     }

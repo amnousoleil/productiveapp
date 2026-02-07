@@ -282,7 +282,7 @@ const ProjectsView = (function() {
         selectedIcon = ICONS[0];
 
         modal.innerHTML = `
-            <div class="modal">
+            <div class="modal-card">
                 <div class="modal-header">
                     <h2>Nouveau projet</h2>
                     <button class="modal-close" onclick="ProjectsView.closeCreateModal()">

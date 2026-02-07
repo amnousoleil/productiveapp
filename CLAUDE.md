@@ -1,11 +1,23 @@
 # 🤖 CLAUDE.md - ProductiveApp Documentation
 
-## ⛔ REGLE CRITIQUE - NE PAS VIOLER
+## ⛔ REGLES CRITIQUES - NE PAS VIOLER
 
+### Mot de passe
 **NE JAMAIS CHANGER LE MOT DE PASSE** de `contact@mahagiri.fr` sans demande EXPLICITE et VALIDEE par l'utilisateur !
 - Mot de passe actuel : `444@`
 - Si l'utilisateur mentionne un probleme de connexion, DEMANDER D'ABORD avant de changer quoi que ce soit
 - Cette regle s'applique a TOUTES les sessions Claude Code
+
+### Coordination Multi-Sessions (OBLIGATOIRE)
+**PLUSIEURS SESSIONS CLAUDE CODE TRAVAILLENT EN PARALLELE sur ce serveur.**
+Une session GARDIEN coordonne toutes les autres. Avant de commencer :
+1. **LIRE** `/root/.claude/projects/-root/memory/coordination.md` - Regles completes
+2. **LIRE** `/root/.claude/projects/-root/memory/sessions-registry.md` - Qui fait quoi
+3. **TOUJOURS relire** un fichier avant de le modifier (une autre session a pu le changer)
+4. **Utiliser `Edit`** (remplacement cible) au lieu de `Write` (ecrasement complet)
+5. **Fichiers proteges** (relire TOUJOURS avant de toucher) : index.html, config.js, app-modular.js, animations.js, style-themes.css, sw.js
+6. **Apres modification** : incrementer cache buster `?v=`, verifier HTTP 200 sur localhost:8080
+7. **Annoncer** a l'utilisateur : "J'ai lu les regles de coordination"
 
 ---
 

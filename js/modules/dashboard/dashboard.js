@@ -69,10 +69,10 @@ const Dashboard = (function() {
         const hours = Math.floor(diff / 3600000);
         const days = Math.floor(diff / 86400000);
 
-        if (mins < 1) return 'now';
-        if (mins < 60) return `${mins}m`;
+        if (mins < 1) return 'maintenant';
+        if (mins < 60) return `${mins}min`;
         if (hours < 24) return `${hours}h`;
-        if (days < 7) return `${days}d`;
+        if (days < 7) return `${days}j`;
         return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
     }
 
@@ -160,30 +160,12 @@ const Dashboard = (function() {
                     </div>
                 </div>
             </div>
-            <style>
-                .dashboard-api-widgets{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
-                .api-widget{flex:1;min-width:200px;background:var(--surface,#12121a);border:1px solid var(--border,rgba(255,255,255,0.08));border-radius:12px;padding:16px;display:flex;gap:12px;align-items:center}
-                .api-widget-icon{font-size:28px}
-                .api-widget-content{flex:1}
-                .api-widget-title{font-weight:600;color:var(--text,#fafafa);margin-bottom:6px}
-                .api-widget-value{font-size:28px;font-weight:700;color:var(--text,#fafafa)}
-                .api-widget-label{font-size:12px;color:var(--text-muted,#71717a)}
-                .api-widget-detail{font-size:11px;color:var(--text-muted,#71717a);margin-top:4px}
-                .api-widget-progress{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:6px}
-                .api-progress-bar{height:100%;background:linear-gradient(90deg,#8b5cf6,#6366f1);border-radius:3px;transition:width 0.3s}
-                .xp-widget .api-progress-bar{background:linear-gradient(90deg,#f59e0b,#eab308)}
-                .streak-widget{background:linear-gradient(135deg,rgba(249,115,22,0.1),rgba(234,88,12,0.05))}
-                .prod-widget .api-progress-bar{background:linear-gradient(90deg,#22c55e,#16a34a)}
-            </style>
         `;
     }
 
     function render() {
         const container = document.getElementById('view-dashboard');
         if (!container) return;
-
-        // Debug: log tasks state
-        console.log('📊 Dashboard render - AppState.tasks:', AppState?.tasks?.length ?? 'undefined', AppState?.tasks);
 
         const stats = getStats();
         const activities = getRecentActivity();
@@ -195,12 +177,12 @@ const Dashboard = (function() {
             <div class="view-header">
                 <h1 class="view-title">
                     <span class="view-title-icon">${icons.home}</span>
-                    Dashboard ${AppState?.currentUser?.name ? 'de ' + escapeHtml(AppState.currentUser.name) : ''}
+                    Tableau de bord ${AppState?.currentUser?.name ? 'de ' + escapeHtml(AppState.currentUser.name) : ''}
                 </h1>
                 <div class="view-actions">
                     <button class="btn btn-secondary" onclick="Dashboard.refresh()">
                         ${icons.refresh}
-                        <span>Refresh</span>
+                        <span>Actualiser</span>
                     </button>
                 </div>
             </div>
@@ -218,21 +200,21 @@ const Dashboard = (function() {
                     <div class="stat-icon projects">📁</div>
                     <div class="stat-content">
                         <h3>${stats.projects}</h3>
-                        <p>Projects</p>
+                        <p>Projets</p>
                     </div>
                 </div>
                 <div class="stat-card" onclick="ViewRouter.navigate('tasks')">
                     <div class="stat-icon tasks">✓</div>
                     <div class="stat-content">
                         <h3>${stats.done}<span style="font-size:16px;color:var(--text-tertiary)">/${stats.tasks}</span></h3>
-                        <p>Completed</p>
+                        <p>Terminées</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon urgent">🔥</div>
                     <div class="stat-content">
                         <h3>${stats.urgent}</h3>
-                        <p>Urgent</p>
+                        <p>Urgentes</p>
                     </div>
                 </div>
             </div>
@@ -248,24 +230,24 @@ const Dashboard = (function() {
                 <!-- Quick Actions -->
                 <div class="dashboard-section">
                     <div class="dashboard-section-header">
-                        <h2 class="dashboard-section-title">⚡ Quick Actions</h2>
+                        <h2 class="dashboard-section-title">Actions rapides</h2>
                     </div>
                     <div class="quick-actions">
                         <div class="quick-action" onclick="NotesModule.createNew(); ViewRouter.navigate('notes');">
                             <div class="quick-action-icon">📝</div>
-                            <span>New Note</span>
+                            <span>Nouvelle note</span>
                         </div>
                         <div class="quick-action" onclick="ProjectsView.openCreateModal()">
                             <div class="quick-action-icon">📁</div>
-                            <span>New Project</span>
+                            <span>Nouveau projet</span>
                         </div>
                         <div class="quick-action" onclick="ViewRouter.navigate('tasks')">
                             <div class="quick-action-icon">✓</div>
-                            <span>Add Task</span>
+                            <span>Ajouter une tâche</span>
                         </div>
-                        <div class="quick-action" onclick="Sidebar.navigate('messaging')">
+                        <div class="quick-action" onclick="Sidebar.navigate('mahayawen')">
                             <div class="quick-action-icon">💬</div>
-                            <span>AI Chat</span>
+                            <span>Assistant IA</span>
                         </div>
                     </div>
                 </div>
@@ -273,7 +255,7 @@ const Dashboard = (function() {
                 <!-- Recent Activity -->
                 <div class="dashboard-section">
                     <div class="dashboard-section-header">
-                        <h2 class="dashboard-section-title">🕒 Recent Activity</h2>
+                        <h2 class="dashboard-section-title">Activité récente</h2>
                     </div>
                     <div class="dashboard-section-content">
                         <div class="activity-list">
@@ -290,8 +272,8 @@ const Dashboard = (function() {
                                 <div class="activity-item">
                                     <div class="activity-icon">👋</div>
                                     <div class="activity-content">
-                                        <strong>Welcome!</strong>
-                                        <p>Start by creating a note or project</p>
+                                        <strong>Bienvenue !</strong>
+                                        <p>Commencez par créer une note ou un projet</p>
                                     </div>
                                 </div>
                             `}
@@ -303,7 +285,7 @@ const Dashboard = (function() {
             <!-- Progress Section -->
             <div class="dashboard-section" style="margin-top: 24px;">
                 <div class="dashboard-section-header">
-                    <h2 class="dashboard-section-title">📊 Tasks Overview</h2>
+                    <h2 class="dashboard-section-title">Vue d'ensemble des tâches</h2>
                 </div>
                 <div class="progress-section">
                     <div class="progress-bar-container">
@@ -314,15 +296,15 @@ const Dashboard = (function() {
                     <div class="progress-legend">
                         <div class="progress-legend-item">
                             <span class="progress-legend-dot" style="background: #22c55e;"></span>
-                            Done (${stats.done})
+                            Terminées (${stats.done})
                         </div>
                         <div class="progress-legend-item">
                             <span class="progress-legend-dot" style="background: #f59e0b;"></span>
-                            In Progress (${stats.inProgress})
+                            En cours (${stats.inProgress})
                         </div>
                         <div class="progress-legend-item">
                             <span class="progress-legend-dot" style="background: #3f3f46;"></span>
-                            To Do (${stats.todo})
+                            À faire (${stats.todo})
                         </div>
                     </div>
                 </div>

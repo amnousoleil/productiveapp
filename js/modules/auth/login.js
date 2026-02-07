@@ -37,7 +37,7 @@ const AuthLogin = {
                 const response = await ApiAuth.getMe();
 
                 if (response && response.user) {
-                    console.log('✅ AuthLogin: Session valid for', response.user.email);
+                    console.log('✅ AuthLogin: Session valid');
                     this.apiUser = response.user;
 
                     // Vérifier si un membre était déjà sélectionné
@@ -45,14 +45,14 @@ const AuthLogin = {
                     if (savedMemberId) {
                         const member = AppConfig.USERS.find(u => u.id === savedMemberId);
                         if (member) {
-                            console.log('✅ AuthLogin: Auto-login as', member.name);
+                            console.log('✅ AuthLogin: Auto-login');
                             await this.enterApp(member);
                             return;
                         }
                     }
 
-                    // Token valide mais pas de membre : afficher le picker
-                    this.showMemberPicker();
+                    // Token valide : auto-sélection du membre
+                    await this.autoSelectMember();
                     return;
                 }
             } catch (e) {
@@ -131,7 +131,6 @@ const AuthLogin = {
         `;
 
         document.body.appendChild(container);
-        console.log('✅ AuthLogin: Container created');
     },
 
     // =========================================
@@ -139,7 +138,6 @@ const AuthLogin = {
     // =========================================
     showLoginForm() {
         this.currentPhase = 'login';
-        console.log('📝 AuthLogin: Showing login form');
 
         const formEl = document.getElementById('auth-login-form');
         const pickerEl = document.getElementById('auth-member-picker');
@@ -174,7 +172,7 @@ const AuthLogin = {
         // Enter key
         [emailInput, passwordInput].forEach(input => {
             if (input) {
-                input.onkeypress = (e) => {
+                input.onkeydown = (e) => {
                     if (e.key === 'Enter') this.attemptLogin();
                 };
             }
@@ -182,11 +180,9 @@ const AuthLogin = {
     },
 
     async attemptLogin() {
-        console.log('🔐 AuthLogin: Attempting login...');
 
         const emailInput = document.getElementById('auth-email');
         const passwordInput = document.getElementById('auth-password');
-        const errorEl = document.getElementById('auth-error');
         const submitBtn = document.getElementById('auth-submit-btn');
 
         const email = emailInput?.value?.trim()?.toLowerCase();
@@ -214,10 +210,9 @@ const AuthLogin = {
             const result = await ApiAuth.login(email, password);
 
             if (result && result.user) {
-                console.log('✅ AuthLogin: Login successful');
                 this.apiUser = result.user;
                 this.clearError();
-                this.showMemberPicker();
+                await this.autoSelectMember();
             }
         } catch (e) {
             console.error('❌ AuthLogin: Login failed:', e);
@@ -248,11 +243,46 @@ const AuthLogin = {
     },
 
     // =========================================
-    // PHASE 2 : SÉLECTION DU MEMBRE
+    // AUTO-SÉLECTION DU MEMBRE
+    // =========================================
+    async autoSelectMember() {
+        // 1. Matcher l'ID backend avec AppConfig.USERS
+        if (this.apiUser && this.apiUser.id) {
+            const matched = AppConfig.USERS.find(u => u.id === this.apiUser.id);
+            if (matched) {
+                localStorage.setItem('selectedMemberId', matched.id);
+                await this.enterApp(matched);
+                return;
+            }
+        }
+
+        // 2. Fallback: membre précédemment sélectionné
+        const savedMemberId = localStorage.getItem('selectedMemberId');
+        if (savedMemberId) {
+            const saved = AppConfig.USERS.find(u => u.id === savedMemberId);
+            if (saved) {
+                await this.enterApp(saved);
+                return;
+            }
+        }
+
+        // 3. Défaut: premier utilisateur (boss / propriétaire du compte)
+        const defaultMember = AppConfig.USERS[0];
+        if (defaultMember) {
+            localStorage.setItem('selectedMemberId', defaultMember.id);
+            await this.enterApp(defaultMember);
+            return;
+        }
+
+        // 4. Dernier recours (ne devrait jamais arriver)
+        this.showMemberPicker();
+    },
+
+    // =========================================
+    // PHASE 2 : SÉLECTION DU MEMBRE (fallback)
     // =========================================
     showMemberPicker() {
         this.currentPhase = 'member';
-        console.log('👥 AuthLogin: Showing member picker');
 
         const formEl = document.getElementById('auth-login-form');
         const pickerEl = document.getElementById('auth-member-picker');
@@ -299,23 +329,20 @@ const AuthLogin = {
         grid.querySelectorAll('.auth-member-btn').forEach(btn => {
             btn.onclick = () => {
                 const memberId = btn.dataset.memberId;
-                console.log('🖱️ AuthLogin: Member clicked:', memberId);
                 this.selectMember(memberId);
             };
         });
 
-        console.log('✅ AuthLogin: Member grid rendered with', AppConfig.USERS.length, 'members');
     },
 
     async selectMember(memberId) {
         const member = AppConfig.USERS.find(u => u.id === memberId);
         if (!member) {
-            console.error('❌ AuthLogin: Member not found:', memberId);
-            alert('Membre non trouvé');
+            console.error('AuthLogin: Member not found:', memberId);
+            this.showError('Membre introuvable. Veuillez réessayer.');
             return;
         }
 
-        console.log('✅ AuthLogin: Selected member:', member.name);
 
         // Sauvegarder le membre
         localStorage.setItem('selectedMemberId', memberId);
@@ -328,7 +355,6 @@ const AuthLogin = {
     // PHASE 3 : ENTRÉE DANS L'APP
     // =========================================
     async enterApp(member) {
-        console.log('🚀 AuthLogin: Entering app as', member.name);
 
         // 1. Mettre le flag AVANT tout
         this.authenticated = true;
@@ -369,14 +395,12 @@ const AuthLogin = {
         const container = document.getElementById(this.CONTAINER_ID);
         if (container) {
             container.remove();
-            console.log('✅ AuthLogin: Login container REMOVED from DOM');
         }
 
         // Supprimer aussi l'ancien login-screen s'il existe
         const oldLoginScreen = document.getElementById('login-screen');
         if (oldLoginScreen) {
             oldLoginScreen.remove();
-            console.log('✅ AuthLogin: Old login-screen REMOVED from DOM');
         }
 
         // 5. Ajouter la classe logged-in
@@ -391,11 +415,9 @@ const AuthLogin = {
 
         // 7. Initialiser l'app (une seule fois, le flag empêche la boucle)
         if (typeof App !== 'undefined' && App.init) {
-            console.log('🚀 AuthLogin: Calling App.init()...');
             await App.init();
         }
 
-        console.log('✅ AuthLogin: Entry complete!');
     },
 
     // =========================================
@@ -406,7 +428,6 @@ const AuthLogin = {
      * Changer de membre sans logout complet
      */
     switchMember() {
-        console.log('🔄 AuthLogin: Switching member...');
 
         this.authenticated = false;
         localStorage.removeItem('selectedMemberId');

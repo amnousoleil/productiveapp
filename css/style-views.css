@@ -31,15 +31,14 @@ body {
 
 /* === MAIN CONTENT === */
 .main-content {
-    margin-left: 60px;
+    /* margin-left handled by style-base.css + style-sidebar.css */
     min-height: 100vh;
     background: transparent; /* Let body gradient show through */
-    transition: margin-left var(--transition);
 }
 
 @media (max-width: 768px) {
     .main-content {
-        margin-left: 0;
+        margin-left: 0 !important;
     }
 }
 

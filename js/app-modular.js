@@ -105,6 +105,10 @@ const App = {
             if (typeof PsychoAuditView !== 'undefined' && PsychoAuditView.init) PsychoAuditView.init();
             if (typeof AIReportsView !== 'undefined' && AIReportsView.init) AIReportsView.init();
             if (typeof TeamVisionView !== 'undefined' && TeamVisionView.init) TeamVisionView.init();
+            if (typeof GiriVisionView !== 'undefined' && GiriVisionView.init) GiriVisionView.init();
+
+            // Initialiser le routeur de vues (gère le hash URL)
+            if (typeof ViewRouter !== 'undefined' && ViewRouter.init) ViewRouter.init();
 
             // Initialiser le drag & drop
             setTimeout(() => {
@@ -144,21 +148,10 @@ const App = {
      * Charge toutes les données depuis l'API
      */
     async loadData() {
-        console.log('📡 Chargement des données...');
-
-        // DEBUG: Log current state
         const hasApiDataLoader = typeof ApiDataLoader !== 'undefined';
         const hasApiTokens = typeof ApiTokens !== 'undefined';
         const accessToken = hasApiTokens ? ApiTokens.getAccessToken() : null;
         const workspaceId = hasApiTokens ? ApiTokens.getWorkspaceId() : null;
-
-        console.log('📡 DEBUG loadData:', {
-            hasApiDataLoader,
-            hasApiTokens,
-            hasAccessToken: !!accessToken,
-            workspaceId,
-            tokenPreview: accessToken ? accessToken.substring(0, 30) + '...' : 'none'
-        });
 
         // API Express = source unique (PostgreSQL)
         if (hasApiDataLoader && hasApiTokens && accessToken && workspaceId) {
@@ -388,12 +381,11 @@ window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
     'use strict';
 
     function forceCloseAllModals() {
-        // Close standard modals
+        // Close standard modals - ensure hidden class + inline display:none + remove modal-visible
         document.querySelectorAll('.modal').forEach(modal => {
             modal.classList.add('hidden');
+            modal.classList.remove('modal-visible');
             modal.style.display = 'none';
-            modal.style.visibility = 'hidden';
-            modal.style.opacity = '0';
         });
 
         // Close confirm modals

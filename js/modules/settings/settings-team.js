@@ -40,10 +40,22 @@ const SettingsTeam = (function() {
         } finally { loading = false; }
     }
 
+    function getMemberLimit() {
+        var plan = (typeof AppState !== 'undefined' && AppState.currentUser) ? AppState.currentUser.plan : 'free';
+        if (typeof PlansModule !== 'undefined' && PlansModule.getMemberLimit) return PlansModule.getMemberLimit(plan);
+        var limits = { free: 0, pro: 5, enterprise: 15 };
+        return limits[plan] || 0;
+    }
+
     async function addMember(name, email, role) {
         var wsId = getWorkspaceId();
         if (!wsId) { showToast('Workspace non trouve', 'error'); return false; }
         if (!email || !name) { showToast('Nom et email requis', 'error'); return false; }
+        var limit = getMemberLimit();
+        if (limit > 0 && members.length >= limit) {
+            showToast('Limite de ' + limit + ' membres atteinte. Passez a un plan superieur.', 'error');
+            return false;
+        }
         try {
             await ApiFetch.fetchWithAuth('/workspaces/' + wsId + '/members', {
                 method: 'POST', body: JSON.stringify({ name: name, email: email, role: role || 'member' })
@@ -141,9 +153,11 @@ const SettingsTeam = (function() {
 
     function render() {
         loadMembers().then(function() { renderMembersList(); });
+        var limit = getMemberLimit();
         return '<section class="settings-section">' +
             '<h2 class="settings-section-title">' + icons.users + '<span>Equipe</span></h2>' +
             '<div class="settings-card">' +
+                '<div class="team-member-counter"><span class="label">Membres</span><span class="count" id="team-count">' + members.length + ' / ' + limit + '</span></div>' +
                 '<div id="team-members-list" style="max-height:300px;overflow-y:auto;"><div style="padding:20px;text-align:center;color:var(--text-muted);">Chargement...</div></div>' +
                 '<div style="padding:16px;border-top:1px solid var(--border);">' +
                     '<div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;">Ajouter un membre</div>' +

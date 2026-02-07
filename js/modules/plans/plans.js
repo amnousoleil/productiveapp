@@ -5,6 +5,8 @@
 
 const PlansModule = {
     initialized: false,
+    MEMBER_LIMITS: { free: 0, pro: 5, enterprise: 15 },
+
     plans: [
         {
             id: 'free',
@@ -16,13 +18,13 @@ const PlansModule = {
             id: 'pro',
             name: 'Pro',
             price: 9.99,
-            features: ['Projets illimites', 'Taches illimitees', '10 Go stockage', 'Support prioritaire', 'Analytics avances']
+            features: ['Projets illimites', 'Taches illimitees', '10 Go stockage', 'Support prioritaire', 'Jusqu\'a 5 membres']
         },
         {
-            id: 'team',
-            name: 'Team',
+            id: 'enterprise',
+            name: 'Enterprise',
             price: 19.99,
-            features: ['Tout Pro +', 'Membres illimites', '100 Go stockage', 'SSO', 'API access', 'Support dedie']
+            features: ['Tout Pro +', 'Jusqu\'a 15 membres', '100 Go stockage', 'SSO', 'API access', 'Support dedie']
         }
     ],
 

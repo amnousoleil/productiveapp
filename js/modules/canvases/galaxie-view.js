@@ -1,12 +1,14 @@
 /**
- * GALAXIE VIEW - Integration module for Excalidraw
- * ProductiveApp v4.0
+ * GALAXIE VIEW - 3D Constellation Orchestrator
+ * ProductiveApp v5.0
  *
- * Features:
- * - Excalidraw iframe bridge (same-origin localStorage)
- * - Auto-sync projects/tasks as Excalidraw elements
- * - Save/load via ApiGalaxy backend
- * - Toolbar controls
+ * Orchestrates Galaxy3D engine + GalaxyAI
+ * - Initializes 3D scene on #galaxy-3d-container
+ * - Loads/saves data via ApiGalaxy backend
+ * - Syncs projects/tasks/notes as 3D spheres
+ * - AI constellation generation
+ * - Toolbar controls (reset, labels, orbits, auto-rotate, AI)
+ * - Auto-save every 30s
  */
 const GalaxieView = (function() {
     'use strict';
@@ -14,23 +16,20 @@ const GalaxieView = (function() {
     let initialized = false;
     let autoSaveTimer = null;
     let lastSavedHash = '';
-    const EXCALIDRAW_LS_KEY = 'excalidraw';
-    const EXCALIDRAW_STATE_KEY = 'excalidraw-state';
-    const AUTO_SAVE_INTERVAL = 30000; // 30s
+    const AUTO_SAVE_INTERVAL = 30000;
 
     function init() {
         if (initialized) return;
-        console.log('🌌 Galaxie View: init()');
-        setupIconListener();
+        console.log('GalaxieView: init()');
         setupToolbar();
+        setupIconListener();
         initialized = true;
-        console.log('🌌 Galaxie View initialized');
+        console.log('GalaxieView: initialized (3D mode)');
     }
 
     function setupIconListener() {
         document.addEventListener('click', function(e) {
-            var target = e.target.closest('#galaxy-icon');
-            if (target) {
+            if (e.target.closest('#galaxy-icon')) {
                 e.preventDefault();
                 e.stopPropagation();
                 open();
@@ -41,16 +40,51 @@ const GalaxieView = (function() {
     function setupToolbar() {
         document.addEventListener('click', function(e) {
             if (e.target.closest('#galaxy-sync-btn')) {
-                syncProjects();
+                syncAll();
             }
             if (e.target.closest('#galaxy-save-btn')) {
                 saveToBackend();
+            }
+            if (e.target.closest('#galaxy-reset-view')) {
+                if (Galaxy3D) Galaxy3D.resetCamera();
+            }
+            if (e.target.closest('#galaxy-toggle-labels')) {
+                if (Galaxy3D) {
+                    var on = Galaxy3D.toggleLabels();
+                    e.target.closest('#galaxy-toggle-labels').classList.toggle('active', on);
+                }
+            }
+            if (e.target.closest('#galaxy-toggle-orbits')) {
+                if (Galaxy3D) {
+                    var on = Galaxy3D.toggleOrbits();
+                    e.target.closest('#galaxy-toggle-orbits').classList.toggle('active', on);
+                }
+            }
+            if (e.target.closest('#galaxy-toggle-autorotate')) {
+                if (Galaxy3D) {
+                    var on = Galaxy3D.toggleAutoRotate();
+                    e.target.closest('#galaxy-toggle-autorotate').classList.toggle('active', on);
+                }
+            }
+            if (e.target.closest('#galaxy-ai-btn')) {
+                runAIConstellation();
+            }
+            if (e.target.closest('#galaxy-mindmap-btn')) {
+                promptMindMap();
+            }
+        });
+
+        // Sphere click handler
+        document.addEventListener('galaxy-sphere-click', function(e) {
+            var detail = e.detail;
+            if (detail && detail.sourceId) {
+                showSphereDetail(detail);
             }
         });
     }
 
     function open() {
-        console.log('🌌 GalaxieView.open() -> navigating to galaxy view');
+        console.log('GalaxieView: opening 3D view');
         if (typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate('galaxy');
         } else if (typeof Router !== 'undefined') {
@@ -59,15 +93,13 @@ const GalaxieView = (function() {
             document.querySelectorAll('.view-container').forEach(function(v) {
                 v.classList.remove('active');
             });
-            var galaxyView = document.getElementById('view-galaxy');
-            if (galaxyView) {
-                galaxyView.classList.add('active');
-            }
+            var el = document.getElementById('view-galaxy');
+            if (el) el.classList.add('active');
         }
     }
 
     function close() {
-        console.log('🌌 GalaxieView.close() -> navigating away from galaxy');
+        console.log('GalaxieView: closing');
         stopAutoSave();
         if (typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate('dashboard');
@@ -77,8 +109,8 @@ const GalaxieView = (function() {
     }
 
     function toggle() {
-        var galaxyView = document.getElementById('view-galaxy');
-        if (galaxyView && galaxyView.classList.contains('active')) {
+        var el = document.getElementById('view-galaxy');
+        if (el && el.classList.contains('active')) {
             close();
         } else {
             open();
@@ -86,61 +118,83 @@ const GalaxieView = (function() {
     }
 
     function isOpened() {
-        var galaxyView = document.getElementById('view-galaxy');
-        return galaxyView && galaxyView.classList.contains('active');
+        var el = document.getElementById('view-galaxy');
+        return el && el.classList.contains('active');
     }
 
     /**
-     * Refresh: load from backend + start auto-save
+     * Refresh: init 3D engine + load data + start auto-save
      */
     async function refresh() {
+        setStatus('Initialisation 3D...');
+
+        // Small delay to ensure the view container has rendered with correct dimensions
+        await new Promise(function(resolve) { requestAnimationFrame(resolve); });
+
+        // Init Galaxy3D engine
+        var container = document.getElementById('galaxy-3d-container');
+        if (container && typeof Galaxy3D !== 'undefined') {
+            Galaxy3D.init(container);
+            // Force resize after a frame to get correct dimensions
+            requestAnimationFrame(function() {
+                Galaxy3D.onResize();
+            });
+        }
+
         setStatus('Chargement...');
-        await loadFromBackend();
+        var loaded = await loadFromBackend();
+
+        // Auto-sync projects/tasks if no data was loaded from backend
+        if (!loaded && typeof Galaxy3D !== 'undefined') {
+            setStatus('Sync automatique...');
+            await syncAll();
+        }
+
         startAutoSave();
         setStatus('');
     }
 
     /**
-     * Load Excalidraw scene from ApiGalaxy backend
+     * Load scene from backend
      */
     async function loadFromBackend() {
         if (typeof ApiGalaxy === 'undefined' || !ApiGalaxy.isAvailable()) {
-            console.log('🌌 ApiGalaxy not available, using localStorage only');
-            return;
+            console.log('GalaxieView: ApiGalaxy not available');
+            return false;
         }
 
         try {
             var data = await ApiGalaxy.load();
-            if (data.nodes && data.nodes.length > 0) {
-                // data.nodes contains Excalidraw elements format
-                localStorage.setItem(EXCALIDRAW_LS_KEY, JSON.stringify(data.nodes));
-                if (data.appState && Object.keys(data.appState).length > 0) {
-                    localStorage.setItem(EXCALIDRAW_STATE_KEY, JSON.stringify(data.appState));
+            if (data.nodes && data.nodes.length > 0 && typeof Galaxy3D !== 'undefined') {
+                Galaxy3D.loadData(data.nodes, data.connections || []);
+                if (data.appState) {
+                    Galaxy3D.restoreAppState(data.appState);
                 }
-                lastSavedHash = hashElements(data.nodes);
-                reloadIframe();
-                console.log('🌌 Loaded', data.nodes.length, 'elements from backend');
+                lastSavedHash = hashData(data);
+                console.log('GalaxieView: loaded', data.nodes.length, 'nodes from backend');
+                return true;
             }
         } catch (e) {
-            console.error('🌌 Error loading from backend:', e);
+            console.error('GalaxieView: load error:', e);
         }
+        return false;
     }
 
     /**
-     * Save current Excalidraw scene to ApiGalaxy backend
+     * Save current 3D scene to backend
      */
     async function saveToBackend() {
         if (typeof ApiGalaxy === 'undefined' || !ApiGalaxy.isAvailable()) {
             setStatus('API non disponible');
             return;
         }
+        if (typeof Galaxy3D === 'undefined') return;
 
         setStatus('Sauvegarde...');
 
         try {
-            var elements = getExcalidrawElements();
-            var appState = getExcalidrawAppState();
-            var currentHash = hashElements(elements);
+            var sceneData = Galaxy3D.getSceneData();
+            var currentHash = hashData(sceneData);
 
             if (currentHash === lastSavedHash) {
                 setStatus('Deja a jour');
@@ -148,7 +202,7 @@ const GalaxieView = (function() {
                 return;
             }
 
-            var success = await ApiGalaxy.save(elements, [], appState);
+            var success = await ApiGalaxy.save(sceneData.nodes, sceneData.connections, sceneData.appState);
             if (success) {
                 lastSavedHash = currentHash;
                 setStatus('Sauvegarde OK');
@@ -156,7 +210,7 @@ const GalaxieView = (function() {
                 setStatus('Erreur sauvegarde');
             }
         } catch (e) {
-            console.error('🌌 Error saving:', e);
+            console.error('GalaxieView: save error:', e);
             setStatus('Erreur');
         }
 
@@ -164,216 +218,233 @@ const GalaxieView = (function() {
     }
 
     /**
-     * Sync projects/tasks from AppState as Excalidraw elements
+     * Sync projects + tasks + notes as 3D spheres
      */
-    function syncProjects() {
-        if (typeof AppState === 'undefined') {
-            setStatus('AppState non disponible');
-            return;
-        }
-
+    async function syncAll() {
         setStatus('Synchronisation...');
 
-        var projects = AppState.projects || [];
-        var tasks = AppState.tasks || [];
-        var existingElements = getExcalidrawElements();
-
-        // Track which project IDs already have elements
-        var existingProjectIds = new Set();
-        existingElements.forEach(function(el) {
-            if (el.customData && el.customData.projectId && el.customData.type === 'project') {
-                existingProjectIds.add(el.customData.projectId);
-            }
-        });
-
-        var newElements = [];
-        var centerX = 400;
-        var centerY = 300;
-        var radius = 250;
-
-        // Filter projects that don't already exist on canvas
-        var projectsToAdd = projects.filter(function(p) {
-            return !existingProjectIds.has(p.id);
-        });
-
-        if (projectsToAdd.length === 0 && existingElements.length > 0) {
-            setStatus('Projets deja synchronises');
-            setTimeout(function() { setStatus(''); }, 2000);
+        if (typeof Galaxy3D === 'undefined') {
+            setStatus('Moteur 3D non disponible');
             return;
         }
 
-        var allProjectsCount = projects.length;
-        var startIndex = existingProjectIds.size;
+        var nodes = [];
+        var conns = [];
 
-        projectsToAdd.forEach(function(project, i) {
-            var globalIdx = startIndex + i;
-            var angle = (globalIdx / Math.max(allProjectsCount, 1)) * 2 * Math.PI - Math.PI / 2;
-            var x = centerX + radius * Math.cos(angle);
-            var y = centerY + radius * Math.sin(angle);
+        // Projects
+        var projects = (typeof AppState !== 'undefined' && AppState.projects) ? AppState.projects : [];
+        var tasks = (typeof AppState !== 'undefined' && AppState.tasks) ? AppState.tasks : [];
 
-            // Calculate progress
+        projects.forEach(function(project) {
             var projectTasks = tasks.filter(function(t) { return t.projectId === project.id; });
             var doneTasks = projectTasks.filter(function(t) { return t.status === 'done'; });
             var progress = projectTasks.length > 0 ? Math.round(doneTasks.length / projectTasks.length * 100) : 0;
 
-            var bgColor = getProjectColor(project, progress);
-            var ellipseId = 'galaxy_proj_' + project.id;
+            var priority = 'medium';
+            if (project.status === 'archived') priority = 'done';
+            else if (progress < 20) priority = 'high';
+            else if (progress >= 80) priority = 'done';
 
-            // Create ellipse (planet) for the project
-            newElements.push({
-                id: ellipseId,
-                type: 'ellipse',
-                x: x - 60,
-                y: y - 40,
-                width: 120,
-                height: 80,
-                angle: 0,
-                strokeColor: bgColor,
-                backgroundColor: bgColor,
-                fillStyle: 'solid',
-                strokeWidth: 2,
-                roughness: 1,
-                opacity: 90,
-                groupIds: [],
-                roundness: null,
-                seed: Math.floor(Math.random() * 2000000000),
-                version: 1,
-                versionNonce: Math.floor(Math.random() * 2000000000),
-                isDeleted: false,
-                boundElements: [{ id: ellipseId + '_text', type: 'text' }],
-                updated: Date.now(),
-                link: null,
-                locked: false,
-                customData: { projectId: project.id, type: 'project' }
+            nodes.push({
+                id: 'proj_' + project.id,
+                type: 'project',
+                sourceId: project.id,
+                label: project.name || 'Projet',
+                priority: priority,
+                size: 2.0,
+                tags: [],
+                metadata: { progress: progress, taskCount: projectTasks.length }
             });
 
-            // Create text label bound to the ellipse
-            var projectName = project.name || 'Projet';
-            if (projectName.length > 14) projectName = projectName.substring(0, 12) + '..';
-            var label = projectName + '\n' + progress + '%';
+            // Tasks as smaller spheres
+            projectTasks.forEach(function(task) {
+                var taskPriority = 'medium';
+                var pLevel = task.priority?.level || task.priority || 2;
+                if (task.status === 'done') taskPriority = 'done';
+                else if (pLevel >= 4) taskPriority = 'urgent';
+                else if (pLevel >= 3) taskPriority = 'high';
+                else if (pLevel <= 1) taskPriority = 'low';
 
-            newElements.push({
-                id: ellipseId + '_text',
-                type: 'text',
-                x: x - 50,
-                y: y - 18,
-                width: 100,
-                height: 36,
-                angle: 0,
-                strokeColor: '#ffffff',
-                backgroundColor: 'transparent',
-                fillStyle: 'solid',
-                strokeWidth: 1,
-                roughness: 0,
-                opacity: 100,
-                groupIds: [],
-                roundness: null,
-                seed: Math.floor(Math.random() * 2000000000),
-                version: 1,
-                versionNonce: Math.floor(Math.random() * 2000000000),
-                isDeleted: false,
-                boundElements: null,
-                updated: Date.now(),
-                link: null,
-                locked: false,
-                text: label,
-                fontSize: 14,
-                fontFamily: 1,
-                textAlign: 'center',
-                verticalAlign: 'middle',
-                containerId: ellipseId,
-                originalText: label,
-                autoResize: true
-            });
+                nodes.push({
+                    id: 'task_' + task.id,
+                    type: 'task',
+                    sourceId: task.id,
+                    label: task.text || task.title || 'Tache',
+                    priority: taskPriority,
+                    size: 0.7,
+                    tags: task.tags || [],
+                    metadata: { status: task.status, project: project.name }
+                });
 
-            // Add small task dots around the project planet
-            projectTasks.slice(0, 6).forEach(function(task, ti) {
-                var taskAngle = (ti / Math.min(projectTasks.length, 6)) * 2 * Math.PI;
-                var taskRadius = 55;
-                var tx = x + taskRadius * Math.cos(taskAngle);
-                var ty = y + taskRadius * Math.sin(taskAngle);
-                var taskColor = task.status === 'done' ? '#10b981' : task.status === 'inprogress' ? '#f59e0b' : '#6b7280';
-
-                newElements.push({
-                    id: 'galaxy_task_' + task.id,
-                    type: 'ellipse',
-                    x: tx - 6,
-                    y: ty - 6,
-                    width: 12,
-                    height: 12,
-                    angle: 0,
-                    strokeColor: taskColor,
-                    backgroundColor: taskColor,
-                    fillStyle: 'solid',
-                    strokeWidth: 1,
-                    roughness: 0,
-                    opacity: 70,
-                    groupIds: [],
-                    roundness: null,
-                    seed: Math.floor(Math.random() * 2000000000),
-                    version: 1,
-                    versionNonce: Math.floor(Math.random() * 2000000000),
-                    isDeleted: false,
-                    boundElements: null,
-                    updated: Date.now(),
-                    link: null,
-                    locked: false,
-                    customData: { taskId: task.id, projectId: project.id, type: 'task' }
+                // Connect task to its project
+                conns.push({
+                    id: 'conn_proj_task_' + task.id,
+                    from: 'proj_' + project.id,
+                    to: 'task_' + task.id,
+                    strength: 0.6,
+                    reason: 'Projet parent'
                 });
             });
         });
 
-        if (newElements.length > 0) {
-            var allElements = existingElements.concat(newElements);
-            localStorage.setItem(EXCALIDRAW_LS_KEY, JSON.stringify(allElements));
-            reloadIframe();
-            console.log('🌌 Synced', projectsToAdd.length, 'projects as', newElements.length, 'elements');
-            setStatus(projectsToAdd.length + ' projets synchronises');
-        } else {
-            setStatus('Aucun nouveau projet');
+        // Notes (from API)
+        try {
+            if (typeof ApiNotes !== 'undefined') {
+                var notesList = await ApiNotes.getAll({ limit: 100 });
+                if (notesList && notesList.length > 0) {
+                    notesList.forEach(function(note) {
+                        var notePriority = note.is_pinned ? 'high' : 'medium';
+                        var wordCount = note.content ? note.content.split(/\s+/).length : 0;
+                        var noteSize = Math.max(0.6, Math.min(1.8, wordCount / 200));
+
+                        nodes.push({
+                            id: 'note_' + note.id,
+                            type: 'note',
+                            sourceId: note.id,
+                            label: note.title || 'Note sans titre',
+                            priority: notePriority,
+                            size: noteSize,
+                            tags: note.tags || [],
+                            metadata: { wordCount: wordCount, pinned: note.is_pinned }
+                        });
+                    });
+
+                    // Link notes to projects with matching tags
+                    notesList.forEach(function(note) {
+                        if (note.project_id) {
+                            conns.push({
+                                id: 'conn_proj_note_' + note.id,
+                                from: 'proj_' + note.project_id,
+                                to: 'note_' + note.id,
+                                strength: 0.4,
+                                reason: 'Note du projet'
+                            });
+                        }
+                    });
+                }
+            }
+        } catch (e) {
+            console.warn('GalaxieView: could not load notes:', e);
         }
 
+        if (nodes.length === 0) {
+            setStatus('Aucune donnee a synchroniser');
+            setTimeout(function() { setStatus(''); }, 3000);
+            return;
+        }
+
+        // Load into 3D
+        Galaxy3D.loadData(nodes, conns);
+        Galaxy3D.applyForceLayout(80);
+
+        setStatus(nodes.length + ' elements synchronises');
         setTimeout(function() { setStatus(''); }, 3000);
+
+        console.log('GalaxieView: synced', nodes.length, 'nodes,', conns.length, 'connections');
     }
 
-    function getProjectColor(project, progress) {
-        if (project.status === 'archived') return '#6b7280';
-        if (progress >= 80) return '#10b981';
-        if (progress >= 50) return '#3b82f6';
-        if (progress >= 20) return '#f59e0b';
-        return '#E07840';
-    }
+    /**
+     * Run AI constellation analysis
+     */
+    async function runAIConstellation() {
+        if (typeof GalaxyAI === 'undefined') {
+            setStatus('Module IA non disponible');
+            return;
+        }
 
-    // ========== Helpers ==========
+        setStatus('IA en cours...');
+        var aiBtn = document.getElementById('galaxy-ai-btn');
+        if (aiBtn) {
+            aiBtn.disabled = true;
+            aiBtn.classList.add('loading');
+        }
 
-    function getExcalidrawElements() {
         try {
-            var raw = localStorage.getItem(EXCALIDRAW_LS_KEY);
-            return raw ? JSON.parse(raw) : [];
+            // Gather data
+            var notes = [];
+            var tasks = (typeof AppState !== 'undefined' && AppState.tasks) ? AppState.tasks : [];
+
+            try {
+                if (typeof ApiNotes !== 'undefined') {
+                    notes = await ApiNotes.getAll({ limit: 50 });
+                }
+            } catch (e) {
+                console.warn('GalaxieView: notes not available for AI');
+            }
+
+            var result = await GalaxyAI.generateConstellation(notes, tasks);
+
+            if (result && result.nodes && result.nodes.length > 0) {
+                Galaxy3D.loadData(result.nodes, result.connections || []);
+                Galaxy3D.applyForceLayout(100);
+                setStatus('Constellation IA generee (' + result.nodes.length + ' elements)');
+            } else {
+                setStatus('Pas de resultats IA');
+            }
         } catch (e) {
-            return [];
+            console.error('GalaxieView: AI error:', e);
+            setStatus('Erreur IA');
+        } finally {
+            if (aiBtn) {
+                aiBtn.disabled = false;
+                aiBtn.classList.remove('loading');
+            }
+            setTimeout(function() { setStatus(''); }, 4000);
         }
     }
 
-    function getExcalidrawAppState() {
+    /**
+     * Prompt user for mind map topic
+     */
+    function promptMindMap() {
+        var topic = prompt('Sujet de la Mind Map :');
+        if (!topic || !topic.trim()) return;
+        generateMindMap(topic.trim());
+    }
+
+    async function generateMindMap(topic) {
+        if (typeof GalaxyAI === 'undefined') {
+            setStatus('Module IA non disponible');
+            return;
+        }
+
+        setStatus('Generation mind map...');
+
         try {
-            var raw = localStorage.getItem(EXCALIDRAW_STATE_KEY);
-            return raw ? JSON.parse(raw) : {};
+            var result = await GalaxyAI.generateMindMap(topic);
+            if (result && result.nodes && result.nodes.length > 0) {
+                Galaxy3D.loadData(result.nodes, result.connections || []);
+                Galaxy3D.applyForceLayout(80);
+                setStatus('Mind map: ' + result.nodes.length + ' noeuds');
+            } else {
+                setStatus('Mind map vide');
+            }
         } catch (e) {
-            return {};
+            console.error('GalaxieView: mind map error:', e);
+            setStatus('Erreur mind map');
+        }
+
+        setTimeout(function() { setStatus(''); }, 4000);
+    }
+
+    /**
+     * Show detail panel for a clicked sphere
+     */
+    function showSphereDetail(data) {
+        console.log('GalaxieView: sphere clicked:', data);
+        // Could open a side panel or navigate to the note/task
+        // For now, show a toast notification
+        if (typeof ToastManager !== 'undefined') {
+            ToastManager.show(data.label + ' (' + (data.type || 'element') + ')', 'info');
         }
     }
 
-    function reloadIframe() {
-        var iframe = document.getElementById('galaxy-iframe');
-        if (iframe) {
-            iframe.src = '/galaxy/index.html';
-        }
-    }
-
-    function hashElements(elements) {
+    // === HELPERS ===
+    function hashData(data) {
         try {
-            return JSON.stringify(elements).length + '_' + (elements.length || 0);
+            var nodes = data.nodes || [];
+            var conns = data.connections || [];
+            return nodes.length + '_' + conns.length + '_' + JSON.stringify(nodes).length;
         } catch (e) {
             return '';
         }
@@ -387,12 +458,8 @@ const GalaxieView = (function() {
     function startAutoSave() {
         stopAutoSave();
         autoSaveTimer = setInterval(function() {
-            if (isOpened()) {
-                var elements = getExcalidrawElements();
-                var currentHash = hashElements(elements);
-                if (currentHash !== lastSavedHash && elements.length > 0) {
-                    saveToBackend();
-                }
+            if (isOpened() && typeof Galaxy3D !== 'undefined' && Galaxy3D.spheres.length > 0) {
+                saveToBackend();
             }
         }, AUTO_SAVE_INTERVAL);
     }
@@ -418,8 +485,11 @@ const GalaxieView = (function() {
         toggle: toggle,
         isOpened: isOpened,
         refresh: refresh,
-        syncProjects: syncProjects,
-        saveToBackend: saveToBackend
+        syncAll: syncAll,
+        syncProjects: syncAll, // backward compat
+        saveToBackend: saveToBackend,
+        runAIConstellation: runAIConstellation,
+        generateMindMap: generateMindMap
     };
 })();
 
@@ -428,4 +498,4 @@ window.openGalaxieView = function() { GalaxieView.open(); };
 window.closeGalaxieView = function() { GalaxieView.close(); };
 window.initGalaxieView = function() { GalaxieView.init(); };
 
-console.log('📦 galaxie-view.js loaded');
+console.log('galaxie-view.js loaded (3D orchestrator)');
