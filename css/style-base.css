@@ -89,15 +89,7 @@ body.logged-in .main-content {
     display: block;
 }
 
-/* Vue containers */
-.view-container {
-    display: none;
-    padding: 0;
-}
-
-.view-container.active {
-    display: block;
-}
+/* Vue containers - styles moved to style-views.css */
 
 /* === APP CONTAINER === */
 .app-container {
@@ -105,7 +97,7 @@ body.logged-in .main-content {
     z-index: 1;
     max-width: 1400px;
     margin: 0 auto;
-    padding: var(--space-md);
+    padding: 0 var(--space-md) var(--space-md) var(--space-md); /* Supprime padding-top */
 }
 
 /* === HIDDEN UTILITY === */
@@ -556,7 +548,7 @@ body.logged-in .main-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-md) 0;
+    padding: 0 0 var(--space-md) 0; /* Supprime padding-top pour aligner avec sidebar */
     margin-bottom: var(--space-md);
 }
 

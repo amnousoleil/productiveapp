@@ -15,7 +15,7 @@
 #view-dashboard {
     background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
     min-height: 100vh;
-    padding: 32px 40px;
+    padding: 0 40px 32px 40px; /* Supprime padding-top pour aligner avec sidebar */
     position: relative;
     overflow-x: hidden;
 }
