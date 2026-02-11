@@ -274,6 +274,7 @@ Inclus: synthèse rapide, accomplissements, points d'attention, recommandations.
         const generateBtn = Utils.$('generate-report-btn');
         const downloadBtn = Utils.$('download-pdf-btn');
         const exportBtn = Utils.$('export-btn');
+        const premiumBtn = Utils.$('premium-report-btn');
 
         if (generateBtn) {
             generateBtn.addEventListener('click', () => this.generate());
@@ -285,6 +286,17 @@ Inclus: synthèse rapide, accomplissements, points d'attention, recommandations.
 
         if (exportBtn) {
             exportBtn.addEventListener('click', () => this.exportData());
+        }
+
+        if (premiumBtn) {
+            premiumBtn.addEventListener('click', () => {
+                // Navigate to Psycho-Audit Premium view
+                if (typeof ViewRouter !== 'undefined' && ViewRouter.navigate) {
+                    ViewRouter.navigate('psycho-audit');
+                } else if (typeof Sidebar !== 'undefined' && Sidebar.navigate) {
+                    Sidebar.navigate('psycho-audit');
+                }
+            });
         }
     }
 };

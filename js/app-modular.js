@@ -143,6 +143,7 @@ const App = {
      * Close all modals on startup (prevents stale modals from appearing)
      */
     closeAllModals() {
+        // Close standard .modal elements
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
             if (!modal.classList.contains('hidden')) {
@@ -150,11 +151,25 @@ const App = {
                 console.log('🔒 Closed stale modal:', modal.id);
             }
         });
-        // Also close any confirm modals
-        const confirmModal = document.querySelector('.confirm-modal-overlay');
-        if (confirmModal) {
-            confirmModal.classList.remove('active');
-        }
+
+        // Close confirm modals
+        const confirmModals = document.querySelectorAll('.confirm-modal-overlay');
+        confirmModals.forEach(modal => {
+            modal.classList.remove('active');
+        });
+
+        // Close onboarding overlays
+        const onboardingOverlays = document.querySelectorAll('.onboarding-overlay');
+        onboardingOverlays.forEach(overlay => {
+            overlay.remove();
+            console.log('🔒 Removed onboarding overlay');
+        });
+
+        // Close campaign modals
+        const campaignModals = document.querySelectorAll('.campaigns-modal-overlay');
+        campaignModals.forEach(modal => {
+            modal.classList.remove('active');
+        });
     },
 
     /**
@@ -417,6 +432,11 @@ window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
             modal.classList.remove('active');
         });
 
+        // Close onboarding overlays
+        document.querySelectorAll('.onboarding-overlay').forEach(overlay => {
+            overlay.remove();
+        });
+
         console.log('🔒 Force closed all modals on page load');
     }
 
@@ -429,4 +449,8 @@ window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
 
     // Also run on window load as backup
     window.addEventListener('load', forceCloseAllModals);
+
+    // Run again after a short delay to catch dynamically created modals
+    setTimeout(forceCloseAllModals, 500);
+    setTimeout(forceCloseAllModals, 1500);
 })();

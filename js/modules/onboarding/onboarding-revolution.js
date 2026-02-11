@@ -616,7 +616,7 @@ const OnboardingRevolution = {
         localStorage.setItem('preferred_theme', themeId);
 
         // Optionally apply theme preview
-        document.body.dataset.theme = themeId;
+        document.documentElement.setAttribute('data-theme', themeId);
     },
 
     /**

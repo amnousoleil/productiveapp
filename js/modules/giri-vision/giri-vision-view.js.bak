@@ -1154,23 +1154,12 @@ const GiriVisionView = {
     if (btn) { btn.classList.add('loading'); btn.disabled = true; }
 
     try {
-      // Get existing profile (auto-created by dashboard endpoint)
-      const existingProfile = await GiriApi.getProfile().catch(() => null);
-      const profileData = { specialties, bio, hourly_rate, session_duration_minutes, experience_years };
-
-      if (existingProfile && existingProfile.profile) {
-        // Update existing profile
-        await GiriApi.updateProfile(existingProfile.profile.id, profileData);
-      } else {
-        // Create new profile (fallback)
-        await GiriApi.createProfile(profileData);
-      }
-
+      await GiriApi.createProfile({ specialties, bio, hourly_rate, session_duration_minutes, experience_years });
       this.closeModal();
-      if (window.Toast) Toast.success('Profil thérapeute enregistré !');
+      if (window.Toast) Toast.success('Profil th\u00e9rapeute cr\u00e9\u00e9 !');
       this.loadDashboard();
     } catch (err) {
-      if (window.Toast) Toast.error('Erreur lors de l\'enregistrement du profil');
+      if (window.Toast) Toast.error('Erreur lors de la cr\u00e9ation du profil');
       if (btn) { btn.classList.remove('loading'); btn.disabled = false; }
     }
   },

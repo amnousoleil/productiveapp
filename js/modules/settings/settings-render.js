@@ -180,6 +180,10 @@ const SettingsRender = (function() {
                 '</div></div></section>';
     }
 
+    function renderHealth(icons) {
+        return SettingsHealth.render(icons);
+    }
+
     function renderLogout(icons) {
         return '<section class="settings-section danger">' +
             '<h2 class="settings-section-title">' + icons.trash + '<span>Session</span></h2>' +
@@ -280,6 +284,7 @@ const SettingsRender = (function() {
         renderTeam: renderTeam,
         renderAnimations: renderAnimations,
         renderData: renderData,
+        renderHealth: renderHealth,
         renderAbout: renderAbout,
         renderLogout: renderLogout
     };

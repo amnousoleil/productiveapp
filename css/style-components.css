@@ -58,6 +58,44 @@
     box-shadow: 0 5px 20px var(--accent-glow);
 }
 
+.btn-premium {
+    padding: var(--space-md) var(--space-lg);
+    border: none;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%);
+    color: #1a1a2e;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-normal);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-premium::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+.btn-premium:hover {
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.5);
+    background: linear-gradient(135deg, #f4d03f 0%, #ffd700 50%, #f4d03f 100%);
+}
+
 .icon-btn {
     width: 44px;
     height: 44px;

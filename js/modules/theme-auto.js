@@ -45,7 +45,7 @@ const ThemeAuto = (function() {
 
     function applySystemTheme() {
         const isDark = mediaQuery.matches;
-        const currentTheme = document.body.dataset.theme;
+        const currentTheme = document.documentElement.getAttribute('data-theme');
 
         // Si le thème actuel correspond déjà à la préférence, ne rien faire
         if (isDark && DARK_THEMES.includes(currentTheme)) return;
@@ -54,10 +54,10 @@ const ThemeAuto = (function() {
         // Appliquer un thème par défaut selon la préférence
         const newTheme = isDark ? 'executive' : 'ivory';
 
-        if (typeof Themes !== 'undefined' && Themes.apply) {
-            Themes.apply(newTheme);
+        if (typeof Themes !== 'undefined' && Themes.setTheme) {
+            Themes.setTheme(newTheme);
         } else {
-            document.body.dataset.theme = newTheme;
+            document.documentElement.setAttribute('data-theme', newTheme);
         }
 
         console.log('🎨 ThemeAuto: Applied', newTheme, '(system:', isDark ? 'dark' : 'light', ')');

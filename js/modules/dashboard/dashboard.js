@@ -310,6 +310,9 @@ const Dashboard = (function() {
                 </div>
             </div>
 
+            <!-- AI Widget Section -->
+            <div id="dashboard-ai-widget-container"></div>
+
             <!-- Interactive Charts Section -->
             <div id="dashboard-charts-container"></div>
         `;
@@ -329,6 +332,13 @@ const Dashboard = (function() {
         const insightsContainer = document.getElementById('dashboard-insights-container');
         if (insightsContainer && typeof DashInsights !== 'undefined') {
             insightsContainer.innerHTML = DashInsights.render();
+        }
+
+        // Load AI Widget
+        const aiWidgetContainer = document.getElementById('dashboard-ai-widget-container');
+        if (aiWidgetContainer && typeof DashAIWidget !== 'undefined') {
+            aiWidgetContainer.innerHTML = DashAIWidget.render();
+            await DashAIWidget.loadContent();
         }
 
         // Load Charts section

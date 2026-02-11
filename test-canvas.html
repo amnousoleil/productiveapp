@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Canvas</title>
+    <style>
+        body { margin: 0; background: #000; }
+        #test-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.9;
+        }
+        .content {
+            position: relative;
+            z-index: 1;
+            color: #fff;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="test-canvas"></canvas>
+    <div class="content">
+        <h1>Si vous voyez des particules vertes = canvas fonctionne</h1>
+    </div>
+    <script src="http://localhost:8080/js/animations.js?v=2200"></script>
+    <script>
+        // Remplacer l'ID pour ce test
+        const canvas = document.getElementById('test-canvas');
+        canvas.id = 'matrix-bg';
+        
+        // Forcer le thème matrix
+        document.documentElement.setAttribute('data-theme', 'matrix');
+        
+        // Initialiser
+        if (typeof initAnimation === 'function') {
+            console.log('Calling initAnimation...');
+            initAnimation();
+        } else {
+            console.error('initAnimation not found!');
+        }
+    </script>
+</body>
+</html>

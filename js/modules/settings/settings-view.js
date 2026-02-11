@@ -46,12 +46,22 @@ const SettingsView = (function() {
             SettingsRender.renderWorkspace(workspace, icons) +
             SettingsRender.renderTeam() +
             SettingsRender.renderData(icons) +
+            SettingsRender.renderHealth(icons) +
             SettingsRender.renderAbout(version, icons) +
             SettingsRender.renderLogout(icons) +
         '</div>';
 
         container.innerHTML = headerHtml + sectionsHtml;
         console.log('⚙️ SettingsView rendered');
+
+        // Initialize health dashboard if section exists
+        setTimeout(function() {
+            if (document.getElementById('settings-health-section')) {
+                SettingsHealth.init().catch(function(err) {
+                    console.error('Failed to init health dashboard:', err);
+                });
+            }
+        }, 100);
     }
 
     /**

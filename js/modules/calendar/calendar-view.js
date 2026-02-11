@@ -8,6 +8,13 @@ const CalendarView = (function() {
   let _currentDate = new Date();
   let _events = [];
 
+  function init() {
+    _container = document.getElementById('view-calendar');
+    if (_container) {
+      render(_container);
+    }
+  }
+
   function render(container) {
     _container = container;
     container.innerHTML = `
@@ -96,6 +103,6 @@ const CalendarView = (function() {
   function closeModal() { var m = document.getElementById('cal-modal'); if (m) { m.style.display = 'none'; m.innerHTML = ''; } }
   function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
-  return { render: render, prevMonth: prevMonth, nextMonth: nextMonth, showCreate: showCreate, saveEvent: saveEvent, syncAll: syncAll, closeModal: closeModal, refresh: loadMonth };
+  return { init: init, render: render, prevMonth: prevMonth, nextMonth: nextMonth, showCreate: showCreate, saveEvent: saveEvent, syncAll: syncAll, closeModal: closeModal, refresh: loadMonth };
 })();
 if (typeof window !== 'undefined') window.CalendarView = CalendarView;

@@ -34,7 +34,8 @@ const ApiNotes = (function() {
     async function getAll(params = {}) {
         const queryParams = new URLSearchParams();
         if (params.page) queryParams.set('page', params.page);
-        if (params.limit) queryParams.set('limit', params.limit || '100');
+        // CRITICAL FIX: Always set limit, default to 1000 to avoid missing notes
+        queryParams.set('limit', params.limit || '1000');
         if (params.projectId) queryParams.set('project_id', params.projectId);
         if (params.search) queryParams.set('q', params.search);
         if (params.tags) queryParams.set('tags', params.tags.join(','));

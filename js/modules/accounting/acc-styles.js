@@ -21,7 +21,8 @@ const AccStyles = (function() {
         return '' +
 
         /* ========== CONTENEUR PRINCIPAL ========== */
-        '#view-accounting { padding: 0; height: 100%; display: flex; flex-direction: column; }' +
+        '#view-accounting { padding: 0; }' +
+        '#view-accounting.active { height: 100%; display: flex; flex-direction: column; }' +
         '.acc-wrapper { display: flex; flex-direction: column; height: 100%; overflow: hidden; position: relative; }' +
 
         /* ========== EN-TETE ========== */

@@ -3,7 +3,7 @@
  * PWA avec cache intelligent - network-first pour CSS/JS
  */
 
-const CACHE_VERSION = 'v23-theme-fix';
+const CACHE_VERSION = 'v24-reports-fix';
 const STATIC_CACHE = 'static-' + CACHE_VERSION;
 const API_CACHE = 'api-' + CACHE_VERSION;
 
