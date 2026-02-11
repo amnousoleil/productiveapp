@@ -234,6 +234,7 @@ const SettingsRender = (function() {
     }
 
     function renderAnimations(icons) {
+        var enabled = SettingsState.areAnimationsEnabled();
         var intensity = SettingsState.getAnimationIntensity();
         var preset = SettingsState.getAnimationPreset();
         var presets = [
@@ -261,15 +262,32 @@ const SettingsRender = (function() {
         return '<section class="settings-section">' +
             '<h2 class="settings-section-title">' + icons.sparkles + '<span>Animations</span></h2>' +
             '<div class="settings-card" style="padding: 20px;">' +
-                '<p style="font-size:14px;color:var(--text);margin:0 0 14px;">Preset d\'animation</p>' +
-                '<div style="display:flex;gap:8px;margin-bottom:20px;">' + presetsHtml + '</div>' +
+                '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border);">' +
+                    '<div>' +
+                        '<p style="font-size:14px;font-weight:600;color:var(--text);margin:0 0 4px;">Activer les animations</p>' +
+                        '<p style="font-size:12px;color:var(--text-muted);margin:0;">Animations de fond interactives</p>' +
+                    '</div>' +
+                    '<label class="settings-toggle" style="position:relative;display:inline-block;width:50px;height:26px;">' +
+                        '<input type="checkbox" ' + (enabled ? 'checked' : '') + ' ' +
+                            'onchange="SettingsView.toggleAnimations(this.checked)" ' +
+                            'style="opacity:0;width:0;height:0;">' +
+                        '<span style="position:absolute;cursor:pointer;inset:0;background:' + (enabled ? 'var(--accent)' : 'var(--border)') + ';' +
+                            'border-radius:26px;transition:0.3s;"></span>' +
+                        '<span style="position:absolute;height:18px;width:18px;left:4px;bottom:4px;background:white;' +
+                            'border-radius:50%;transition:0.3s;transform:translateX(' + (enabled ? '24px' : '0') + ');"></span>' +
+                    '</label>' +
+                '</div>' +
+                '<div style="opacity:' + (enabled ? '1' : '0.4') + ';pointer-events:' + (enabled ? 'auto' : 'none') + ';">' +
+                    '<p style="font-size:14px;color:var(--text);margin:0 0 14px;">Preset d\'animation</p>' +
+                    '<div style="display:flex;gap:8px;margin-bottom:20px;">' + presetsHtml + '</div>' +
                 '<p style="font-size:14px;color:var(--text);margin:0 0 8px;">Intensit\u00E9 : <span id="settings-anim-value" style="color:var(--accent);font-weight:600;font-variant-numeric:tabular-nums;">' + intensity + '%</span></p>' +
                 '<input type="range" min="0" max="100" value="' + intensity + '" ' +
                     'id="settings-anim-slider" ' +
                     'oninput="SettingsView.setAnimIntensity(this.value)" ' +
                     'style="width:100%;accent-color:var(--accent);height:6px;border-radius:3px;">' +
-                '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:6px;">' +
-                    '<span>Aucune</span><span>Maximale</span>' +
+                    '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:6px;">' +
+                        '<span>Aucune</span><span>Maximale</span>' +
+                    '</div>' +
                 '</div>' +
             '</div>' +
         '</section>';

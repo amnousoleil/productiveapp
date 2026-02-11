@@ -135,6 +135,13 @@ const SettingsView = (function() {
     }
 
     /**
+     * Toggle animations ON/OFF - delegate to actions
+     */
+    function toggleAnimations(enabled) {
+        SettingsActions.toggleAnimations(enabled);
+    }
+
+    /**
      * Open avatar file picker
      */
     function openAvatarUpload() {
@@ -175,6 +182,7 @@ const SettingsView = (function() {
         saveProfile: saveProfile,
         saveWorkspace: saveWorkspace,
         setWorkspaceIcon: setWorkspaceIcon,
+        toggleAnimations: toggleAnimations,
         setAnimIntensity: setAnimIntensity,
         setAnimPreset: setAnimPreset,
         openAvatarUpload: openAvatarUpload,

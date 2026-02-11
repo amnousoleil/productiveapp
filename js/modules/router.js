@@ -27,7 +27,8 @@ const ViewRouter = (function() {
         behavioral: 'Mon Profil',
         teamVision: 'Vision équipe',
         giriVision: 'Giri Vision',
-        calendar: 'Calendrier'
+        calendar: 'Calendrier',
+        admin: 'Administration'
     };
 
     // Available views
@@ -59,6 +60,40 @@ const ViewRouter = (function() {
      * Navigate to a specific view
      */
     function navigate(viewId) {
+        // Special handling for admin view (custom rendering)
+        if (viewId === 'admin') {
+            previousView = currentView;
+            currentView = viewId;
+
+            // Hide all views
+            document.querySelectorAll('.view-container').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // Update sidebar active state
+            if (typeof Sidebar !== 'undefined') {
+                Sidebar.setActiveItem(viewId);
+            }
+
+            // Update page title
+            document.title = 'Administration - ProductiveApp';
+
+            // Update URL hash
+            history.pushState({ view: viewId }, '', `#${viewId}`);
+
+            // Emit event
+            document.dispatchEvent(new CustomEvent('viewchange', {
+                detail: { view: viewId, previous: previousView }
+            }));
+
+            // Show admin view
+            if (typeof AdminView !== 'undefined') {
+                AdminView.show();
+            }
+
+            return true;
+        }
+
         if (!VIEWS[viewId]) {
             console.warn(`ViewRouter: vue inconnue "${viewId}"`);
             return false;

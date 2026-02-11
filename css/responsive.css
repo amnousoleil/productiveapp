@@ -498,7 +498,6 @@
     .animation-fab,
     .pomodoro-widget,
     .toast-container,
-    canvas#matrix-bg,
     .chatbot-toggle {
         display: none !important;
     }

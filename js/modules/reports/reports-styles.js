@@ -24,7 +24,7 @@ const ReportsStyles = (function() {
             .nav-btn svg { width: 18px; height: 18px; }
             .period-label { font-weight: 600; color: var(--text, #fff); min-width: 150px; text-align: center; }
 
-            /* Summary Cards */
+            /* Summary Cards (legacy - now using .kpi-* classes from reports-premium.css) */
             .reports-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
             .summary-card { background: var(--surface, #1a1a2e); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 16px; transition: transform 0.2s, box-shadow 0.2s; }
             .summary-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
@@ -37,6 +37,10 @@ const ReportsStyles = (function() {
             .summary-content { flex: 1; }
             .summary-value { font-size: 28px; font-weight: 700; color: var(--text, #fff); line-height: 1; }
             .summary-label { font-size: 13px; color: var(--text-muted, #888); margin-top: 4px; }
+
+            /* KPI Cards (ensure SVG icons are sized correctly) */
+            .kpi-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+            .kpi-icon svg { width: 20px !important; height: 20px !important; }
 
             /* Section */
             .reports-section { margin-top: 32px; }

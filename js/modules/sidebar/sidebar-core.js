@@ -22,8 +22,8 @@ const Sidebar = (function() {
         unreadMessages: 0
     };
 
-    // Configuration navigation
-    const navItems = [
+    // Configuration navigation de base
+    const baseNavItems = [
         { id: 'dashboard', icon: 'home', label: 'Tableau de bord', tooltip: 'Accueil' },
         { id: 'tasks', icon: 'check-square', label: 'Tâches', tooltip: 'Gérer les tâches' },
         { id: 'notes', icon: 'file-text', label: 'Notes', tooltip: 'Éditeur de notes' },
@@ -45,6 +45,55 @@ const Sidebar = (function() {
         { id: 'divider3', type: 'divider' },
         { id: 'giriVision', icon: 'video', label: 'Giri Vision', tooltip: 'Consultations vidéo', tag: 'NEW' }
     ];
+
+    /**
+     * Vérifier si l'utilisateur est admin
+     */
+    function isAdmin() {
+        const user = typeof AppState !== 'undefined' ? AppState.currentUser : null;
+        const email = user?.email || '';
+        return email === 'contact@mahagiri.fr';
+    }
+
+    /**
+     * Obtenir les items de navigation avec l'admin si nécessaire
+     */
+    function getNavItems() {
+        const items = [...baseNavItems];
+
+        // Ajouter l'onglet Admin UNIQUEMENT pour contact@mahagiri.fr
+        if (isAdmin()) {
+            // Insérer l'admin après le premier divider
+            const divider1Index = items.findIndex(item => item.id === 'divider1');
+            if (divider1Index !== -1) {
+                items.splice(divider1Index + 1, 0, {
+                    id: 'admin',
+                    icon: 'shield',
+                    label: 'Admin',
+                    tooltip: 'Administration système',
+                    tag: 'ADMIN'
+                });
+            }
+        }
+
+        return items;
+    }
+
+    // Propriété dynamique pour navItems
+    const navItems = new Proxy({}, {
+        get(target, prop) {
+            if (prop === 'length') {
+                return getNavItems().length;
+            }
+            if (prop === Symbol.iterator) {
+                return getNavItems()[Symbol.iterator].bind(getNavItems());
+            }
+            if (typeof prop === 'string' && !isNaN(prop)) {
+                return getNavItems()[parseInt(prop)];
+            }
+            return getNavItems()[prop];
+        }
+    });
 
     const footerItems = [
         { id: 'settings', icon: 'settings', label: 'Paramètres', tooltip: 'Réglages' },
@@ -145,7 +194,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'admin'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);
@@ -154,6 +203,14 @@ const Sidebar = (function() {
 
         // Actions spéciales
         switch (itemId) {
+            case 'admin':
+                // Afficher la vue admin
+                if (typeof AdminView !== 'undefined' && AdminView.show) {
+                    AdminView.show();
+                } else if (typeof ViewRouter !== 'undefined') {
+                    ViewRouter.navigate('admin');
+                }
+                break;
             case 'mahayawen':
                 // Toggle le chatbot flottant (pas de navigation)
                 if (typeof Chatbot !== 'undefined' && Chatbot.toggle) {
@@ -258,8 +315,9 @@ const Sidebar = (function() {
         setActiveItem,
 
         // Config
-        navItems,
+        get navItems() { return getNavItems(); },
         footerItems,
+        isAdmin,
 
         // Persistence
         loadState,

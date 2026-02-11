@@ -155,6 +155,44 @@ const SettingsActions = (function() {
         showToast('Animation: ' + presetKey);
     }
 
+    /**
+     * Toggle animations ON/OFF
+     */
+    function toggleAnimations(enabled) {
+        try {
+            // Save state to localStorage
+            localStorage.setItem(SettingsState.CONFIG.storageKeys.animationEnabled, String(enabled));
+            console.log('🎨 Animations ' + (enabled ? 'enabled' : 'disabled'));
+
+            // Control canvas visibility
+            var canvas = document.getElementById('matrix-bg');
+            if (canvas) {
+                if (enabled) {
+                    // Enable: Initialize animation engine and show canvas
+                    if (typeof initAnimation === 'function') {
+                        initAnimation();
+                        console.log('✅ initAnimation() called from toggleAnimations');
+                    }
+                    canvas.style.opacity = '0.95';
+                } else {
+                    // Disable: Hide canvas completely
+                    canvas.style.opacity = '0';
+                }
+            }
+
+            // Re-render settings to update UI (toggle state + opacity on controls)
+            if (typeof SettingsView !== 'undefined' && SettingsView.render) {
+                SettingsView.render();
+            }
+
+            // User feedback
+            showToast('Animations ' + (enabled ? 'activees' : 'desactivees'));
+        } catch (e) {
+            console.error('Error toggling animations:', e);
+            showToast('Erreur lors de la modification des animations', 'error');
+        }
+    }
+
     // ===== Avatar Upload + Crop =====
     var cropState = { img: null, scale: 1, offsetX: 0, offsetY: 0, dragging: false, lastX: 0, lastY: 0, canvas: null, ctx: null };
 
@@ -393,6 +431,7 @@ const SettingsActions = (function() {
         setWorkspaceIcon: setWorkspaceIcon,
         setAnimIntensity: setAnimIntensity,
         setAnimPreset: setAnimPreset,
+        toggleAnimations: toggleAnimations,
         openAvatarUpload: openAvatarUpload,
         handleAvatarFile: handleAvatarFile,
         closeCropModal: closeCropModal,

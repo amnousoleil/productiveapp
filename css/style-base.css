@@ -69,7 +69,7 @@ html {
     height: 100%;
     z-index: -1; /* Behind everything */
     pointer-events: none;
-    opacity: 0.8;
+    opacity: 0.95; /* BOOSTED for spectacular visibility */
 }
 
 /* === MAIN CONTENT (avec sidebar) === */

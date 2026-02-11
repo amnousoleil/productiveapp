@@ -126,9 +126,30 @@ const App = {
             // Initialiser le drag & drop
             setTimeout(() => {
                 if (typeof initDragAndDrop === 'function') initDragAndDrop();
-                if (typeof initAnimation === 'function') initAnimation();
-                if (typeof AnimationControls !== 'undefined' && AnimationControls.init) AnimationControls.init();
             }, 100);
+
+            // ANIMATIONS: Init with longer delay to ensure canvas exists
+            setTimeout(() => {
+                console.log('🎨 App.init: Attempting animation init...');
+                const canvas = document.getElementById('matrix-bg');
+                console.log('Canvas exists?', !!canvas);
+                console.log('initAnimation defined?', typeof initAnimation === 'function');
+                console.log('AnimationControls defined?', typeof AnimationControls !== 'undefined');
+
+                if (typeof initAnimation === 'function') {
+                    initAnimation();
+                    console.log('✅ initAnimation() called from App.init');
+                } else {
+                    console.warn('⚠️ initAnimation not defined yet');
+                }
+
+                if (typeof AnimationControls !== 'undefined' && AnimationControls.init) {
+                    AnimationControls.init();
+                    console.log('✅ AnimationControls.init() called from App.init');
+                } else {
+                    console.warn('⚠️ AnimationControls not defined yet');
+                }
+            }, 1000);
 
             // CRITICAL: Ensure all modals are closed on startup
             this.closeAllModals();
@@ -199,10 +220,24 @@ const App = {
                 Tasks.render();
                 Journal.render();
 
+                // FORCE CLOSE ALL MODALS ON STARTUP (security fix for ghost modal bug)
+                this.forceCloseAllModals();
+
                 // Record daily login for gamification streak + XP
                 if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordDailyLogin) {
                     GamificationAPI.recordDailyLogin().catch(() => {});
                 }
+
+                // Force start animations after login
+                setTimeout(() => {
+                    if (typeof initAnimation === 'function') {
+                        initAnimation();
+                        console.log('✅ Animations démarrées après login');
+                    }
+                }, 1000);
+
+                // Detect super-admin (contact@mahagiri.fr)
+                this.detectSuperAdmin();
 
                 return; // API a répondu, ne pas appeler legacy
             } catch (e) {
@@ -234,6 +269,9 @@ const App = {
         // Render data
         Tasks.render();
         Journal.render();
+
+        // FORCE CLOSE ALL MODALS ON STARTUP (security fix for ghost modal bug)
+        this.forceCloseAllModals();
     },
 
     /**
@@ -280,6 +318,51 @@ const App = {
         try { if (typeof Effects !== 'undefined' && Effects.initViewToggle) Effects.initViewToggle(); } catch(e) { console.error('Effects.initViewToggle error:', e); }
 
         console.log('✅ UI initialisée');
+    },
+
+    /**
+     * Force close all modals on startup (security fix for ghost modal bug)
+     */
+    forceCloseAllModals() {
+        const modalIds = [
+            'edit-task-modal',
+            'theme-modal',
+            'project-modal',
+            'premium-report-modal',
+            'premium-results-modal'
+        ];
+
+        modalIds.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                // Remove visibility classes
+                modal.classList.remove('modal-visible');
+                modal.classList.add('hidden');
+                // Force inline style
+                modal.style.display = 'none';
+            }
+        });
+
+        // Also close any generic .modal elements
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.classList.remove('modal-visible');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        });
+
+        console.log('🔒 All modals force-closed on startup');
+    },
+
+    /**
+     * Detect if the current user is super-admin (contact@mahagiri.fr)
+     */
+    detectSuperAdmin() {
+        // Get user email from AppState or State
+        const userEmail = AppState?.currentUser?.email || State?.user?.email;
+
+        // Set isAdmin flag in global window
+        window.isAdmin = (userEmail === 'contact@mahagiri.fr');
+        console.log('🛡️ Admin detection:', window.isAdmin ? 'ADMIN' : 'USER', `(${userEmail})`);
     },
 
     /**
@@ -422,6 +505,15 @@ window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
             modal.style.display = 'none';
         });
 
+        // CRITICAL: Force close edit-task-modal specifically (known to auto-open on refresh)
+        const editTaskModal = document.getElementById('edit-task-modal');
+        if (editTaskModal) {
+            editTaskModal.classList.add('hidden');
+            editTaskModal.classList.remove('modal-visible');
+            editTaskModal.style.display = 'none';
+            console.log('🔒 Force closed edit-task-modal');
+        }
+
         // Close confirm modals
         document.querySelectorAll('.confirm-modal-overlay').forEach(modal => {
             modal.classList.remove('active');
@@ -453,4 +545,40 @@ window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
     // Run again after a short delay to catch dynamically created modals
     setTimeout(forceCloseAllModals, 500);
     setTimeout(forceCloseAllModals, 1500);
+
+    // CRITICAL: Monitor edit-task-modal and force close if it auto-opens (3 seconds guard)
+    let guardActive = true;
+    setTimeout(() => { guardActive = false; }, 3000);
+
+    const observer = new MutationObserver((mutations) => {
+        if (!guardActive) {
+            observer.disconnect();
+            return;
+        }
+
+        const editTaskModal = document.getElementById('edit-task-modal');
+        if (editTaskModal && editTaskModal.classList.contains('modal-visible')) {
+            console.warn('⚠️ edit-task-modal auto-opened on startup - force closing');
+            editTaskModal.classList.add('hidden');
+            editTaskModal.classList.remove('modal-visible');
+            editTaskModal.style.display = 'none';
+        }
+    });
+
+    // Start observing once DOM is ready
+    if (document.body) {
+        observer.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class'],
+            subtree: true
+        });
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            observer.observe(document.body, {
+                attributes: true,
+                attributeFilter: ['class'],
+                subtree: true
+            });
+        });
+    }
 })();

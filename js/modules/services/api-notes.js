@@ -57,7 +57,14 @@ const ApiNotes = (function() {
      * Get single note by ID
      */
     async function getById(noteId) {
-        const response = await Api.get(buildUrl(`/${noteId}`));
+        const memberId = getMemberId();
+        const queryParams = new URLSearchParams();
+        if (memberId) {
+            queryParams.set('member_id', memberId);
+        }
+        const query = queryParams.toString();
+        const url = buildUrl(`/${noteId}`) + (query ? `?${query}` : '');
+        const response = await Api.get(url);
         return response.data?.note;
     }
 
@@ -89,7 +96,14 @@ const ApiNotes = (function() {
      * Delete note (soft delete)
      */
     async function remove(noteId) {
-        await Api.delete(buildUrl(`/${noteId}`));
+        const memberId = getMemberId();
+        const queryParams = new URLSearchParams();
+        if (memberId) {
+            queryParams.set('member_id', memberId);
+        }
+        const query = queryParams.toString();
+        const url = buildUrl(`/${noteId}`) + (query ? `?${query}` : '');
+        await Api.delete(url);
         return true;
     }
 
@@ -113,7 +127,14 @@ const ApiNotes = (function() {
      * Get note versions
      */
     async function getVersions(noteId) {
-        const response = await Api.get(buildUrl(`/${noteId}/versions`));
+        const memberId = getMemberId();
+        const queryParams = new URLSearchParams();
+        if (memberId) {
+            queryParams.set('member_id', memberId);
+        }
+        const query = queryParams.toString();
+        const url = buildUrl(`/${noteId}/versions`) + (query ? `?${query}` : '');
+        const response = await Api.get(url);
         return Array.isArray(response.data) ? response.data : [];
     }
 

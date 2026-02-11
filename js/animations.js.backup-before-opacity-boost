@@ -220,76 +220,76 @@ function noGlow() { ctx.shadowBlur = 0; }
 // ==========================================================
 const TC = {
     // ÉLÉGANCE
-    executive:   { type: 'particles', c: ['#d4af37','#f0d975'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    corporate:   { type: 'particles', c: ['#6495ed','#89b4f7'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    ivory:       { type: 'shimmer',   c: ['#B8A080','#D4C8B8','#C8B898'], a: 0.92 },
-    sterling:    { type: 'particles', c: ['#C0C8D0','#D8DDE5'], a: 0.98 }, // MASSIVELY BOOSTED for visibility
-    diplomat:    { type: 'particles', c: ['#C4324A','#E05A72'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    academie:    { type: 'particles', c: ['#daa520','#f0c850'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
+    executive:   { type: 'particles', c: ['#d4af37','#f0d975'], a: 0.75 }, // BOOSTED for visibility
+    corporate:   { type: 'particles', c: ['#6495ed','#89b4f7'], a: 0.75 }, // BOOSTED for visibility
+    ivory:       { type: 'shimmer',   c: ['#B8A080','#D4C8B8','#C8B898'], a: 0.15 },
+    sterling:    { type: 'particles', c: ['#C0C8D0','#D8DDE5'], a: 0.70 }, // BOOSTED for visibility
+    diplomat:    { type: 'particles', c: ['#C4324A','#E05A72'], a: 0.75 }, // BOOSTED for visibility
+    academie:    { type: 'particles', c: ['#daa520','#f0c850'], a: 0.75 }, // BOOSTED for visibility
     // NATURE
-    ocean:       { type: 'ocean',     c: ['#00b4d8','#48cae4','#06d6a0'], a: 0.95 },
-    forest:      { type: 'forest',    c: ['#4aaa64','#70c888','#a3e635'], a: 0.92 },
-    sunset:      { type: 'sunset',    c: ['#f97316','#fbbf24','#ef4444','#fb7185'], a: 0.92 },
-    desert:      { type: 'desert',    c: ['#e07840','#f4a261','#fbbf24'], a: 0.92 },
-    lavender:    { type: 'fireflies', c: ['#B07CC8','#D0A0E8','#E8C0FF'], a: 0.88 },
-    sakura:      { type: 'shimmer',   c: ['#D4688C','#E890A8','#F0B0C0'], a: 0.45 },
+    ocean:       { type: 'ocean',     c: ['#00b4d8','#48cae4','#06d6a0'], a: 0.8 },
+    forest:      { type: 'forest',    c: ['#4aaa64','#70c888','#a3e635'], a: 0.7 },
+    sunset:      { type: 'sunset',    c: ['#f97316','#fbbf24','#ef4444','#fb7185'], a: 0.75 },
+    desert:      { type: 'desert',    c: ['#e07840','#f4a261','#fbbf24'], a: 0.7 },
+    lavender:    { type: 'fireflies', c: ['#B07CC8','#D0A0E8','#E8C0FF'], a: 0.6 },
+    sakura:      { type: 'shimmer',   c: ['#D4688C','#E890A8','#F0B0C0'], a: 0.2 },
     // ATMOSPHÈRE
-    aurora:      { type: 'aurora',    c: ['#93c5fd','#c4b5fd','#86efac','#a7f3d0'], a: 0.97 },
-    midnight:    { type: 'midnight',  c: ['#7c9fff','#a0c0ff','#88d8a0'], a: 0.97 },
-    twilight:    { type: 'stars',     c: ['#C490E0','#D8B0F0','#A080C8'], a: 0.98 },
-    candlelight: { type: 'fireflies', c: ['#E8A840','#F0C060','#FFE080'], a: 0.88 },
-    moonlit:     { type: 'stars',     c: ['#A0B8D8','#C0D0E8','#8098B8'], a: 0.88 },
-    'golden-hour': { type: 'fireflies', c: ['#D4A040','#E8C060','#F0D880'], a: 0.98 },
-    storm:       { type: 'waves',     c: ['#6B8DB5','#90B0D0','#4A7098'], a: 0.88 },
+    aurora:      { type: 'aurora',    c: ['#93c5fd','#c4b5fd','#86efac','#a7f3d0'], a: 0.85 },
+    midnight:    { type: 'midnight',  c: ['#7c9fff','#a0c0ff','#88d8a0'], a: 0.85 },
+    twilight:    { type: 'stars',     c: ['#C490E0','#D8B0F0','#A080C8'], a: 0.65 },
+    candlelight: { type: 'fireflies', c: ['#E8A840','#F0C060','#FFE080'], a: 0.6 },
+    moonlit:     { type: 'stars',     c: ['#A0B8D8','#C0D0E8','#8098B8'], a: 0.6 },
+    'golden-hour': { type: 'fireflies', c: ['#D4A040','#E8C060','#F0D880'], a: 0.65 },
+    storm:       { type: 'waves',     c: ['#6B8DB5','#90B0D0','#4A7098'], a: 0.6 },
     // MODERNE
-    bubblegum:   { type: 'bubblegum', c: ['#ff6b9d','#ff9ec4','#ffc0d0','#38bdf8'], a: 0.92 },
-    neon:        { type: 'neonp',     c: ['#FF1493','#FF69B4','#00FFAA','#FFD700'], a: 0.92 },
-    pastel:      { type: 'shimmer',   c: ['#A888C8','#C8A8E0','#88B8D8'], a: 0.45 },
-    retrowave:   { type: 'neonp',     c: ['#FF6EC7','#FF90D8','#00E5A0','#8866FF'], a: 0.92 },
-    mint:        { type: 'shimmer',   c: ['#3DA878','#60C898','#88E0B8'], a: 0.45 },
-    coral:       { type: 'particles', c: ['#FF6F61','#FF9488'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
+    bubblegum:   { type: 'bubblegum', c: ['#ff6b9d','#ff9ec4','#ffc0d0','#38bdf8'], a: 0.75 },
+    neon:        { type: 'neonp',     c: ['#FF1493','#FF69B4','#00FFAA','#FFD700'], a: 0.7 },
+    pastel:      { type: 'shimmer',   c: ['#A888C8','#C8A8E0','#88B8D8'], a: 0.18 },
+    retrowave:   { type: 'neonp',     c: ['#FF6EC7','#FF90D8','#00E5A0','#8866FF'], a: 0.7 },
+    mint:        { type: 'shimmer',   c: ['#3DA878','#60C898','#88E0B8'], a: 0.18 },
+    coral:       { type: 'particles', c: ['#FF6F61','#FF9488'], a: 0.75 }, // BOOSTED for visibility
     // MINIMALISTE
-    obsidian:    { type: 'obsidian',  c: ['#a78bfa','#8b5cf6'], a: 0.88 },
-    paper:       { type: 'shimmer',   c: ['#8B7B65','#B0A088','#C8B8A0'], a: 0.30 },
-    clay:        { type: 'fireflies', c: ['#B89878','#D0B898','#C8A878'], a: 0.75 },
-    porcelain:   { type: 'shimmer',   c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.30 },
-    espresso:    { type: 'fireflies', c: ['#A87848','#C89868','#B08858'], a: 0.75 },
+    obsidian:    { type: 'obsidian',  c: ['#a78bfa','#8b5cf6'], a: 0.6 },
+    paper:       { type: 'shimmer',   c: ['#8B7B65','#B0A088','#C8B8A0'], a: 0.12 },
+    clay:        { type: 'fireflies', c: ['#B89878','#D0B898','#C8A878'], a: 0.4 },
+    porcelain:   { type: 'shimmer',   c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.12 },
+    espresso:    { type: 'fireflies', c: ['#A87848','#C89868','#B08858'], a: 0.4 },
     // TECH
-    matrix:      { type: 'matrix',    c: ['#00ff66','#4dff8d'], a: 0.98 },
-    cyberpunk:   { type: 'cyberpunk', c: ['#ff00ff','#00ffff','#ff0088','#8800ff'], a: 0.97 },
-    terminal:    { type: 'terminal',  c: ['#FFB000','#FFD060','#FF8800'], a: 0.97 },
-    tron:        { type: 'trongrid',  c: ['#00D4FF','#40E0FF','#0080A0'], a: 0.92 },
-    hologram:    { type: 'hologram',  c: ['#88DDFF','#FF88DD','#88FFBB','#FFDD88'], a: 0.88 },
+    matrix:      { type: 'matrix',    c: ['#00ff66','#4dff8d'], a: 0.9 },
+    cyberpunk:   { type: 'cyberpunk', c: ['#ff00ff','#00ffff','#ff0088','#8800ff'], a: 0.85 },
+    terminal:    { type: 'terminal',  c: ['#FFB000','#FFD060','#FF8800'], a: 0.85 },
+    tron:        { type: 'trongrid',  c: ['#00D4FF','#40E0FF','#0080A0'], a: 0.7 },
+    hologram:    { type: 'hologram',  c: ['#88DDFF','#FF88DD','#88FFBB','#FFDD88'], a: 0.6 },
     // ARTISTE
-    zen:         { type: 'shimmer',   c: ['#708058','#90A070','#A8B888'], a: 0.30 },
-    'art-deco':  { type: 'particles', c: ['#C8A040','#E0C060'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    watercolor:  { type: 'shimmer',   c: ['#8888C0','#A8A8D8','#9898B8'], a: 0.45 },
-    nordic:      { type: 'shimmer',   c: ['#5A7A6A','#78A890','#90C0A8'], a: 0.40 },
-    cosmic:      { type: 'stars',     c: ['#9966FF','#B888FF','#7744DD'], a: 0.95 },
+    zen:         { type: 'shimmer',   c: ['#708058','#90A070','#A8B888'], a: 0.12 },
+    'art-deco':  { type: 'particles', c: ['#C8A040','#E0C060'], a: 0.75 }, // BOOSTED for visibility
+    watercolor:  { type: 'shimmer',   c: ['#8888C0','#A8A8D8','#9898B8'], a: 0.15 },
+    nordic:      { type: 'shimmer',   c: ['#5A7A6A','#78A890','#90C0A8'], a: 0.12 },
+    cosmic:      { type: 'stars',     c: ['#9966FF','#B888FF','#7744DD'], a: 0.8 },
     // SAISONS
-    printemps:   { type: 'shimmer',   c: ['#78B464','#98D080','#B8E8A0'], a: 0.92 },
-    ete:         { type: 'shimmer',   c: ['#2890C0','#48B0E0','#F0D080'], a: 0.92 },
-    automne:     { type: 'fireflies', c: ['#C85A28','#E07840','#D8A030'], a: 0.98 },
-    hiver:       { type: 'stars',     c: ['#88B8E0','#A8D0F0','#C0D8F0'], a: 0.88 },
+    printemps:   { type: 'shimmer',   c: ['#78B464','#98D080','#B8E8A0'], a: 0.15 },
+    ete:         { type: 'shimmer',   c: ['#2890C0','#48B0E0','#F0D080'], a: 0.15 },
+    automne:     { type: 'fireflies', c: ['#C85A28','#E07840','#D8A030'], a: 0.65 },
+    hiver:       { type: 'stars',     c: ['#88B8E0','#A8D0F0','#C0D8F0'], a: 0.6 },
     // PRÉCIEUX
-    amethyst:    { type: 'stars',     c: ['#9060D8','#B080F0','#7040B8'], a: 0.92 },
-    jade:        { type: 'fireflies', c: ['#40A878','#60C898','#308860'], a: 0.97 },
-    ruby:        { type: 'particles', c: ['#D83040','#F05060'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    pearl:       { type: 'shimmer',   c: ['#A098B0','#B8B0C8','#D0C8D8'], a: 0.40 },
-    copper:      { type: 'fireflies', c: ['#C87850','#E09870','#A06038'], a: 0.82 },
+    amethyst:    { type: 'stars',     c: ['#9060D8','#B080F0','#7040B8'], a: 0.7 },
+    jade:        { type: 'fireflies', c: ['#40A878','#60C898','#308860'], a: 0.55 },
+    ruby:        { type: 'particles', c: ['#D83040','#F05060'], a: 0.75 }, // BOOSTED for visibility
+    pearl:       { type: 'shimmer',   c: ['#A098B0','#B8B0C8','#D0C8D8'], a: 0.12 },
+    copper:      { type: 'fireflies', c: ['#C87850','#E09870','#A06038'], a: 0.5 },
     // VOYAGE
-    sahara:      { type: 'desert',    c: ['#D2AF5A','#E8C878','#C09838'], a: 0.98 },
-    fjord:       { type: 'waves',     c: ['#3C8296','#58A8C0','#286878'], a: 0.88 },
-    bamboo:      { type: 'shimmer',   c: ['#64803C','#88A858','#A0C070'], a: 0.40 },
-    bali:        { type: 'ocean',     c: ['#00B496','#30D8B8','#008870'], a: 0.92 },
-    provence:    { type: 'shimmer',   c: ['#8C6EA0','#A888C0','#C0A0D0'], a: 0.92 },
+    sahara:      { type: 'desert',    c: ['#D2AF5A','#E8C878','#C09838'], a: 0.65 },
+    fjord:       { type: 'waves',     c: ['#3C8296','#58A8C0','#286878'], a: 0.6 },
+    bamboo:      { type: 'shimmer',   c: ['#64803C','#88A858','#A0C070'], a: 0.12 },
+    bali:        { type: 'ocean',     c: ['#00B496','#30D8B8','#008870'], a: 0.75 },
+    provence:    { type: 'shimmer',   c: ['#8C6EA0','#A888C0','#C0A0D0'], a: 0.15 },
     // ADDITIONS
-    moss:        { type: 'forest',    c: ['#507832','#70A048','#3A5A20'], a: 0.88 },
-    ember:       { type: 'fireflies', c: ['#DC5020','#F07040','#FF9060'], a: 0.92 },
-    snow:        { type: 'shimmer',   c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.35 },
-    charcoal:    { type: 'particles', c: ['#909AA4','#B0B8C0'], a: 0.92 },
-    bioluminescence: { type: 'ocean', c: ['#00C8DC','#40E8F0','#00E8A0'], a: 0.97 },
-    'ukiyo-e':   { type: 'particles', c: ['#B45038','#D07050'], a: 0.82 }
+    moss:        { type: 'forest',    c: ['#507832','#70A048','#3A5A20'], a: 0.6 },
+    ember:       { type: 'fireflies', c: ['#DC5020','#F07040','#FF9060'], a: 0.7 },
+    snow:        { type: 'shimmer',   c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.1 },
+    charcoal:    { type: 'particles', c: ['#909AA4','#B0B8C0'], a: 0.35 },
+    bioluminescence: { type: 'ocean', c: ['#00C8DC','#40E8F0','#00E8A0'], a: 0.85 },
+    'ukiyo-e':   { type: 'particles', c: ['#B45038','#D07050'], a: 0.5 }
 };
 
 // ==========================================================

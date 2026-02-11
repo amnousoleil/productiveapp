@@ -13,6 +13,7 @@ const SettingsState = (function() {
             notifications: 'productiveapp_notifications',
             sidebarCompact: 'sidebar_compact',
             theme: 'theme',
+            animationEnabled: 'productiveapp_animations_enabled',
             animationIntensity: 'productiveapp_animation_intensity',
             animationPreset: 'productiveapp_animation_preset'
         }
@@ -105,6 +106,16 @@ const SettingsState = (function() {
         return localStorage.getItem(CONFIG.storageKeys.animationPreset) || 'elegant';
     }
 
+    /**
+     * Check if animations are enabled
+     */
+    function areAnimationsEnabled() {
+        try {
+            var saved = localStorage.getItem(CONFIG.storageKeys.animationEnabled);
+            return saved !== 'false'; // Default to true
+        } catch (e) { return true; }
+    }
+
     return {
         CONFIG: CONFIG,
         icons: icons,
@@ -114,6 +125,7 @@ const SettingsState = (function() {
         getNotificationSettings: getNotificationSettings,
         isSidebarCompact: isSidebarCompact,
         getCurrentTheme: getCurrentTheme,
+        areAnimationsEnabled: areAnimationsEnabled,
         getAnimationIntensity: getAnimationIntensity,
         getAnimationPreset: getAnimationPreset
     };
