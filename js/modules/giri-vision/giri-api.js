@@ -102,10 +102,20 @@ const GiriApi = {
 
   // --- Recordings ---
   startRecording(consultationId) {
-    return this._post(`/consultations/${consultationId}/recording`);
+    return this._post(`/consultations/${consultationId}/recording/start`, {
+      started_at: new Date().toISOString()
+    });
+  },
+  stopRecording(consultationId) {
+    return this._post(`/consultations/${consultationId}/recording/stop`, {
+      ended_at: new Date().toISOString()
+    });
   },
   getRecording(consultationId) {
     return this._fetch(`/consultations/${consultationId}/recording`);
+  },
+  listRecordings() {
+    return this._fetch(`/workspace/${this._workspaceId()}/recordings`);
   },
 
   // --- Reports ---

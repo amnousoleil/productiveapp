@@ -54,9 +54,10 @@
     <link rel="stylesheet" href="css/style-views.css?v=2300">
     <link rel="stylesheet" href="css/galaxy.css?v=1700">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
-    <link rel="stylesheet" href="css/giri-vision.css?v=3200">
+    <link rel="stylesheet" href="css/giri-vision.css?v=3400">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
     <link rel="stylesheet" href="css/calendar.css?v=2000">
+    <link rel="stylesheet" href="css/calendar-v6.css?v=2300">
     <link rel="stylesheet" href="css/responsive.css?v=2300">
     <!-- Power Features CSS -->
     <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
@@ -64,6 +65,7 @@
     <link rel="stylesheet" href="css/quick-add.css?v=2000">
     <link rel="stylesheet" href="css/productivity-tools.css?v=2000">
     <link rel="stylesheet" href="css/kanban.css?v=2000">
+    <link rel="stylesheet" href="css/mail.css?v=100">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -243,6 +245,11 @@
         <!-- Calendar View -->
         <div id="view-calendar" class="view-container">
             <!-- Rendered by CalendarView -->
+        </div>
+
+        <!-- Mail View - Professional Emailing -->
+        <div id="view-mail" class="view-container">
+            <!-- Rendered by MailView -->
         </div>
 
         <!-- Tasks View (wraps existing app-container) -->
@@ -1128,6 +1135,10 @@
     <script src="js/modules/campaigns/campaigns-ui.js?v=1700"></script>
     <script src="js/modules/campaigns/campaigns.js?v=1700"></script>
 
+    <!-- Mail Module - Professional Emailing -->
+    <script src="js/modules/mail/mail-api.js?v=100"></script>
+    <script src="js/modules/mail/mail-view.js?v=100"></script>
+
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
     <script src="js/modules/gamification/gamification-api.js?v=1900"></script>
@@ -1202,8 +1213,8 @@
     <script src="js/modules/reports/report-creator.js?v=1700"></script>
 
     <!-- Giri Vision - Video Consultation -->
-    <script src="js/modules/giri-vision/giri-api.js?v=3000"></script>
-    <script src="js/modules/giri-vision/giri-vision-view.js?v=3200"></script>
+    <script src="js/modules/giri-vision/giri-api.js?v=3400"></script>
+    <script src="js/modules/giri-vision/giri-vision-view.js?v=3400"></script>
 
     <!-- Admin Module - Dashboard système (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/admin/admin-api.js?v=2500"></script>
@@ -1211,6 +1222,8 @@
 
     <!-- NEW: Auth Login Module -->
     <script src="js/modules/auth/login.js?v=1800"></script>
+    <!-- Login Fix Patch (corrects login logo, sidebar logo, member picker, avatars) -->
+    <script src="js/modules/auth/login-fix.js?v=1400"></script>
 
     <!-- NEW: Core Modules -->
     <script src="js/modules/files/files.js?v=1700"></script>
@@ -1346,8 +1359,10 @@
     })();
     </script>
 
-    <!-- Calendar View -->
-    <script src="js/modules/calendar/calendar-view.js?v=2100"></script>
+    <!-- Calendar View v6.0 -->
+    <script src="js/modules/calendar/calendar-api.js?v=2300"></script>
+    <script src="js/modules/calendar/calendar-agent.js?v=2300"></script>
+    <script src="js/modules/calendar/calendar-view-v6.js?v=2300"></script>
 
     <!-- Power Features -->
     <script src="js/modules/command-palette.js?v=2000"></script>

@@ -8,6 +8,9 @@ const GiriVisionView = {
   jitsiApi: null,
   sessionTimer: null,
   sessionSeconds: 0,
+  participantsCount: 1, // Start with 1 (current user)
+  isRecording: false,
+  recordingStartTime: null,
 
   init() {
     this.bindEvents();
@@ -52,9 +55,14 @@ const GiriVisionView = {
             <p class="gv-hero-subtitle">
               Créez une salle de visioconférence instantanément et invitez vos participants
             </p>
-            <button class="gv-btn gv-btn-primary gv-btn-lg" data-gv-action="new-meeting">
-              ➕ Nouvelle réunion
-            </button>
+            <div class="gv-hero-actions">
+              <button class="gv-btn gv-btn-primary gv-btn-lg" data-gv-action="new-meeting">
+                🎥 Créer une réunion
+              </button>
+              <button class="gv-btn gv-btn-secondary gv-btn-lg" data-gv-action="join-with-code">
+                🔗 Rejoindre avec un code
+              </button>
+            </div>
           </div>
         </div>
 
@@ -77,17 +85,29 @@ const GiriVisionView = {
           <div class="gv-meeting-info">
             <span class="gv-meeting-timer" id="gv-meeting-timer">00:00:00</span>
             <span class="gv-meeting-name" id="gv-meeting-name"></span>
+            <span class="gv-meeting-participants" id="gv-meeting-participants">
+              👥 <span id="gv-participants-count">1</span>
+            </span>
           </div>
           <div class="gv-meeting-controls">
             <button class="gv-btn gv-btn-secondary gv-btn-sm" data-gv-action="copy-link" id="copy-link-btn">
               📋 Copier le lien
+            </button>
+            <button class="gv-btn gv-btn-secondary gv-btn-sm" data-gv-action="toggle-recording" id="recording-btn">
+              🔴 REC
             </button>
             <button class="gv-btn gv-btn-danger gv-btn-sm" data-gv-action="end-meeting">
               ❌ Terminer
             </button>
           </div>
         </div>
-        <div class="gv-video-container" id="gv-jitsi-container"></div>
+        <div class="gv-video-container" id="gv-jitsi-container">
+          <!-- Custom GIRI VISION logo overlay -->
+          <div class="gv-custom-logo">
+            <span class="gv-custom-logo-icon">🎥</span>
+            <span class="gv-custom-logo-text">Giri Vision</span>
+          </div>
+        </div>
       </div>
     `;
 
@@ -96,12 +116,10 @@ const GiriVisionView = {
   },
 
   generateRoomName() {
-    const adjectives = ['Quick', 'Smart', 'Pro', 'Fast', 'Cool', 'Nice', 'Easy', 'Great'];
-    const nouns = ['Meeting', 'Talk', 'Call', 'Session', 'Chat', 'Room', 'Conference'];
-    const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
-    const noun = nouns[Math.floor(Math.random() * nouns.length)];
-    const timestamp = Date.now().toString(36).substring(2, 8);
-    return `${adj}${noun}-${timestamp}`;
+    // Format: giri-TIMESTAMP-RANDOM (ex: giri-1707654321-a7f3)
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 6);
+    return `giri-${timestamp}-${random}`;
   },
 
   async startNewMeeting() {
@@ -124,14 +142,8 @@ const GiriVisionView = {
       };
     }
 
-    // Show meeting room (hide header and content)
-    const header = document.querySelector('#view-giri-vision > .gv-header');
-    const mainContent = document.querySelector('#view-giri-vision > .gv-content');
-    const meetingRoom = document.getElementById('gv-meeting-room');
-
-    if (header) header.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'none';
-    if (meetingRoom) meetingRoom.style.display = 'flex';
+    // FULLSCREEN MODE: Hide sidebar and show meeting room
+    this.enterFullscreenMode();
 
     // Update meeting name display
     const nameEl = document.getElementById('gv-meeting-name');
@@ -146,6 +158,43 @@ const GiriVisionView = {
     if (copyBtn) {
       copyBtn.dataset.roomName = roomName;
     }
+
+    // Show success toast with link
+    if (window.Toast) {
+      Toast.success('Réunion créée ! Partagez le lien pour inviter des participants.');
+    }
+  },
+
+  enterFullscreenMode() {
+    // Hide sidebar
+    if (window.Sidebar && typeof Sidebar.close === 'function') {
+      Sidebar.close();
+    }
+    // Alternative: Add class to body
+    document.body.classList.add('gv-fullscreen-active');
+
+    // Hide header and content, show meeting room
+    const header = document.querySelector('#view-giri-vision > .gv-header');
+    const mainContent = document.querySelector('#view-giri-vision > .gv-content');
+    const meetingRoom = document.getElementById('gv-meeting-room');
+
+    if (header) header.style.display = 'none';
+    if (mainContent) mainContent.style.display = 'none';
+    if (meetingRoom) meetingRoom.style.display = 'flex';
+  },
+
+  exitFullscreenMode() {
+    // Remove fullscreen class
+    document.body.classList.remove('gv-fullscreen-active');
+
+    // Hide meeting room, show header and content
+    const header = document.querySelector('#view-giri-vision > .gv-header');
+    const mainContent = document.querySelector('#view-giri-vision > .gv-content');
+    const meetingRoom = document.getElementById('gv-meeting-room');
+
+    if (meetingRoom) meetingRoom.style.display = 'none';
+    if (header) header.style.display = 'flex';
+    if (mainContent) mainContent.style.display = 'block';
   },
 
   initJitsi(roomName, userName) {
@@ -210,9 +259,45 @@ const GiriVisionView = {
       },
     });
 
+    // Event listeners
     this.jitsiApi.addEventListener('videoConferenceLeft', () => {
       this.endMeeting();
     });
+
+    this.jitsiApi.addEventListener('participantJoined', (participant) => {
+      this.participantsCount++;
+      this.updateParticipantsCount();
+
+      if (window.Toast && participant.displayName) {
+        Toast.info(`${participant.displayName} a rejoint la réunion`);
+      }
+    });
+
+    this.jitsiApi.addEventListener('participantLeft', (participant) => {
+      this.participantsCount = Math.max(1, this.participantsCount - 1);
+      this.updateParticipantsCount();
+
+      if (window.Toast && participant.displayName) {
+        Toast.info(`${participant.displayName} a quitté la réunion`);
+      }
+    });
+
+    // Get initial participant count
+    this.jitsiApi.addEventListener('videoConferenceJoined', () => {
+      setTimeout(() => {
+        this.jitsiApi.getNumberOfParticipants().then(count => {
+          this.participantsCount = count;
+          this.updateParticipantsCount();
+        });
+      }, 1000);
+    });
+  },
+
+  updateParticipantsCount() {
+    const countEl = document.getElementById('gv-participants-count');
+    if (countEl) {
+      countEl.textContent = this.participantsCount;
+    }
   },
 
   startMeetingTimer() {
@@ -288,14 +373,8 @@ const GiriVisionView = {
       this.sessionTimer = null;
     }
 
-    // Hide meeting room and show header + main content
-    const header = document.querySelector('#view-giri-vision > .gv-header');
-    const mainContent = document.querySelector('#view-giri-vision > .gv-content');
-    const meetingRoom = document.getElementById('gv-meeting-room');
-
-    if (meetingRoom) meetingRoom.style.display = 'none';
-    if (header) header.style.display = 'flex';
-    if (mainContent) mainContent.style.display = 'block';
+    // Exit fullscreen mode
+    this.exitFullscreenMode();
 
     // Reset state
     this.currentMeeting = null;
@@ -322,10 +401,13 @@ const GiriVisionView = {
 
       if (recentMeetings.length === 0) {
         listEl.innerHTML = `
-          <div class="gv-empty-history">
-            <div class="gv-empty-icon">📭</div>
-            <p>Aucune réunion dans l'historique</p>
-            <p class="gv-empty-hint">Créez votre première réunion pour commencer</p>
+          <div class="gv-empty-history gv-empty-first-time">
+            <div class="gv-empty-icon-large">🎥</div>
+            <h3 class="gv-empty-title">Aucune réunion récente</h3>
+            <p class="gv-empty-hint">Créez votre première réunion pour démarrer !</p>
+            <button class="gv-btn gv-btn-primary" data-gv-action="new-meeting">
+              ✨ Créer ma première réunion
+            </button>
           </div>
         `;
         return;
@@ -333,15 +415,32 @@ const GiriVisionView = {
 
       listEl.innerHTML = recentMeetings.map(m => this.renderMeetingCard(m)).join('');
     } catch (err) {
-      listEl.innerHTML = `
-        <div class="gv-empty-history">
-          <div class="gv-empty-icon">⚠️</div>
-          <p>Impossible de charger l'historique</p>
-          <button class="gv-btn gv-btn-secondary gv-btn-sm" data-gv-action="refresh-history">
-            Réessayer
-          </button>
-        </div>
-      `;
+      // Si l'erreur est due à l'absence de données (404), afficher le message d'encouragement
+      const is404 = err.message?.includes('404') || err.message?.includes('Not found');
+
+      if (is404) {
+        listEl.innerHTML = `
+          <div class="gv-empty-history gv-empty-first-time">
+            <div class="gv-empty-icon-large">🎥</div>
+            <h3 class="gv-empty-title">Aucune réunion récente</h3>
+            <p class="gv-empty-hint">Créez votre première réunion pour démarrer !</p>
+            <button class="gv-btn gv-btn-primary" data-gv-action="new-meeting">
+              ✨ Créer ma première réunion
+            </button>
+          </div>
+        `;
+      } else {
+        // Vraie erreur réseau/serveur
+        listEl.innerHTML = `
+          <div class="gv-empty-history">
+            <div class="gv-empty-icon">⚠️</div>
+            <p>Erreur de connexion au serveur</p>
+            <button class="gv-btn gv-btn-secondary gv-btn-sm" data-gv-action="refresh-history">
+              🔄 Réessayer
+            </button>
+          </div>
+        `;
+      }
     }
   },
 
@@ -405,14 +504,8 @@ const GiriVisionView = {
       scheduled_at: new Date().toISOString()
     };
 
-    // Show meeting room (hide header and content)
-    const header = document.querySelector('#view-giri-vision > .gv-header');
-    const mainContent = document.querySelector('#view-giri-vision > .gv-content');
-    const meetingRoom = document.getElementById('gv-meeting-room');
-
-    if (header) header.style.display = 'none';
-    if (mainContent) mainContent.style.display = 'none';
-    if (meetingRoom) meetingRoom.style.display = 'flex';
+    // FULLSCREEN MODE: Hide sidebar and show meeting room
+    this.enterFullscreenMode();
 
     // Update meeting name display
     const nameEl = document.getElementById('gv-meeting-name');
@@ -427,6 +520,77 @@ const GiriVisionView = {
     if (copyBtn) {
       copyBtn.dataset.roomName = roomName;
     }
+
+    if (window.Toast) {
+      Toast.info('Reconnexion à la réunion...');
+    }
+  },
+
+  async promptJoinWithCode() {
+    const roomName = prompt('Entrez le code de la réunion (format: giri-XXXXX-XXXX) :');
+    if (roomName && roomName.trim()) {
+      await this.rejoinMeeting(roomName.trim());
+    }
+  },
+
+  async toggleRecording() {
+    if (!this.jitsiApi) return;
+
+    const recordBtn = document.getElementById('recording-btn');
+    if (!recordBtn) return;
+
+    if (this.isRecording) {
+      // Stop recording
+      try {
+        await this.jitsiApi.executeCommand('stopRecording', 'file');
+        this.isRecording = false;
+        this.recordingStartTime = null;
+
+        recordBtn.innerHTML = '🔴 REC';
+        recordBtn.classList.remove('gv-btn-recording');
+
+        // Save recording metadata to backend
+        if (this.currentMeeting && this.currentMeeting.id) {
+          try {
+            await GiriApi.stopRecording(this.currentMeeting.id);
+          } catch (e) {
+            console.warn('Failed to save recording metadata:', e);
+          }
+        }
+
+        if (window.Toast) Toast.success('Enregistrement sauvegardé');
+      } catch (err) {
+        console.error('Failed to stop recording:', err);
+        if (window.Toast) Toast.error('Erreur lors de l\'arrêt de l\'enregistrement');
+      }
+    } else {
+      // Start recording
+      try {
+        await this.jitsiApi.executeCommand('startRecording', {
+          mode: 'file',
+          shouldShare: false
+        });
+        this.isRecording = true;
+        this.recordingStartTime = Date.now();
+
+        recordBtn.innerHTML = '⏹️ STOP';
+        recordBtn.classList.add('gv-btn-recording');
+
+        // Notify backend that recording started
+        if (this.currentMeeting && this.currentMeeting.id) {
+          try {
+            await GiriApi.startRecording(this.currentMeeting.id);
+          } catch (e) {
+            console.warn('Failed to notify backend of recording:', e);
+          }
+        }
+
+        if (window.Toast) Toast.info('Enregistrement démarré');
+      } catch (err) {
+        console.error('Failed to start recording:', err);
+        if (window.Toast) Toast.error('Erreur: l\'enregistrement nécessite des autorisations');
+      }
+    }
   },
 
   handleAction(action, dataset) {
@@ -434,8 +598,14 @@ const GiriVisionView = {
       case 'new-meeting':
         this.startNewMeeting();
         break;
+      case 'join-with-code':
+        this.promptJoinWithCode();
+        break;
       case 'copy-link':
         this.copyMeetingLink(dataset.roomName);
+        break;
+      case 'toggle-recording':
+        this.toggleRecording();
         break;
       case 'end-meeting':
         this.endMeeting();

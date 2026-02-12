@@ -23,50 +23,101 @@
 }
 
 /* =============================================
-   HEADER - Simplified
+   HEADER - Premium Glassmorphism Design
    ============================================= */
 
 .gv-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 32px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
+  padding: 24px 40px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    color-mix(in srgb, var(--bg-secondary) 95%, transparent)
+  );
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
   z-index: 10;
+  position: relative;
+  overflow: hidden;
+}
+
+.gv-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent-light),
+    transparent
+  );
+  opacity: 0.5;
 }
 
 .gv-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .gv-logo-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg,
+    #FFD700 0%,
+    #FFA500 50%,
+    #FF8C00 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  box-shadow: 0 4px 20px var(--accent-glow);
+  font-size: 28px;
+  box-shadow:
+    0 8px 32px rgba(255, 215, 0, 0.3),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: gvLogoGlow 3s ease-in-out infinite;
+}
+
+@keyframes gvLogoGlow {
+  0%, 100% {
+    box-shadow:
+      0 8px 32px rgba(255, 215, 0, 0.3),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 8px 40px rgba(255, 215, 0, 0.5),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+  }
 }
 
 .gv-logo-text {
-  font-size: 22px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg,
+    #FFD700 0%,
+    #FFA500 50%,
+    #FF8C00 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  letter-spacing: -0.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
 }
 
 .gv-header-subtitle {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
 /* =============================================
@@ -153,6 +204,13 @@
   line-height: 1.6;
 }
 
+.gv-hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 /* =============================================
    BUTTONS
    ============================================= */
@@ -209,6 +267,22 @@
 
 .gv-btn-danger:hover {
   background: color-mix(in srgb, var(--danger) 25%, transparent);
+}
+
+.gv-btn-recording {
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  color: var(--danger);
+  border-color: var(--danger);
+  animation: gvRecordingPulse 2s ease-in-out infinite;
+}
+
+@keyframes gvRecordingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 0, 0, 0);
+  }
 }
 
 .gv-btn-sm {
@@ -366,14 +440,20 @@
 }
 
 /* =============================================
-   MEETING ROOM (Jitsi Container)
+   MEETING ROOM (Jitsi Container) - FULLSCREEN MODE
    ============================================= */
 
 .gv-meeting-room {
   display: none;
   flex-direction: column;
-  height: 100%;
-  background: var(--bg-primary);
+  /* FULLSCREEN: Position fixed pour sortir du flow normal */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999; /* Au-dessus de tout (sidebar = 1000) */
+  background: #000;
 }
 
 .gv-meeting-toolbar {
@@ -381,8 +461,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 20px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
+  background: rgba(17, 17, 24, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 10;
   gap: 16px;
 }
@@ -410,6 +491,24 @@
   text-overflow: ellipsis;
 }
 
+.gv-meeting-participants {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+  white-space: nowrap;
+}
+
+#gv-participants-count {
+  font-weight: 600;
+  color: var(--success);
+}
+
 .gv-meeting-controls {
   display: flex;
   gap: 10px;
@@ -429,6 +528,51 @@
   border: none;
 }
 
+/* Custom GIRI VISION logo overlay (top-left of video) */
+.gv-custom-logo {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  pointer-events: none;
+  animation: gvLogoFadeIn 0.5s ease-out;
+}
+
+@keyframes gvLogoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gv-custom-logo-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.5));
+}
+
+.gv-custom-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
 /* =============================================
    EMPTY STATES
    ============================================= */
@@ -441,10 +585,33 @@
   border-radius: var(--radius-lg, 16px);
 }
 
+.gv-empty-history.gv-empty-first-time {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    var(--bg-secondary)
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  padding: 80px 40px;
+}
+
 .gv-empty-icon {
   font-size: 56px;
   margin-bottom: 16px;
   opacity: 0.5;
+}
+
+.gv-empty-icon-large {
+  font-size: 80px;
+  margin-bottom: 24px;
+  animation: gvFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 16px rgba(255, 215, 0, 0.3));
+}
+
+.gv-empty-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px 0;
 }
 
 .gv-empty-history p {
@@ -454,9 +621,14 @@
 }
 
 .gv-empty-hint {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted) !important;
-  margin-top: 4px !important;
+  margin: 0 0 32px 0 !important;
+  line-height: 1.6;
+}
+
+.gv-empty-first-time .gv-btn {
+  margin-top: 8px;
 }
 
 .gv-loading {
@@ -617,6 +789,24 @@
     height: 40px;
     font-size: 20px;
   }
+}
+
+/* =============================================
+   FULLSCREEN MODE - Hide sidebar when in meeting
+   ============================================= */
+
+body.gv-fullscreen-active .sidebar {
+  display: none !important;
+}
+
+body.gv-fullscreen-active .main-content {
+  margin-left: 0 !important;
+}
+
+body.gv-fullscreen-active #animation-canvas,
+body.gv-fullscreen-active #animation-controls-fab,
+body.gv-fullscreen-active #chatbot-fab {
+  display: none !important;
 }
 
 /* =============================================

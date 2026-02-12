@@ -28,6 +28,7 @@ const ViewRouter = (function() {
         teamVision: 'Vision équipe',
         giriVision: 'Giri Vision',
         calendar: 'Calendrier',
+        mail: 'Mail',
         admin: 'Administration'
     };
 
@@ -50,7 +51,8 @@ const ViewRouter = (function() {
         behavioral: 'view-behavioral',
         teamVision: 'view-team-vision',
         giriVision: 'view-giri-vision',
-        calendar: 'view-calendar'
+        calendar: 'view-calendar',
+        mail: 'view-mail'
     };
 
     let currentView = 'dashboard';
@@ -224,6 +226,11 @@ const ViewRouter = (function() {
             case 'calendar':
                 if (typeof CalendarView !== 'undefined') {
                     CalendarView.refresh();
+                }
+                break;
+            case 'mail':
+                if (typeof MailView !== 'undefined') {
+                    MailView.init();
                 }
                 break;
         }
