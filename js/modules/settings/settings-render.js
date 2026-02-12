@@ -119,6 +119,13 @@ const SettingsRender = (function() {
         '</section>';
     }
 
+    function renderConfig(icons) {
+        return '<section class="settings-section" id="settings-config-section">' +
+            '<h2 class="settings-section-title">' + icons.settings + '<span>Configuration</span></h2>' +
+            '<div id="settings-config-container"></div>' +
+        '</section>';
+    }
+
     function renderIconPicker(currentIcon) {
         var icons = ['🚀', '💼', '🎯', '⚡', '🔥', '💎', '🌟', '🎨', '📊', '🏆'];
         return icons.map(function(icon) {
@@ -287,6 +294,7 @@ const SettingsRender = (function() {
         renderNotifications: renderNotifications,
         renderSidebar: renderSidebar,
         renderWorkspace: renderWorkspace,
+        renderConfig: renderConfig,
         renderTeam: renderTeam,
         renderAnimations: renderAnimations,
         renderData: renderData,

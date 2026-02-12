@@ -44,6 +44,7 @@ const SettingsView = (function() {
             SettingsRender.renderSidebar(sidebarCompact, icons) +
             SettingsRender.renderAnimations(icons) +
             SettingsRender.renderWorkspace(workspace, icons) +
+            SettingsRender.renderConfig(icons) +
             SettingsRender.renderTeam() +
             SettingsRender.renderData(icons) +
             SettingsRender.renderHealth(icons) +
@@ -68,6 +69,15 @@ const SettingsView = (function() {
             if (document.getElementById('settings-health-section')) {
                 SettingsHealth.init().catch(function(err) {
                     console.error('Failed to init health dashboard:', err);
+                });
+            }
+
+            // Initialize Config Premium if module exists
+            var configContainer = document.getElementById('settings-config-container');
+            if (configContainer && window.ConfigView) {
+                ConfigView.render(configContainer).catch(function(err) {
+                    console.error('Failed to render config UI:', err);
+                    configContainer.innerHTML = '<div class="error-state">Erreur lors du chargement de la configuration</div>';
                 });
             }
         }, 100);

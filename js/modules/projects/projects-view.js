@@ -291,12 +291,18 @@ const ProjectsView = (function() {
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Nom du projet</label>
-                        <input type="text" class="form-input" id="new-project-name" placeholder="Mon projet...">
+                        <label>Description courte</label>
+                        <input type="text" class="form-input" id="new-project-desc" placeholder="Ex: Application de suivi des ventes...">
+                        <button class="ai-suggest-btn" onclick="ProjectsView.suggestProjectName()" id="ai-name-btn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                            Suggérer un nom avec l'IA
+                        </button>
                     </div>
                     <div class="form-group">
-                        <label>Description (optionnel)</label>
-                        <input type="text" class="form-input" id="new-project-desc" placeholder="Description...">
+                        <label>Nom du projet</label>
+                        <input type="text" class="form-input" id="new-project-name" placeholder="Le nom sera généré par l'IA...">
                     </div>
                     <div class="form-group">
                         <label>Couleur</label>
@@ -374,6 +380,10 @@ const ProjectsView = (function() {
         const name = nameInput?.value?.trim();
         if (!name) {
             nameInput?.focus();
+            nameInput.style.borderColor = 'var(--danger)';
+            setTimeout(() => {
+                nameInput.style.borderColor = '';
+            }, 1500);
             return;
         }
 
@@ -384,25 +394,48 @@ const ProjectsView = (function() {
             icon: selectedIcon
         };
 
-        // Use existing Projects module if available
-        if (typeof Projects !== 'undefined' && Projects.create) {
-            await Projects.create(projectData);
-        } else if (typeof AppState !== 'undefined') {
-            // Fallback: add to AppState directly
-            const newProject = {
-                id: 'proj_' + Date.now(),
-                ...projectData
-            };
-            AppState.projects.push(newProject);
-        }
+        console.log('📁 Creating project:', projectData);
 
-        closeCreateModal();
-        render();
+        try {
+            // Use ApiProjects if available (PostgreSQL backend)
+            if (typeof ApiProjects !== 'undefined' && ApiProjects.create) {
+                const created = await ApiProjects.create(projectData);
+                console.log('✅ Project created via API:', created);
 
-        // Refresh project filter chips
-        if (typeof Projects !== 'undefined') {
-            Projects.renderFilter();
-            Projects.renderSelect();
+                // Add to AppState
+                if (typeof AppState !== 'undefined') {
+                    AppState.addProject(created);
+                }
+            } else if (typeof Projects !== 'undefined' && Projects.create) {
+                // Fallback to Projects module
+                await Projects.create(projectData);
+            } else if (typeof AppState !== 'undefined') {
+                // Last fallback: add to AppState directly
+                const newProject = {
+                    id: 'proj_' + Date.now(),
+                    ...projectData
+                };
+                AppState.projects.push(newProject);
+            }
+
+            closeCreateModal();
+            render();
+
+            // Refresh project filter chips
+            if (typeof Projects !== 'undefined') {
+                Projects.renderFilter();
+                Projects.renderSelect();
+            }
+
+            // Success toast
+            if (typeof Toast !== 'undefined') {
+                Toast.success(`Projet "${name}" créé avec succès !`);
+            }
+        } catch (error) {
+            console.error('❌ Project creation failed:', error);
+            if (typeof Toast !== 'undefined') {
+                Toast.error('Erreur lors de la création du projet');
+            }
         }
     }
 
@@ -414,6 +447,64 @@ const ProjectsView = (function() {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * Suggest project name using AI
+     */
+    async function suggestProjectName() {
+        const descInput = document.getElementById('new-project-desc');
+        const nameInput = document.getElementById('new-project-name');
+        const btn = document.getElementById('ai-name-btn');
+
+        const description = descInput?.value?.trim();
+        if (!description) {
+            if (descInput) {
+                descInput.focus();
+                descInput.style.borderColor = 'var(--danger)';
+                setTimeout(() => {
+                    descInput.style.borderColor = '';
+                }, 1500);
+            }
+            return;
+        }
+
+        if (typeof ApiProjects === 'undefined' || !ApiProjects.suggestName) {
+            console.error('❌ ApiProjects.suggestName not available');
+            return;
+        }
+
+        // Show loading state
+        if (btn) {
+            btn.classList.add('loading');
+            btn.textContent = 'Génération en cours...';
+        }
+
+        try {
+            const suggestedName = await ApiProjects.suggestName(description);
+            if (suggestedName && nameInput) {
+                nameInput.value = suggestedName;
+                nameInput.style.borderColor = 'var(--accent)';
+                nameInput.style.background = 'var(--accent)10';
+                setTimeout(() => {
+                    nameInput.style.borderColor = '';
+                    nameInput.style.background = '';
+                }, 2000);
+                console.log('✨ AI suggested name:', suggestedName);
+            }
+        } catch (error) {
+            console.error('❌ AI suggestion failed:', error);
+        } finally {
+            if (btn) {
+                btn.classList.remove('loading');
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                    </svg>
+                    Suggérer un nom avec l'IA
+                `;
+            }
+        }
     }
 
     /**
@@ -442,7 +533,8 @@ const ProjectsView = (function() {
         closeCreateModal,
         selectColor,
         selectIcon,
-        createProject
+        createProject,
+        suggestProjectName
     };
 })();
 

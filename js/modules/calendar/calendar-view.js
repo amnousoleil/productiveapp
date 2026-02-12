@@ -85,16 +85,46 @@ const CalendarView = (function() {
     var modal = document.getElementById('cal-modal');
     if (!modal) return;
     modal.style.display = 'flex';
-    modal.innerHTML = '<div style="background:var(--bg-primary);border-radius:16px;padding:24px;width:90%;max-width:450px;border:1px solid var(--border-color)"><h3 style="margin:0 0 16px;color:var(--text-primary)">Nouvel evenement</h3><div style="display:flex;flex-direction:column;gap:12px"><input id="ev-title" placeholder="Titre" style="padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary)"><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><input id="ev-start" type="date" value="' + (date || new Date().toISOString().split('T')[0]) + '" style="padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary)"><input id="ev-end" type="date" style="padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary)"></div><select id="ev-type" style="padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary)"><option value="general">General</option><option value="meeting">Rendez-vous</option><option value="deadline">Echeance</option><option value="reminder">Rappel</option></select><input id="ev-location" placeholder="Lieu (optionnel)" style="padding:10px 12px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary)"><input id="ev-color" type="color" value="#3B82F6" style="width:50px;height:36px;border:none;background:none;cursor:pointer"></div><div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end"><button onclick="CalendarView.closeModal()" style="padding:8px 20px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);cursor:pointer">Annuler</button><button onclick="CalendarView.saveEvent()" style="padding:8px 20px;border-radius:8px;border:none;background:var(--accent-color);color:#fff;cursor:pointer;font-weight:600">Creer</button></div></div>';
+    modal.innerHTML = '<div style="background:var(--bg-primary);border-radius:16px;padding:32px;width:95%;max-width:650px;max-height:90vh;overflow-y:auto;border:1px solid var(--border-color)"><h3 style="margin:0 0 24px;color:var(--text-primary);font-size:1.5rem">Nouvel evenement</h3><div style="display:flex;flex-direction:column;gap:20px"><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Titre *</label><input id="ev-title" placeholder="Ex: Reunion client, Echeance rapport..." style="width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;box-sizing:border-box"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:20px"><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Date debut *</label><input id="ev-start" type="date" value="' + (date || new Date().toISOString().split('T')[0]) + '" style="width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;box-sizing:border-box"></div><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Date fin</label><input id="ev-end" type="date" style="width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;box-sizing:border-box"></div></div><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Type d\'evenement</label><select id="ev-type" style="width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;box-sizing:border-box"><option value="general">General</option><option value="meeting">Rendez-vous</option><option value="deadline">Echeance</option><option value="reminder">Rappel</option></select></div><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Lieu</label><input id="ev-location" placeholder="Ex: Bureau, Zoom, Paris..." style="width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;box-sizing:border-box"></div><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Description</label><textarea id="ev-description" placeholder="Ajouter des details..." style="width:100%;padding:14px 16px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);font-size:1rem;min-height:100px;resize:vertical;box-sizing:border-box;font-family:inherit"></textarea></div><div><label style="display:block;margin-bottom:8px;color:var(--text-secondary);font-weight:600;font-size:0.9rem">Couleur</label><input id="ev-color" type="color" value="#3B82F6" style="width:60px;height:48px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);cursor:pointer"></div></div><div style="display:flex;gap:12px;margin-top:32px;justify-content:flex-end;padding-top:24px;border-top:1px solid var(--border-color)"><button onclick="CalendarView.closeModal()" style="padding:12px 28px;border-radius:8px;border:1px solid var(--border-color);background:var(--bg-secondary);color:var(--text-primary);cursor:pointer;font-size:1rem;font-weight:500;min-width:120px">Annuler</button><button onclick="CalendarView.saveEvent()" style="padding:12px 28px;border-radius:8px;border:none;background:var(--accent-color);color:#fff;cursor:pointer;font-weight:600;font-size:1rem;min-width:120px">Enregistrer</button></div></div>';
   }
 
   async function saveEvent() {
     var title = document.getElementById('ev-title')?.value?.trim();
-    if (!title) return;
+    if (!title) {
+      alert('Le titre est obligatoire');
+      return;
+    }
+    var startDate = document.getElementById('ev-start')?.value;
+    if (!startDate) {
+      alert('La date de debut est obligatoire');
+      return;
+    }
     try {
-      await CalendarApi.createEvent({ title: title, start_date: document.getElementById('ev-start')?.value, end_date: document.getElementById('ev-end')?.value || undefined, event_type: document.getElementById('ev-type')?.value, location: document.getElementById('ev-location')?.value || undefined, color: document.getElementById('ev-color')?.value });
-      closeModal(); loadMonth();
-    } catch (e) { console.error('Create event error:', e); }
+      var memberId = (typeof AppState !== 'undefined' && AppState.currentMember) ? AppState.currentMember.id : localStorage.getItem('member_id') || null;
+      var eventData = {
+        title: title,
+        start_date: startDate,
+        end_date: document.getElementById('ev-end')?.value || undefined,
+        event_type: document.getElementById('ev-type')?.value,
+        location: document.getElementById('ev-location')?.value || undefined,
+        description: document.getElementById('ev-description')?.value || undefined,
+        color: document.getElementById('ev-color')?.value,
+        member_id: memberId
+      };
+      await CalendarApi.createEvent(eventData);
+      if (typeof Toast !== 'undefined') {
+        Toast.success('Evenement cree avec succes');
+      }
+      closeModal();
+      loadMonth();
+    } catch (e) {
+      console.error('Create event error:', e);
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Erreur lors de la creation de l\'evenement');
+      } else {
+        alert('Erreur lors de la creation de l\'evenement');
+      }
+    }
   }
 
   async function syncAll() { try { if (typeof CalendarApi !== 'undefined') { await Promise.all([CalendarApi.syncTasks(), CalendarApi.syncInvoices()]); } loadMonth(); } catch (e) { console.error('Sync error:', e); } }

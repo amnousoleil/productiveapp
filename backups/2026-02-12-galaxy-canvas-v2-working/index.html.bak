@@ -40,7 +40,6 @@
     <link rel="stylesheet" href="css/settings.css?v=1900">
     <link rel="stylesheet" href="css/settings-health.css?v=2100">
     <link rel="stylesheet" href="css/settings-notifications.css?v=2500">
-    <link rel="stylesheet" href="css/config-premium.css?v=3000">
     <link rel="stylesheet" href="css/auth.css?v=1700">
     <link rel="stylesheet" href="css/gamification.css?v=1700">
     <link rel="stylesheet" href="css/messaging.css?v=1700">
@@ -52,21 +51,17 @@
     <link rel="stylesheet" href="css/style-overrides.css?v=2800">
     <link rel="stylesheet" href="css/premium-enhancements.css?v=100">
     <link rel="stylesheet" href="css/frontend-stability-fix.css?v=300">
-    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=4000">
+    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=100">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/style-views.css?v=2400">
-    <link rel="stylesheet" href="css/galaxy.css?v=1710">
-    <link rel="stylesheet" href="css/galaxy-premium.css?v=6000">
+    <link rel="stylesheet" href="css/galaxy.css?v=1700">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
-    <link rel="stylesheet" href="css/projects.css?v=5000">
     <link rel="stylesheet" href="css/giri-vision.css?v=3600">
     <link rel="stylesheet" href="css/config-dev.css?v=200">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
-    <link rel="stylesheet" href="css/calendar-v7.css?v=4200">
+    <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
     <link rel="stylesheet" href="css/responsive.css?v=2300">
-    <!-- Scroll Fix - Force scroll sur toutes les vues -->
-    <link rel="stylesheet" href="css/scroll-fix.css?v=100">
     <!-- Power Features CSS -->
     <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
     <link rel="stylesheet" href="css/command-palette.css?v=2000">
@@ -138,8 +133,8 @@
         </div>
     </div>
 
-    <!-- ========== CANVAS ANIMATIONS - DÉSACTIVÉ ========== -->
-    <!-- <canvas id="matrix-bg"></canvas> -->
+    <!-- ========== CANVAS ANIMATIONS ========== -->
+    <canvas id="matrix-bg"></canvas>
 
     <!-- ========== VIEWS CONTAINER ========== -->
     <main class="main-content">
@@ -1112,7 +1107,7 @@
     <script src="js/modules/services/api-fetch.js?v=1700"></script>
     <script src="js/modules/services/api.js?v=1700"></script>
     <script src="js/modules/services/api-auth.js?v=1700"></script>
-    <script src="js/modules/services/api-projects.js?v=5000"></script>
+    <script src="js/modules/services/api-projects.js?v=1700"></script>
     <script src="js/modules/services/api-notes.js?v=2200"></script>
     <script src="js/modules/services/api-tasks.js?v=1700"></script>
     <script src="js/modules/services/api-ai.js?v=1700"></script>
@@ -1134,7 +1129,7 @@
     <script src="js/modules/confirm-modal.js?v=1700"></script>
     <script src="js/modules/tasks/tasks.js?v=1700"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
-    <script src="js/modules/projects/projects.js?v=5000"></script>
+    <script src="js/modules/projects/projects.js?v=1700"></script>
     <script src="js/modules/notes/journal.js?v=1700"></script>
     <script src="js/modules/ai/chat-actions.js?v=1700"></script>
     <script src="js/modules/ai/chatbot.js?v=1700"></script>
@@ -1147,12 +1142,7 @@
     <script src="js/modules/sidebar/sidebar-init.js?v=1700"></script>
     <!-- Cache Manager - Anti-cache system for critical views -->
     <script src="js/modules/cache-manager.js?v=100"></script>
-    <script src="js/modules/router.js?v=2900"></script>
-
-    <!-- Performance Optimization - Lazy Loading -->
-    <script src="js/modules/lazy-loader.js?v=100"></script>
-    <script src="js/modules/preloader.js?v=100"></script>
-
+    <script src="js/modules/router.js?v=2800"></script>
     <script src="js/modules/dashboard/dash-insights.js?v=1700"></script>
     <script src="js/modules/dashboard/dash-charts.js?v=1700"></script>
     <script src="js/modules/dashboard/dash-ai-widget.js?v=2200"></script>
@@ -1164,7 +1154,7 @@
     <script src="js/modules/notes/notes-editor.js?v=1700"></script>
     <script src="js/modules/notes/notes-ai.js?v=1700"></script>
     <script src="js/modules/notes/notes-init.js?v=1700"></script>
-    <script src="js/modules/projects/projects-view.js?v=5000"></script>
+    <script src="js/modules/projects/projects-view.js?v=1700"></script>
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
     <script src="js/modules/settings/settings-data.js?v=1700"></script>
@@ -1175,10 +1165,6 @@
     <script src="js/modules/settings/settings-health.js?v=2100"></script>
     <script src="js/modules/settings/settings-styles.js?v=1700"></script>
     <script src="js/modules/settings/settings-view.js?v=2400"></script>
-    <!-- Config Premium -->
-    <script src="js/modules/config/config-api.js?v=3000"></script>
-    <script src="js/modules/config/config-uploader.js?v=3000"></script>
-    <script src="js/modules/config/config-view.js?v=3000"></script>
     <!-- Animation Controls -->
     <script src="js/modules/animation-controls.js?v=2300"></script>
     <!-- Analytics Module -->
@@ -1201,13 +1187,12 @@
     <script src="js/modules/reports/reports-view.js?v=2200"></script>
 
     <!-- 5. Messaging Module - TeamTalk Premium -->
-    <script src="js/modules/messaging/messaging-api.js?v=4200"></script>
+    <script src="js/modules/messaging/messaging-api.js?v=1700"></script>
     <script src="js/modules/messaging/messaging-ui.js?v=1800"></script>
     <script src="js/modules/messaging/messaging-conversations.js?v=1800"></script>
-    <script src="js/modules/messaging/messaging-chat.js?v=4200"></script>
-    <script src="js/modules/messaging/messaging-notifications.js?v=100"></script>
+    <script src="js/modules/messaging/messaging-chat.js?v=1700"></script>
     <script src="js/modules/messaging/messaging-events.js?v=1700"></script>
-    <script src="js/modules/messaging/messaging.js?v=4200"></script>
+    <script src="js/modules/messaging/messaging.js?v=1700"></script>
 
     <!-- Mail Module v2.0 - Professional Emailing (includes campaigns) -->
     <script src="js/modules/mail/mail-api.js?v=2700"></script>
@@ -1248,12 +1233,10 @@
     <!-- <script src="js/modules/canvases/galaxy-3d.js?v=1700"></script> -->
     <!-- <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script> -->
 
-    <!-- NEW Galaxy Canvas v2 - Pan Navigation -->
-    <script src="js/galaxy-canvas-v2.js?v=3240"></script>
+    <!-- NEW Galaxy Canvas v2 - Interactive Fix -->
+    <script src="js/galaxy-canvas-v2.js?v=3230"></script>
     <script src="js/galaxy-constellation.js?v=3000"></script>
     <script src="js/modules/canvases/galaxie-view.js?v=3200"></script>
-    <script src="js/modules/galaxy/galaxy-view-premium.js?v=6000"></script>
-    <script src="js/modules/galaxy/galaxy-init.js?v=6000"></script>
 
     <!-- FinScan Accounting Module v3.0 -->
     <script src="js/modules/accounting/acc-state.js?v=1900"></script>
@@ -1313,8 +1296,8 @@
 
     <!-- NEW: Auth Login Module -->
     <script src="js/modules/auth/login.js?v=1900"></script>
-    <!-- Login Fix Patch DISABLED - caused infinite loop (2026-02-12) -->
-    <!-- <script src="js/modules/auth/login-fix.js?v=1600"></script> -->
+    <!-- Login Fix Patch (uses LOCAL logo SVG, fixes member picker, avatars) -->
+    <script src="js/modules/auth/login-fix.js?v=1600"></script>
 
     <!-- NEW: Core Modules -->
     <script src="js/modules/files/files.js?v=1700"></script>
@@ -1324,7 +1307,7 @@
     <script src="js/modules/workspaces/workspaces.js?v=1700"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=4100"></script>
+    <script src="js/animations.js?v=2500"></script>
 
     <!-- Animation Force Init & Debug -->
     <script>
@@ -1453,7 +1436,7 @@
     <!-- Calendar View v6.0 -->
     <script src="js/modules/calendar/calendar-api.js?v=2700"></script>
     <script src="js/modules/calendar/calendar-agent.js?v=2700"></script>
-    <script src="js/modules/calendar/calendar-view-v7.js?v=4200"></script>
+    <script src="js/modules/calendar/calendar-view-v7.js?v=2700"></script>
 
     <!-- Power Features -->
     <script src="js/modules/command-palette.js?v=2000"></script>
@@ -1466,10 +1449,7 @@
     <script src="js/modules/mobile-nav.js?v=2000"></script>
     <script src="js/modules/pomodoro-timer.js?v=2000"></script>
 
-    <!-- 5. Emergency Click Fix (removes phantom overlays) -->
-    <script src="js/modules/emergency-click-fix.js?v=100"></script>
-
-    <!-- 6. Application principale (orchestrateur) -->
+    <!-- 5. Application principale (orchestrateur) -->
     <script src="js/app-modular.js?v=2600"></script>
 
     <script>

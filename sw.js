@@ -3,7 +3,7 @@
  * PWA avec cache intelligent - network-first pour CSS/JS
  */
 
-const CACHE_VERSION = 'v42-giri-vision-events-fix';
+const CACHE_VERSION = 'v51-galaxy-premium-6';
 const STATIC_CACHE = 'static-' + CACHE_VERSION;
 const API_CACHE = 'api-' + CACHE_VERSION;
 const CDN_CACHE = 'cdn-' + CACHE_VERSION;

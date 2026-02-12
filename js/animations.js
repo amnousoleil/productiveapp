@@ -187,9 +187,9 @@ let state = {}, fadeIn = 0;
 let canvasScale = 1;
 let frameSkipCounter = 0;
 // Intensity system (controlled by AnimationControls)
-let intensityFactor = 1.0;   // 0.0 to 1.0 - DEFAULT CINEMATIC MODE (was 0.45)
-let intensityTarget = 1.0;   // Start at 100% for spectacular effect
-let intensityRaw = 100;      // 0-100 user-facing value - CINEMATIC default
+let intensityFactor = 0.45;   // 0.0 to 1.0 - DEFAULT ELEGANT MODE (balanced performance)
+let intensityTarget = 0.45;   // Start at 45% for good balance
+let intensityRaw = 45;      // 0-100 user-facing value - ELEGANT default (NOT CINEMATIC)
 const Q_SCALE = { low: 0.5, medium: 0.75, high: 1, ultra: 1 };
 
 function applyResolution() {

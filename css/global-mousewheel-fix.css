@@ -1,131 +1,71 @@
 /**
- * GLOBAL MOUSEWHEEL SCROLL FIX
- * Permet scroll molette partout dans l'app
+ * GLOBAL MOUSEWHEEL SCROLL FIX v2.0
+ * Permet scroll molette partout SANS casser les layouts
+ * FIX 2026-02-12: Version allégée qui ne force plus height/overflow partout
  */
 
-/* RÈGLE GLOBALE: Tous les conteneurs peuvent scroller avec la molette */
-* {
-  pointer-events: auto !important;
+/* RÈGLE 1: HTML et Body peuvent scroller avec la molette */
+html {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
-/* Body et HTML */
-html,
 body {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  height: 100% !important;
-  pointer-events: auto !important;
-  touch-action: pan-y !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Ne PAS forcer height: 100% car casse min-height: 100vh des views */
 }
 
-/* Conteneur principal app */
-#app,
-.app-container,
+/* RÈGLE 2: Main content et views héritent du scroll naturel */
 .main-content {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  height: 100% !important;
-  min-height: 100vh !important;
-  pointer-events: auto !important;
+  /* Laisse le CSS de base gérer overflow et height */
+  /* Supprime les overrides agressifs qui cassaient l'affichage */
 }
 
-/* Toutes les vues */
-.view-container,
-[class*="view-"],
+.view-container {
+  /* Laisse style-views.css gérer le layout */
+  /* Le scrolling fonctionne naturellement via body */
+}
+
+/* RÈGLE 3: Assurer que les éléments acceptent les événements de souris */
+/* (mais seulement ceux qui doivent, pas TOUT avec *) */
 #view-dashboard,
 #view-tasks,
 #view-projects,
 #view-notes,
 #view-calendar,
-#view-galaxie,
 #view-accounting,
-#view-reports,
-#view-team-messaging,
-#view-psycho-audit,
-#view-gamification,
-#view-team-vision,
-#view-mahayawen,
-#view-config-dev,
-#view-admin,
-#view-giri-vision {
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  height: 100% !important;
-  min-height: 500px !important;
-  pointer-events: auto !important;
-  touch-action: pan-y !important;
+#view-reports {
+  /* pointer-events auto par défaut, pas besoin de forcer */
 }
 
-/* Tous les conteneurs */
-[class*="container"],
-[class*="wrapper"],
-[class*="content"],
-.panel,
-.card {
-  pointer-events: auto !important;
-}
-
-/* Scrollable areas */
-.scrollable,
-.overflow-auto,
-[style*="overflow"] {
-  overflow-y: auto !important;
-  pointer-events: auto !important;
-}
-
-/* Grids et listes */
-.grid,
-.list,
-[class*="grid"],
-[class*="list"] {
-  overflow-y: auto !important;
-  pointer-events: auto !important;
-}
-
-/* Tables */
-table,
-.table-container,
-[class*="table"] {
-  overflow-y: auto !important;
-  pointer-events: auto !important;
-}
-
-/* Modals peuvent aussi scroller */
-.modal,
-.modal-content,
-[class*="modal-content"] {
-  overflow-y: auto !important;
-  max-height: 90vh !important;
-  pointer-events: auto !important;
-}
-
-/* Sidebars */
-.sidebar,
-#app-sidebar,
-[class*="sidebar"] {
-  overflow-y: auto !important;
-  pointer-events: auto !important;
-}
-
-/* Panels spécifiques */
-.dashboard-grid,
-.tasks-container,
-.projects-list,
+/* RÈGLE 4: Listes et contenus scrollables spécifiques */
+.activity-list,
+.tasks-list,
 .notes-grid,
-.calendar-v7-container {
-  overflow-y: auto !important;
-  height: 100% !important;
-  pointer-events: auto !important;
+.scrollable {
+  overflow-y: auto;
+  /* Pas de !important, laisse les règles spécifiques primer */
 }
 
-/* Accounting module */
-.acc-wrapper,
-[class*="acc-"] {
-  overflow-y: auto !important;
-  pointer-events: auto !important;
+/* RÈGLE 5: Modals peuvent scroller si contenu long */
+.modal-content {
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
-/* Assurer propagation des événements */
-body * {
-  pointer-events: auto !important;
+/* RÈGLE 6: Sidebar scroll naturel */
+.sidebar-nav {
+  overflow-y: auto;
 }
+
+/**
+ * IMPORTANT: Cette version allégée NE force PAS:
+ * - height: 100% !important (cassait layouts)
+ * - overflow-y: auto !important partout (scrollbars multiples)
+ * - pointer-events: auto !important sur * (trop agressif)
+ *
+ * Le scrolling fonctionne maintenant via html/body overflow-y: auto
+ * qui est la méthode standard et non-invasive.
+ */

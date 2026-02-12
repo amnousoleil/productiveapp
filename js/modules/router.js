@@ -184,7 +184,17 @@ const ViewRouter = (function() {
     /**
      * Initialize view-specific content
      */
-    function initializeView(viewId) {
+    async function initializeView(viewId) {
+        // LAZY LOADING: Charger les modules requis pour cette vue
+        if (typeof LazyLoader !== 'undefined') {
+            try {
+                await LazyLoader.loadViewModules(viewId);
+            } catch (err) {
+                console.error(`❌ Failed to load modules for ${viewId}:`, err);
+                // Continuer quand même, certains modules peuvent déjà être chargés
+            }
+        }
+
         // Pour les vues critiques, préparer le cache d'abord (anti-cache mechanism)
         if (typeof CacheManager !== 'undefined' && CacheManager.shouldForceRefresh(viewId)) {
             CacheManager.prepareView(viewId).then(() => {

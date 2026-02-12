@@ -527,15 +527,6 @@ function handleCanvasMouseDown(e) {
     const x = (e.clientX - rect.left - panOffsetX) / zoom;
     const y = (e.clientY - rect.top - panOffsetY) / zoom;
 
-    // PAN avec clic molette (bouton 1) OU Ctrl+clic gauche
-    if (e.button === 1 || (e.button === 0 && e.ctrlKey)) {
-        isPanning = true;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-        galaxyCanvas.style.cursor = 'grabbing';
-        return;
-    }
-
     const node = getNodeAt(x, y);
 
     // === DISPATCH SELON L'OUTIL ACTIF ===
@@ -637,18 +628,6 @@ function handleCanvasMouseDown(e) {
 
 function handleCanvasMouseMove(e) {
     const rect = galaxyCanvas.getBoundingClientRect();
-
-    // PAN (molette ou Ctrl+clic)
-    if (isPanning) {
-        const dx = e.clientX - panStartX;
-        const dy = e.clientY - panStartY;
-        panOffsetX += dx;
-        panOffsetY += dy;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-        return;
-    }
-
     mouseX = (e.clientX - rect.left - panOffsetX) / zoom;
     mouseY = (e.clientY - rect.top - panOffsetY) / zoom;
 
@@ -684,13 +663,6 @@ function handleCanvasMouseMove(e) {
 }
 
 async function handleCanvasMouseUp(e) {
-    // Arrêter le PAN
-    if (isPanning) {
-        isPanning = false;
-        galaxyCanvas.style.cursor = 'grab';
-        return;
-    }
-
     const rect = galaxyCanvas.getBoundingClientRect();
     const x = (e.clientX - rect.left - panOffsetX) / zoom;
     const y = (e.clientY - rect.top - panOffsetY) / zoom;
@@ -1117,7 +1089,6 @@ function renderGalaxy() {
         drawStars(ctx);
     }
 
-    
     // Connexions
     drawConnections(ctx);
 

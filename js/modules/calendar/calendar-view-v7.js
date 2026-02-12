@@ -596,33 +596,60 @@ const CalendarView = (function() {
 
   async function submitCreate() {
     try {
-      const title = document.getElementById('ev-title')?.value;
+      const title = document.getElementById('ev-title')?.value?.trim();
       if (!title) {
         if (typeof Toast !== 'undefined') Toast.error('Le titre est requis');
         return;
       }
 
       const startDate = document.getElementById('ev-start-date')?.value;
+      if (!startDate) {
+        if (typeof Toast !== 'undefined') Toast.error('La date de début est requise');
+        return;
+      }
+
       const startTime = document.getElementById('ev-start-time')?.value || '00:00';
       const endDate = document.getElementById('ev-end-date')?.value;
-      const endTime = document.getElementById('ev-end-time')?.value;
+      const endTime = document.getElementById('ev-end-time')?.value || '23:59';
 
-      await CalendarApi.createEvent({
-        title,
-        description: document.getElementById('ev-description')?.value || undefined,
+      // Get member_id from AppState or localStorage
+      const memberId = (typeof AppState !== 'undefined' && AppState.currentMember)
+        ? AppState.currentMember.id
+        : localStorage.getItem('member_id') || null;
+
+      // Build payload - only include fields with values
+      const payload = {
+        title: title,
         start_date: `${startDate}T${startTime}:00`,
-        end_date: endDate && endTime ? `${endDate}T${endTime}:00` : undefined,
         event_type: document.getElementById('ev-type')?.value || 'general',
-        location: document.getElementById('ev-location')?.value || undefined,
-        color: document.getElementById('ev-color')?.value
-      });
+        member_id: memberId
+      };
 
-      if (typeof Toast !== 'undefined') Toast.success('Événement créé');
+      // Add optional fields only if they have values
+      const description = document.getElementById('ev-description')?.value?.trim();
+      if (description) payload.description = description;
+
+      if (endDate) {
+        payload.end_date = `${endDate}T${endTime}:00`;
+      }
+
+      const location = document.getElementById('ev-location')?.value?.trim();
+      if (location) payload.location = location;
+
+      const color = document.getElementById('ev-color')?.value;
+      if (color) payload.color = color;
+
+      console.log('📅 Creating event:', payload);
+
+      await CalendarApi.createEvent(payload);
+
+      if (typeof Toast !== 'undefined') Toast.success('✅ Événement créé');
       closeModal();
       loadEvents();
     } catch (e) {
-      console.error('Failed to create event:', e);
-      if (typeof Toast !== 'undefined') Toast.error('Erreur lors de la création');
+      console.error('❌ Failed to create event:', e);
+      const errorMsg = e.response?.data?.error || e.message || 'Erreur lors de la création';
+      if (typeof Toast !== 'undefined') Toast.error(errorMsg);
     }
   }
 

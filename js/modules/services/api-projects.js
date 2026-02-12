@@ -128,6 +128,85 @@ const ApiProjects = (function() {
         return response.data?.stats;
     }
 
+    /**
+     * Generate AI project name suggestion
+     */
+    async function suggestName(description) {
+        if (!description || !description.trim()) {
+            return null;
+        }
+
+        try {
+            const prompt = `Génère un nom de projet court et créatif (2-4 mots max) pour: "${description}".
+Retourne UNIQUEMENT le nom, sans guillemets ni explications.
+Le nom doit être:
+- Professionnel mais mémorable
+- En français
+- Court (15-30 caractères)
+- Inspirant et positif
+
+Exemples:
+- "application de suivi fitness" → "Vital Track"
+- "site e-commerce de bijoux" → "Éclat Précieux"
+- "plateforme de formation en ligne" → "Savoir Plus"`;
+
+            const response = await ApiAi.generate(prompt, {
+                maxTokens: 30,
+                temperature: 0.7
+            });
+
+            if (response && response.text) {
+                let name = response.text.trim();
+                name = name.replace(/^["']|["']$/g, '');
+                name = name.substring(0, 40);
+                return name;
+            }
+            return null;
+        } catch (error) {
+            console.error('❌ AI name suggestion failed:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Generate AI project description
+     */
+    async function suggestDescription(name) {
+        if (!name || !name.trim()) {
+            return null;
+        }
+
+        try {
+            const prompt = `Génère une description de projet courte et percutante (une phrase, 40-80 caractères) pour un projet nommé: "${name}".
+Retourne UNIQUEMENT la description, sans guillemets ni explications.
+La description doit expliquer l'objectif du projet de manière claire et motivante.`;
+
+            const response = await ApiAi.generate(prompt, {
+                maxTokens: 50,
+                temperature: 0.7
+            });
+
+            if (response && response.text) {
+                let desc = response.text.trim();
+                desc = desc.replace(/^["']|["']$/g, '');
+                desc = desc.substring(0, 120);
+                return desc;
+            }
+            return null;
+        } catch (error) {
+            console.error('❌ AI description suggestion failed:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Get my projects across all workspaces
+     */
+    async function getMyProjects() {
+        const response = await Api.get('/projects/my');
+        return Array.isArray(response.data) ? response.data : [];
+    }
+
     return {
         getAll,
         getById,
@@ -140,7 +219,10 @@ const ApiProjects = (function() {
         addMember,
         removeMember,
         reorder,
-        getStats
+        getStats,
+        suggestName,
+        suggestDescription,
+        getMyProjects
     };
 })();
 
