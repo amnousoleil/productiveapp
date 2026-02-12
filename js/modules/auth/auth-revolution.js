@@ -559,7 +559,7 @@ const AuthRevolution = {
 
                 // Save tokens
                 if (typeof ApiTokens !== 'undefined' && data.data?.tokens) {
-                    ApiTokens.setTokens(data.data.tokens);
+                    ApiTokens.setTokens(data.data.tokens.accessToken, data.data.tokens.refreshToken);
                 }
                 if (data.data?.user) {
                     localStorage.setItem('user', JSON.stringify(data.data.user));

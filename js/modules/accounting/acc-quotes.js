@@ -314,7 +314,7 @@ const AccQuotes = (function() {
     }
 
     function getToken() {
-        return localStorage.getItem('productiveapp_token') || (typeof AppState !== 'undefined' && AppState.token);
+        return ApiTokens.getAccessToken() || localStorage.getItem('accessToken') || (typeof AppState !== 'undefined' && AppState.token);
     }
 
     return {

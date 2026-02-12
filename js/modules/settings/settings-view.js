@@ -54,8 +54,17 @@ const SettingsView = (function() {
         container.innerHTML = headerHtml + sectionsHtml;
         console.log('⚙️ SettingsView rendered');
 
-        // Initialize health dashboard if section exists
+        // Initialize premium notifications UI if module exists
         setTimeout(function() {
+            var notifContainer = document.getElementById('settings-notifications-premium-container');
+            if (notifContainer && window.SettingsNotifications) {
+                SettingsNotifications.render(notifContainer).catch(function(err) {
+                    console.error('Failed to render notifications UI:', err);
+                    notifContainer.innerHTML = '<div class="error-state">Erreur lors du chargement des notifications</div>';
+                });
+            }
+
+            // Initialize health dashboard if section exists
             if (document.getElementById('settings-health-section')) {
                 SettingsHealth.init().catch(function(err) {
                     console.error('Failed to init health dashboard:', err);

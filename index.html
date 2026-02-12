@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="css/animations.css?v=1700">
     <link rel="stylesheet" href="css/animation-controls.css?v=2200">
     <link rel="stylesheet" href="css/accounting.css?v=200">
-    <link rel="stylesheet" href="css/admin.css?v=100">
+    <link rel="stylesheet" href="css/admin.css?v=200">
     <link rel="stylesheet" href="css/dashboard.css?v=2300">
     <link rel="stylesheet" href="css/dash-ai-widget.css?v=2200">
     <link rel="stylesheet" href="css/notes-editor.css?v=1700">
@@ -39,25 +39,28 @@
     <link rel="stylesheet" href="css/tasks-ai.css?v=2200">
     <link rel="stylesheet" href="css/settings.css?v=1900">
     <link rel="stylesheet" href="css/settings-health.css?v=2100">
+    <link rel="stylesheet" href="css/settings-notifications.css?v=2500">
     <link rel="stylesheet" href="css/auth.css?v=1700">
     <link rel="stylesheet" href="css/gamification.css?v=1700">
     <link rel="stylesheet" href="css/messaging.css?v=1700">
-    <link rel="stylesheet" href="css/campaigns.css?v=1700">
     <link rel="stylesheet" href="css/notifications.css?v=1700">
     <link rel="stylesheet" href="css/analytics.css?v=1700">
     <link rel="stylesheet" href="css/reports.css?v=2200">
     <link rel="stylesheet" href="css/ai-reports.css?v=2200">
     <link rel="stylesheet" href="css/reports-premium.css?v=2200">
-    <link rel="stylesheet" href="css/style-overrides.css?v=2600">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2800">
+    <link rel="stylesheet" href="css/premium-enhancements.css?v=100">
+    <link rel="stylesheet" href="css/frontend-stability-fix.css?v=300">
+    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=100">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
-    <link rel="stylesheet" href="css/style-views.css?v=2300">
+    <link rel="stylesheet" href="css/style-views.css?v=2400">
     <link rel="stylesheet" href="css/galaxy.css?v=1700">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
-    <link rel="stylesheet" href="css/giri-vision.css?v=3400">
+    <link rel="stylesheet" href="css/giri-vision.css?v=3600">
+    <link rel="stylesheet" href="css/config-dev.css?v=200">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
-    <link rel="stylesheet" href="css/calendar.css?v=2000">
-    <link rel="stylesheet" href="css/calendar-v6.css?v=2300">
+    <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
     <link rel="stylesheet" href="css/responsive.css?v=2300">
     <!-- Power Features CSS -->
     <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
@@ -65,7 +68,7 @@
     <link rel="stylesheet" href="css/quick-add.css?v=2000">
     <link rel="stylesheet" href="css/productivity-tools.css?v=2000">
     <link rel="stylesheet" href="css/kanban.css?v=2000">
-    <link rel="stylesheet" href="css/mail.css?v=100">
+    <link rel="stylesheet" href="css/mail-premium-v7.css?v=3700">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -84,6 +87,7 @@
     <script src="js/lib/three/LuminosityHighPassShader.js"></script>
     <script src="js/lib/three/CopyShader.js"></script>
     <script src="js/lib/three/UnrealBloomPass.js"></script>
+    <link rel="stylesheet" href="css/admin.css?v=1000">
 </head>
 <body>
 
@@ -174,18 +178,74 @@
             <div id="galaxy-toolbar">
                 <h2 class="galaxy-toolbar-title">&#127756; Galaxie View</h2>
                 <div style="flex:1;"></div>
+
+                <!-- Filtres par type -->
+                <div class="galaxy-filters" style="display: flex; gap: 4px; margin-right: 8px;">
+                    <button class="btn btn-sm galaxy-ctrl-btn filter-btn active" id="filter-tasks" data-type="task" title="Afficher Tâches">✓ Tâches</button>
+                    <button class="btn btn-sm galaxy-ctrl-btn filter-btn active" id="filter-notes" data-type="note" title="Afficher Notes">✓ Notes</button>
+                    <button class="btn btn-sm galaxy-ctrl-btn filter-btn active" id="filter-projects" data-type="project" title="Afficher Projets">✓ Projets</button>
+                </div>
+
                 <button id="galaxy-sync-btn" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-primary">Sync Projets</button>
                 <button id="galaxy-save-btn" class="btn btn-sm galaxy-ctrl-btn">Sauvegarder</button>
+                <button id="galaxy-export-png-btn" class="btn btn-sm galaxy-ctrl-btn" title="Exporter PNG">📸 PNG</button>
+                <button id="galaxy-clear-btn" class="btn btn-sm galaxy-ctrl-btn" title="Tout effacer">🗑️ Clear</button>
                 <div class="galaxy-toolbar-sep"></div>
                 <button id="galaxy-reset-view" class="btn btn-sm galaxy-ctrl-btn" title="Reset camera">&#8634;</button>
                 <button id="galaxy-toggle-labels" class="btn btn-sm galaxy-ctrl-btn active" title="Labels">Aa</button>
                 <button id="galaxy-toggle-orbits" class="btn btn-sm galaxy-ctrl-btn active" title="Orbites">&#9737;</button>
                 <button id="galaxy-toggle-autorotate" class="btn btn-sm galaxy-ctrl-btn active" title="Auto-rotation">&#10227;</button>
+                <button id="galaxy-help-btn" class="btn btn-sm galaxy-ctrl-btn" title="Aide">ℹ️ Help</button>
                 <div class="galaxy-toolbar-sep"></div>
                 <button id="galaxy-ai-btn" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-ai" title="IA Constellation">&#10024; IA Constellation</button>
                 <button id="galaxy-mindmap-btn" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-ai" title="Mind Map IA">&#128161; Mind Map</button>
                 <span id="galaxy-status"></span>
             </div>
+
+            <!-- Toolbar latérale Miro-like -->
+            <div class="miro-toolbar">
+                <button class="miro-tool-btn active" data-tool="select" title="Sélection (V)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+                    </svg>
+                </button>
+                <button class="miro-tool-btn" data-tool="pen" title="Crayon (P)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+                        <circle cx="11" cy="11" r="2"/>
+                    </svg>
+                </button>
+                <button class="miro-tool-btn" data-tool="shape" title="Formes (S/O/R)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                    </svg>
+                </button>
+                <button class="miro-tool-btn" data-tool="text" title="Texte (T)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/>
+                    </svg>
+                </button>
+                <button class="miro-tool-btn" data-tool="connector" title="Connecteur (L)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="17" y1="7" x2="7" y2="17"/><polyline points="7 7 17 7 17 17"/>
+                    </svg>
+                </button>
+                <button class="miro-tool-btn" data-tool="sticky" title="Sticky (N)">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8l-5-5z"/><polyline points="16 3 16 8 21 8"/>
+                    </svg>
+                </button>
+                <div class="miro-toolbar-sep"></div>
+                <div class="miro-color-picker">
+                    <button class="miro-color-btn active" data-color="#1e1e1e" style="background: #1e1e1e" title="Noir"></button>
+                    <button class="miro-color-btn" data-color="#e03131" style="background: #e03131" title="Rouge"></button>
+                    <button class="miro-color-btn" data-color="#2f9e44" style="background: #2f9e44" title="Vert"></button>
+                    <button class="miro-color-btn" data-color="#1971c2" style="background: #1971c2" title="Bleu"></button>
+                    <button class="miro-color-btn" data-color="#f08c00" style="background: #f08c00" title="Orange"></button>
+                </div>
+            </div>
+
             <div id="galaxy-3d-container">
                 <canvas id="galaxy-3d-canvas"></canvas>
                 <div id="galaxy-tooltip" class="galaxy-tooltip"></div>
@@ -232,14 +292,14 @@
             <!-- Rendered by Messaging.js -->
         </div>
 
-        <!-- Campaigns View -->
-        <div id="view-campaigns" class="view view-container">
-            <!-- Rendered by campaigns.js -->
-        </div>
-
         <!-- Giri Vision - Video Consultation -->
         <div id="view-giri-vision" class="view-container">
             <!-- Rendered by GiriVisionView -->
+        </div>
+
+        <!-- Config Dev - Developer Configuration Panel -->
+        <div id="view-config-dev" class="view-container">
+            <!-- Rendered by ConfigDevView -->
         </div>
 
         <!-- Calendar View -->
@@ -1053,8 +1113,9 @@
     <script src="js/modules/services/api-ai.js?v=1700"></script>
     <script src="js/modules/services/api-galaxy.js?v=1700"></script>
     <script src="js/modules/services/api-data-loader.js?v=1700"></script>
-    <script src="js/modules/services/websocket.js?v=1700"></script>
+    <script src="js/modules/services/websocket.js?v=1800"></script>
     <script src="js/modules/services/api-monitoring.js?v=2100"></script>
+    <script src="js/modules/notifications-ui.js?v=2400"></script>
     <script src="js/modules/error-tracker.js?v=2100"></script>
     <script src="js/modules/theme-auto.js?v=2000"></script>
 
@@ -1075,11 +1136,13 @@
     <script src="js/modules/effects.js?v=1700"></script>
     <script src="js/modules/reports/report.js?v=2200"></script>
     <script src="js/modules/services/backup.js?v=1700"></script>
-    <script src="js/modules/sidebar/sidebar-core.js?v=1700"></script>
-    <script src="js/modules/sidebar/sidebar-render.js?v=1800"></script>
+    <script src="js/modules/sidebar/sidebar-core.js?v=3700"></script>
+    <script src="js/modules/sidebar/sidebar-render.js?v=1900"></script>
     <script src="js/modules/sidebar/sidebar-events.js?v=1700"></script>
     <script src="js/modules/sidebar/sidebar-init.js?v=1700"></script>
-    <script src="js/modules/router.js?v=1700"></script>
+    <!-- Cache Manager - Anti-cache system for critical views -->
+    <script src="js/modules/cache-manager.js?v=100"></script>
+    <script src="js/modules/router.js?v=2800"></script>
     <script src="js/modules/dashboard/dash-insights.js?v=1700"></script>
     <script src="js/modules/dashboard/dash-charts.js?v=1700"></script>
     <script src="js/modules/dashboard/dash-ai-widget.js?v=2200"></script>
@@ -1096,11 +1159,12 @@
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
     <script src="js/modules/settings/settings-data.js?v=1700"></script>
     <script src="js/modules/settings/settings-actions.js?v=2400"></script>
-    <script src="js/modules/settings/settings-render.js?v=2100"></script>
+    <script src="js/modules/settings/settings-render.js?v=2400"></script>
     <script src="js/modules/settings/settings-team.js?v=1800"></script>
+    <script src="js/modules/settings/settings-notifications.js?v=2500"></script>
     <script src="js/modules/settings/settings-health.js?v=2100"></script>
     <script src="js/modules/settings/settings-styles.js?v=1700"></script>
-    <script src="js/modules/settings/settings-view.js?v=2100"></script>
+    <script src="js/modules/settings/settings-view.js?v=2400"></script>
     <!-- Animation Controls -->
     <script src="js/modules/animation-controls.js?v=2300"></script>
     <!-- Analytics Module -->
@@ -1130,14 +1194,15 @@
     <script src="js/modules/messaging/messaging-events.js?v=1700"></script>
     <script src="js/modules/messaging/messaging.js?v=1700"></script>
 
-    <!-- 6. Campaigns Module - Email Campaigns -->
-    <script src="js/modules/campaigns/campaigns-api.js?v=1700"></script>
-    <script src="js/modules/campaigns/campaigns-ui.js?v=1700"></script>
-    <script src="js/modules/campaigns/campaigns.js?v=1700"></script>
-
-    <!-- Mail Module - Professional Emailing -->
-    <script src="js/modules/mail/mail-api.js?v=100"></script>
-    <script src="js/modules/mail/mail-view.js?v=100"></script>
+    <!-- Mail Module v2.0 - Professional Emailing (includes campaigns) -->
+    <script src="js/modules/mail/mail-api.js?v=2700"></script>
+    <script src="js/modules/mail/mail-composer-v7.js?v=3800"></script>
+    <script src="js/modules/mail/mail-inbox.js?v=3700"></script>
+    <script src="js/modules/mail/mail-templates.js?v=2700"></script>
+    <script src="js/modules/mail/mail-stats.js?v=2700"></script>
+    <script src="js/modules/mail/mail-campaigns.js?v=3900"></script>
+    <script src="js/modules/mail/mail-contacts.js?v=2700"></script>
+    <script src="js/modules/mail/mail-view.js?v=2700"></script>
 
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
@@ -1164,9 +1229,14 @@
     <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=1700"></script>
     <!-- Galaxy View 3D (Three.js engine + AI + orchestrator) -->
-    <script src="js/modules/canvases/galaxy-3d.js?v=1700"></script>
-    <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script>
-    <script src="js/modules/canvases/galaxie-view.js?v=1700"></script>
+    <!-- OLD Galaxy 3D - DISABLED -->
+    <!-- <script src="js/modules/canvases/galaxy-3d.js?v=1700"></script> -->
+    <!-- <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script> -->
+
+    <!-- NEW Galaxy Canvas v2 - Interactive Fix -->
+    <script src="js/galaxy-canvas-v2.js?v=3230"></script>
+    <script src="js/galaxy-constellation.js?v=3000"></script>
+    <script src="js/modules/canvases/galaxie-view.js?v=3200"></script>
 
     <!-- FinScan Accounting Module v3.0 -->
     <script src="js/modules/accounting/acc-state.js?v=1900"></script>
@@ -1213,17 +1283,21 @@
     <script src="js/modules/reports/report-creator.js?v=1700"></script>
 
     <!-- Giri Vision - Video Consultation -->
-    <script src="js/modules/giri-vision/giri-api.js?v=3400"></script>
-    <script src="js/modules/giri-vision/giri-vision-view.js?v=3400"></script>
+    <script src="js/modules/giri-vision/giri-api.js?v=4000"></script>
+    <script src="js/modules/giri-vision/giri-vision-view.js?v=4000"></script>
 
     <!-- Admin Module - Dashboard système (RÉSERVÉ: contact@mahagiri.fr) -->
-    <script src="js/modules/admin/admin-api.js?v=2500"></script>
-    <script src="js/modules/admin/admin-view.js?v=2500"></script>
+    <script src="js/modules/admin/admin-api.js?v=2600"></script>
+    <script src="js/modules/admin/admin-view.js?v=2600"></script>
+
+    <!-- Config Dev - Configuration développeur (RÉSERVÉ: contact@mahagiri.fr) -->
+    <script src="js/modules/config-dev/config-dev-api.js?v=200"></script>
+    <script src="js/modules/config-dev/config-dev-view.js?v=100"></script>
 
     <!-- NEW: Auth Login Module -->
-    <script src="js/modules/auth/login.js?v=1800"></script>
-    <!-- Login Fix Patch (corrects login logo, sidebar logo, member picker, avatars) -->
-    <script src="js/modules/auth/login-fix.js?v=1400"></script>
+    <script src="js/modules/auth/login.js?v=1900"></script>
+    <!-- Login Fix Patch (uses LOCAL logo SVG, fixes member picker, avatars) -->
+    <script src="js/modules/auth/login-fix.js?v=1600"></script>
 
     <!-- NEW: Core Modules -->
     <script src="js/modules/files/files.js?v=1700"></script>
@@ -1233,7 +1307,7 @@
     <script src="js/modules/workspaces/workspaces.js?v=1700"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=2400"></script>
+    <script src="js/animations.js?v=2500"></script>
 
     <!-- Animation Force Init & Debug -->
     <script>
@@ -1257,7 +1331,7 @@
             const hasControls = typeof AnimationControls !== 'undefined';
             const isLoggedIn = document.body.classList.contains('logged-in');
 
-            console.log(\`%c🔄 Attempt \${initAttempts}/\${MAX_ATTEMPTS}\`, 'color: #fbbf24', {
+            console.log(`%c🔄 Attempt ${initAttempts}/${MAX_ATTEMPTS}`, 'color: #fbbf24', {
                 canvas: !!canvas,
                 canvasVisible: canvas ? getComputedStyle(canvas).display !== 'none' : false,
                 initAnimation: hasInit,
@@ -1299,7 +1373,7 @@
                             // Final verification
                             setTimeout(() => {
                                 const finalOpacity = getComputedStyle(canvas).opacity;
-                                console.log(\`%c✨ Animations READY | Opacity: \${finalOpacity}\`, 'background: #22c55e; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+                                console.log(`%c✨ Animations READY | Opacity: ${finalOpacity}`, 'background: #22c55e; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
                                 initSuccess = true;
                             }, 500);
                         }, 300);
@@ -1314,10 +1388,10 @@
             // Retry with exponential backoff
             if (initAttempts < MAX_ATTEMPTS) {
                 const delay = 300 * initAttempts; // 300, 600, 900, 1200, 1500
-                console.log(\`⏳ Retrying in \${delay}ms...\`);
+                console.log(`⏳ Retrying in ${delay}ms...`);
                 setTimeout(attemptInit, delay);
             } else {
-                console.error(\`%c❌ FAILED after \${MAX_ATTEMPTS} attempts\`, 'color: #ef4444; font-weight: bold');
+                console.error(`%c❌ FAILED after ${MAX_ATTEMPTS} attempts`, 'color: #ef4444; font-weight: bold');
                 console.log('Debug: Try manually in console: initAnimation()');
             }
 
@@ -1360,9 +1434,9 @@
     </script>
 
     <!-- Calendar View v6.0 -->
-    <script src="js/modules/calendar/calendar-api.js?v=2300"></script>
-    <script src="js/modules/calendar/calendar-agent.js?v=2300"></script>
-    <script src="js/modules/calendar/calendar-view-v6.js?v=2300"></script>
+    <script src="js/modules/calendar/calendar-api.js?v=2700"></script>
+    <script src="js/modules/calendar/calendar-agent.js?v=2700"></script>
+    <script src="js/modules/calendar/calendar-view-v7.js?v=2700"></script>
 
     <!-- Power Features -->
     <script src="js/modules/command-palette.js?v=2000"></script>
@@ -1376,7 +1450,7 @@
     <script src="js/modules/pomodoro-timer.js?v=2000"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=2500"></script>
+    <script src="js/app-modular.js?v=2600"></script>
 
     <script>
     // Service Worker Registration

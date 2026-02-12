@@ -75,7 +75,7 @@ body.zen-mode .focus-music-panel { left: 24px; }
    SCRATCH PAD (Quick Capture)
    ================================================ */
 .scratch-pad-btn {
-    position: fixed; bottom: 160px; right: 24px; z-index: 9996;
+    position: fixed; bottom: 155px; right: 25px; z-index: 9996;
     width: 44px; height: 44px; border-radius: 50%;
     background: var(--bg-card); border: 1px solid var(--border);
     color: var(--text-secondary); cursor: pointer;
@@ -87,7 +87,7 @@ body.zen-mode .focus-music-panel { left: 24px; }
 .scratch-pad-btn svg { width: 20px; height: 20px; }
 
 .scratch-pad-panel {
-    position: fixed; bottom: 80px; right: 24px; z-index: 9997;
+    position: fixed; bottom: 80px; right: 25px; z-index: 9997;
     width: 320px; max-height: 400px;
     background: var(--bg-card); border: 1px solid var(--border);
     border-radius: var(--radius-xl, 16px);

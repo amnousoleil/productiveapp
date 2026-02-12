@@ -1,0 +1,66 @@
+/**
+ * FRONTEND STABILITY FIX
+ * Empêche les déplacements non désirés de layout
+ */
+
+/* Empêcher body/html de bouger */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  position: relative !important;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Stabiliser le conteneur principal */
+.main-content,
+.app-container,
+#app {
+  position: relative !important;
+  will-change: auto !important;
+}
+
+/* Empêcher les animations de bouger le viewport */
+@keyframes slideUp, slideDown, float, pulse {
+  from, to {
+    transform: translateY(0) !important;
+  }
+}
+
+/* Désactiver auto-scroll intempestif */
+* {
+  scroll-margin-top: 0 !important;
+  scroll-snap-type: none !important;
+}
+
+/* Stabiliser les modals */
+.modal-overlay,
+.cal-v7-modal-overlay,
+[class*="modal"] {
+  position: fixed !important;
+  inset: 0 !important;
+}
+
+/* Empêcher les transforms de casser le layout */
+.calendar-v7-container,
+.view-container,
+[class*="view-"] {
+  transform: none !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Fix pour animations qui causent des sauts */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

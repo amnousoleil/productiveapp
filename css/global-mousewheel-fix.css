@@ -1,0 +1,131 @@
+/**
+ * GLOBAL MOUSEWHEEL SCROLL FIX
+ * Permet scroll molette partout dans l'app
+ */
+
+/* RÈGLE GLOBALE: Tous les conteneurs peuvent scroller avec la molette */
+* {
+  pointer-events: auto !important;
+}
+
+/* Body et HTML */
+html,
+body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  pointer-events: auto !important;
+  touch-action: pan-y !important;
+}
+
+/* Conteneur principal app */
+#app,
+.app-container,
+.main-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  pointer-events: auto !important;
+}
+
+/* Toutes les vues */
+.view-container,
+[class*="view-"],
+#view-dashboard,
+#view-tasks,
+#view-projects,
+#view-notes,
+#view-calendar,
+#view-galaxie,
+#view-accounting,
+#view-reports,
+#view-team-messaging,
+#view-psycho-audit,
+#view-gamification,
+#view-team-vision,
+#view-mahayawen,
+#view-config-dev,
+#view-admin,
+#view-giri-vision {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: 100% !important;
+  min-height: 500px !important;
+  pointer-events: auto !important;
+  touch-action: pan-y !important;
+}
+
+/* Tous les conteneurs */
+[class*="container"],
+[class*="wrapper"],
+[class*="content"],
+.panel,
+.card {
+  pointer-events: auto !important;
+}
+
+/* Scrollable areas */
+.scrollable,
+.overflow-auto,
+[style*="overflow"] {
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Grids et listes */
+.grid,
+.list,
+[class*="grid"],
+[class*="list"] {
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Tables */
+table,
+.table-container,
+[class*="table"] {
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Modals peuvent aussi scroller */
+.modal,
+.modal-content,
+[class*="modal-content"] {
+  overflow-y: auto !important;
+  max-height: 90vh !important;
+  pointer-events: auto !important;
+}
+
+/* Sidebars */
+.sidebar,
+#app-sidebar,
+[class*="sidebar"] {
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Panels spécifiques */
+.dashboard-grid,
+.tasks-container,
+.projects-list,
+.notes-grid,
+.calendar-v7-container {
+  overflow-y: auto !important;
+  height: 100% !important;
+  pointer-events: auto !important;
+}
+
+/* Accounting module */
+.acc-wrapper,
+[class*="acc-"] {
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+}
+
+/* Assurer propagation des événements */
+body * {
+  pointer-events: auto !important;
+}

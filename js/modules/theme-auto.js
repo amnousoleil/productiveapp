@@ -19,8 +19,13 @@ const ThemeAuto = (function() {
         mediaQuery.addEventListener('change', handleSystemChange);
 
         const pref = getPreference();
+        // CRITICAL FIX: Don't override user's manual theme selection
         if (pref === SYSTEM) {
             applySystemTheme();
+        } else if (pref === 'manual') {
+            // User has manually selected a theme - don't interfere
+            console.log('🎨 ThemeAuto: Manual theme mode detected, skipping auto-apply');
+            return;
         }
 
         console.log('🎨 ThemeAuto: Initialized, preference:', pref);

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giri Vision - Visioconférence</title>
+
+    <!-- Preconnect pour accélérer chargement -->
+    <link rel="preconnect" href="https://meet.jit.si" crossorigin>
+    <link rel="dns-prefetch" href="https://meet.jit.si">
+
+    <!-- Preload script moteur visio -->
+    <link rel="preload" href="https://meet.jit.si/external_api.js" as="script" crossorigin>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000;
+            overflow: hidden;
+        }
+
+        #meet-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #meet-header {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        #meet-header .logo-icon {
+            font-size: 28px;
+            filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.5));
+        }
+
+        #meet-header .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        #meet-video {
+            width: 100%;
+            height: 100%;
+        }
+
+        #loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #111118;
+            color: #fff;
+            z-index: 50;
+        }
+
+        #loading .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-top-color: #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        #loading p {
+            margin-top: 24px;
+            font-size: 16px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div id="meet-container">
+        <!-- Logo overlay -->
+        <div id="meet-header">
+            <span class="logo-icon">🎥</span>
+            <span class="logo-text">Giri Vision</span>
+        </div>
+
+        <!-- Loading screen -->
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Chargement de la visioconférence...</p>
+        </div>
+
+        <!-- Meet container -->
+        <div id="meet-video"></div>
+    </div>
+
+    <script>
+        // Charger le moteur de visioconférence avec gestion d'erreur
+        function loadMeetEngine() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://meet.jit.si/external_api.js';
+                script.async = true;
+                script.crossOrigin = 'anonymous';
+                script.onload = () => {
+                    console.log('✅ Moteur de visioconférence chargé');
+                    resolve();
+                };
+                script.onerror = (err) => {
+                    console.error('❌ Échec chargement du moteur de visio:', err);
+                    reject(new Error('SERVICE_UNAVAILABLE'));
+                };
+                document.head.appendChild(script);
+            });
+        }
+
+        // Get room ID from URL path: /meet/:roomId
+        const pathParts = window.location.pathname.split('/');
+        const roomId = pathParts[pathParts.length - 1] || pathParts[pathParts.length - 2];
+
+        if (!roomId || roomId === 'meet') {
+            document.getElementById('loading').innerHTML = '<p style="color:#ff4444">❌ Code de réunion invalide</p>';
+        } else {
+            // Charger le moteur de visio puis initialiser
+            loadMeetEngine().then(() => {
+                initializeMeet();
+            }).catch((err) => {
+                const errorMsg = err.message === 'SERVICE_UNAVAILABLE'
+                    ? `Le service de visioconférence est temporairement indisponible.
+                       <br><br>Cela peut être dû à une maintenance ou une surcharge des serveurs.
+                       <br><br>Veuillez réessayer dans quelques instants.`
+                    : 'Erreur lors du chargement de la visioconférence';
+
+                document.getElementById('loading').innerHTML = `
+                    <div style="max-width: 500px; text-align: center;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                        <h2 style="color: #FFD700; margin-bottom: 16px;">Service temporairement indisponible</h2>
+                        <p style="color: #ccc; margin-bottom: 24px; line-height: 1.6;">${errorMsg}</p>
+                        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                            <button onclick="location.reload()" style="padding: 12px 24px; background: #FFD700; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                🔄 Réessayer maintenant
+                            </button>
+                            <button onclick="window.location.href='/'" style="padding: 12px 24px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                                🏠 Retour à l'accueil
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function initializeMeet() {
+            if (typeof JitsiMeetExternalAPI === 'undefined') {
+                throw new Error('Moteur de visioconférence non disponible');
+            }
+
+            // Initialize ProductiveApp Meet
+            const domain = 'meet.jit.si';
+            const options = {
+                    roomName: roomId,
+                    width: '100%',
+                    height: '100%',
+                    parentNode: document.getElementById('meet-video'),
+
+                    configOverwrite: {
+                        // Branding ProductiveApp
+                        defaultRemoteDisplayName: 'Participant',
+                        defaultLocalDisplayName: 'Vous',
+
+                        // FIX 1: DÉSACTIVER GRAVATAR (supprime modal email)
+                        disableProfile: true,
+                        gravatarBaseURL: '',
+
+                        // FIX 3: DÉSACTIVER VIRTUAL BACKGROUND (évite bugs)
+                        disableVirtualBackground: true,
+
+                        // Permissions micro/caméra
+                        startWithAudioMuted: false,
+                        startWithVideoMuted: false,
+                        prejoinPageEnabled: true,  // Page de setup avant de rejoindre
+
+                        // Autres configs
+                        disableDeepLinking: true,
+                        hideConferenceSubject: false,
+                        hideConferenceTimer: false,
+
+                        // FIX 4: Toolbar SANS Google Calendar
+                        toolbarButtons: [
+                            'microphone', 'camera', 'desktop', 'chat',
+                            'raisehand', 'participants-pane', 'tileview',
+                            'videoquality', 'settings', 'hangup'
+                            // PAS 'calendar' → évite branding Google
+                        ],
+                    },
+
+                    interfaceConfigOverwrite: {
+                        // Branding ProductiveApp Meet
+                        APP_NAME: 'Giri-App Meet',
+                        NATIVE_APP_NAME: 'Giri-App Meet',
+                        PROVIDER_NAME: 'Giri-App',
+
+                        // Hide external branding
+                        SHOW_JITSI_WATERMARK: false,
+                        SHOW_WATERMARK_FOR_GUESTS: false,
+                        SHOW_BRAND_WATERMARK: false,
+                        SHOW_POWERED_BY: false,
+                        JITSI_WATERMARK_LINK: 'https://giri-app.com',
+
+                        // UI
+                        DEFAULT_BACKGROUND: '#111118',
+                        TOOLBAR_ALWAYS_VISIBLE: false,
+                    },
+                };
+
+            console.log('🚀 Initialisation Giri-App Meet...');
+            const api = new JitsiMeetExternalAPI(domain, options);
+
+            // FIX 2: AJOUTER PERMISSIONS À L'IFRAME (résout Permissions-Policy violation)
+            setTimeout(() => {
+                const iframe = document.querySelector('iframe[name="jitsiConferenceFrame0"]');
+                if (iframe) {
+                    iframe.setAttribute('allow', 'camera; microphone; display-capture; autoplay');
+                    console.log('✅ Permissions micro/caméra activées');
+                } else {
+                    console.warn('⚠️ Iframe non trouvée, retry dans 500ms...');
+                    setTimeout(() => {
+                        const retryIframe = document.querySelector('iframe[name="jitsiConferenceFrame0"]');
+                        if (retryIframe) {
+                            retryIframe.setAttribute('allow', 'camera; microphone; display-capture; autoplay');
+                            console.log('✅ Permissions micro/caméra activées (retry)');
+                        }
+                    }, 500);
+                }
+            }, 1000);
+
+            // Hide loading screen when conference joined
+            api.addEventListener('videoConferenceJoined', () => {
+                console.log('✅ Réunion Giri-App rejointe');
+                document.getElementById('loading').style.display = 'none';
+            });
+
+            // Redirect to home when user leaves
+            api.addEventListener('readyToClose', () => {
+                console.log('👋 Utilisateur a quitté la réunion');
+                window.location.href = '/';
+            });
+
+            // Gestion erreurs
+            api.addEventListener('errorOccurred', (error) => {
+                console.error('❌ Erreur visioconférence:', error);
+                // Si erreur critique, proposer de retourner à l'accueil
+                if (error.isFatal) {
+                    document.getElementById('loading').style.display = 'flex';
+                    document.getElementById('loading').innerHTML = `
+                        <div style="text-align: center;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">❌</div>
+                            <p style="color:#ff4444; margin-bottom: 16px;">Une erreur critique est survenue</p>
+                            <button onclick="window.location.href='/'" style="padding: 12px 24px; background: #FFD700; color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                🏠 Retour à l'accueil
+                            </button>
+                        </div>
+                    `;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

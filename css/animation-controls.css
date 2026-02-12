@@ -7,7 +7,7 @@
 /* --- Floating Action Button --- */
 .anim-ctrl-fab {
     position: fixed;
-    bottom: 100px;
+    bottom: 95px;
     right: 25px;
     width: 44px;
     height: 44px;
@@ -55,7 +55,7 @@
 /* --- Panel --- */
 .anim-ctrl-panel {
     position: fixed;
-    bottom: 152px;
+    bottom: 147px;
     right: 25px;
     width: 280px;
     background: var(--bg-secondary);

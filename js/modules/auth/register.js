@@ -218,8 +218,8 @@ const RegisterModule = {
 
             if (data.success) {
                 // Sauvegarder les tokens
-                if (typeof ApiTokens !== 'undefined') {
-                    ApiTokens.setTokens(data.data.tokens);
+                if (typeof ApiTokens !== 'undefined' && data.data?.tokens) {
+                    ApiTokens.setTokens(data.data.tokens.accessToken, data.data.tokens.refreshToken);
                 }
                 localStorage.setItem('user', JSON.stringify(data.data.user));
 

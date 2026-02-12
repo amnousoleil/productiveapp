@@ -1,16 +1,13 @@
 /**
- * Admin Dashboard Styles v1.0
- * @description Styles for super-admin dashboard
+ * ADMIN DASHBOARD STYLES
  */
 
-/* === Container === */
-.admin-dashboard {
+.admin-errors {
   padding: 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* === Header === */
 .admin-header {
   display: flex;
   justify-content: space-between;
@@ -18,118 +15,18 @@
   margin-bottom: 2rem;
 }
 
-.admin-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.admin-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-top: 0.5rem;
-}
-
-.btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: var(--accent-color, #6366f1);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.admin-header h2 {
+  font-size: 1.8rem;
   font-weight: 600;
+  color: var(--text-color);
+}
+
+.admin-actions {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: transform 0.2s, background 0.2s;
-}
-
-.btn-refresh:hover {
-  background: var(--accent-hover, #4f46e5);
-  transform: translateY(-2px);
-}
-
-.btn-refresh span {
-  font-size: 1.2rem;
-}
-
-/* === Health Card === */
-.health-card {
-  padding: 1.5rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  border: 2px solid;
-}
-
-.health-healthy {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: #22c55e;
-}
-
-.health-degraded {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: #fbbf24;
-}
-
-.health-down {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
-}
-
-.health-status {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.health-emoji {
-  font-size: 2.5rem;
-}
-
-.health-status h3 {
-  margin: 0;
-  font-size: 1.25rem;
-  color: var(--text-primary);
-}
-
-.health-label {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0 0 0;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.health-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
 
-.health-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-}
-
-.health-icon {
-  font-size: 1.5rem;
-}
-
-.health-value {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-/* === Stats Grid === */
-.admin-grid {
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
@@ -137,183 +34,137 @@
 }
 
 .stat-card {
-  padding: 1.5rem;
-  background: var(--card-bg, white);
+  background: var(--card-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.stat-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.stat-content {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--accent-color, #6366f1);
-  margin: 0;
-}
-
-.stat-label {
+.stat-card .label {
   font-size: 0.875rem;
-  color: var(--text-secondary);
-  margin: 0.25rem 0 0 0;
-  font-weight: 600;
+  color: var(--text-muted, rgba(255, 255, 255, 0.6));
+  font-weight: 500;
 }
 
-.stat-sublabel {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 0.25rem 0 0 0;
-}
-
-/* === Sections === */
-.admin-section {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: var(--card-bg, white);
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.admin-section h2 {
-  font-size: 1.5rem;
+.stat-card .value {
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 1.5rem 0;
+  color: var(--text-color);
 }
 
-/* === Members Table === */
-.members-table {
-  overflow-x: auto;
-}
+.stat-card.error .value { color: #ef4444; }
+.stat-card.warning .value { color: #f59e0b; }
+.stat-card.success .value { color: #22c55e; }
+.stat-card.info .value { color: #3b82f6; }
 
-.members-table table {
+.errors-table {
   width: 100%;
   border-collapse: collapse;
+  background: var(--card-bg, rgba(255, 255, 255, 0.03));
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.members-table th,
-.members-table td {
-  padding: 0.75rem 1rem;
+.errors-table thead {
+  background: var(--card-header-bg, rgba(255, 255, 255, 0.05));
+}
+
+.errors-table th,
+.errors-table td {
+  padding: 1rem;
   text-align: left;
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
 }
 
-.members-table th {
-  background: var(--bg-secondary, #f3f4f6);
-  color: var(--text-secondary);
+.errors-table th {
   font-weight: 600;
   font-size: 0.875rem;
   text-transform: uppercase;
-  border-bottom: 2px solid var(--border-color, #e5e7eb);
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
 }
 
-.members-table td {
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
-  color: var(--text-primary);
-}
-
-.members-table tr:hover {
-  background: var(--bg-hover, #f9fafb);
-}
-
-/* === Activity List === */
-.activity-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.activity-item {
-  display: flex;
-  align-items: start;
-  gap: 1rem;
-  padding: 1rem;
-  background: var(--bg-secondary, #f9fafb);
-  border-radius: 8px;
+.errors-table tbody tr {
   transition: background 0.2s;
 }
 
-.activity-item:hover {
-  background: var(--bg-hover, #f3f4f6);
+.errors-table tbody tr:hover {
+  background: var(--hover-bg, rgba(255, 255, 255, 0.05));
 }
 
-.activity-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
+.errors-table tbody tr.resolved {
+  opacity: 0.5;
+  background: rgba(34, 197, 94, 0.1);
 }
 
-.activity-content {
-  flex: 1;
-}
-
-.activity-action {
-  font-size: 0.875rem;
-  color: var(--text-primary);
-  margin: 0 0 0.25rem 0;
-}
-
-.activity-time {
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
   font-size: 0.75rem;
-  color: var(--text-muted);
-  margin: 0;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-/* === Empty State === */
-.empty {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-muted);
-  font-style: italic;
+.badge-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
 }
 
-/* === Loading === */
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-muted);
+.badge-warning {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
 }
 
-/* === Responsive === */
-@media (max-width: 768px) {
-  .admin-dashboard {
-    padding: 1rem;
-  }
+.badge-info {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
 
-  .admin-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
+.btn-resolve {
+  padding: 0.5rem 1rem;
+  background: var(--btn-bg, rgba(59, 130, 246, 0.2));
+  color: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
 
-  .admin-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
-  }
+.btn-resolve:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
 
-  .health-details {
-    grid-template-columns: 1fr;
-  }
+.btn-primary,
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-  .members-table {
-    font-size: 0.875rem;
-  }
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
 
-  .stat-value {
-    font-size: 1.5rem;
-  }
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  background: var(--card-bg, rgba(255, 255, 255, 0.05));
+  color: var(--text-color);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.2));
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }

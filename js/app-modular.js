@@ -123,6 +123,12 @@ const App = {
             // Initialiser le routeur de vues (gère le hash URL)
             if (typeof ViewRouter !== 'undefined' && ViewRouter.init) ViewRouter.init();
 
+            // Initialiser le cache manager (anti-cache system for critical views)
+            if (typeof CacheManager !== 'undefined' && CacheManager.init) {
+                CacheManager.init();
+                console.log('✅ CacheManager initialized');
+            }
+
             // Initialiser le drag & drop
             setTimeout(() => {
                 if (typeof initDragAndDrop === 'function') initDragAndDrop();
@@ -220,8 +226,8 @@ const App = {
                 Tasks.render();
                 Journal.render();
 
-                // FORCE CLOSE ALL MODALS ON STARTUP (security fix for ghost modal bug)
-                this.forceCloseAllModals();
+                // REMOVED 2026-02-12: FORCE CLOSE ALL MODALS ON STARTUP (was closing modals automatically)
+                // this.forceCloseAllModals();
 
                 // Record daily login for gamification streak + XP
                 if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordDailyLogin) {
@@ -270,8 +276,8 @@ const App = {
         Tasks.render();
         Journal.render();
 
-        // FORCE CLOSE ALL MODALS ON STARTUP (security fix for ghost modal bug)
-        this.forceCloseAllModals();
+        // REMOVED 2026-02-12: FORCE CLOSE ALL MODALS ON STARTUP (was closing modals automatically)
+        // this.forceCloseAllModals();
     },
 
     /**
@@ -321,8 +327,10 @@ const App = {
     },
 
     /**
-     * Force close all modals on startup (security fix for ghost modal bug)
+     * REMOVED 2026-02-12: Force close all modals on startup
+     * This method was causing modals to auto-close - now commented out
      */
+    /*
     forceCloseAllModals() {
         const modalIds = [
             'edit-task-modal',
@@ -352,6 +360,7 @@ const App = {
 
         console.log('🔒 All modals force-closed on startup');
     },
+    */
 
     /**
      * Detect if the current user is super-admin (contact@mahagiri.fr)
@@ -492,7 +501,10 @@ window.App = App;
 
 // Exposer Sidebar
 window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
-
+// REMOVED: Force close modals fix (2026-02-12)
+// This code was causing modals to auto-close on page load
+// Commented out to allow modals to remain open naturally
+/*
 // CRITICAL: Close all modals IMMEDIATELY on page load (before anything else)
 (function() {
     'use strict';
@@ -582,3 +594,9 @@ window.Sidebar = typeof Sidebar !== 'undefined' ? Sidebar : null;
         });
     }
 })();
+*/
+
+// Initialize Error Tracker
+if (window.ErrorTracker) {
+  ErrorTracker.init();
+}

@@ -45,9 +45,9 @@ body {
 /* === VIEW CONTAINER === */
 .view-container {
     display: none;
-    padding: 0 40px 32px 40px;
+    padding: 20px 40px 32px 40px; /* Added padding-top 20px */
     max-width: 1200px;
-    margin: -150px auto 0 auto; /* margin-top négatif très fort pour forcer alignement */
+    margin: 0 auto; /* BUGFIX 2026-02-12: Removed negative margin-top that was cutting off content */
     animation: viewFadeIn 300ms ease-out;
 }
 

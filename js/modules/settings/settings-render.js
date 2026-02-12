@@ -79,22 +79,10 @@ const SettingsRender = (function() {
     }
 
     function renderNotifications(notifications, icons) {
-        return '<section class="settings-section">' +
+        // Container for premium notifications UI (rendered by SettingsNotifications module)
+        return '<section class="settings-section" id="settings-notifications-premium-section">' +
             '<h2 class="settings-section-title">' + icons.bell + '<span>Notifications</span></h2>' +
-            '<div class="settings-card">' +
-                renderNotificationRow('Rappels de taches', 'Recevez des rappels pour vos taches', 'taskReminders', notifications.taskReminders) +
-                renderNotificationRow('Resume quotidien', 'Recevez un resume de vos activites', 'dailySummary', notifications.dailySummary) +
-                renderNotificationRow('Succes et badges', 'Notifications de gamification', 'achievements', notifications.achievements) +
-                renderNotificationRow('Mentions', 'Quand quelqu\'un vous mentionne', 'mentions', notifications.mentions) +
-                '<div class="settings-toggle-row" style="border-bottom: none;">' +
-                    '<div class="settings-toggle-info">' +
-                        '<span class="settings-toggle-label">Sons</span>' +
-                        '<span class="settings-toggle-desc">Activer les sons de notification</span>' +
-                    '</div>' +
-                    '<div class="settings-toggle ' + (notifications.sounds ? 'active' : '') + '" ' +
-                        'data-key="sounds" onclick="SettingsView.toggleNotification(this, \'sounds\')"></div>' +
-                '</div>' +
-            '</div>' +
+            '<div id="settings-notifications-premium-container"></div>' +
         '</section>';
     }
 

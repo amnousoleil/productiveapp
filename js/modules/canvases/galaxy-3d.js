@@ -46,7 +46,6 @@ const Galaxy3D = (function() {
 
     const SPHERE_BASE_SIZE = 1.2;
     const SPACE_RANGE = 60;
-    const STARFIELD_COUNT = 3000;
     const BLOOM_STRENGTH = 1.5;
     const BLOOM_RADIUS = 0.4;
     const BLOOM_THRESHOLD = 0.2;
@@ -77,8 +76,8 @@ const Galaxy3D = (function() {
 
         // Scene
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x030308);
-        scene.fog = new THREE.FogExp2(0x030308, 0.008);
+        scene.background = new THREE.Color(0xf8f9fa); // Fond blanc doux style Miro
+        // Pas de fog pour un fond clair
 
         // Camera
         const w = containerEl.clientWidth || 800;
@@ -106,11 +105,12 @@ const Galaxy3D = (function() {
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.minDistance = 5;
-            controls.maxDistance = 200;
+            controls.minDistance = 2;      // Zoom très proche
+            controls.maxDistance = 400;    // Dézoom très loin
             controls.autoRotate = autoRotate;
             controls.autoRotateSpeed = 0.3;
             controls.enablePan = true;
+            controls.zoomSpeed = 1.5;      // Zoom plus rapide à la molette
         }
 
         // Raycaster
@@ -120,8 +120,8 @@ const Galaxy3D = (function() {
         // Lights
         setupLights();
 
-        // Starfield
-        createStarfield();
+        // Grille de fond style Miro (remplace starfield)
+        createGridBackground();
 
         // Events
         renderer.domElement.addEventListener('mousemove', onMouseMove, false);
@@ -177,58 +177,49 @@ const Galaxy3D = (function() {
         scene.add(light3);
     }
 
-    function createStarfield() {
+    function createGridBackground() {
         const THREE = window.THREE;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(STARFIELD_COUNT * 3);
-        const colors = new Float32Array(STARFIELD_COUNT * 3);
-        const sizes = new Float32Array(STARFIELD_COUNT);
 
-        for (let i = 0; i < STARFIELD_COUNT; i++) {
-            const i3 = i * 3;
-            // Spherical distribution
-            const r = 150 + Math.random() * 300;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.acos(2 * Math.random() - 1);
-            positions[i3] = r * Math.sin(phi) * Math.cos(theta);
-            positions[i3 + 1] = r * Math.sin(phi) * Math.sin(theta);
-            positions[i3 + 2] = r * Math.cos(phi);
+        // Grille horizontale (sol) - style Miro
+        const gridSize = 200;
+        const gridDivisions = 40;
+        const gridColorMain = 0xd0d0d0;   // Gris doux pour les lignes principales
+        const gridColorSub = 0xe8e8e8;    // Gris très clair pour les subdivisions
 
-            // Color variation (white/blue/warm)
-            const colorChoice = Math.random();
-            if (colorChoice < 0.6) {
-                colors[i3] = 0.9 + Math.random() * 0.1;
-                colors[i3 + 1] = 0.9 + Math.random() * 0.1;
-                colors[i3 + 2] = 1.0;
-            } else if (colorChoice < 0.8) {
-                colors[i3] = 0.7;
-                colors[i3 + 1] = 0.8;
-                colors[i3 + 2] = 1.0;
-            } else {
-                colors[i3] = 1.0;
-                colors[i3 + 1] = 0.85;
-                colors[i3 + 2] = 0.7;
-            }
+        // Grille au sol (plan Y=0)
+        const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, gridColorMain, gridColorSub);
+        gridHelper.position.y = 0;
+        scene.add(gridHelper);
 
-            sizes[i] = 0.5 + Math.random() * 2.0;
-        }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-        const material = new THREE.PointsMaterial({
-            size: 0.8,
-            vertexColors: true,
+        // Grille verticale XZ (fond) pour effet quadrillage complet
+        const gridGeometry = new THREE.PlaneGeometry(gridSize, gridSize, gridDivisions, gridDivisions);
+        const gridMaterial = new THREE.MeshBasicMaterial({
+            color: 0xf0f0f0,
+            wireframe: true,
             transparent: true,
-            opacity: 0.7,
-            sizeAttenuation: true,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
+            opacity: 0.15,
+            side: THREE.DoubleSide
         });
 
-        starField = new THREE.Points(geometry, material);
-        scene.add(starField);
+        // Grille verticale arrière
+        const gridBack = new THREE.Mesh(gridGeometry, gridMaterial);
+        gridBack.position.z = -gridSize / 2;
+        gridBack.rotation.x = 0;
+        scene.add(gridBack);
+
+        // Grille verticale gauche
+        const gridLeft = new THREE.Mesh(gridGeometry, gridMaterial.clone());
+        gridLeft.position.x = -gridSize / 2;
+        gridLeft.rotation.y = Math.PI / 2;
+        scene.add(gridLeft);
+
+        // Grille verticale droite
+        const gridRight = new THREE.Mesh(gridGeometry, gridMaterial.clone());
+        gridRight.position.x = gridSize / 2;
+        gridRight.rotation.y = Math.PI / 2;
+        scene.add(gridRight);
+
+        console.log('Galaxy3D: Grille style Miro créée');
     }
 
     // === SPHERE MANAGEMENT ===
@@ -839,6 +830,23 @@ const Galaxy3D = (function() {
         if (composer) composer.setSize(w, h);
     }
 
+    // === ZOOM CONTROLS ===
+    function zoomIn() {
+        if (!camera || !controls) return;
+        const direction = new window.THREE.Vector3();
+        camera.getWorldDirection(direction);
+        camera.position.addScaledVector(direction, 5); // Avancer de 5 unités
+        if (controls) controls.update();
+    }
+
+    function zoomOut() {
+        if (!camera || !controls) return;
+        const direction = new window.THREE.Vector3();
+        camera.getWorldDirection(direction);
+        camera.position.addScaledVector(direction, -5); // Reculer de 5 unités
+        if (controls) controls.update();
+    }
+
     // === DISPOSE ===
     function dispose() {
         stopAnimation();
@@ -880,6 +888,8 @@ const Galaxy3D = (function() {
         applyForceLayout,
         updateConnectionPositions,
         resetCamera,
+        zoomIn,
+        zoomOut,
         toggleLabels,
         toggleOrbits,
         toggleAutoRotate,

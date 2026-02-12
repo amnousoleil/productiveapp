@@ -33,8 +33,16 @@ const Sidebar = (function() {
         { id: 'divider1', type: 'divider' },
         { id: 'mahayawen', icon: 'bot', label: 'Assistant IA', tooltip: 'Chatbot intelligent', badge: true },
         { id: 'team-messaging', icon: 'messages', label: 'TeamTalk', tooltip: 'Messagerie d\'équipe' },
-        { id: 'mail', icon: 'mail', label: 'Mail', tooltip: 'Envoyer des emails' },
-        { id: 'campaigns', icon: 'activity', label: 'Campagnes', tooltip: 'Campagnes email' },
+        {
+            id: 'mail',
+            icon: 'mail',
+            label: 'Mail Pro',
+            tooltip: 'Emails professionnels (envois + campagnes)',
+            visible: () => {
+                const user = typeof AppState !== 'undefined' ? AppState.currentUser : null;
+                return user && user.email === 'contact@mahagiri.fr';
+            }
+        },
         { id: 'journal', icon: 'book-open', label: 'Journal', tooltip: 'Journal d\'activité' },
         { id: 'divider2', type: 'divider' },
         { id: 'teamVision', icon: 'users', label: 'Vision équipe', tooltip: 'Vue d\'ensemble équipe' },
@@ -73,6 +81,12 @@ const Sidebar = (function() {
                     label: 'Admin',
                     tooltip: 'Administration système',
                     tag: 'ADMIN'
+                }, {
+                    id: 'configDev',
+                    icon: 'settings',
+                    label: 'Config',
+                    tooltip: 'Configuration développeur',
+                    tag: 'DEV'
                 });
             }
         }
@@ -195,7 +209,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'campaigns', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'admin'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'mail', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'admin', 'configDev'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);

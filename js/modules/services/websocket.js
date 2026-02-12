@@ -15,8 +15,15 @@ const WebSocketService = (function() {
     function connect() {
         if (socket && socket.readyState === WebSocket.OPEN) return;
 
-        const token = typeof ApiTokens !== 'undefined' ? ApiTokens.getAccessToken() : null;
-        if (!token) return;
+        // FIX: Use ApiTokens to get the correct token key
+        const token = (typeof ApiTokens !== 'undefined' && ApiTokens.getAccessToken)
+            ? ApiTokens.getAccessToken()
+            : localStorage.getItem('accessToken');
+
+        if (!token) {
+            console.warn('🔌 WS: No token found');
+            return;
+        }
 
         const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${location.host}/ws?token=${token}`;

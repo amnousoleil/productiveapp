@@ -29,7 +29,8 @@ const ViewRouter = (function() {
         giriVision: 'Giri Vision',
         calendar: 'Calendrier',
         mail: 'Mail',
-        admin: 'Administration'
+        admin: 'Administration',
+        configDev: 'Configuration'
     };
 
     // Available views
@@ -96,6 +97,46 @@ const ViewRouter = (function() {
             return true;
         }
 
+        // Special handling for config-dev view (custom rendering)
+        if (viewId === 'configDev') {
+            previousView = currentView;
+            currentView = viewId;
+
+            // Hide all views
+            document.querySelectorAll('.view-container').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            // Show config-dev view container
+            const configDevContainer = document.getElementById('view-config-dev');
+            if (configDevContainer) {
+                configDevContainer.classList.add('active');
+            }
+
+            // Update sidebar active state
+            if (typeof Sidebar !== 'undefined') {
+                Sidebar.setActiveItem(viewId);
+            }
+
+            // Update page title
+            document.title = 'Configuration - ProductiveApp';
+
+            // Update URL hash
+            history.pushState({ view: viewId }, '', `#${viewId}`);
+
+            // Emit event
+            document.dispatchEvent(new CustomEvent('viewchange', {
+                detail: { view: viewId, previous: previousView }
+            }));
+
+            // Show config-dev view
+            if (typeof ConfigDevView !== 'undefined') {
+                ConfigDevView.render();
+            }
+
+            return true;
+        }
+
         if (!VIEWS[viewId]) {
             console.warn(`ViewRouter: vue inconnue "${viewId}"`);
             return false;
@@ -144,6 +185,25 @@ const ViewRouter = (function() {
      * Initialize view-specific content
      */
     function initializeView(viewId) {
+        // Pour les vues critiques, préparer le cache d'abord (anti-cache mechanism)
+        if (typeof CacheManager !== 'undefined' && CacheManager.shouldForceRefresh(viewId)) {
+            CacheManager.prepareView(viewId).then(() => {
+                renderViewContent(viewId);
+            }).catch(err => {
+                console.error('❌ CacheManager prepare failed:', err);
+                // Render quand même en cas d'erreur
+                renderViewContent(viewId);
+            });
+        } else {
+            // Vues non-critiques : render direct
+            renderViewContent(viewId);
+        }
+    }
+
+    /**
+     * Render view content (extracted from initializeView for async wrapper)
+     */
+    function renderViewContent(viewId) {
         switch (viewId) {
             case 'dashboard':
                 if (typeof Dashboard !== 'undefined') {

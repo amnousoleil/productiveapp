@@ -8,7 +8,10 @@ const GiriApi = {
 
   _headers() {
     const h = { 'Content-Type': 'application/json' };
-    const token = localStorage.getItem('productiveapp_token');
+    // FIX: Use ApiTokens to get the correct token key
+    const token = (typeof ApiTokens !== 'undefined' && ApiTokens.getAccessToken)
+      ? ApiTokens.getAccessToken()
+      : localStorage.getItem('accessToken');
     if (token) h['Authorization'] = `Bearer ${token}`;
     const wid = this._workspaceId();
     if (wid) h['X-Workspace-Id'] = wid;

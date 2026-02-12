@@ -1,12 +1,12 @@
 // =============================================
-// PRODUCTIVEAPP - LOGIN FIX PATCH v1.0
-// Corrections des bugs de connexion
+// PRODUCTIVEAPP - LOGIN FIX PATCH v1.6
+// Corrections des bugs de connexion + Edit Task Modal
 // =============================================
 
 (function() {
     'use strict';
 
-    console.log('🔧 LoginFix: Initializing patches...');
+    console.log('🔧 LoginFix v1.6: Initializing patches...');
 
     // =========================================
     // FIX 1: Assurer que le logo est visible (login + sidebar)
@@ -16,6 +16,12 @@
             // Login logo
             const loginLogo = document.querySelector('.auth-login-logo img');
             if (loginLogo) {
+                // CRITICAL FIX: Replace CDN URL with local SVG
+                if (loginLogo.src.includes('cloudfront') || loginLogo.src.includes('d1yei2z3i6k35z')) {
+                    loginLogo.src = '/assets/images/logos/logo.svg';
+                    console.log('🔧 LoginFix: Replaced CDN logo with local SVG');
+                }
+
                 // Force le logo à être visible
                 loginLogo.style.display = 'block';
                 loginLogo.style.visibility = 'visible';
@@ -25,7 +31,9 @@
                 if (!loginLogo.complete || loginLogo.naturalHeight === 0) {
                     console.warn('⚠️ Login logo image not loading, checking...');
                     loginLogo.onerror = function() {
-                        console.error('❌ Login logo failed to load from CDN');
+                        console.error('❌ Login logo failed to load, using fallback');
+                        // Fallback to PNG if SVG fails
+                        this.src = '/assets/images/logos/logo.png';
                     };
                     loginLogo.onload = function() {
                         console.log('✅ Login logo loaded successfully');
@@ -38,6 +46,12 @@
             // Sidebar logo
             const sidebarLogo = document.querySelector('.sidebar-logo');
             if (sidebarLogo) {
+                // CRITICAL FIX: Ensure local SVG path (already set in sidebar-render.js)
+                if (sidebarLogo.src && (sidebarLogo.src.includes('cloudfront') || sidebarLogo.src.includes('d1yei2z3i6k35z'))) {
+                    sidebarLogo.src = '/assets/images/logos/logo.svg';
+                    console.log('🔧 LoginFix: Replaced CDN sidebar logo with local SVG');
+                }
+
                 // Force le logo à être visible
                 sidebarLogo.style.display = 'block';
                 sidebarLogo.style.visibility = 'visible';
@@ -50,12 +64,17 @@
                 if (!sidebarLogo.complete || sidebarLogo.naturalHeight === 0) {
                     console.warn('⚠️ Sidebar logo image not loading, checking...');
                     sidebarLogo.onerror = function() {
-                        console.error('❌ Sidebar logo failed to load from CDN');
-                        // Fallback: ajouter un emoji si l'image ne charge pas
-                        const fallback = document.createElement('div');
-                        fallback.textContent = '👑';
-                        fallback.style.cssText = 'width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;';
-                        this.replaceWith(fallback);
+                        console.error('❌ Sidebar logo failed to load, using fallback');
+                        // Fallback: PNG if SVG fails
+                        if (this.src.includes('.svg')) {
+                            this.src = '/assets/images/logos/logo.png';
+                        } else {
+                            // Ultimate fallback: emoji
+                            const fallback = document.createElement('div');
+                            fallback.textContent = '👑';
+                            fallback.style.cssText = 'width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:20px;';
+                            this.replaceWith(fallback);
+                        }
                     };
                     sidebarLogo.onload = function() {
                         console.log('✅ Sidebar logo loaded successfully');
@@ -260,6 +279,98 @@
         });
     }
 
+
+    // =========================================
+    // FIX 6: Empêcher l'auto-ouverture du modal "Éditer la tâche"
+    // =========================================
+    function preventEditTaskModalAutoOpen() {
+        console.log('🔧 LoginFix: Installing Edit Task Modal protection...');
+
+        // 1. FLAG GLOBAL (7 secondes de protection)
+        window.__PREVENT_MODAL_AUTO_OPEN__ = true;
+
+        setTimeout(() => {
+            window.__PREVENT_MODAL_AUTO_OPEN__ = false;
+            console.log('✅ LoginFix: Edit Task Modal protection expired (user actions now allowed)');
+        }, 7000);
+
+        // 2. PATCH Tasks.openEditModal() pour bloquer pendant la garde
+        setTimeout(() => {
+            if (typeof Tasks !== 'undefined' && Tasks.openEditModal) {
+                const originalOpenEditModal = Tasks.openEditModal.bind(Tasks);
+
+                Tasks.openEditModal = function(taskId) {
+                    if (window.__PREVENT_MODAL_AUTO_OPEN__) {
+                        console.warn('⛔ LoginFix: Blocked auto-open of edit-task-modal during startup (taskId: ' + taskId + ')');
+                        return; // BLOQUÉ
+                    }
+
+                    console.log('✅ LoginFix: Allowing edit-task-modal to open (user action)');
+                    return originalOpenEditModal(taskId);
+                };
+
+                console.log('✅ LoginFix: Tasks.openEditModal patched');
+            } else {
+                console.warn('⚠️ LoginFix: Tasks.openEditModal not found (will retry)');
+
+                // Retry avec un délai plus long
+                setTimeout(() => {
+                    if (typeof Tasks !== 'undefined' && Tasks.openEditModal) {
+                        const originalOpenEditModal = Tasks.openEditModal.bind(Tasks);
+
+                        Tasks.openEditModal = function(taskId) {
+                            if (window.__PREVENT_MODAL_AUTO_OPEN__) {
+                                console.warn('⛔ LoginFix: Blocked auto-open of edit-task-modal during startup (taskId: ' + taskId + ')');
+                                return;
+                            }
+
+                            console.log('✅ LoginFix: Allowing edit-task-modal to open (user action)');
+                            return originalOpenEditModal(taskId);
+                        };
+
+                        console.log('✅ LoginFix: Tasks.openEditModal patched (retry)');
+                    }
+                }, 2000);
+            }
+        }, 500);
+
+        // 3. MUTATION OBSERVER pour force-fermeture en dernier recours
+        const forceCloseObserver = new MutationObserver(() => {
+            if (!window.__PREVENT_MODAL_AUTO_OPEN__) return;
+
+            const editModal = document.getElementById('edit-task-modal');
+            if (editModal && editModal.classList.contains('modal-visible')) {
+                console.warn('⛔ LoginFix: Force-closing edit-task-modal that opened during guard period');
+
+                editModal.classList.add('hidden');
+                editModal.classList.remove('modal-visible');
+                editModal.style.display = 'none';
+
+                // Aussi cacher l'overlay si présent
+                const overlay = document.querySelector('.modal-overlay');
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                    overlay.style.display = 'none';
+                }
+            }
+        });
+
+        forceCloseObserver.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style']
+        });
+
+        // Disconnect observer après 7 secondes
+        setTimeout(() => {
+            forceCloseObserver.disconnect();
+            console.log('✅ LoginFix: Edit Task Modal auto-open protection complete');
+        }, 7000);
+
+        console.log('✅ LoginFix: Edit Task Modal auto-open protection active (7s guard)');
+    }
+
     // =========================================
     // INITIALISATION
     // =========================================
@@ -280,6 +391,9 @@
 
         // Fix 5: Monitor login completion
         monitorMemberPickerAfterLogin();
+
+        // Fix 6: Prevent Edit Task Modal auto-open
+        preventEditTaskModalAutoOpen();
 
         // Fix 2: Patch autoSelectMember (avec retry si AuthLogin pas encore chargé)
         if (typeof AuthLogin !== 'undefined') {

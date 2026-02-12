@@ -18,6 +18,10 @@ const Themes = {
         document.documentElement.setAttribute('data-theme', themeId);
         localStorage.setItem('theme', themeId);
 
+        // CRITICAL FIX: Tell theme-auto.js we're in manual mode
+        // This prevents theme-auto from overriding user choice on reload
+        localStorage.setItem('theme_preference', 'manual');
+
         if (typeof resetAnimationForTheme === 'function') {
             resetAnimationForTheme();
         }

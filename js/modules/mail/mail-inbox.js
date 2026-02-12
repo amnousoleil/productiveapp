@@ -78,39 +78,62 @@ const MailInbox = {
   },
 
   renderMailCard(mail) {
-    const preview = mail.is_html
-      ? mail.body.replace(/<[^>]*>/g, '').substring(0, 120)
-      : mail.body.substring(0, 120);
+    // Meilleur nettoyage du HTML pour le preview
+    let preview = '';
+    if (mail.is_html) {
+      preview = mail.body
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Supprimer styles
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Supprimer scripts
+        .replace(/<[^>]*>/g, '') // Supprimer tags
+        .replace(/&nbsp;/g, ' ') // Remplacer &nbsp;
+        .replace(/&[a-z]+;/gi, ' ') // Supprimer autres entités HTML
+        .replace(/\s+/g, ' ') // Normaliser espaces
+        .trim()
+        .substring(0, 120);
+    } else {
+      preview = mail.body.trim().substring(0, 120);
+    }
 
+    // Formater les destinataires (limite 3, puis "et X autres")
+    const recipients = mail.to_addresses || [];
+    const recipientText = recipients.length <= 2
+      ? recipients.join(', ')
+      : `${recipients.slice(0, 2).join(', ')} et ${recipients.length - 2} autre${recipients.length - 2 > 1 ? 's' : ''}`;
+
+    // Status avec icônes et labels clairs
     let statusClass = 'sent';
-    let statusIcon = '✓';
+    let statusIcon = '✉️';
     let statusLabel = 'Envoyé';
 
     if (mail.opened_at) {
       statusClass = 'opened';
       statusIcon = '👁️';
-      statusLabel = 'Ouvert';
+      statusLabel = 'Lu';
     } else if (mail.status === 'failed') {
       statusClass = 'failed';
-      statusIcon = '✗';
+      statusIcon = '❌';
       statusLabel = 'Échec';
     }
+
+    // Date formatée avec jour/heure si récent
+    const sentDate = this.formatDateDetailed(mail.sent_at);
+    const openedDate = mail.opened_at ? this.formatDateDetailed(mail.opened_at) : null;
 
     return `
       <div class="mail-card" data-mail-id="${mail.id}">
         <div class="mail-card-header">
           <div class="mail-card-to">
-            <strong>À:</strong> ${this.escapeHtml(mail.to_addresses.join(', '))}
+            <strong>📧 À :</strong> ${this.escapeHtml(recipientText)}
           </div>
           <span class="mail-card-status ${statusClass}">${statusIcon} ${statusLabel}</span>
         </div>
 
-        <div class="mail-card-subject">${this.escapeHtml(mail.subject)}</div>
-        <div class="mail-card-preview">${this.escapeHtml(preview)}...</div>
+        <div class="mail-card-subject">${this.escapeHtml(mail.subject || '(sans objet)')}</div>
+        <div class="mail-card-preview">${preview ? this.escapeHtml(preview) + '...' : '<em>Email vide</em>'}</div>
 
         <div class="mail-card-footer">
-          <span class="mail-card-date">${this.formatDate(mail.sent_at)}</span>
-          ${mail.opened_at ? `<span class="mail-card-opened">Ouvert ${this.formatDate(mail.opened_at)}</span>` : ''}
+          <span class="mail-card-date">📅 ${sentDate}</span>
+          ${openedDate ? `<span class="mail-card-opened" style="color: #3b82f6;">✓ Lu ${openedDate}</span>` : '<span style="opacity: 0.5; font-size: 0.7rem;">Non lu</span>'}
         </div>
       </div>
     `;
@@ -207,6 +230,47 @@ const MailInbox = {
       day: 'numeric',
       month: 'short',
       year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+    });
+  },
+
+  formatDateDetailed(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor(diff / (1000 * 60));
+
+    // Moins d'1h : minutes
+    if (minutes < 60) {
+      return minutes < 1 ? 'À l\'instant' : `Il y a ${minutes}min`;
+    }
+
+    // Moins de 24h : heures + timestamp
+    if (hours < 24) {
+      const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `Aujourd'hui à ${time}`;
+    }
+
+    // Hier
+    if (hours < 48) {
+      const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `Hier à ${time}`;
+    }
+
+    // Moins de 7 jours : jour de la semaine
+    if (hours < 168) {
+      const day = date.toLocaleDateString('fr-FR', { weekday: 'long' });
+      const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return `${day.charAt(0).toUpperCase() + day.slice(1)} à ${time}`;
+    }
+
+    // Plus vieux : date complète
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined,
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 };

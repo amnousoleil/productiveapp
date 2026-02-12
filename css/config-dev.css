@@ -1,0 +1,418 @@
+/**
+ * CONFIG DEV - DARK THEME
+ * Cohérent avec Executive theme
+ */
+
+/* === VARIABLES === */
+:root {
+  /* Backgrounds */
+  --config-bg-primary: rgba(15, 15, 25, 0.95);
+  --config-bg-secondary: rgba(20, 20, 35, 0.8);
+  --config-bg-tertiary: rgba(30, 30, 45, 0.6);
+  --config-bg-input: rgba(30, 30, 45, 0.6);
+
+  /* Text */
+  --config-text-primary: #ffffff;
+  --config-text-secondary: rgba(255, 255, 255, 0.7);
+  --config-text-muted: rgba(255, 255, 255, 0.4);
+
+  /* Accent Gold */
+  --config-accent: #d4af37;
+  --config-accent-light: #f4d03f;
+  --config-accent-glow: rgba(212, 175, 55, 0.3);
+
+  /* Borders */
+  --config-border: rgba(212, 175, 55, 0.3);
+  --config-border-light: rgba(212, 175, 55, 0.15);
+}
+
+/* === CONTAINER === */
+.config-dev-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--config-bg-primary), rgba(20, 20, 35, 0.95));
+  backdrop-filter: blur(20px);
+  min-height: 100vh;
+  color: var(--config-text-primary);
+}
+
+/* === HEADER === */
+.config-dev-header {
+  margin-bottom: 30px;
+  border-bottom: 1px solid var(--config-border-light);
+  padding-bottom: 20px;
+}
+
+.config-dev-title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--config-text-primary);
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+}
+
+.config-dev-subtitle {
+  font-size: 14px;
+  color: var(--config-text-secondary);
+  margin: 0;
+}
+
+/* === TABS === */
+.config-dev-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--config-border-light);
+  overflow-x: auto;
+}
+
+.config-dev-tab {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--config-text-secondary);
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.config-dev-tab:hover {
+  color: var(--config-accent);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.config-dev-tab.active {
+  color: var(--config-accent);
+  border-bottom-color: var(--config-accent);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+/* === CONTENT === */
+.config-dev-content {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.config-dev-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === SECTIONS === */
+.config-section {
+  background: linear-gradient(135deg, var(--config-bg-secondary), rgba(25, 25, 40, 0.8));
+  border: 1px solid var(--config-border-light);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.config-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--config-text-primary);
+  margin: 0 0 20px 0;
+  border-bottom: 1px solid var(--config-border-light);
+  padding-bottom: 10px;
+}
+
+/* === FIELDS === */
+.config-field {
+  margin-bottom: 20px;
+}
+
+.config-field:last-child {
+  margin-bottom: 0;
+}
+
+.config-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--config-text-primary) !important;
+  margin-bottom: 8px;
+}
+
+.config-input,
+.config-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--config-bg-input);
+  border: 1px solid var(--config-border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--config-text-primary);
+  transition: all 0.3s;
+}
+
+.config-input::placeholder,
+.config-textarea::placeholder {
+  color: var(--config-text-muted);
+}
+
+.config-input:focus,
+.config-textarea:focus {
+  outline: none;
+  border-color: var(--config-accent);
+  background: rgba(30, 30, 45, 0.8);
+  box-shadow: 0 0 0 3px var(--config-accent-glow);
+}
+
+.config-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* === LOGO PREVIEW === */
+.logo-preview-container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.logo-preview {
+  width: 120px;
+  height: 120px;
+  border: 2px dashed var(--config-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 35, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.logo-preview img {
+  max-width: 110px;
+  max-height: 110px;
+  object-fit: contain;
+}
+
+.logo-preview-placeholder {
+  font-size: 48px;
+  opacity: 0.3;
+}
+
+.logo-upload-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2), rgba(244, 208, 63, 0.15));
+  border: 1px solid var(--config-border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--config-accent);
+  cursor: pointer;
+  transition: all 0.3s;
+  backdrop-filter: blur(10px);
+}
+
+.logo-upload-btn:hover {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.3), rgba(244, 208, 63, 0.25));
+  border-color: var(--config-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--config-accent-glow);
+}
+
+/* === COLOR PICKER === */
+.color-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-picker-input {
+  width: 80px;
+  height: 44px;
+  background: var(--config-bg-input);
+  border: 1px solid var(--config-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.color-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: 1px solid var(--config-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* === PRICING PLANS === */
+.pricing-plans-list {
+  display: grid;
+  gap: 16px;
+}
+
+.pricing-plan-card {
+  background: linear-gradient(135deg, rgba(20, 20, 35, 0.8), rgba(25, 25, 40, 0.8));
+  border: 1px solid var(--config-border-light);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.pricing-plan-card:hover {
+  border-color: var(--config-border);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+  transform: translateY(-2px);
+}
+
+.pricing-plan-card.highlighted {
+  border-color: var(--config-accent);
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(244, 208, 63, 0.05));
+}
+
+.pricing-plan-info h4 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: var(--config-text-primary);
+  font-weight: 600;
+}
+
+.pricing-plan-price {
+  font-size: 14px;
+  color: var(--config-accent);
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.pricing-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pricing-plan-features li {
+  font-size: 13px;
+  color: var(--config-text-secondary);
+  margin-bottom: 6px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.pricing-plan-features li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--config-accent);
+  font-weight: bold;
+}
+
+.pricing-plan-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  padding: 10px;
+  background: rgba(30, 30, 45, 0.6);
+  border: 1px solid var(--config-border-light);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 16px;
+  color: var(--config-text-secondary);
+}
+
+.icon-btn:hover {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: var(--config-accent);
+  color: var(--config-accent);
+  transform: scale(1.1);
+}
+
+/* === BUTTONS === */
+.config-dev-footer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 24px 0;
+  border-top: 1px solid var(--config-border-light);
+  margin-top: 20px;
+}
+
+.btn-config {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-config-primary {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25), rgba(244, 208, 63, 0.2));
+  border: 1px solid var(--config-accent);
+  color: var(--config-accent);
+  backdrop-filter: blur(10px);
+}
+
+.btn-config-primary:hover {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.35), rgba(244, 208, 63, 0.3));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--config-accent-glow);
+}
+
+.btn-config-secondary {
+  background: rgba(30, 30, 45, 0.6);
+  border: 1px solid var(--config-border);
+  color: var(--config-text-primary);
+  backdrop-filter: blur(10px);
+}
+
+.btn-config-secondary:hover {
+  background: rgba(30, 30, 45, 0.9);
+  border-color: var(--config-accent);
+  color: var(--config-accent);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .config-dev-container {
+    padding: 16px;
+  }
+
+  .config-dev-tabs {
+    overflow-x: scroll;
+  }
+
+  .config-section {
+    padding: 16px;
+  }
+
+  .logo-preview-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .config-dev-footer {
+    flex-direction: column;
+  }
+
+  .btn-config {
+    width: 100%;
+  }
+}

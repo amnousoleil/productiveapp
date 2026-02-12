@@ -1,6 +1,6 @@
 /**
- * Giri Vision v3.0 - Simple Video Meetings
- * One-click video conferencing with Jitsi Meet
+ * Giri Vision v3.4 - Simple Video Meetings
+ * One-click video conferencing powered by ProductiveApp Meet
  * No therapist profile required - just start a meeting!
  */
 const GiriVisionView = {
@@ -11,6 +11,8 @@ const GiriVisionView = {
   participantsCount: 1, // Start with 1 (current user)
   isRecording: false,
   recordingStartTime: null,
+  mediaRecorder: null,
+  recordedChunks: [],
 
   init() {
     this.bindEvents();
@@ -32,6 +34,8 @@ const GiriVisionView = {
 
   async refresh() {
     await this.render();
+    // CRITICAL FIX: Bind events after render (otherwise buttons are frozen)
+    this.bindEvents();
   },
 
   async render() {
@@ -77,6 +81,18 @@ const GiriVisionView = {
             <div class="gv-loading">Chargement de l'historique...</div>
           </div>
         </div>
+
+        <div class="gv-section">
+          <div class="gv-section-header">
+            <h2 class="gv-section-title">📹 Mes enregistrements</h2>
+            <button class="gv-btn gv-btn-secondary gv-btn-sm" data-gv-action="refresh-recordings">
+              🔄 Actualiser
+            </button>
+          </div>
+          <div id="gv-recordings-list">
+            <div class="gv-loading">Chargement des enregistrements...</div>
+          </div>
+        </div>
       </div>
 
       <!-- Meeting Room Container -->
@@ -111,8 +127,9 @@ const GiriVisionView = {
       </div>
     `;
 
-    // Load meetings history
+    // Load meetings history and recordings
     await this.loadMeetingsHistory();
+    await this.loadRecordings();
   },
 
   generateRoomName() {
@@ -124,45 +141,34 @@ const GiriVisionView = {
 
   async startNewMeeting() {
     const roomName = this.generateRoomName();
-    const userName = AppState.currentMember?.name || 'Utilisateur';
 
-    // Create meeting record in backend (for history)
+    // REDIRECT TO STANDALONE MEET PAGE (cleaner, no CSP issues)
+    const domain = window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : window.location.origin;
+    const meetUrl = `${domain}/meet/${roomName}`;
+
+    // Show toast before redirect
+    if (window.Toast) {
+      Toast.success('🎥 Ouverture de la réunion...');
+    }
+
+    // Create meeting record in backend (for history) - optional
     try {
-      const data = await GiriApi.createConsultation({
+      await GiriApi.createConsultation({
         room_name: roomName,
         scheduled_at: new Date().toISOString(),
         duration_minutes: 60
       });
-      this.currentMeeting = data.consultation || data;
     } catch (err) {
-      // If backend fails, continue anyway with local meeting
-      this.currentMeeting = {
-        room_name: roomName,
-        scheduled_at: new Date().toISOString()
-      };
+      // If backend fails, continue anyway - meeting will work standalone
+      console.warn('[Giri Vision] Failed to save meeting to backend:', err);
     }
 
-    // FULLSCREEN MODE: Hide sidebar and show meeting room
-    this.enterFullscreenMode();
-
-    // Update meeting name display
-    const nameEl = document.getElementById('gv-meeting-name');
-    if (nameEl) nameEl.textContent = roomName;
-
-    // Initialize Jitsi
-    this.initJitsi(roomName, userName);
-    this.startMeetingTimer();
-
-    // Show link copied button
-    const copyBtn = document.getElementById('copy-link-btn');
-    if (copyBtn) {
-      copyBtn.dataset.roomName = roomName;
-    }
-
-    // Show success toast with link
-    if (window.Toast) {
-      Toast.success('Réunion créée ! Partagez le lien pour inviter des participants.');
-    }
+    // REDIRECT to standalone meet page (no CSP/iframe issues)
+    setTimeout(() => {
+      window.location.href = meetUrl;
+    }, 500); // Small delay for toast to show
   },
 
   enterFullscreenMode() {
@@ -210,7 +216,7 @@ const GiriVisionView = {
           <div class="gv-empty" style="height:100%;background:var(--bg-primary)">
             <div class="gv-empty-icon">⚠️</div>
             <div class="gv-empty-title">Erreur de chargement</div>
-            <div class="gv-empty-text">Impossible de charger Jitsi Meet. Vérifiez votre connexion.</div>
+            <div class="gv-empty-text">Impossible de charger la visioconférence. Vérifiez votre connexion internet.</div>
           </div>
         `;
       };
@@ -321,7 +327,11 @@ const GiriVisionView = {
       roomName = this.currentMeeting.room_name;
     }
 
-    const link = `https://meet.jit.si/${roomName}`;
+    // CUSTOM URL: giri-app.com/meet/{roomId} instead of meet.jit.si
+    const domain = window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : 'https://giri-app.com';
+    const link = `${domain}/meet/${roomName}`;
 
     try {
       await navigator.clipboard.writeText(link);
@@ -335,7 +345,7 @@ const GiriVisionView = {
           btn.classList.remove('gv-btn-success');
         }, 2000);
       }
-      if (window.Toast) Toast.success('Lien copié dans le presse-papier');
+      if (window.Toast) Toast.success(`Lien copié : ${domain}/meet/...`);
     } catch (err) {
       // Fallback for older browsers
       const textarea = document.createElement('textarea');
@@ -347,7 +357,7 @@ const GiriVisionView = {
       document.execCommand('copy');
       document.body.removeChild(textarea);
 
-      if (window.Toast) Toast.success('Lien copié dans le presse-papier');
+      if (window.Toast) Toast.success(`Lien copié : ${domain}/meet/...`);
     }
   },
 
@@ -496,34 +506,103 @@ const GiriVisionView = {
     `;
   },
 
-  async rejoinMeeting(roomName) {
-    const userName = AppState.currentMember?.name || 'Utilisateur';
+  async loadRecordings() {
+    const listEl = document.getElementById('gv-recordings-list');
+    if (!listEl) return;
 
-    this.currentMeeting = {
-      room_name: roomName,
-      scheduled_at: new Date().toISOString()
-    };
+    listEl.innerHTML = '<div class="gv-loading">Chargement des enregistrements...</div>';
 
-    // FULLSCREEN MODE: Hide sidebar and show meeting room
-    this.enterFullscreenMode();
+    try {
+      const data = await GiriApi.listRecordings();
+      const recordings = data.recordings || data || [];
+      const recentRecordings = (Array.isArray(recordings) ? recordings : [])
+        .filter(r => r.recording_url) // Only show recordings with files
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 20);
 
-    // Update meeting name display
-    const nameEl = document.getElementById('gv-meeting-name');
-    if (nameEl) nameEl.textContent = roomName;
+      if (recentRecordings.length === 0) {
+        listEl.innerHTML = `
+          <div class="gv-empty-history">
+            <div class="gv-empty-icon">📹</div>
+            <p class="gv-empty-hint">Aucun enregistrement disponible</p>
+            <p class="gv-empty-hint-small">Les enregistrements de vos réunions apparaîtront ici</p>
+          </div>
+        `;
+        return;
+      }
 
-    // Initialize Jitsi
-    this.initJitsi(roomName, userName);
-    this.startMeetingTimer();
-
-    // Show link copied button
-    const copyBtn = document.getElementById('copy-link-btn');
-    if (copyBtn) {
-      copyBtn.dataset.roomName = roomName;
+      listEl.innerHTML = recentRecordings.map(r => this.renderRecordingCard(r)).join('');
+    } catch (err) {
+      console.error('[Giri Vision] Error loading recordings:', err);
+      listEl.innerHTML = `
+        <div class="gv-empty-history">
+          <div class="gv-empty-icon">⚠️</div>
+          <p>Erreur de chargement des enregistrements</p>
+          <button class="gv-btn gv-btn-secondary gv-btn-sm" data-gv-action="refresh-recordings">
+            🔄 Réessayer
+          </button>
+        </div>
+      `;
     }
+  },
+
+  renderRecordingCard(recording) {
+    const date = new Date(recording.created_at);
+    const dateStr = date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    const roomName = recording.room_name || 'Réunion';
+    const fileSize = recording.file_size ? (recording.file_size / (1024 * 1024)).toFixed(1) + ' MB' : '?';
+    const duration = recording.duration_seconds
+      ? Math.floor(recording.duration_seconds / 60) + ' min'
+      : '?';
+    const recordingUrl = recording.recording_url;
+
+    return `
+      <div class="gv-recording-card">
+        <div class="gv-recording-card-header">
+          <div class="gv-recording-card-icon">🎬</div>
+          <div class="gv-recording-card-info">
+            <div class="gv-recording-card-title">${roomName}</div>
+            <div class="gv-recording-card-date">${dateStr}</div>
+          </div>
+          <div class="gv-recording-card-size">${fileSize}</div>
+        </div>
+        <div class="gv-recording-card-footer">
+          <span class="gv-recording-card-duration">⏱️ ${duration}</span>
+          <button class="gv-btn gv-btn-primary gv-btn-xs"
+                  data-gv-action="play-recording"
+                  data-recording-url="${recordingUrl}"
+                  data-recording-name="${roomName}">
+            ▶️ Lire
+          </button>
+          <a href="${recordingUrl}" download class="gv-btn gv-btn-secondary gv-btn-xs">
+            📥 Télécharger
+          </a>
+        </div>
+      </div>
+    `;
+  },
+
+  async rejoinMeeting(roomName) {
+    // REDIRECT to standalone meet page
+    const domain = window.location.hostname === 'localhost'
+      ? 'http://localhost:8080'
+      : window.location.origin;
+    const meetUrl = `${domain}/meet/${roomName}`;
 
     if (window.Toast) {
-      Toast.info('Reconnexion à la réunion...');
+      Toast.info('🎥 Reconnexion à la réunion...');
     }
+
+    setTimeout(() => {
+      window.location.href = meetUrl;
+    }, 300);
   },
 
   async promptJoinWithCode() {
@@ -541,55 +620,127 @@ const GiriVisionView = {
 
     if (this.isRecording) {
       // Stop recording
-      try {
-        await this.jitsiApi.executeCommand('stopRecording', 'file');
-        this.isRecording = false;
-        this.recordingStartTime = null;
-
-        recordBtn.innerHTML = '🔴 REC';
-        recordBtn.classList.remove('gv-btn-recording');
-
-        // Save recording metadata to backend
-        if (this.currentMeeting && this.currentMeeting.id) {
-          try {
-            await GiriApi.stopRecording(this.currentMeeting.id);
-          } catch (e) {
-            console.warn('Failed to save recording metadata:', e);
-          }
-        }
-
-        if (window.Toast) Toast.success('Enregistrement sauvegardé');
-      } catch (err) {
-        console.error('Failed to stop recording:', err);
-        if (window.Toast) Toast.error('Erreur lors de l\'arrêt de l\'enregistrement');
-      }
+      this.stopClientRecording(recordBtn);
     } else {
       // Start recording
-      try {
-        await this.jitsiApi.executeCommand('startRecording', {
-          mode: 'file',
-          shouldShare: false
-        });
-        this.isRecording = true;
-        this.recordingStartTime = Date.now();
+      this.startClientRecording(recordBtn);
+    }
+  },
 
-        recordBtn.innerHTML = '⏹️ STOP';
-        recordBtn.classList.add('gv-btn-recording');
-
-        // Notify backend that recording started
-        if (this.currentMeeting && this.currentMeeting.id) {
-          try {
-            await GiriApi.startRecording(this.currentMeeting.id);
-          } catch (e) {
-            console.warn('Failed to notify backend of recording:', e);
-          }
-        }
-
-        if (window.Toast) Toast.info('Enregistrement démarré');
-      } catch (err) {
-        console.error('Failed to start recording:', err);
-        if (window.Toast) Toast.error('Erreur: l\'enregistrement nécessite des autorisations');
+  async startClientRecording(recordBtn) {
+    try {
+      // Check MediaRecorder support
+      if (!window.MediaRecorder) {
+        if (window.Toast) Toast.error('Votre navigateur ne supporte pas l\'enregistrement vidéo');
+        return;
       }
+
+      // Get display media stream (screen + audio)
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { mediaSource: 'screen' },
+        audio: true
+      });
+
+      this.recordedChunks = [];
+
+      // Create MediaRecorder
+      const options = { mimeType: 'video/webm;codecs=vp9,opus' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options.mimeType = 'video/webm'; // Fallback
+      }
+
+      this.mediaRecorder = new MediaRecorder(stream, options);
+
+      this.mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          this.recordedChunks.push(event.data);
+        }
+      };
+
+      this.mediaRecorder.onstop = async () => {
+        stream.getTracks().forEach(track => track.stop());
+        await this.saveRecording();
+      };
+
+      this.mediaRecorder.start(1000); // Collect data every second
+      this.isRecording = true;
+      this.recordingStartTime = Date.now();
+
+      recordBtn.innerHTML = '⏹️ STOP';
+      recordBtn.classList.add('gv-btn-recording');
+
+      if (window.Toast) Toast.success('🔴 Enregistrement démarré');
+    } catch (err) {
+      console.error('Failed to start recording:', err);
+      if (window.Toast) {
+        if (err.name === 'NotAllowedError') {
+          Toast.error('Permission refusée pour enregistrer l\'écran');
+        } else {
+          Toast.error('Impossible de démarrer l\'enregistrement');
+        }
+      }
+    }
+  },
+
+  stopClientRecording(recordBtn) {
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      this.mediaRecorder.stop();
+      this.isRecording = false;
+      this.recordingStartTime = null;
+
+      recordBtn.innerHTML = '🔴 REC';
+      recordBtn.classList.remove('gv-btn-recording');
+
+      if (window.Toast) Toast.info('⏹️ Enregistrement arrêté, sauvegarde en cours...');
+    }
+  },
+
+  async saveRecording() {
+    try {
+      const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+      const duration = Math.floor((Date.now() - (this.recordingStartTime || Date.now())) / 1000);
+
+      // Create FormData for upload
+      const formData = new FormData();
+      const filename = `recording-${Date.now()}.webm`;
+      formData.append('recording', blob, filename);
+      formData.append('meeting_id', this.currentMeeting?.id || 'unknown');
+      formData.append('room_name', this.currentMeeting?.room_name || 'unknown');
+      formData.append('duration', duration);
+
+      // Upload to backend
+      const token = ApiTokens.getAccessToken() || localStorage.getItem('accessToken');
+      const workspaceId = AppState.currentWorkspace?.id;
+
+      const response = await fetch(`${AppConfig.API_URL}/giri-vision/recordings/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'X-Workspace-Id': workspaceId
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (window.Toast) Toast.success('✅ Enregistrement sauvegardé !');
+        this.recordedChunks = [];
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (err) {
+      console.error('Failed to save recording:', err);
+
+      // Fallback: download locally
+      const blob = new Blob(this.recordedChunks, { type: 'video/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `recording-${Date.now()}.webm`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      if (window.Toast) Toast.warning('⚠️ Enregistrement téléchargé localement (échec upload serveur)');
     }
   },
 
@@ -616,7 +767,55 @@ const GiriVisionView = {
       case 'rejoin-meeting':
         this.rejoinMeeting(dataset.roomName);
         break;
+      case 'refresh-recordings':
+        this.loadRecordings();
+        break;
+      case 'play-recording':
+        this.playRecording(dataset.recordingUrl, dataset.recordingName);
+        break;
     }
+  },
+
+  playRecording(url, name) {
+    // Create a modal with video player
+    const modal = document.createElement('div');
+    modal.className = 'gv-video-modal';
+    modal.innerHTML = `
+      <div class="gv-video-modal-overlay" data-gv-action="close-video-modal"></div>
+      <div class="gv-video-modal-content">
+        <div class="gv-video-modal-header">
+          <h3 class="gv-video-modal-title">📹 ${name || 'Enregistrement'}</h3>
+          <button class="gv-video-modal-close" data-gv-action="close-video-modal">✕</button>
+        </div>
+        <div class="gv-video-modal-body">
+          <video controls autoplay style="width: 100%; max-height: 70vh; background: #000;">
+            <source src="${url}" type="video/webm">
+            <source src="${url}" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture vidéo.
+          </video>
+        </div>
+        <div class="gv-video-modal-footer">
+          <a href="${url}" download class="gv-btn gv-btn-primary">
+            📥 Télécharger
+          </a>
+          <button class="gv-btn gv-btn-secondary" data-gv-action="close-video-modal">
+            Fermer
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Close modal on click
+    modal.addEventListener('click', (e) => {
+      const closeBtn = e.target.closest('[data-gv-action="close-video-modal"]');
+      if (closeBtn || e.target.classList.contains('gv-video-modal-overlay')) {
+        const video = modal.querySelector('video');
+        if (video) video.pause();
+        modal.remove();
+      }
+    });
   },
 
   // Cleanup

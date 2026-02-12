@@ -88,7 +88,7 @@ const AuthLogin = {
                 <div class="auth-login-left">
                     <div class="auth-login-box">
                         <div class="auth-login-logo">
-                            <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="Logo">
+                            <img src="assets/images/logos/logo.svg" alt="Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\'font-size:48px\\'>👑</span>';">
                         </div>
                         <h1 class="auth-login-title">ProductiveApp</h1>
                         <p class="auth-login-tagline">By Maha Giri</p>
