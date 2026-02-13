@@ -580,3 +580,494 @@
   pointer-events: none;
   z-index: 100;
 }
+
+/* =============================================
+   MODALS
+   ============================================= */
+.vgx-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vgx-modal.visible {
+  opacity: 1;
+}
+
+.vgx-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+.vgx-modal-content {
+  position: relative;
+  z-index: 1;
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.4);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.vgx-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  background: rgba(139, 92, 246, 0.1);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.vgx-modal-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.vgx-modal-close {
+  width: 40px;
+  height: 40px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 2px solid rgba(239, 68, 68, 0.4);
+  border-radius: 50%;
+  color: var(--vgx-danger);
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.vgx-modal-close:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: scale(1.1) rotate(90deg);
+}
+
+/* =============================================
+   QUESTS MODAL
+   ============================================= */
+.vgx-quests-modal {
+  max-width: 1200px;
+}
+
+.vgx-quests-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 16px 32px;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+}
+
+.vgx-quest-tab {
+  padding: 12px 24px;
+  background: transparent;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vgx-quest-tab:hover {
+  border-color: var(--vgx-primary);
+  color: var(--text);
+}
+
+.vgx-quest-tab.active {
+  background: var(--vgx-primary);
+  border-color: var(--vgx-primary);
+  color: #fff;
+}
+
+.vgx-quests-content {
+  padding: 24px 32px;
+  max-height: calc(90vh - 200px);
+  overflow-y: auto;
+}
+
+.vgx-quest-panel {
+  display: none;
+}
+
+.vgx-quest-panel.active {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.vgx-empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+/* =============================================
+   QUEST CARDS
+   ============================================= */
+.vgx-quest-card {
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vgx-quest-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+}
+
+.vgx-quest-card.vgx-rarity-common { border-color: var(--vgx-common); color: var(--vgx-common); }
+.vgx-quest-card.vgx-rarity-uncommon { border-color: var(--vgx-uncommon); color: var(--vgx-uncommon); }
+.vgx-quest-card.vgx-rarity-rare { border-color: var(--vgx-rare); color: var(--vgx-rare); }
+.vgx-quest-card.vgx-rarity-epic { border-color: var(--vgx-epic); color: var(--vgx-epic); }
+.vgx-quest-card.vgx-rarity-legendary {
+  border-color: var(--vgx-legendary);
+  color: var(--vgx-legendary);
+  animation: vgxLegendaryGlow 2s ease-in-out infinite;
+}
+
+@keyframes vgxLegendaryGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(245, 158, 11, 0.6); }
+}
+
+.vgx-quest-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
+}
+
+.vgx-quest-card.completed {
+  opacity: 0.7;
+  filter: grayscale(0.5);
+}
+
+.vgx-quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.vgx-quest-chapter {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+}
+
+.vgx-quest-rarity {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  background: currentColor;
+  color: #000;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.vgx-quest-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px 0;
+}
+
+.vgx-quest-description {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.vgx-quest-story {
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border-left: 3px solid var(--vgx-primary);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.vgx-quest-objectives {
+  margin-bottom: 16px;
+}
+
+.vgx-objective {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.vgx-objective-text {
+  color: var(--text);
+}
+
+.vgx-objective-progress {
+  font-weight: 700;
+  color: var(--vgx-success);
+}
+
+.vgx-objective-bar {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.vgx-objective-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--vgx-success), var(--vgx-primary));
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.vgx-quest-rewards {
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.05);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.vgx-reward-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.vgx-rewards-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vgx-reward {
+  padding: 4px 10px;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid var(--vgx-primary);
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vgx-quest-accept,
+.vgx-quest-claim {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--vgx-primary), var(--vgx-secondary));
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vgx-quest-accept:hover,
+.vgx-quest-claim:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4);
+}
+
+.vgx-quest-claim {
+  background: linear-gradient(135deg, var(--vgx-success), var(--vgx-primary));
+  animation: vgxClaimPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes vgxClaimPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.vgx-quest-completed-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 12px;
+  background: var(--vgx-success);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* =============================================
+   REWARD ANIMATION
+   ============================================= */
+.vgx-reward-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.vgx-reward-animation.visible {
+  opacity: 1;
+}
+
+.vgx-reward-popup {
+  text-align: center;
+  padding: 48px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1));
+  border: 3px solid var(--vgx-primary);
+  border-radius: 24px;
+  animation: vgxRewardPopup 0.5s ease-out;
+}
+
+@keyframes vgxRewardPopup {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.vgx-reward-popup h2 {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--vgx-accent);
+  margin: 0 0 16px 0;
+}
+
+.vgx-reward-popup h3 {
+  font-size: 24px;
+  color: var(--text);
+  margin: 0 0 24px 0;
+}
+
+.vgx-reward-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vgx-reward-item {
+  padding: 16px 24px;
+  background: rgba(139, 92, 246, 0.2);
+  border: 2px solid var(--vgx-primary);
+  border-radius: 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  animation: vgxRewardItem 0.5s ease-out backwards;
+}
+
+.vgx-reward-item:nth-child(1) { animation-delay: 0.1s; }
+.vgx-reward-item:nth-child(2) { animation-delay: 0.2s; }
+.vgx-reward-item:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes vgxRewardItem {
+  0% {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* =============================================
+   HEADER
+   ============================================= */
+.vgx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.1));
+  border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+  margin-bottom: 24px;
+}
+
+.vgx-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.vgx-logo {
+  font-size: 36px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.vgx-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.vgx-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(139, 92, 246, 0.2);
+  border: 2px solid var(--vgx-primary);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vgx-header-btn:hover {
+  background: rgba(139, 92, 246, 0.3);
+  transform: translateY(-2px);
+}

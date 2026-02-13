@@ -108,6 +108,13 @@ const NotesModule = (function() {
         notes.unshift(note);
         saveToLocal();
         currentNoteId = note.id;
+
+        // XP Feedback: nouvelle note créée
+        if (typeof XPFeedback !== 'undefined' && XPFeedback.recordAction) {
+            XPFeedback.recordAction('note_created', null, 'Note créée')
+                .catch(err => console.warn('XP Feedback failed:', err));
+        }
+
         return note;
     }
 

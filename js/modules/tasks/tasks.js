@@ -167,6 +167,12 @@ const Tasks = {
                     console.warn('Journal error:', journalErr);
                 }
 
+                // XP Feedback: nouvelle tâche créée
+                if (typeof XPFeedback !== 'undefined' && XPFeedback.recordAction) {
+                    XPFeedback.recordAction('task_created', null, 'Tâche créée')
+                        .catch(err => console.warn('XP Feedback failed:', err));
+                }
+
                 // Reset inputs
                 if (!options.text) {
                     const taskInput = Utils.$('task-input');
@@ -233,15 +239,10 @@ const Tasks = {
                 task.updatedAt = new Date().toISOString();
                 Journal.add('win', `✅ Terminé: ${task.text}`, 3);
 
-                // Gamification: enregistrer l'action pour XP
-                if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordAction) {
-                    GamificationAPI.recordAction('task_completed', { task_id: taskId })
-                        .then(result => {
-                            if (result?.xpGained) {
-                                console.log(`🎮 +${result.xpGained} XP pour tâche terminée`);
-                            }
-                        })
-                        .catch(err => console.warn('Gamification event failed:', err));
+                // XP Feedback: affichage immédiat avec animation
+                if (typeof XPFeedback !== 'undefined' && XPFeedback.recordAction) {
+                    XPFeedback.recordAction('task_completed', null, 'Tâche terminée')
+                        .catch(err => console.warn('XP Feedback failed:', err));
                 }
                 break;
 

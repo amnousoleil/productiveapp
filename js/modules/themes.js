@@ -30,7 +30,7 @@ const Themes = {
     },
 
     loadTheme() {
-        let saved = localStorage.getItem('theme') || 'executive';
+        let saved = localStorage.getItem('theme') || 'midnight';
         // Migrate old theme IDs
         if (THEME_MIGRATIONS[saved]) {
             saved = THEME_MIGRATIONS[saved];
@@ -50,7 +50,7 @@ const Themes = {
      * @returns {string} - ID du thème
      */
     getCurrentTheme() {
-        return localStorage.getItem('theme') || 'executive';
+        return localStorage.getItem('theme') || 'midnight';
     },
 
     /**

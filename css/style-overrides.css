@@ -2506,7 +2506,8 @@ body.logged-in .chatbot-fab {
     }
 }
 
-/* === FIX LOGIN SCREEN - CLEAN DESIGN === */
+/* === FIX LOGIN SCREEN - DISABLED (Using AuthLogin now) === */
+/* COMMENTED OUT 2026-02-13 - Old login system no longer used
 .login-screen {
     display: flex !important;
     flex-direction: column !important;
@@ -2520,6 +2521,7 @@ body.logged-in .chatbot-fab {
     outline: none !important;
     box-shadow: none !important;
 }
+*/
 
 /* Removed generic border reset - was breaking member buttons */
 
@@ -2603,7 +2605,8 @@ body:not(.logged-in) #chatbot-toggle {
 
 /* FIX: Removed opacity:0 and pointer-events:none that was hiding inputs on focus */
 
-/* Ensure login screen covers everything */
+/* Ensure login screen covers everything - DISABLED 2026-02-13 */
+/*
 .login-screen:not(.hidden) {
     position: fixed !important;
     top: 0 !important;
@@ -2613,6 +2616,7 @@ body:not(.logged-in) #chatbot-toggle {
     z-index: 9999 !important;
     background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%) !important;
 }
+*/
 
 /* === EXTRA FIX: Remove any outlines/borders on login === */
 .login-screen,
@@ -2735,9 +2739,29 @@ body.logged-in .sidebar-mobile-overlay.active {
     display: none !important;
 }
 
-/* Clean background */
+/* Clean background - DISABLED 2026-02-13 */
+/*
 .login-screen {
     background: linear-gradient(165deg, #0a0a0a 0%, #1a1410 40%, #2d2117 100%) !important;
+}
+*/
+
+/* CRITICAL FIX: Hide login-screen when logged in (2026-02-13) */
+body.logged-in .login-screen {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    z-index: -9999 !important;
+}
+
+/* CRITICAL FIX: FORCE auth-login-overlay to be visible (2026-02-13) */
+body:not(.logged-in) .auth-login-overlay,
+body:not(.logged-in) #auth-login-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 99999 !important;
 }
 
 /* Login button - simple and clickable */

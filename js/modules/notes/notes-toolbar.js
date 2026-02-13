@@ -95,9 +95,32 @@ const NotesToolbar = (function() {
                     </button>
                 </div>
                 <div class="toolbar-divider"></div>
+                <div class="toolbar-group">
+                    <button class="toolbar-btn" onclick="NotesToolbar.openGraphView()" title="Graph View (Obsidian)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="3"/>
+                            <circle cx="6" cy="6" r="2"/>
+                            <circle cx="18" cy="6" r="2"/>
+                            <circle cx="6" cy="18" r="2"/>
+                            <circle cx="18" cy="18" r="2"/>
+                            <line x1="12" y1="9" x2="12" y2="15"/>
+                            <line x1="9" y1="12" x2="15" y2="12"/>
+                            <line x1="7.5" y1="7.5" x2="10.5" y2="10.5"/>
+                            <line x1="16.5" y1="7.5" x2="13.5" y2="10.5"/>
+                            <line x1="7.5" y1="16.5" x2="10.5" y2="13.5"/>
+                            <line x1="16.5" y1="16.5" x2="13.5" y2="13.5"/>
+                        </svg>
+                        <span class="toolbar-btn-label">Graph</span>
+                    </button>
+                </div>
+                <div class="toolbar-divider"></div>
                 <div class="toolbar-group toolbar-ai-group">
                     <button class="toolbar-btn toolbar-btn-ai" onclick="NotesAI.toggleFab()" title="Assistant IA (Ctrl+Shift+A)">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/><circle cx="7.5" cy="14.5" r="1.5"/><circle cx="16.5" cy="14.5" r="1.5"/></svg>
+                    </button>
+                    <button class="toolbar-btn toolbar-btn-classify" onclick="NotesToolbar.classifyCurrentNote()" title="Classifier par IA">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="7.5 4.21 12 6.81 16.5 4.21"/><polyline points="7.5 19.79 7.5 14.6 3 12"/><polyline points="21 12 16.5 14.6 16.5 19.79"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                        <span class="toolbar-btn-label">Classifier</span>
                     </button>
                 </div>
             </div>
@@ -211,11 +234,46 @@ const NotesToolbar = (function() {
         });
     }
 
+    /**
+     * Classify current note with AI
+     */
+    function classifyCurrentNote() {
+        const noteId = NotesModule?.currentNoteId;
+        if (!noteId) {
+            if (typeof Toast !== 'undefined') {
+                Toast.warning('Veuillez d\'abord sélectionner une note');
+            }
+            return;
+        }
+
+        if (typeof NotesAiClassifier !== 'undefined') {
+            NotesAiClassifier.classifyCurrentNote(noteId);
+        } else {
+            console.error('NotesAiClassifier not loaded');
+        }
+    }
+
+    /**
+     * Open graph view modal
+     */
+    function openGraphView() {
+        if (typeof NotesGraphView !== 'undefined') {
+            NotesGraphView.open();
+        } else {
+            console.error('NotesGraphView not loaded');
+            if (typeof Toast !== 'undefined') {
+                Toast.error('Module Graph View non chargé');
+            }
+        }
+    }
+
     return {
         icons,
         getToolbarHTML,
         format,
-        initShortcuts
+        initShortcuts,
+        classifyCurrentNote,
+        openGraphView
     };
 })();
 

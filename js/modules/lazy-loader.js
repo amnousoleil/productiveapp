@@ -8,6 +8,9 @@
 const LazyLoader = (function() {
   'use strict';
 
+  // Version cache buster pour tous les modules lazy-loadés
+  const LAZY_VERSION = 200;
+
   // Modules déjà chargés
   const loadedModules = new Set();
 
@@ -183,7 +186,9 @@ const LazyLoader = (function() {
     // Créer une nouvelle promesse de chargement
     const promise = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = src;
+      // Ajouter cache buster pour forcer reload après mises à jour
+      const finalSrc = src.includes('?') ? `${src}&v=${LAZY_VERSION}` : `${src}?v=${LAZY_VERSION}`;
+      script.src = finalSrc;
       script.async = true;
 
       script.onload = () => {

@@ -219,6 +219,12 @@ const Projects = {
             this.renderFilter();
             this.renderSelect();
             console.log('✅ Projet ajouté:', newProject.name, 'ID:', newProject.id);
+
+            // XP Feedback: nouveau projet créé
+            if (typeof XPFeedback !== 'undefined' && XPFeedback.recordAction) {
+                XPFeedback.recordAction('project_created', null, 'Projet créé')
+                    .catch(err => console.warn('XP Feedback failed:', err));
+            }
         }
 
         this.closeModal();

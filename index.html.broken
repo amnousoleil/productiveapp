@@ -4,6 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProductiveApp - Ma Vision</title>
+
+    <!-- ULTRA EMERGENCY: Kill SW v4.0 IMMEDIATELY (2026-02-13) -->
+    <script>
+    (function() {
+        'use strict';
+        console.log('🔥 EMERGENCY SW KILLER - EXECUTING IMMEDIATELY');
+
+        // Check if SW API exists
+        if (!('serviceWorker' in navigator)) {
+            console.log('✅ No SW support - safe to proceed');
+            return;
+        }
+
+        // Flag to prevent infinite reload loop
+        const CLEANED_FLAG = 'emergency_sw_killed_v2';
+        const alreadyCleaned = sessionStorage.getItem(CLEANED_FLAG);
+
+        if (alreadyCleaned) {
+            console.log('✅ Already cleaned this session - proceeding normally');
+            return;
+        }
+
+        // IMMEDIATE cleanup function
+        async function emergencyKill() {
+            try {
+                console.log('🗑️ Step 1: Unregistering ALL Service Workers...');
+                const registrations = await navigator.serviceWorker.getRegistrations();
+
+                if (registrations.length === 0) {
+                    console.log('✅ No SW found - application is clean');
+                    sessionStorage.setItem(CLEANED_FLAG, Date.now());
+                    return;
+                }
+
+                console.log(`⚠️ Found ${registrations.length} Service Worker(s) - DESTROYING`);
+
+                for (const reg of registrations) {
+                    await reg.unregister();
+                    console.log('🗑️ SW unregistered:', reg.scope);
+                }
+
+                console.log('🗑️ Step 2: Deleting ALL Caches...');
+                const cacheNames = await caches.keys();
+                console.log(`⚠️ Found ${cacheNames.length} cache(s) - DELETING`);
+
+                for (const cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    console.log('🗑️ Cache deleted:', cacheName);
+                }
+
+                console.log('✅ CLEANUP COMPLETE');
+                console.log('🔄 Reloading page in clean state...');
+
+                // Mark as cleaned BEFORE reload
+                sessionStorage.setItem(CLEANED_FLAG, Date.now());
+
+                // Hard reload after 500ms
+                setTimeout(() => {
+                    window.location.reload(true);
+                }, 500);
+
+            } catch (error) {
+                console.error('❌ Emergency cleanup failed:', error);
+                sessionStorage.setItem(CLEANED_FLAG, Date.now());
+            }
+        }
+
+        // Execute immediately
+        emergencyKill();
+
+    })();
+    </script>
     <link rel="icon" type="image/png" href="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png">
 
     <!-- PWA -->
@@ -14,23 +86,14 @@
     <meta name="apple-mobile-web-app-title" content="ProductiveApp">
     <link rel="apple-touch-icon" href="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png">
 
-    <!-- PERFORMANCE: Preload critical resources -->
-    <link rel="preload" href="css/style-base.css?v=2500" as="style">
-    <link rel="preload" href="css/style-themes.css?v=1900" as="style">
-    <link rel="preload" href="js/modules/state.js?v=2500" as="script">
-    <link rel="preload" href="js/modules/router.js?v=2500" as="script">
-    <!-- PERFORMANCE: GPU Acceleration + Ultra Fluidité -->
-    <link rel="stylesheet" href="css/performance-boost.css?v=100">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://d1yei2z3i6k35z.cloudfront.net">
+    <!-- EMERGENCY FIX: Disable canvas FIRST -->
+    <link rel="stylesheet" href="css/disable-canvas.css?v=9999">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- CSS -->
     <link rel="stylesheet" href="css/style-base.css?v=2500">
     <link rel="stylesheet" href="css/style-components.css?v=2200">
@@ -54,29 +117,32 @@
     <link rel="stylesheet" href="css/settings.css?v=1900">
     <link rel="stylesheet" href="css/settings-health.css?v=2100">
     <link rel="stylesheet" href="css/settings-notifications.css?v=2500">
+    <link rel="stylesheet" href="css/config-premium.css?v=3000">
     <link rel="stylesheet" href="css/auth.css?v=1700">
     <link rel="stylesheet" href="css/gamification.css?v=1700">
-    <link rel="stylesheet" href="css/gamification-vgx.css?v=400">
-    <link rel="stylesheet" href="css/xp-feedback.css?v=500">
+    <link rel="stylesheet" href="css/gamification-vgx.css?v=100">
+    <link rel="stylesheet" href="css/xp-feedback.css?v=300">
     <link rel="stylesheet" href="css/messaging.css?v=1700">
     <link rel="stylesheet" href="css/notifications.css?v=1700">
     <link rel="stylesheet" href="css/analytics.css?v=1700">
     <link rel="stylesheet" href="css/reports.css?v=2200">
     <link rel="stylesheet" href="css/ai-reports.css?v=2200">
     <link rel="stylesheet" href="css/reports-premium.css?v=2200">
-    <link rel="stylesheet" href="css/style-overrides.css?v=2800">
+    <link rel="stylesheet" href="css/style-overrides.css?v=99999">
     <link rel="stylesheet" href="css/premium-enhancements.css?v=100">
-    <link rel="stylesheet" href="css/frontend-stability-fix.css?v=300">
-    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=100">
+    <link rel="stylesheet" href="css/frontend-stability-fix.css?v=400">
+    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=5000">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/style-views.css?v=2400">
-    <link rel="stylesheet" href="css/galaxy.css?v=1700">
+    <link rel="stylesheet" href="css/galaxy.css?v=1710">
+    <link rel="stylesheet" href="css/galaxy-premium.css?v=6000">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
+    <link rel="stylesheet" href="css/projects.css?v=5000">
     <link rel="stylesheet" href="css/giri-vision.css?v=3600">
     <link rel="stylesheet" href="css/config-dev.css?v=200">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
-    <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
+    <link rel="stylesheet" href="css/calendar-v7.css?v=4200">
     <link rel="stylesheet" href="css/responsive.css?v=2300">
     <!-- Power Features CSS -->
     <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
@@ -85,6 +151,9 @@
     <link rel="stylesheet" href="css/productivity-tools.css?v=2000">
     <link rel="stylesheet" href="css/kanban.css?v=2000">
     <link rel="stylesheet" href="css/mail-premium-v7.css?v=3700">
+
+    <!-- CANVAS KILLER - MUST BE FIRST SCRIPT (Écran noir fix) -->
+    <script src="js/modules/canvas-killer.js?v=100"></script>
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -150,7 +219,8 @@
     </div>
 
     <!-- ========== CANVAS ANIMATIONS ========== -->
-    <canvas id="matrix-bg"></canvas>
+    <!-- CANVAS DÉSACTIVÉ - Cause écran noir (2026-02-13) -->
+    <!-- <canvas id="matrix-bg"></canvas> -->
 
     <!-- ========== VIEWS CONTAINER ========== -->
     <main class="main-content">
@@ -1116,7 +1186,6 @@
     <script src="js/modules/config.js?v=1700"></script>
     <script src="js/modules/state.js?v=1700"></script>
     <script src="js/modules/utils.js?v=1700"></script>
-    <script src="js/modules/performance-utils.js?v=100"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
     <script src="js/modules/services/api-config.js?v=1700"></script>
@@ -1124,8 +1193,9 @@
     <script src="js/modules/services/api-fetch.js?v=1700"></script>
     <script src="js/modules/services/api.js?v=1700"></script>
     <script src="js/modules/services/api-auth.js?v=1700"></script>
-    <script src="js/modules/services/api-projects.js?v=1700"></script>
+    <script src="js/modules/services/api-projects.js?v=5100"></script>
     <script src="js/modules/services/api-notes.js?v=2200"></script>
+    <script src="js/modules/services/api-notes-graph.js?v=5000"></script>
     <script src="js/modules/services/api-tasks.js?v=1700"></script>
     <script src="js/modules/services/api-ai.js?v=1700"></script>
     <script src="js/modules/services/api-galaxy.js?v=1700"></script>
@@ -1144,9 +1214,10 @@
     <script src="js/modules/auth/auth.js?v=1700"></script>
     <script src="js/modules/themes.js?v=2000"></script>
     <script src="js/modules/confirm-modal.js?v=1700"></script>
-    <script src="js/modules/tasks/tasks.js?v=1700"></script>
+    <!-- REMOVED: tasks.js - now loaded via lazy-loader on demand -->
+    <!-- <script src="js/modules/tasks/tasks.js?v=1700"></script> -->
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
-    <script src="js/modules/projects/projects.js?v=1700"></script>
+    <script src="js/modules/projects/projects.js?v=5100"></script>
     <script src="js/modules/notes/journal.js?v=1700"></script>
     <script src="js/modules/ai/chat-actions.js?v=1700"></script>
     <script src="js/modules/ai/chatbot.js?v=1700"></script>
@@ -1159,23 +1230,28 @@
     <script src="js/modules/sidebar/sidebar-init.js?v=1700"></script>
     <!-- Cache Manager - Anti-cache system for critical views -->
     <script src="js/modules/cache-manager.js?v=100"></script>
-    <script src="js/modules/router.js?v=2800"></script>
-    <script src="js/modules/dashboard/dash-insights.js?v=1700"></script>
-    <script src="js/modules/dashboard/dash-charts.js?v=1700"></script>
+    <script src="js/modules/router.js?v=2900"></script>
+
+    <!-- Performance Optimization - Lazy Loading -->
+    <script src="js/modules/lazy-loader.js?v=200"></script>
+    <script src="js/modules/preloader.js?v=100"></script>
+
+    <!-- REMOVED: Dashboard modules - now loaded via lazy-loader on demand -->
+    <!-- <script src="js/modules/dashboard/dash-insights.js?v=1700"></script> -->
+    <!-- <script src="js/modules/dashboard/dash-charts.js?v=1700"></script> -->
     <script src="js/modules/dashboard/dash-ai-widget.js?v=2200"></script>
-    <script src="js/modules/dashboard/dashboard.js?v=1800"></script>
-    <script src="js/modules/notes/notes-core.js?v=1700"></script>
+    <!-- <script src="js/modules/dashboard/dashboard.js?v=1800"></script> -->
+    <script src="js/modules/notes/notes-core.js?v=1800"></script>
     <script src="js/modules/notes/notes-render.js?v=1700"></script>
     <script src="js/modules/notes/notes-toolbar.js?v=1700"></script>
     <script src="js/modules/notes/notes-slash.js?v=1700"></script>
     <script src="js/modules/notes/notes-editor.js?v=1700"></script>
     <script src="js/modules/notes/notes-ai.js?v=1700"></script>
     <script src="js/modules/notes/notes-init.js?v=1700"></script>
-    <script src="js/modules/services/api-notes-graph.js?v=5000"></script>
     <script src="js/modules/notes/notes-ai-classifier.js?v=5000"></script>
     <script src="js/modules/notes/notes-graph-3d.js?v=5000"></script>
     <script src="js/modules/notes/notes-graph-view.js?v=5000"></script>
-    <script src="js/modules/projects/projects-view.js?v=1700"></script>
+    <script src="js/modules/projects/projects-view.js?v=5000"></script>
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
     <script src="js/modules/settings/settings-data.js?v=1700"></script>
@@ -1186,6 +1262,10 @@
     <script src="js/modules/settings/settings-health.js?v=2100"></script>
     <script src="js/modules/settings/settings-styles.js?v=1700"></script>
     <script src="js/modules/settings/settings-view.js?v=2400"></script>
+    <!-- Config Premium -->
+    <script src="js/modules/config/config-api.js?v=3000"></script>
+    <script src="js/modules/config/config-uploader.js?v=3000"></script>
+    <script src="js/modules/config/config-view.js?v=3000"></script>
     <!-- Animation Controls -->
     <script src="js/modules/animation-controls.js?v=2300"></script>
     <!-- Analytics Module -->
@@ -1208,12 +1288,13 @@
     <script src="js/modules/reports/reports-view.js?v=2200"></script>
 
     <!-- 5. Messaging Module - TeamTalk Premium -->
-    <script src="js/modules/messaging/messaging-api.js?v=1700"></script>
+    <script src="js/modules/messaging/messaging-api.js?v=4200"></script>
     <script src="js/modules/messaging/messaging-ui.js?v=1800"></script>
     <script src="js/modules/messaging/messaging-conversations.js?v=1800"></script>
-    <script src="js/modules/messaging/messaging-chat.js?v=1700"></script>
+    <script src="js/modules/messaging/messaging-chat.js?v=4200"></script>
+    <script src="js/modules/messaging/messaging-notifications.js?v=100"></script>
     <script src="js/modules/messaging/messaging-events.js?v=1700"></script>
-    <script src="js/modules/messaging/messaging.js?v=1700"></script>
+    <script src="js/modules/messaging/messaging.js?v=4200"></script>
 
     <!-- Mail Module v2.0 - Professional Emailing (includes campaigns) -->
     <script src="js/modules/mail/mail-api.js?v=2700"></script>
@@ -1225,11 +1306,6 @@
     <script src="js/modules/mail/mail-contacts.js?v=2700"></script>
     <script src="js/modules/mail/mail-view.js?v=2700"></script>
 
-    <script src="js/modules/gamification/gamification-vgx-hero.js?v=500"></script>
-    <script src="js/modules/gamification/gamification-vgx-main.js?v=400"></script>
-    <script src="js/modules/gamification/gamification-vgx-quests.js?v=400"></script>
-    <script src="js/modules/gamification/gamification-vgx-stubs.js?v=400"></script>
-    <script src="js/xp-feedback.js?v=500"></script>
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
     <script src="js/modules/gamification/gamification-api.js?v=1900"></script>
@@ -1238,6 +1314,12 @@
     <script src="js/modules/gamification/gv-api.js?v=1700"></script>
     <script src="js/modules/gamification/gv-render.js?v=1700"></script>
     <script src="js/modules/gamification/gamification-view.js?v=1700"></script>
+    <!-- VGX: Video Game Experience -->
+    <script src="js/modules/gamification/gamification-vgx-hero.js?v=100"></script>
+    <script src="js/modules/gamification/gamification-vgx-quests.js?v=100"></script>
+    <script src="js/modules/gamification/gamification-vgx-stubs.js?v=100"></script>
+    <script src="js/modules/gamification/gamification-vgx-main.js?v=100"></script>
+    <script src="js/xp-feedback.js?v=300"></script>
     <!-- Chat Module (now in messaging/) -->
     <script src="js/modules/messaging/chat-history.js?v=1700"></script>
     <script src="js/modules/messaging/chat-responses.js?v=1700"></script>
@@ -1259,10 +1341,12 @@
     <!-- <script src="js/modules/canvases/galaxy-3d.js?v=1700"></script> -->
     <!-- <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script> -->
 
-    <!-- NEW Galaxy Canvas v2 - Interactive Fix -->
-    <script src="js/galaxy-canvas-v2.js?v=3230"></script>
+    <!-- NEW Galaxy Canvas v2 - Pan Navigation -->
+    <script src="js/galaxy-canvas-v2.js?v=3240"></script>
     <script src="js/galaxy-constellation.js?v=3000"></script>
     <script src="js/modules/canvases/galaxie-view.js?v=3200"></script>
+    <script src="js/modules/galaxy/galaxy-view-premium.js?v=6000"></script>
+    <script src="js/modules/galaxy/galaxy-init.js?v=6000"></script>
 
     <!-- FinScan Accounting Module v3.0 -->
     <script src="js/modules/accounting/acc-state.js?v=1900"></script>
@@ -1314,7 +1398,7 @@
 
     <!-- Admin Module - Dashboard système (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/admin/admin-api.js?v=2600"></script>
-    <script src="js/modules/admin/admin-view.js?v=2600"></script>
+    <script src="js/modules/admin/admin-view.js?v=2700"></script>
 
     <!-- Config Dev - Configuration développeur (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/config-dev/config-dev-api.js?v=200"></script>
@@ -1322,8 +1406,8 @@
 
     <!-- NEW: Auth Login Module -->
     <script src="js/modules/auth/login.js?v=1900"></script>
-    <!-- Login Fix Patch (uses LOCAL logo SVG, fixes member picker, avatars) -->
-    <script src="js/modules/auth/login-fix.js?v=1600"></script>
+    <!-- Login Fix Patch DISABLED - caused infinite loop (2026-02-12) -->
+    <!-- <script src="js/modules/auth/login-fix.js?v=1600"></script> -->
 
     <!-- NEW: Core Modules -->
     <script src="js/modules/files/files.js?v=1700"></script>
@@ -1333,12 +1417,50 @@
     <script src="js/modules/workspaces/workspaces.js?v=1700"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=2500"></script>
+    <script src="js/animations.js?v=4100"></script>
 
     <!-- Animation Force Init & Debug -->
     <script>
+    // === EMERGENCY: ANIMATIONS COMPLETELY DISABLED ===
+    // This script is disabled to prevent black screen
+    if (true) {
+        console.log('%c🚫 ANIMATIONS DISABLED - Emergency Fix', 'background: #ef4444; color: #fff; padding: 8px; font-weight: bold');
+        // DO NOT INITIALIZE ANIMATIONS
+    }
+
+    // Original code commented out to prevent execution
+    /*
+    (function() {
+        const disableAnimations = localStorage.getItem('DISABLE_ANIMATIONS');
+        const forceOpacity = localStorage.getItem('FORCE_CANVAS_OPACITY');
+
+        if (disableAnimations === 'true') {
+            console.log('%c⛔ ANIMATIONS DISABLED (emergency flag)', 'background: #ef4444; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+            const canvas = document.getElementById('matrix-bg');
+            if (canvas) {
+                canvas.style.display = 'none';
+                canvas.style.opacity = '0';
+            }
+            return; // Exit early, don't init animations
+        }
+
+        if (forceOpacity !== null) {
+            console.log('%c🔧 FORCE CANVAS OPACITY: ' + forceOpacity, 'background: #f59e0b; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+            const canvas = document.getElementById('matrix-bg');
+            if (canvas) {
+                canvas.style.opacity = forceOpacity;
+            }
+        }
+    })();
+
     // === FORCE ANIMATIONS INIT v2.0 - ULTRA AGGRESSIVE ===
     (function() {
+        // Skip if animations disabled
+        if (localStorage.getItem('DISABLE_ANIMATIONS') === 'true') {
+            console.log('⏭️ Skipping animation init (disabled by emergency flag)');
+            return;
+        }
+
         console.log('%c🎨 Animation System Boot v2.0', 'background: #6366f1; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
 
         let initAttempts = 0;
@@ -1370,7 +1492,7 @@
                 try {
                     // ULTRA AGGRESSIVE: Force canvas visibility
                     canvas.style.display = 'block';
-                    canvas.style.opacity = '0.95';
+                    canvas.style.opacity = '0.05'; // VERY LOW opacity to prevent black screen
                     canvas.style.visibility = 'visible';
                     canvas.style.pointerEvents = 'none';
 
@@ -1389,11 +1511,11 @@
                         console.log('%c✅ Calling AnimationControls.init()...', 'color: #22c55e; font-weight: bold');
                         AnimationControls.init();
 
-                        // Force cinematic mode (100%)
+                        // Force elegant mode (45% - optimal performance)
                         setTimeout(() => {
                             if (AnimationControls.setPreset) {
-                                AnimationControls.setPreset('cinematic');
-                                console.log('%c🎬 CINEMATIC mode activated (100%)', 'color: #a855f7; font-weight: bold; font-size: 14px');
+                                AnimationControls.setPreset('elegant');
+                                console.log('%c✨ ELEGANT mode activated (45%)', 'color: #a855f7; font-weight: bold; font-size: 14px');
                             }
 
                             // Final verification
@@ -1457,12 +1579,14 @@
             attemptInit();
         };
     })();
+    */
+    // END OF COMMENTED CODE - Animations disabled to fix black screen
     </script>
 
     <!-- Calendar View v6.0 -->
     <script src="js/modules/calendar/calendar-api.js?v=2700"></script>
     <script src="js/modules/calendar/calendar-agent.js?v=2700"></script>
-    <script src="js/modules/calendar/calendar-view-v7.js?v=2700"></script>
+    <script src="js/modules/calendar/calendar-view-v7.js?v=4200"></script>
 
     <!-- Power Features -->
     <script src="js/modules/command-palette.js?v=2000"></script>
@@ -1473,38 +1597,83 @@
     <script src="js/modules/toast.js?v=2000"></script>
     <script src="js/modules/ui-polish.js?v=2000"></script>
     <script src="js/modules/mobile-nav.js?v=2000"></script>
-    <script src="js/modules/pomodoro-timer.js?v=2000"></script>
+    <script src="js/modules/pomodoro-timer.js?v=2100"></script>
 
-    <!-- 5. Application principale (orchestrateur) -->
+    <!-- 5. Emergency Click Fix v2.0 (removes phantom overlays + canvas #matrix-bg) -->
+    <script src="js/modules/emergency-click-fix.js?v=200"></script>
+
+    <!-- 6. Application principale (orchestrateur) -->
     <script src="js/app-modular.js?v=2600"></script>
 
     <script>
-    // Service Worker Registration
+    // Service Worker - AGGRESSIVE CLEANUP (IMMEDIATE, BEFORE ANYTHING ELSE)
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
+        (async function() {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('✅ Service Worker registered:', registration.scope);
+                console.log('🔥 IMMEDIATE SW cleanup starting...');
 
-                // Check for updates every 5 minutes
-                setInterval(() => registration.update(), 5 * 60 * 1000);
+                // Check if old SW v4.0 is active
+                const controller = navigator.serviceWorker.controller;
+                if (controller) {
+                    console.warn('⚠️ Active SW detected:', controller.scriptURL);
 
-                // Auto-reload when new version is available
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🔄 New version available - reloading...');
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                            window.location.reload();
+                    // Check if it's the old v4.0
+                    if (controller.scriptURL && !controller.scriptURL.includes('v999')) {
+                        console.log('🔥 OLD SW DETECTED - Forcing cleanup and reload');
+
+                        // Unregister ALL
+                        const registrations = await navigator.serviceWorker.getRegistrations();
+                        for (let reg of registrations) {
+                            await reg.unregister();
+                            console.log('🗑️ Unregistered:', reg.scope);
                         }
-                    });
-                });
+
+                        // Delete ALL caches
+                        const cacheNames = await caches.keys();
+                        for (let cacheName of cacheNames) {
+                            await caches.delete(cacheName);
+                            console.log('🗑️ Deleted cache:', cacheName);
+                        }
+
+                        console.log('✅ Cleanup complete - RELOADING NOW');
+
+                        // Mark as cleaned to avoid infinite loop
+                        if (!sessionStorage.getItem('sw_cleaned')) {
+                            sessionStorage.setItem('sw_cleaned', 'true');
+                            setTimeout(() => location.reload(true), 500);
+                            return;
+                        }
+                    }
+                }
+
+                // Continue cleanup for any remaining SWs
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                if (registrations.length > 0) {
+                    console.log(`🔄 Found ${registrations.length} SW(s) to clean`);
+                    for (let reg of registrations) {
+                        await reg.unregister();
+                        console.log('🗑️ Unregistered:', reg.scope);
+                    }
+                }
+
+                // Clear caches
+                const cacheNames = await caches.keys();
+                if (cacheNames.length > 0) {
+                    console.log(`🔄 Found ${cacheNames.length} cache(s) to clean`);
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        console.log('🗑️ Deleted:', cacheName);
+                    }
+                }
+
+                console.log('✅ SW cleanup complete');
+                console.log('🚀 Application running WITHOUT Service Worker');
             } catch (error) {
-                console.warn('⚠️ Service Worker registration failed:', error);
+                console.warn('⚠️ SW cleanup error:', error);
             }
-        });
+        })();
     }
+
 
     // PWA Install Prompt
     let deferredPrompt;

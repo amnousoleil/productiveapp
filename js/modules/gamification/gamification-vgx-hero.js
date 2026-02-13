@@ -15,7 +15,7 @@ const GamificationVGXHero = {
 
   async loadProfile() {
     try {
-      const workspaceId = State.getCurrentWorkspaceId();
+      const workspaceId = ApiTokens?.getWorkspaceId?.() || localStorage.getItem('workspaceId');
       this.profile = await GamificationAPI.getProfile(workspaceId);
       console.log('🎮 [VGX] Profile loaded:', this.profile);
     } catch (error) {

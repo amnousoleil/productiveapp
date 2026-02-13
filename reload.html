@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reload - ProductiveApp</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 500px;
+        }
+        h1 {
+            font-size: 48px;
+            margin: 0 0 20px 0;
+        }
+        p {
+            font-size: 18px;
+            margin: 10px 0;
+            opacity: 0.9;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .countdown {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄</h1>
+        <p>Nettoyage du Service Worker...</p>
+        <div class="spinner"></div>
+        <p class="countdown" id="countdown">3</p>
+        <p>Redirection automatique vers l'application</p>
+    </div>
+
+    <script>
+        let count = 3;
+        const countdownEl = document.getElementById('countdown');
+
+        // Update countdown every second
+        const interval = setInterval(() => {
+            count--;
+            countdownEl.textContent = count;
+            if (count <= 0) {
+                clearInterval(interval);
+                window.location.href = '/';
+            }
+        }, 1000);
+
+        // Force SW unregister in background
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                console.log(`Found ${registrations.length} service workers`);
+                registrations.forEach(registration => {
+                    registration.unregister();
+                    console.log('SW unregistered:', registration.scope);
+                });
+            });
+
+            // Clear all caches
+            caches.keys().then(cacheNames => {
+                console.log(`Found ${cacheNames.length} caches`);
+                cacheNames.forEach(cacheName => {
+                    caches.delete(cacheName);
+                    console.log('Cache deleted:', cacheName);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

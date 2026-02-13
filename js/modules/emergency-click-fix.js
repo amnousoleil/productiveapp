@@ -1,16 +1,28 @@
 /**
- * EMERGENCY CLICK FIX v1.0
+ * EMERGENCY CLICK FIX v2.0
  * Fixes phantom overlays blocking all interactions
+ * ALSO REMOVES CANVAS #matrix-bg (écran noir fix)
  * Runs on DOMContentLoaded to clean up invisible blocking elements
  */
 
 (function() {
-  console.log('🔧 EmergencyClickFix: Initializing...');
+  console.log('🔧 EmergencyClickFix v2.0: Initializing...');
 
   function removePhantomOverlays() {
     console.log('🔍 Scanning for phantom overlays...');
 
     let removed = 0;
+
+    // 0. FORCE REMOVE CANVAS #matrix-bg (écran noir fix)
+    const canvas = document.getElementById('matrix-bg');
+    if (canvas) {
+      console.warn('❌ Canvas #matrix-bg trouvé - SUPPRESSION FORCÉE');
+      canvas.remove();
+      removed++;
+      console.log('✅ Canvas #matrix-bg supprimé définitivement');
+    } else {
+      console.log('✅ Canvas #matrix-bg absent (OK)');
+    }
 
     // 1. Remove all invisible modal overlays that might be blocking
     const allElements = document.querySelectorAll('*');
@@ -30,7 +42,6 @@
         display !== 'none' &&
         visibility !== 'hidden' &&
         opacity < 0.01 &&
-        el.id !== 'matrix-bg' && // Don't touch animation canvas
         !el.classList.contains('main-content') &&
         !el.classList.contains('sidebar');
 

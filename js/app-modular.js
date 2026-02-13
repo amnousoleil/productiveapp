@@ -229,9 +229,18 @@ const App = {
                 // REMOVED 2026-02-12: FORCE CLOSE ALL MODALS ON STARTUP (was closing modals automatically)
                 // this.forceCloseAllModals();
 
-                // Record daily login for gamification streak + XP
+                // Record daily login for gamification streak + XP + celebration
                 if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordDailyLogin) {
-                    GamificationAPI.recordDailyLogin().catch(() => {});
+                    GamificationAPI.recordDailyLogin()
+                        .then(result => {
+                            // Afficher la célébration de connexion quotidienne
+                            if (result && typeof XPFeedback !== 'undefined' && XPFeedback.showLoginBonus) {
+                                setTimeout(() => {
+                                    XPFeedback.showLoginBonus(result.xp, result.streak);
+                                }, 2000); // Délai pour laisser l'UI se charger
+                            }
+                        })
+                        .catch(() => {});
                 }
 
                 // Force start animations after login

@@ -184,10 +184,10 @@ var PomodoroTimer = (function() {
         st.currentStreak++;
         saveStats(st);
         updateStatsUI();
-        // XP gamification
+        // XP Feedback: pomodoro terminé
         try {
-            if (typeof GamificationAPI !== 'undefined' && GamificationAPI.recordAction) {
-                GamificationAPI.recordAction('pomodoro_complete');
+            if (typeof XPFeedback !== 'undefined' && XPFeedback.recordAction) {
+                XPFeedback.recordAction('pomodoro_completed', null, 'Pomodoro terminé');
             }
         } catch (e) {}
     }
