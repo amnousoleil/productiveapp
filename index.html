@@ -51,8 +51,8 @@
     <link rel="stylesheet" href="css/reports-premium.css?v=2200">
     <link rel="stylesheet" href="css/style-overrides.css?v=2800">
     <link rel="stylesheet" href="css/premium-enhancements.css?v=100">
-    <link rel="stylesheet" href="css/frontend-stability-fix.css?v=300">
-    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=4000">
+    <link rel="stylesheet" href="css/frontend-stability-fix.css?v=400">
+    <link rel="stylesheet" href="css/global-mousewheel-fix.css?v=5000">
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/style-views.css?v=2400">
@@ -65,8 +65,6 @@
     <link rel="stylesheet" href="css/pwa.css?v=1700">
     <link rel="stylesheet" href="css/calendar-v7.css?v=4200">
     <link rel="stylesheet" href="css/responsive.css?v=2300">
-    <!-- Scroll Fix - Force scroll sur toutes les vues -->
-    <link rel="stylesheet" href="css/scroll-fix.css?v=100">
     <!-- Power Features CSS -->
     <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
     <link rel="stylesheet" href="css/command-palette.css?v=2000">
@@ -138,8 +136,8 @@
         </div>
     </div>
 
-    <!-- ========== CANVAS ANIMATIONS - DÉSACTIVÉ ========== -->
-    <!-- <canvas id="matrix-bg"></canvas> -->
+    <!-- ========== CANVAS ANIMATIONS ========== -->
+    <canvas id="matrix-bg"></canvas>
 
     <!-- ========== VIEWS CONTAINER ========== -->
     <main class="main-content">
@@ -1132,7 +1130,8 @@
     <script src="js/modules/auth/auth.js?v=1700"></script>
     <script src="js/modules/themes.js?v=2000"></script>
     <script src="js/modules/confirm-modal.js?v=1700"></script>
-    <script src="js/modules/tasks/tasks.js?v=1700"></script>
+    <!-- REMOVED: tasks.js - now loaded via lazy-loader on demand -->
+    <!-- <script src="js/modules/tasks/tasks.js?v=1700"></script> -->
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
     <script src="js/modules/projects/projects.js?v=5000"></script>
     <script src="js/modules/notes/journal.js?v=1700"></script>
@@ -1153,10 +1152,11 @@
     <script src="js/modules/lazy-loader.js?v=100"></script>
     <script src="js/modules/preloader.js?v=100"></script>
 
-    <script src="js/modules/dashboard/dash-insights.js?v=1700"></script>
-    <script src="js/modules/dashboard/dash-charts.js?v=1700"></script>
+    <!-- REMOVED: Dashboard modules - now loaded via lazy-loader on demand -->
+    <!-- <script src="js/modules/dashboard/dash-insights.js?v=1700"></script> -->
+    <!-- <script src="js/modules/dashboard/dash-charts.js?v=1700"></script> -->
     <script src="js/modules/dashboard/dash-ai-widget.js?v=2200"></script>
-    <script src="js/modules/dashboard/dashboard.js?v=1800"></script>
+    <!-- <script src="js/modules/dashboard/dashboard.js?v=1800"></script> -->
     <script src="js/modules/notes/notes-core.js?v=1700"></script>
     <script src="js/modules/notes/notes-render.js?v=1700"></script>
     <script src="js/modules/notes/notes-toolbar.js?v=1700"></script>
@@ -1305,7 +1305,7 @@
 
     <!-- Admin Module - Dashboard système (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/admin/admin-api.js?v=2600"></script>
-    <script src="js/modules/admin/admin-view.js?v=2600"></script>
+    <script src="js/modules/admin/admin-view.js?v=2700"></script>
 
     <!-- Config Dev - Configuration développeur (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/config-dev/config-dev-api.js?v=200"></script>
@@ -1361,7 +1361,7 @@
                 try {
                     // ULTRA AGGRESSIVE: Force canvas visibility
                     canvas.style.display = 'block';
-                    canvas.style.opacity = '0.95';
+                    canvas.style.opacity = '0.4'; // Lower opacity to prevent black screen
                     canvas.style.visibility = 'visible';
                     canvas.style.pointerEvents = 'none';
 
@@ -1380,11 +1380,11 @@
                         console.log('%c✅ Calling AnimationControls.init()...', 'color: #22c55e; font-weight: bold');
                         AnimationControls.init();
 
-                        // Force cinematic mode (100%)
+                        // Force elegant mode (45% - optimal performance)
                         setTimeout(() => {
                             if (AnimationControls.setPreset) {
-                                AnimationControls.setPreset('cinematic');
-                                console.log('%c🎬 CINEMATIC mode activated (100%)', 'color: #a855f7; font-weight: bold; font-size: 14px');
+                                AnimationControls.setPreset('elegant');
+                                console.log('%c✨ ELEGANT mode activated (45%)', 'color: #a855f7; font-weight: bold; font-size: 14px');
                             }
 
                             // Final verification
@@ -1473,29 +1473,30 @@
     <script src="js/app-modular.js?v=2600"></script>
 
     <script>
-    // Service Worker Registration
+    // Service Worker - AUTO CLEANUP (no caching, no CSP violations)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
             try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('✅ Service Worker registered:', registration.scope);
+                console.log('🔄 Cleaning up old Service Workers...');
 
-                // Check for updates every 5 minutes
-                setInterval(() => registration.update(), 5 * 60 * 1000);
+                // Unregister ALL existing service workers
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let reg of registrations) {
+                    await reg.unregister();
+                    console.log('🗑️ SW unregistered:', reg.scope);
+                }
 
-                // Auto-reload when new version is available
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🔄 New version available - reloading...');
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                            window.location.reload();
-                        }
-                    });
-                });
+                // Delete ALL caches
+                const cacheNames = await caches.keys();
+                for (let cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                    console.log('🗑️ Cache deleted:', cacheName);
+                }
+
+                console.log('✅ All Service Workers and caches cleared');
+                console.log('🚀 Application running without SW (direct network access)');
             } catch (error) {
-                console.warn('⚠️ Service Worker registration failed:', error);
+                console.warn('⚠️ SW cleanup error:', error);
             }
         });
     }

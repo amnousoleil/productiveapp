@@ -8,8 +8,9 @@
 .view-container {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  height: 100vh !important;
-  max-height: 100vh !important;
+  min-height: 100vh !important;
+  height: auto !important; /* AUTO pour permettre expansion */
+  max-height: none !important; /* Pas de limite max */
   position: relative !important;
   /* Smooth scrolling */
   scroll-behavior: smooth;
@@ -20,7 +21,8 @@
 .main-content {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  height: 100vh !important;
+  min-height: 100vh !important;
+  height: auto !important; /* AUTO pour permettre expansion */
   position: relative !important;
   scroll-behavior: smooth;
 }
@@ -57,8 +59,9 @@
 #view-config-dev {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  height: 100vh !important;
-  max-height: 100vh !important;
+  min-height: 100vh !important;
+  height: auto !important; /* AUTO pour permettre expansion du contenu */
+  max-height: none !important; /* Pas de limite */
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
@@ -90,7 +93,8 @@ html,
 body {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  height: 100% !important;
+  min-height: 100% !important;
+  height: auto !important; /* AUTO pour expansion naturelle */
   scroll-behavior: smooth;
 }
 
@@ -98,14 +102,15 @@ body {
 #app-container,
 .app-container {
   overflow: visible !important;
-  height: 100vh !important;
+  min-height: 100vh !important;
+  height: auto !important; /* AUTO pour expansion */
 }
 
 /* 8. SIDEBAR NE DOIT PAS INTERFÉRER */
 .sidebar {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  height: 100vh !important;
+  height: 100vh !important; /* Sidebar garde 100vh (OK car fixed) */
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
@@ -182,7 +187,8 @@ table,
 @media (max-width: 768px) {
   .view-container,
   .main-content {
-    height: 100vh !important;
+    min-height: 100vh !important;
+    height: auto !important; /* AUTO pour expansion */
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
@@ -191,7 +197,8 @@ table,
 /* 17. PRIORITÉ ABSOLUE - OVERRIDE TOUT */
 body.logged-in .view-container {
   overflow-y: auto !important;
-  height: 100vh !important;
+  min-height: 100vh !important;
+  height: auto !important; /* AUTO pour expansion */
   scroll-behavior: smooth !important;
 }
 

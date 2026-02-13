@@ -91,7 +91,7 @@ body {
 #view-projects,
 #view-notes {
   overflow-y: auto !important;
-  max-height: 100%;
+  max-height: none !important; /* Pas de limite, expansion naturelle */
 }
 
 /* FIX: Permettre scroll molette partout dans le calendrier */
@@ -101,7 +101,7 @@ body {
 #view-calendar {
   overflow-y: auto !important;
   overflow-x: hidden !important;
-  height: 100% !important;
+  height: auto !important; /* AUTO pour expansion */
   min-height: 500px !important;
   /* CRITIQUE: Capturer les événements de la molette */
   pointer-events: auto !important;
@@ -111,7 +111,8 @@ body {
 /* Assurer que le conteneur principal peut scroller */
 .view-container {
   overflow-y: auto !important;
-  height: 100% !important;
+  height: auto !important; /* AUTO pour expansion */
+  min-height: 100vh !important;
   position: relative !important;
 }
 

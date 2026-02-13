@@ -19,15 +19,13 @@ const LazyLoader = (function() {
     dashboard: [
       'js/modules/dashboard/dashboard.js',
       'js/modules/dashboard/dash-insights.js',
-      'js/modules/dashboard/dash-charts.js',
-      'js/modules/dashboard/dash-quick-actions.js',
-      'js/modules/dashboard/dash-activity.js',
-      'js/modules/dashboard/dash-widgets.js'
+      'js/modules/dashboard/dash-charts.js'
+      // Removed: dash-quick-actions, dash-activity, dash-widgets (404 - files don't exist)
     ],
 
     tasks: [
-      'js/modules/tasks/tasks.js',
-      'js/modules/kanban/kanban.js'
+      'js/modules/tasks/tasks.js'
+      // Removed: kanban.js (404 - file doesn't exist)
     ],
 
     projects: [

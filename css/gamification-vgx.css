@@ -1,0 +1,582 @@
+/**
+ * GAMIFICATION VGX - VIDEO GAME EXPERIENCE
+ * CSS ultra-immersif pour ProductiveApp: Legends
+ * Style RPG/MMO avec effets premium
+ */
+
+/* =============================================
+   VARIABLES
+   ============================================= */
+:root {
+  --vgx-primary: #8b5cf6;
+  --vgx-secondary: #3b82f6;
+  --vgx-accent: #f59e0b;
+  --vgx-success: #10b981;
+  --vgx-danger: #ef4444;
+
+  /* Rarity colors */
+  --vgx-common: #9ca3af;
+  --vgx-uncommon: #10b981;
+  --vgx-rare: #3b82f6;
+  --vgx-epic: #8b5cf6;
+  --vgx-legendary: #f59e0b;
+
+  /* Shadows */
+  --vgx-shadow-sm: 0 2px 8px rgba(139, 92, 246, 0.15);
+  --vgx-shadow-md: 0 4px 16px rgba(139, 92, 246, 0.25);
+  --vgx-shadow-lg: 0 8px 32px rgba(139, 92, 246, 0.35);
+  --vgx-shadow-glow: 0 0 20px rgba(139, 92, 246, 0.6);
+}
+
+/* =============================================
+   LOADING
+   ============================================= */
+.vgx-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 20px;
+}
+
+.vgx-loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(139, 92, 246, 0.2);
+  border-top-color: var(--vgx-primary);
+  border-radius: 50%;
+  animation: vgxSpin 1s linear infinite;
+}
+
+@keyframes vgxSpin {
+  to { transform: rotate(360deg); }
+}
+
+.vgx-loading p {
+  color: var(--text);
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* =============================================
+   HERO CONTAINER
+   ============================================= */
+.vgx-hero-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* =============================================
+   CHARACTER DISPLAY
+   ============================================= */
+.vgx-hero-character {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 32px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border-radius: 24px;
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.vgx-hero-character::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.03) 50%, transparent 70%);
+  animation: vgxShimmer 3s infinite;
+}
+
+@keyframes vgxShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Avatar Frame */
+.vgx-hero-avatar-frame {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.vgx-hero-avatar-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+.vgx-rarity-common { background: radial-gradient(circle, var(--vgx-common) 0%, transparent 70%); }
+.vgx-rarity-uncommon { background: radial-gradient(circle, var(--vgx-uncommon) 0%, transparent 70%); }
+.vgx-rarity-rare { background: radial-gradient(circle, var(--vgx-rare) 0%, transparent 70%); }
+.vgx-rarity-epic { background: radial-gradient(circle, var(--vgx-epic) 0%, transparent 70%); }
+.vgx-rarity-legendary {
+  background: radial-gradient(circle, var(--vgx-legendary) 0%, transparent 70%);
+  animation: vgxLegendaryPulse 2s ease-in-out infinite;
+}
+
+@keyframes vgxLegendaryPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+.vgx-hero-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  background-color: rgba(139, 92, 246, 0.2);
+  border: 4px solid var(--vgx-primary);
+  box-shadow: var(--vgx-shadow-md);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vgx-hero-avatar-placeholder {
+  font-size: 48px;
+}
+
+.vgx-hero-level-badge {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--vgx-accent) 0%, #ea580c 100%);
+  border-radius: 50%;
+  border: 3px solid var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  box-shadow: var(--vgx-shadow-md);
+  z-index: 2;
+}
+
+/* Hero Info */
+.vgx-hero-info {
+  flex: 1;
+}
+
+.vgx-hero-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.vgx-hero-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--vgx-accent);
+  margin: 0 0 12px 0;
+}
+
+.vgx-hero-phase {
+  display: inline-block;
+  padding: 6px 16px;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid var(--vgx-primary);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vgx-primary);
+}
+
+/* =============================================
+   STATS PANEL
+   ============================================= */
+.vgx-hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.vgx-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.vgx-stat-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--vgx-primary);
+  box-shadow: var(--vgx-shadow-md);
+}
+
+.vgx-stat-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.vgx-stat-content {
+  flex: 1;
+}
+
+.vgx-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.vgx-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* =============================================
+   XP BAR
+   ============================================= */
+.vgx-xp-container {
+  padding: 24px;
+  background: rgba(59, 130, 246, 0.05);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-radius: 20px;
+}
+
+.vgx-xp-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.vgx-xp-bar-bg {
+  height: 32px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  border: 2px solid rgba(59, 130, 246, 0.4);
+  overflow: hidden;
+  position: relative;
+}
+
+.vgx-xp-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+  border-radius: 14px;
+  position: relative;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+}
+
+.vgx-xp-bar-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
+  border-radius: 14px 14px 0 0;
+}
+
+.vgx-xp-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.vgx-xp-particle {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  animation: vgxParticleRise 2s ease-out forwards;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes vgxParticleRise {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.5);
+  }
+}
+
+/* =============================================
+   QUICK ACTIONS
+   ============================================= */
+.vgx-quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.vgx-action-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.vgx-action-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vgx-action-btn:hover {
+  transform: translateY(-8px);
+  border-color: var(--vgx-primary);
+  box-shadow: var(--vgx-shadow-lg);
+}
+
+.vgx-action-btn:hover::before {
+  opacity: 1;
+}
+
+.vgx-action-btn:active {
+  transform: translateY(-4px) scale(0.98);
+}
+
+.vgx-action-icon {
+  font-size: 48px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  z-index: 1;
+}
+
+.vgx-action-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  z-index: 1;
+}
+
+.vgx-action-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  background: var(--vgx-danger);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+  animation: vgxBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes vgxBadgePulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.vgx-action-pulse {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 16px;
+  height: 16px;
+  background: var(--vgx-success);
+  border-radius: 50%;
+  animation: vgxPulseRing 2s ease-out infinite;
+}
+
+@keyframes vgxPulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* =============================================
+   RECENT ACTIVITIES
+   ============================================= */
+.vgx-recent-activities {
+  padding: 24px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  border-radius: 20px;
+}
+
+.vgx-recent-activities h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.vgx-activities-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vgx-activity-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.vgx-activity-item:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--vgx-primary);
+}
+
+.vgx-activity-icon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.vgx-activity-text {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.vgx-activity-xp {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--vgx-success);
+}
+
+.vgx-activity-time {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .vgx-hero-character {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .vgx-hero-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .vgx-quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .vgx-xp-label {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* =============================================
+   ANIMATIONS & EFFECTS
+   ============================================= */
+@keyframes vgxLevelUp {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes vgxXPGain {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-40px);
+    opacity: 0;
+  }
+}
+
+/* Level up effect */
+.vgx-levelup-effect {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  pointer-events: none;
+  animation: vgxLevelUp 1s ease-out;
+}
+
+/* XP gain floating text */
+.vgx-xp-float {
+  position: absolute;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--vgx-success);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  animation: vgxXPGain 2s ease-out forwards;
+  pointer-events: none;
+  z-index: 100;
+}

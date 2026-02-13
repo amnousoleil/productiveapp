@@ -44,7 +44,7 @@ const AdminView = {
 
     if (!container) {
       container = document.createElement('div');
-      container.id = 'view-admin');
+      container.id = 'view-admin';
       container.className = 'view-container';
       mainContent.appendChild(container);
     }
