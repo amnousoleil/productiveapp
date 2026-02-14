@@ -122,11 +122,11 @@ var AnimationControls = (function() {
                     '0%,100%{filter:drop-shadow(0 0 3px color-mix(in srgb,var(--accent) 50%,transparent))}' +
                     '50%{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 80%,transparent))}' +
                 '}' +
-                /* --- Button base --- */
+                /* --- Button base (same size/right as .chatbot-fab: 60x60 right:25) --- */
                 'button.anim-ctrl-fab{' +
                     'position:fixed !important;' +
                     'bottom:95px !important;right:25px !important;' +
-                    'width:56px !important;height:56px !important;' +
+                    'width:60px !important;height:60px !important;' +
                     'border-radius:50% !important;' +
                     'background:color-mix(in srgb,var(--accent) 12%,#080808) !important;' +
                     'border:2px solid color-mix(in srgb,var(--accent) 45%,transparent) !important;' +
@@ -199,6 +199,13 @@ var AnimationControls = (function() {
                 'button.anim-ctrl-fab:hover::after{' +
                     'border-color:color-mix(in srgb,var(--accent) 40%,transparent) !important;' +
                     'opacity:1 !important;' +
+                '}' +
+                /* Mobile: match .chatbot-fab mobile (56x56 right:20 bottom:20) */
+                '@media(max-width:768px){' +
+                    'button.anim-ctrl-fab{' +
+                        'width:56px !important;height:56px !important;' +
+                        'right:20px !important;bottom:86px !important;' +
+                    '}' +
                 '}';
             document.head.appendChild(styleTag);
         }
