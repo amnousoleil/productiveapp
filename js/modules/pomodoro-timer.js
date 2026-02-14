@@ -39,8 +39,8 @@ var PomodoroTimer = (function() {
         var s = document.createElement('style');
         s.id = 'pomodoro-styles';
         s.textContent = [
-            '.pomodoro-widget{position:fixed;bottom:165px;right:23px;z-index:9000;border-radius:20px;background:color-mix(in srgb,var(--surface,#1e1e2e) 95%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid color-mix(in srgb,var(--border,#333) 60%,transparent);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s cubic-bezier(.22,1,.36,1);cursor:default;user-select:none}',
-            '.pomodoro-widget.collapsed{width:64px;height:64px;border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}',
+            '.pomodoro-widget{position:fixed;bottom:175px;right:25px;z-index:9000;border-radius:20px;background:color-mix(in srgb,var(--surface,#1e1e2e) 95%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid color-mix(in srgb,var(--border,#333) 60%,transparent);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s cubic-bezier(.22,1,.36,1);cursor:default;user-select:none}',
+            '.pomodoro-widget.collapsed{width:60px;height:60px;border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden}',
             '.pomodoro-widget.expanded{width:280px;padding:20px;border-radius:20px}',
             '.pomodoro-collapsed{display:flex;align-items:center;justify-content:center;position:relative;width:100%;height:100%}',
             '.pomodoro-expanded{display:none}',
@@ -54,7 +54,7 @@ var PomodoroTimer = (function() {
             '.pomodoro-ring-progress.short_break{stroke:#22c55e}',
             '.pomodoro-ring-progress.long_break{stroke:#3b82f6}',
             '.pomodoro-time-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;font-weight:700;color:var(--text,#fff);font-variant-numeric:tabular-nums}',
-            '.pomodoro-session-badge{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);font-size:8px;font-weight:600;color:var(--text-secondary,#888);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}',
+            '.pomodoro-session-badge{display:none}',
             '.pomodoro-header{display:flex;justify-content:space-between;align-items:center;width:100%}',
             '.pomodoro-header-title{font-size:14px;font-weight:700;color:var(--text,#fff)}',
             '.pomodoro-close-btn{background:none;border:none;color:var(--text-secondary,#888);font-size:20px;cursor:pointer;padding:0;line-height:1;transition:color .2s}',
