@@ -90,8 +90,8 @@ var AnimationControls = (function() {
         fabEl.className = 'anim-ctrl-fab';
         fabEl.setAttribute('title', 'Animations');
         fabEl.setAttribute('aria-label', 'Controles d\'animation');
-        fabEl.innerHTML = SVG_SPARKLE;
-        fabEl.style.cssText = 'position:fixed!important;bottom:95px!important;right:25px!important;width:48px!important;height:48px!important;border-radius:50%!important;background:radial-gradient(circle at 40% 35%,#0e3325,#092118,#04120e)!important;border:1.5px solid rgba(80,220,160,0.3)!important;color:#5eeaad!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;box-shadow:0 0 15px rgba(80,220,160,0.4),0 4px 14px rgba(0,0,0,0.4)!important;z-index:9999!important;cursor:pointer!important;overflow:visible!important;';
+        fabEl.innerHTML = '<span style="font-size:24px">🔴</span>';
+        fabEl.style.cssText = 'position:fixed!important;bottom:95px!important;right:25px!important;width:60px!important;height:60px!important;border-radius:50%!important;background:yellow!important;border:3px solid red!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;z-index:99999!important;cursor:pointer!important;';
         fabEl.addEventListener('click', function(e) {
             e.stopPropagation();
             togglePanel();
