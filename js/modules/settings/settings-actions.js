@@ -156,6 +156,37 @@ const SettingsActions = (function() {
     }
 
     /**
+     * Preview animations (flash to 100% for 2s then restore)
+     */
+    function previewAnimations() {
+        if (typeof AnimationControls !== 'undefined' && AnimationControls.getIntensity) {
+            var original = AnimationControls.getIntensity();
+            var originalPreset = AnimationControls.getPreset();
+            AnimationControls.setIntensity(100);
+            if (typeof window.AnimEngine !== 'undefined' && window.AnimEngine.reinit) {
+                window.AnimEngine.reinit();
+            }
+            showToast('Aper\u00E7u animations...');
+            setTimeout(function() {
+                AnimationControls.setIntensity(original);
+                if (originalPreset) AnimationControls.setPreset(originalPreset);
+                var slider = document.getElementById('settings-anim-slider');
+                var valEl = document.getElementById('settings-anim-value');
+                if (slider) slider.value = String(original);
+                if (valEl) valEl.textContent = original + '%';
+            }, 2000);
+        }
+    }
+
+    /**
+     * Reset animations to cinematic default
+     */
+    function resetAnimations() {
+        setAnimPreset('cinematic');
+        showToast('Animations r\u00E9initialis\u00E9es (Cin\u00E9ma)');
+    }
+
+    /**
      * Toggle animations ON/OFF
      */
     function toggleAnimations(enabled) {
@@ -431,6 +462,8 @@ const SettingsActions = (function() {
         setWorkspaceIcon: setWorkspaceIcon,
         setAnimIntensity: setAnimIntensity,
         setAnimPreset: setAnimPreset,
+        previewAnimations: previewAnimations,
+        resetAnimations: resetAnimations,
         toggleAnimations: toggleAnimations,
         openAvatarUpload: openAvatarUpload,
         handleAvatarFile: handleAvatarFile,

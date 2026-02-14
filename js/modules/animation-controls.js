@@ -84,98 +84,11 @@ var AnimationControls = (function() {
     }
 
     // ---- DOM Creation ----
+    // FAB + floating panel removed from screen (v3.0)
+    // Controls now live in Settings > Animations section
+    // Logic (state, CSS variables, engine sync) remains active
     function createDOM() {
-        // FAB button
-        fabEl = document.createElement('button');
-        fabEl.className = 'anim-ctrl-fab';
-        fabEl.setAttribute('title', 'Animations');
-        fabEl.setAttribute('aria-label', 'Controles d\'animation');
-        fabEl.innerHTML = SVG_SPARKLE;
-        // Inject full FAB styling via CSS (theme-adaptive with color-mix)
-        if (!document.getElementById('anim-fab-keyframes')) {
-            var styleTag = document.createElement('style');
-            styleTag.id = 'anim-fab-keyframes';
-            styleTag.textContent =
-                /* --- Button base: 60x60, no background, no halo --- */
-                'button.anim-ctrl-fab{' +
-                    'position:fixed !important;' +
-                    'bottom:95px !important;right:31px !important;' +
-                    'width:48px !important;height:48px !important;' +
-                    'border-radius:50% !important;' +
-                    'background:none !important;' +
-                    'border:none !important;' +
-                    'outline:none !important;' +
-                    'box-shadow:none !important;' +
-                    'color:var(--accent) !important;' +
-                    'display:flex !important;align-items:center !important;justify-content:center !important;' +
-                    'padding:0 !important;margin:0 !important;' +
-                    'line-height:0 !important;' +
-                    'z-index:9999 !important;cursor:pointer !important;' +
-                    'overflow:visible !important;' +
-                    'transition:transform 0.3s ease !important;' +
-                    'animation:none !important;' +
-                    '-webkit-tap-highlight-color:transparent;' +
-                '}' +
-                /* Kill pseudo-elements (no shimmer ring, no halo) */
-                'button.anim-ctrl-fab::before,button.anim-ctrl-fab::after{' +
-                    'content:none !important;display:none !important;' +
-                '}' +
-                /* SVG icon - theme color, no glow animation */
-                'button.anim-ctrl-fab svg{' +
-                    'width:28px !important;height:28px !important;' +
-                    'display:block !important;flex-shrink:0 !important;' +
-                    'margin:0 !important;padding:0 !important;' +
-                    'filter:drop-shadow(0 0 3px color-mix(in srgb,var(--accent) 50%,transparent)) !important;' +
-                    'transition:transform 0.3s ease,filter 0.3s ease !important;' +
-                    'animation:none !important;' +
-                '}' +
-                /* Hover - just scale up + slightly brighter drop-shadow */
-                'button.anim-ctrl-fab:hover{' +
-                    'transform:scale(1.2) !important;' +
-                    'box-shadow:none !important;' +
-                '}' +
-                'button.anim-ctrl-fab:hover svg{' +
-                    'filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 80%,transparent)) !important;' +
-                    'transform:scale(1.1) !important;' +
-                '}' +
-                /* Mobile */
-                '@media(max-width:768px){' +
-                    'button.anim-ctrl-fab{' +
-                        'width:44px !important;height:44px !important;' +
-                        'right:20px !important;bottom:90px !important;' +
-                    '}' +
-                '}';
-            document.head.appendChild(styleTag);
-        }
-        fabEl.addEventListener('click', function(e) {
-            e.stopPropagation();
-            togglePanel();
-        });
-
-        // Panel
-        panelEl = document.createElement('div');
-        panelEl.className = 'anim-ctrl-panel';
-        panelEl.innerHTML = buildPanelHTML();
-
-        document.body.appendChild(fabEl);
-        document.body.appendChild(panelEl);
-
-        // Bind panel events
-        bindPanelEvents();
-
-        // Close panel on outside click
-        document.addEventListener('click', function(e) {
-            if (panelOpen && !panelEl.contains(e.target) && !fabEl.contains(e.target)) {
-                closePanel();
-            }
-        });
-
-        // Close on Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && panelOpen) {
-                closePanel();
-            }
-        });
+        // No floating UI - controls are in Settings panel
     }
 
     function buildPanelHTML() {

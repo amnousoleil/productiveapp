@@ -283,6 +283,10 @@ const SettingsRender = (function() {
                     '<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-top:6px;">' +
                         '<span>Aucune</span><span>Maximale</span>' +
                     '</div>' +
+                    '<div style="display:flex;gap:10px;margin-top:18px;">' +
+                        '<button class="settings-btn" onclick="SettingsView.previewAnimations()" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">\u25B6 Aper\u00E7u</button>' +
+                        '<button class="settings-btn" onclick="SettingsView.resetAnimations()" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">\u21BA Reset</button>' +
+                    '</div>' +
                 '</div>' +
             '</div>' +
         '</section>';

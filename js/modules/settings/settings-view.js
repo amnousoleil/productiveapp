@@ -161,6 +161,20 @@ const SettingsView = (function() {
     }
 
     /**
+     * Preview animations - delegate to actions
+     */
+    function previewAnimations() {
+        SettingsActions.previewAnimations();
+    }
+
+    /**
+     * Reset animations - delegate to actions
+     */
+    function resetAnimations() {
+        SettingsActions.resetAnimations();
+    }
+
+    /**
      * Open avatar file picker
      */
     function openAvatarUpload() {
@@ -204,6 +218,8 @@ const SettingsView = (function() {
         toggleAnimations: toggleAnimations,
         setAnimIntensity: setAnimIntensity,
         setAnimPreset: setAnimPreset,
+        previewAnimations: previewAnimations,
+        resetAnimations: resetAnimations,
         openAvatarUpload: openAvatarUpload,
         handleAvatarFile: handleAvatarFile
     };
