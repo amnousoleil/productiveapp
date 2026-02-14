@@ -6,11 +6,12 @@
 
 /* --- Floating Action Button — Cosmic Design --- */
 .anim-ctrl-fab {
+    background: red !important;
+    width: 100px !important;
+    height: 100px !important;
     position: fixed;
     bottom: 95px;
     right: 25px;
-    width: 46px;
-    height: 46px;
     border-radius: 50%;
     background: radial-gradient(circle at 40% 35%,
         #143028 0%, #0c2018 40%, #071510 70%, #040e0a 100%);
