@@ -255,7 +255,7 @@ const TC = {
     porcelain:   { type: 'shimmer',   c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.30 },
     espresso:    { type: 'fireflies', c: ['#A87848','#C89868','#B08858'], a: 0.75 },
     // TECH
-    matrix:      { type: 'matrix',    c: ['#00ff66','#4dff8d'], a: 0.98 },
+    matrix:      { type: 'matrix',    c: ['#00FF41','#80FFB0'], a: 0.98 },
     cyberpunk:   { type: 'cyberpunk', c: ['#ff00ff','#00ffff','#ff0088','#8800ff'], a: 0.97 },
     terminal:    { type: 'terminal',  c: ['#FFB000','#FFD060','#FF8800'], a: 0.97 },
     tron:        { type: 'trongrid',  c: ['#00D4FF','#40E0FF','#0080A0'], a: 0.92 },
@@ -574,35 +574,85 @@ AT.hologram = {
     }
 };
 
-// --- UNIQUE: MATRIX ---
+// --- UNIQUE: MATRIX (Film-accurate 1999 digital rain) ---
 AT.matrix = {
     init() {
-        const colW = 20, count = cap(Math.floor(W / colW), quality);
+        // Dense columns like the actual film — spacing ~14px
+        const colW = 14;
+        const count = Math.max(10, Math.floor(W / colW));
+        // Extended character set: full katakana + half-width + digits + symbols
+        state.matrixChars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンヴガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ' +
+            'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ' +
+            '0123456789' +
+            ':.="*+-<>|¦╌';
         state.cols = [];
         for (let i = 0; i < count; i++) {
-            const depth = rand(0.3, 1);
-            state.cols.push({ x: i * (W/count) + rand(0,5), y: rand(-H*1.5, 0), speed: 60+depth*180, trail: 10+(depth*12)|0, depth, fontSize: 10+(depth*6)|0 });
+            const depth = rand(0.4, 1);
+            const fontSize = (12 + depth * 8) | 0;
+            const trail = (15 + depth * 20) | 0;
+            // Pre-fill each column with random characters (for flickering)
+            const charBuf = [];
+            for (let j = 0; j < trail; j++) {
+                charBuf.push(state.matrixChars[(Math.random() * state.matrixChars.length) | 0]);
+            }
+            state.cols.push({
+                x: i * colW + rand(-2, 2),
+                y: rand(-H * 2, 0),
+                speed: 40 + depth * 260,
+                trail: trail,
+                depth: depth,
+                fontSize: fontSize,
+                chars: charBuf
+            });
         }
     },
     render(dt) {
-        // Matrix keeps its trail effect - semi-transparent fill instead of clearRect
-        ctx.fillStyle = 'rgba(5,8,5,0.06)'; ctx.fillRect(0, 0, W, H);
-        const chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン01';
-        const voidR = 120;
-        if (state.cols) for (const c of state.cols) {
-            c.y += c.speed * dt; ctx.font = c.fontSize + 'px monospace';
-            const trail = quality === 'low' ? Math.min(c.trail, 8) : c.trail;
+        // Semi-transparent black fill for ghosting trail (pure black, not green-tinted)
+        ctx.fillStyle = 'rgba(0,0,0,0.05)';
+        ctx.fillRect(0, 0, W, H);
+        const chars = state.matrixChars;
+        const voidR = 100;
+        if (!state.cols) return;
+        for (const c of state.cols) {
+            c.y += c.speed * dt;
+            ctx.font = c.fontSize + 'px monospace';
+            const trail = quality === 'low' ? Math.min(c.trail, 10) : c.trail;
+            const spacing = c.fontSize + 2;
             for (let j = 0; j < trail; j++) {
-                const cy = c.y - j * (c.fontSize + 4);
+                const cy = c.y - j * spacing;
                 if (cy < -20 || cy > H + 20) continue;
                 if (mouse.active && dist(c.x, cy, mouse.sx, mouse.sy) < voidR * c.depth) continue;
-                const ch = chars[(Math.random() * chars.length) | 0];
-                if (j === 0) { ctx.fillStyle = '#fff'; glow(14*c.depth, '#00ff66'); }
-                else { ctx.fillStyle = 'rgba(0,255,102,' + Math.max(0.03, (1-j/trail)*c.depth) + ')'; noGlow(); }
+                // Flickering: ~2% chance per frame each trailing char changes
+                if (j > 0 && Math.random() < 0.02) {
+                    c.chars[j] = chars[(Math.random() * chars.length) | 0];
+                }
+                const ch = c.chars[j] || chars[(Math.random() * chars.length) | 0];
+                if (j === 0) {
+                    // Head character: bright white with strong green glow
+                    ctx.fillStyle = '#FFFFFF';
+                    glow(18 * c.depth, '#00FF41');
+                } else if (j === 1) {
+                    // Second char: very bright green
+                    ctx.fillStyle = '#00FF41';
+                    glow(8 * c.depth, '#00FF41');
+                } else {
+                    // Trail: progressive fade from bright green to dark
+                    const fade = Math.max(0.02, (1 - j / trail) * c.depth);
+                    ctx.fillStyle = 'rgba(0,255,65,' + fade + ')';
+                    noGlow();
+                }
                 ctx.fillText(ch, c.x, cy);
             }
             noGlow();
-            if (c.y - trail * (c.fontSize + 4) > H) { c.y = rand(-400, -50); }
+            // Reset column when fully off screen
+            if (c.y - trail * (c.fontSize + 2) > H) {
+                c.y = rand(-600, -50);
+                c.speed = 40 + c.depth * 260;
+                // Refresh character buffer
+                for (let j = 0; j < c.chars.length; j++) {
+                    c.chars[j] = chars[(Math.random() * chars.length) | 0];
+                }
+            }
         }
     }
 };

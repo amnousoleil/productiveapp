@@ -43,8 +43,7 @@ const FastLoader = {
 
         // Light animations only
         'css/style-sidebar.css',
-        'css/style-views.css',
-        'css/global-mousewheel-fix.css'  // MUST be last to override other CSS
+        'css/style-views.css'
     ],
 
     // ============================================================================
@@ -151,7 +150,7 @@ const FastLoader = {
             'css/xp-feedback.css'
         ],
         'animations': [
-            'js/animations.js?v=5100',
+            'js/animations.js?v=5101',
             'css/animations.css?v=5100'
         ],
         'admin': [
