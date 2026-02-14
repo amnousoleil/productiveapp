@@ -170,7 +170,8 @@ const AppConfig = {
             { id: 'terminal', name: 'Terminal', color: '#FFB000', category: 'TECH' },
             { id: 'tron', name: 'Tron', color: '#00D4FF', category: 'TECH' },
             { id: 'hologram', name: 'Hologram', color: '#88DDFF', category: 'TECH' },
-            { id: 'bioluminescence', name: 'Bioluminescence', color: '#00C8DC', category: 'TECH' }
+            { id: 'bioluminescence', name: 'Bioluminescence', color: '#00C8DC', category: 'TECH' },
+            { id: 'pipboy', name: 'Pip-Boy', color: '#00FF77', category: 'TECH' }
         ],
         artiste: [
             { id: 'zen', name: 'Zen', color: '#708058', category: 'ARTISTE' },

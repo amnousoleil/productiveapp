@@ -1017,6 +1017,23 @@
     --bubble-done-border: rgba(0,232,160,0.65); --bubble-done-glow: 0 5px 20px rgba(0,232,160,0.25); --bubble-done-text: #00E8A0;
 }
 
+/* TECH + pipboy (Fallout Pip-Boy 3000) */
+[data-theme="pipboy"] {
+    --bg-primary: #0A0A0A; --bg-secondary: #0D120D; --bg-tertiary: #101810;
+    --bg-card: rgba(0,255,119,0.05);
+    --text: #00FF77; --text-muted: #338855;
+    --accent: #00FF77; --accent-light: #44FFAA; --accent-glow: rgba(0,255,119,0.45);
+    --success: #00DD66; --success-glow: rgba(0,221,102,0.4);
+    --warning: #44CC44; --danger: #00FF77;
+    --border: rgba(0,255,119,0.2); --border-strong: rgba(0,255,119,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(0,255,119,0.12) 0%, rgba(0,200,90,0.06) 100%);
+    --bubble-border: rgba(0,255,119,0.4); --bubble-glow: 0 4px 18px rgba(0,255,119,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0,255,119,0.28) 0%, rgba(0,200,90,0.16) 100%);
+    --bubble-inprogress-border: rgba(0,255,119,0.75); --bubble-inprogress-glow: 0 6px 28px rgba(0,255,119,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(0,180,80,0.18) 0%, rgba(0,120,55,0.08) 100%);
+    --bubble-done-border: rgba(0,180,80,0.5); --bubble-done-glow: 0 4px 16px rgba(0,180,80,0.2); --bubble-done-text: #00CC55;
+}
+
 /* ARTISTE + ukiyo-e */
 [data-theme="ukiyo-e"] {
     --bg-primary: #0C0A14; --bg-secondary: #18141E; --bg-tertiary: #241E2A;

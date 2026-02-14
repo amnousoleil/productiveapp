@@ -289,7 +289,8 @@ const TC = {
     snow:        { type: 'shimmer',   c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.35 },
     charcoal:    { type: 'particles', c: ['#909AA4','#B0B8C0'], a: 0.92 },
     bioluminescence: { type: 'ocean', c: ['#00C8DC','#40E8F0','#00E8A0'], a: 0.97 },
-    'ukiyo-e':   { type: 'particles', c: ['#B45038','#D07050'], a: 0.82 }
+    'ukiyo-e':   { type: 'particles', c: ['#B45038','#D07050'], a: 0.82 },
+    pipboy:      { type: 'pipboy',  c: ['#00FF77','#00CC55'], a: 0.98 }
 };
 
 // ==========================================================
@@ -594,15 +595,17 @@ AT.matrix = {
             var L = layers[li];
             var count = Math.max(6, Math.floor(W / L.colW));
             for (var i = 0; i < count; i++) {
+                // Long trails to compensate for opaque background wipe
                 var trailLen = (80 + (Math.random() * 60)) | 0;
                 var charBuf = [];
                 for (var j = 0; j < trailLen; j++) {
                     charBuf.push(state.matrixChars[(Math.random() * charsLen) | 0]);
                 }
+                var spacing = L.fontSize + 1;
+                var fullTrailH = trailLen * spacing;
                 state.cols.push({
                     x: i * L.colW + rand(0, L.colW * 0.4),
-                    y: -(100 + Math.random() * 200),    // spawn above screen (-100 to -300)
-                    delay: Math.random() * 2,          // 0-2s staggered start
+                    y: rand(0, H + fullTrailH),
                     speed: 35 + Math.random() * 105,
                     trail: trailLen,
                     fontSize: L.fontSize,
@@ -612,12 +615,33 @@ AT.matrix = {
             }
         }
 
-        // Just a black canvas — columns will rain down naturally
+        // Single-pass instant paint: black bg + all visible chars drawn directly
         if (ctx) {
             ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
             ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
             ctx.imageSmoothingEnabled = false;
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+            for (var ci = 0; ci < state.cols.length; ci++) {
+                var c = state.cols[ci];
+                ctx.font = c.fontSize + 'px monospace';
+                var sp = c.fontSize + 1;
+                var la = c.layerAlpha;
+                for (var j = 0; j < c.trail; j++) {
+                    var py = c.y - j * sp;
+                    if (py < -20 || py > H + 20) continue;
+                    if (j === 0) {
+                        ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
+                    } else if (j <= 2) {
+                        ctx.fillStyle = 'rgba(0,204,51,' + (la * 0.80) + ')';
+                    } else {
+                        var fade = (1 - j / c.trail);
+                        fade = fade * fade * la * 0.7;
+                        if (fade < 0.02) continue;
+                        ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
+                    }
+                    ctx.fillText(c.chars[j], c.x, py);
+                }
+            }
         }
 
         // CRT scanlines
@@ -633,7 +657,6 @@ AT.matrix = {
             state.crtScanlines = scanCvs;
         }
         state.crtNoiseTimer = 0;
-        state.elapsed = 0;
     },
     render(dt) {
         // Near-opaque black wipe — kills ghosting, chars are crisp
@@ -643,17 +666,12 @@ AT.matrix = {
         var charsLen = chars.length;
         if (!state.cols) return;
 
-        // Track elapsed time for staggered column starts
-        state.elapsed += dt;
-
         // Zero blur for razor-sharp characters
         ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 
         for (var ci = 0; ci < state.cols.length; ci++) {
             var c = state.cols[ci];
-            // Skip columns still waiting for their delay
-            if (c.delay > 0) { c.delay -= dt; continue; }
             c.y += c.speed * dt;
             ctx.font = c.fontSize + 'px monospace';
             var trail = quality === 'low' ? Math.min(c.trail, 20) : c.trail;
@@ -679,9 +697,9 @@ AT.matrix = {
                 }
                 ctx.fillText(c.chars[j], c.x, cy);
             }
-            // Reset off-screen columns — no more delay after first pass
+            // Reset off-screen columns
             if (c.y - trail * spacing > H) {
-                c.y = -(100 + Math.random() * 200);
+                c.y = rand(-trail * spacing * 0.6, -50);
                 c.speed = 35 + Math.random() * 105;
                 for (var rj = 0; rj < c.chars.length; rj++) {
                     c.chars[rj] = chars[(Math.random() * charsLen) | 0];
@@ -770,6 +788,209 @@ AT.terminal = {
             if (l.typed < l.text.length && Math.sin(time*8) > 0) { const cx = 30+ctx.measureText(dt2).width+2; ctx.fillStyle = 'rgba(255,176,0,'+l.alpha+')'; ctx.fillRect(cx,l.y-12,8,14); }
         }
         if (mouse.active && quality !== 'low') { const grad = ctx.createRadialGradient(mouse.sx,mouse.sy,0,mouse.sx,mouse.sy,150); grad.addColorStop(0,'rgba(255,176,0,0.04)'); grad.addColorStop(1,'transparent'); ctx.fillStyle = grad; ctx.fillRect(mouse.sx-150,mouse.sy-150,300,300); }
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- UNIQUE: PIP-BOY (Fallout 3000 CRT) ---
+AT.pipboy = {
+    init() {
+        // CRT scanlines pattern (every 2px, denser than Matrix)
+        state.crtScanlines = null;
+        if (quality !== 'low') {
+            var scanCvs = document.createElement('canvas');
+            scanCvs.width = 4; scanCvs.height = H || 1080;
+            var sctx = scanCvs.getContext('2d');
+            sctx.fillStyle = 'rgba(0,0,0,0.14)';
+            for (var sy = 0; sy < scanCvs.height; sy += 2) {
+                sctx.fillRect(0, sy, 4, 1);
+            }
+            state.crtScanlines = scanCvs;
+        }
+        // Static noise state
+        state.noiseTimer = 0;
+        state.flickerAlpha = 1;
+        // Geiger counter dots
+        state.geigerDots = [];
+        state.geigerTimer = 0;
+        // Vignette gradient (CRT screen curvature)
+        state.vignette = null;
+        if (quality !== 'low') {
+            var vCvs = document.createElement('canvas');
+            vCvs.width = W; vCvs.height = H;
+            var vctx = vCvs.getContext('2d');
+            var vgrad = vctx.createRadialGradient(W*0.5, H*0.5, Math.min(W,H)*0.25, W*0.5, H*0.5, Math.max(W,H)*0.72);
+            vgrad.addColorStop(0, 'rgba(0,0,0,0)');
+            vgrad.addColorStop(0.55, 'rgba(0,0,0,0)');
+            vgrad.addColorStop(0.82, 'rgba(0,0,0,0.3)');
+            vgrad.addColorStop(1, 'rgba(0,0,0,0.65)');
+            vctx.fillStyle = vgrad;
+            vctx.fillRect(0, 0, W, H);
+            state.vignette = vCvs;
+        }
+        // Ambient glow pulse
+        state.glowPhase = 0;
+        // Radiation needle angle
+        state.radNeedle = 0;
+        state.radTarget = Math.random() * 0.4 + 0.1;
+        state.radTimer = 0;
+        // Horizontal sweep line (Pip-Boy scan)
+        state.sweepY = 0;
+        // Decorative HUD lines drifting
+        state.uiLines = [];
+        var lineCount = cap(8, quality);
+        for (var i = 0; i < lineCount; i++) {
+            state.uiLines.push({
+                y: rand(H * 0.05, H * 0.95),
+                width: rand(W * 0.05, W * 0.35),
+                x: rand(-W * 0.1, W * 0.6),
+                alpha: rand(0.015, 0.045),
+                speed: rand(3, 12)
+            });
+        }
+    },
+    render(dt) {
+        // Black wipe
+        ctx.fillStyle = '#0A0A0A';
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalAlpha = fadeIn;
+
+        // Flicker effect (random CRT flicker)
+        if (Math.random() < 0.004) state.flickerAlpha = 0.72 + Math.random() * 0.18;
+        state.flickerAlpha = lerp(state.flickerAlpha, 1, dt * 5);
+        ctx.globalAlpha = fadeIn * state.flickerAlpha;
+
+        // Subtle ambient glow pulse in center
+        state.glowPhase += dt * 0.6;
+        if (quality !== 'low') {
+            var glowPulse = 0.025 + Math.sin(state.glowPhase) * 0.012;
+            var grd = ctx.createRadialGradient(W*0.5, H*0.45, 0, W*0.5, H*0.45, Math.max(W,H)*0.55);
+            grd.addColorStop(0, 'rgba(0,255,119,' + glowPulse + ')');
+            grd.addColorStop(0.4, 'rgba(0,200,85,' + (glowPulse * 0.3) + ')');
+            grd.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, W, H);
+        }
+
+        // Drifting horizontal HUD decoration lines
+        if (state.uiLines && quality !== 'low') {
+            for (var li = 0; li < state.uiLines.length; li++) {
+                var ln = state.uiLines[li];
+                ln.x += ln.speed * dt;
+                if (ln.x > W + 10) { ln.x = -ln.width - 10; ln.y = rand(H * 0.05, H * 0.95); }
+                ctx.fillStyle = 'rgba(0,255,119,' + ln.alpha + ')';
+                ctx.fillRect(ln.x, ln.y, ln.width, 1);
+            }
+        }
+
+        // Horizontal sweep line (like a radar/CRT scan)
+        state.sweepY = (state.sweepY + dt * 80) % (H + 60);
+        ctx.fillStyle = 'rgba(0,255,119,0.025)';
+        ctx.fillRect(0, state.sweepY - 30, W, 60);
+        ctx.fillStyle = 'rgba(0,255,119,0.06)';
+        ctx.fillRect(0, state.sweepY - 2, W, 4);
+
+        // CRT scanlines (every 2px)
+        if (quality !== 'low' && state.crtScanlines) {
+            ctx.globalAlpha = fadeIn * state.flickerAlpha * 0.4;
+            var pat = ctx.createPattern(state.crtScanlines, 'repeat');
+            if (pat) { ctx.fillStyle = pat; ctx.fillRect(0, 0, W, H); }
+            ctx.globalAlpha = fadeIn * state.flickerAlpha;
+        }
+
+        // Static noise grain
+        state.noiseTimer += dt;
+        if (state.noiseTimer > 0.055) {
+            state.noiseTimer = 0;
+            var nc = quality === 'ultra' ? 200 : (quality === 'high' ? 140 : 60);
+            for (var n = 0; n < nc; n++) {
+                var nAlpha = Math.random() * 0.055;
+                ctx.fillStyle = Math.random() > 0.55
+                    ? 'rgba(0,255,119,' + nAlpha + ')'
+                    : 'rgba(0,0,0,' + (Math.random() * 0.12) + ')';
+                ctx.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 1, 1);
+            }
+        }
+
+        // Geiger counter effect — random green dots crackling bottom-right
+        state.geigerTimer += dt;
+        if (state.geigerTimer > 0.12) {
+            state.geigerTimer = 0;
+            if (Math.random() < 0.45) {
+                var gCount = (1 + Math.random() * 4) | 0;
+                for (var gi = 0; gi < gCount; gi++) {
+                    state.geigerDots.push({
+                        x: W - 55 + rand(-25, 25),
+                        y: H - 55 + rand(-25, 25),
+                        life: rand(0.12, 0.45),
+                        size: rand(1, 2.5),
+                        alpha: rand(0.25, 0.7)
+                    });
+                }
+            }
+        }
+        for (var gdi = state.geigerDots.length - 1; gdi >= 0; gdi--) {
+            var gd = state.geigerDots[gdi];
+            gd.life -= dt;
+            if (gd.life <= 0) { state.geigerDots.splice(gdi, 1); continue; }
+            var ga = gd.alpha * Math.min(1, gd.life * 3);
+            ctx.fillStyle = 'rgba(0,255,119,' + Math.min(1, ga) + ')';
+            ctx.fillRect(gd.x, gd.y, gd.size, gd.size);
+        }
+
+        // Mini radiation meter (bottom-right corner, decorative)
+        if (quality !== 'low') {
+            var rx = W - 70, ry = H - 70, rr = 22;
+            // Arc background
+            ctx.strokeStyle = 'rgba(0,255,119,0.12)';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(rx, ry, rr, Math.PI, 0); ctx.stroke();
+            // Tick marks
+            ctx.strokeStyle = 'rgba(0,255,119,0.2)';
+            ctx.lineWidth = 1;
+            for (var ti = 0; ti <= 5; ti++) {
+                var ta = Math.PI + (ti / 5) * Math.PI;
+                ctx.beginPath();
+                ctx.moveTo(rx + Math.cos(ta) * (rr - 4), ry + Math.sin(ta) * (rr - 4));
+                ctx.lineTo(rx + Math.cos(ta) * (rr + 2), ry + Math.sin(ta) * (rr + 2));
+                ctx.stroke();
+            }
+            // Needle (animated)
+            state.radTimer += dt;
+            if (state.radTimer > 2.5 + Math.random() * 3) {
+                state.radTimer = 0;
+                state.radTarget = Math.random() * 0.5 + 0.05;
+            }
+            state.radNeedle = lerp(state.radNeedle, state.radTarget, dt * 1.2);
+            var needleA = Math.PI + state.radNeedle * Math.PI;
+            ctx.strokeStyle = 'rgba(0,255,119,0.55)';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(rx, ry);
+            ctx.lineTo(rx + Math.cos(needleA) * (rr - 6), ry + Math.sin(needleA) * (rr - 6));
+            ctx.stroke();
+            // RAD label
+            ctx.font = '9px monospace';
+            ctx.fillStyle = 'rgba(0,255,119,0.25)';
+            ctx.fillText('RAD', rx - 8, ry + 10);
+        }
+
+        // Vignette overlay (dark corners = CRT curvature)
+        if (state.vignette && quality !== 'low') {
+            ctx.globalAlpha = fadeIn * 0.85;
+            ctx.drawImage(state.vignette, 0, 0, W, H);
+            ctx.globalAlpha = fadeIn;
+        }
+
+        // Mouse interaction: faint green halo
+        if (mouse.active && quality !== 'low') {
+            var mgrad = ctx.createRadialGradient(mouse.sx, mouse.sy, 0, mouse.sx, mouse.sy, 100);
+            mgrad.addColorStop(0, 'rgba(0,255,119,0.035)');
+            mgrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = mgrad;
+            ctx.fillRect(mouse.sx - 100, mouse.sy - 100, 200, 200);
+        }
+
         ctx.globalAlpha = fadeIn;
     }
 };
@@ -1008,7 +1229,13 @@ function initTheme() {
             var baseOpacity = cfg ? cfg.a : 0.7;
             var targetOpacity = String(baseOpacity * Math.max(0.05, intensityFactor));
             // Matrix: start invisible, fade in over 2s to hide init artefacts
-            canvas.style.opacity = targetOpacity;
+            if (cfg && cfg.type === 'matrix') {
+                canvas.style.transition = 'none';
+                canvas.style.opacity = '0';
+            } else {
+                canvas.style.opacity = targetOpacity;
+            }
+            state._targetOpacity = targetOpacity;
         }
 
         if (ctx) { ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0); ctx.clearRect(0, 0, W, H); }
@@ -1016,6 +1243,13 @@ function initTheme() {
         if (cfg) {
             const anim = AT[cfg.type];
             if (anim && anim.init) anim.init(cfg);
+            // Matrix fade-in: trigger after init so first paint is done
+            if (cfg.type === 'matrix' && canvas) {
+                setTimeout(function() {
+                    canvas.style.transition = 'opacity 2s ease-in';
+                    canvas.style.opacity = state._targetOpacity;
+                }, 50);
+            }
         }
     } catch(e) {
         console.error('Animation initTheme error (non-fatal):', e);

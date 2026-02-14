@@ -1259,70 +1259,28 @@ body .bubble.done .bubble-text {
 }
 #chatbot-font-size:hover { background: rgba(255,255,255,0.2); }
 
-/* === CHATBOT FAB - COSMIC GALAXY DESIGN === */
+/* === CHATBOT STYLE WHATSAPP VERT PREMIUM === */
 
-/* Bouton FAB - Dégradé cosmique émeraude/doré avec halo */
+/* Bouton FAB - Vert premium avec glow */
 .chatbot-fab {
-    background: radial-gradient(circle at 35% 35%, #1a6b4a 0%, #0d4f3a 40%, #0a2e2a 80%, #061a1a 100%) !important;
-    border: 1px solid rgba(80, 220, 160, 0.3) !important;
+    background: linear-gradient(135deg, #25d366 0%, #128c7e 100%) !important;
     box-shadow:
-        0 0 15px rgba(40, 180, 120, 0.4),
-        0 0 35px rgba(30, 140, 100, 0.2),
-        0 4px 20px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
-    animation: cosmicPulse 4s ease-in-out infinite !important;
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease !important;
-}
-
-/* Image centrée parfaitement */
-.chatbot-fab img {
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 50% !important;
-    object-fit: cover !important;
-    display: block !important;
-    margin: 0 !important;
-    animation: cosmicIconFloat 6s ease-in-out infinite !important;
-    filter: drop-shadow(0 0 4px rgba(200, 180, 100, 0.5)) !important;
+        0 4px 20px rgba(37, 211, 102, 0.5),
+        0 0 40px rgba(37, 211, 102, 0.25) !important;
+    border: none !important;
+    animation: fabGlowGreen 2s ease-in-out infinite;
 }
 
 .chatbot-fab:hover {
     transform: scale(1.12) !important;
-    border-color: rgba(100, 240, 180, 0.5) !important;
     box-shadow:
-        0 0 20px rgba(40, 200, 130, 0.6),
-        0 0 50px rgba(30, 160, 110, 0.3),
-        0 0 80px rgba(20, 120, 90, 0.15),
-        0 6px 25px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        0 6px 30px rgba(37, 211, 102, 0.7),
+        0 0 60px rgba(37, 211, 102, 0.4) !important;
 }
 
-.chatbot-fab:hover img {
-    filter: drop-shadow(0 0 8px rgba(220, 200, 120, 0.7)) brightness(1.1) !important;
-}
-
-/* Halo lumineux cosmique - pulse doux */
-@keyframes cosmicPulse {
-    0%, 100% {
-        box-shadow:
-            0 0 15px rgba(40, 180, 120, 0.4),
-            0 0 35px rgba(30, 140, 100, 0.2),
-            0 4px 20px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    }
-    50% {
-        box-shadow:
-            0 0 20px rgba(50, 200, 140, 0.5),
-            0 0 45px rgba(35, 160, 110, 0.25),
-            0 4px 20px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    }
-}
-
-/* Icône flotte doucement comme en apesanteur */
-@keyframes cosmicIconFloat {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-1.5px); }
+@keyframes fabGlowGreen {
+    0%, 100% { box-shadow: 0 4px 20px rgba(37,211,102,0.5), 0 0 40px rgba(37,211,102,0.25); }
+    50% { box-shadow: 0 4px 25px rgba(37,211,102,0.7), 0 0 50px rgba(37,211,102,0.35); }
 }
 
 /* Panel style WhatsApp - Desktop */
