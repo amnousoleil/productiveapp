@@ -594,17 +594,15 @@ AT.matrix = {
             var L = layers[li];
             var count = Math.max(6, Math.floor(W / L.colW));
             for (var i = 0; i < count; i++) {
-                // Long trails to compensate for opaque background wipe
                 var trailLen = (80 + (Math.random() * 60)) | 0;
                 var charBuf = [];
                 for (var j = 0; j < trailLen; j++) {
                     charBuf.push(state.matrixChars[(Math.random() * charsLen) | 0]);
                 }
-                var spacing = L.fontSize + 1;
-                var fullTrailH = trailLen * spacing;
                 state.cols.push({
                     x: i * L.colW + rand(0, L.colW * 0.4),
-                    y: rand(0, H + fullTrailH),
+                    y: -(100 + Math.random() * 200),    // spawn above screen (-100 to -300)
+                    delay: Math.random() * 2,          // 0-2s staggered start
                     speed: 35 + Math.random() * 105,
                     trail: trailLen,
                     fontSize: L.fontSize,
@@ -614,33 +612,12 @@ AT.matrix = {
             }
         }
 
-        // Single-pass instant paint: black bg + all visible chars drawn directly
+        // Just a black canvas — columns will rain down naturally
         if (ctx) {
             ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
             ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
             ctx.imageSmoothingEnabled = false;
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-            for (var ci = 0; ci < state.cols.length; ci++) {
-                var c = state.cols[ci];
-                ctx.font = c.fontSize + 'px monospace';
-                var sp = c.fontSize + 1;
-                var la = c.layerAlpha;
-                for (var j = 0; j < c.trail; j++) {
-                    var py = c.y - j * sp;
-                    if (py < -20 || py > H + 20) continue;
-                    if (j === 0) {
-                        ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
-                    } else if (j <= 2) {
-                        ctx.fillStyle = 'rgba(0,204,51,' + (la * 0.80) + ')';
-                    } else {
-                        var fade = (1 - j / c.trail);
-                        fade = fade * fade * la * 0.7;
-                        if (fade < 0.02) continue;
-                        ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
-                    }
-                    ctx.fillText(c.chars[j], c.x, py);
-                }
-            }
         }
 
         // CRT scanlines
@@ -656,6 +633,7 @@ AT.matrix = {
             state.crtScanlines = scanCvs;
         }
         state.crtNoiseTimer = 0;
+        state.elapsed = 0;
     },
     render(dt) {
         // Near-opaque black wipe — kills ghosting, chars are crisp
@@ -665,12 +643,17 @@ AT.matrix = {
         var charsLen = chars.length;
         if (!state.cols) return;
 
+        // Track elapsed time for staggered column starts
+        state.elapsed += dt;
+
         // Zero blur for razor-sharp characters
         ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 
         for (var ci = 0; ci < state.cols.length; ci++) {
             var c = state.cols[ci];
+            // Skip columns still waiting for their delay
+            if (c.delay > 0) { c.delay -= dt; continue; }
             c.y += c.speed * dt;
             ctx.font = c.fontSize + 'px monospace';
             var trail = quality === 'low' ? Math.min(c.trail, 20) : c.trail;
@@ -696,9 +679,9 @@ AT.matrix = {
                 }
                 ctx.fillText(c.chars[j], c.x, cy);
             }
-            // Reset off-screen columns
+            // Reset off-screen columns — no more delay after first pass
             if (c.y - trail * spacing > H) {
-                c.y = rand(-trail * spacing * 0.6, -50);
+                c.y = -(100 + Math.random() * 200);
                 c.speed = 35 + Math.random() * 105;
                 for (var rj = 0; rj < c.chars.length; rj++) {
                     c.chars[rj] = chars[(Math.random() * charsLen) | 0];
@@ -1025,13 +1008,7 @@ function initTheme() {
             var baseOpacity = cfg ? cfg.a : 0.7;
             var targetOpacity = String(baseOpacity * Math.max(0.05, intensityFactor));
             // Matrix: start invisible, fade in over 2s to hide init artefacts
-            if (cfg && cfg.type === 'matrix') {
-                canvas.style.transition = 'none';
-                canvas.style.opacity = '0';
-            } else {
-                canvas.style.opacity = targetOpacity;
-            }
-            state._targetOpacity = targetOpacity;
+            canvas.style.opacity = targetOpacity;
         }
 
         if (ctx) { ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0); ctx.clearRect(0, 0, W, H); }
@@ -1039,13 +1016,6 @@ function initTheme() {
         if (cfg) {
             const anim = AT[cfg.type];
             if (anim && anim.init) anim.init(cfg);
-            // Matrix fade-in: trigger after init so first paint is done
-            if (cfg.type === 'matrix' && canvas) {
-                setTimeout(function() {
-                    canvas.style.transition = 'opacity 2s ease-in';
-                    canvas.style.opacity = state._targetOpacity;
-                }, 50);
-            }
         }
     } catch(e) {
         console.error('Animation initTheme error (non-fatal):', e);
