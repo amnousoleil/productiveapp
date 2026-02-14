@@ -668,7 +668,7 @@ AT.matrix = {
         ctx.fillRect(0, 0, W, H);
         var chars = state.matrixChars;
         var charsLen = chars.length;
-        if (!state.cols) return;
+        if (!state.colGroups) return;
 
         // Zero blur for razor-sharp characters
         ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
@@ -700,7 +700,9 @@ AT.matrix = {
                     } else if (j <= 2) {
                         ctx.fillStyle = bodyStyle;
                     } else {
-                        ctx.fillStyle = c.fadeLUT[j] || bodyStyle;
+                        var fs = c.fadeLUT[j];
+                        if (!fs) continue; // skip invisible chars
+                        ctx.fillStyle = fs;
                     }
                     ctx.fillText(c.chars[j], c.x, cy);
                 }
