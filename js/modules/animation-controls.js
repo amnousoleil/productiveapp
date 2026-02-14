@@ -99,11 +99,12 @@ var AnimationControls = (function() {
                 /* --- Button base: 60x60, no background, no halo --- */
                 'button.anim-ctrl-fab{' +
                     'position:fixed !important;' +
-                    'bottom:95px !important;right:25px !important;' +
-                    'width:60px !important;height:60px !important;' +
+                    'bottom:95px !important;right:31px !important;' +
+                    'width:48px !important;height:48px !important;' +
                     'border-radius:50% !important;' +
                     'background:none !important;' +
                     'border:none !important;' +
+                    'outline:none !important;' +
                     'box-shadow:none !important;' +
                     'color:var(--accent) !important;' +
                     'display:flex !important;align-items:center !important;justify-content:center !important;' +
@@ -140,7 +141,7 @@ var AnimationControls = (function() {
                 /* Mobile */
                 '@media(max-width:768px){' +
                     'button.anim-ctrl-fab{' +
-                        'width:56px !important;height:56px !important;' +
+                        'width:44px !important;height:44px !important;' +
                         'right:20px !important;bottom:90px !important;' +
                     '}' +
                 '}';
