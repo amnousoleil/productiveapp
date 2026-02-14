@@ -4,99 +4,62 @@
    Controles d'intensite et presets d'animation
    ================================================ */
 
-/* --- Floating Action Button — Cosmic Design --- */
+/* --- Floating Action Button — Cosmic Emerald --- */
 .anim-ctrl-fab {
-    background: red !important;
-    width: 100px !important;
-    height: 100px !important;
     position: fixed;
     bottom: 95px;
     right: 25px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 40% 35%,
-        #143028 0%, #0c2018 40%, #071510 70%, #040e0a 100%);
-    border: 1.5px solid rgba(60, 200, 140, 0.3);
-    color: #5eeaad;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: radial-gradient(circle at 40% 35%, #0e3325 0%, #092118 50%, #04120e 100%) !important;
+    border: 1.5px solid rgba(80, 220, 160, 0.3) !important;
+    color: #5eeaad !important;
     cursor: pointer;
     z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    box-shadow:
-        0 0 12px rgba(50, 200, 130, 0.35),
-        0 0 30px rgba(40, 160, 110, 0.15),
-        0 4px 16px rgba(0, 0, 0, 0.45),
-        inset 0 1px 0 rgba(200, 255, 220, 0.08);
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.4s ease,
-                border-color 0.4s ease;
-    overflow: visible;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-shadow: 0 0 15px rgba(80, 220, 160, 0.4), 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    overflow: visible !important;
     -webkit-tap-highlight-color: transparent;
+    animation: animGlowPulse 3s ease-in-out infinite !important;
 }
 
-/* SVG icon — perfectly centered, solid fill */
+/* SVG centré */
 .anim-ctrl-fab svg {
-    width: 20px;
-    height: 20px;
-    display: block;
-    margin: 0 auto;
+    width: 20px !important;
+    height: 20px !important;
+    display: block !important;
     flex-shrink: 0;
-    filter: drop-shadow(0 0 3px rgba(94, 234, 173, 0.4));
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
-                filter 0.3s ease;
-    animation: animStarSpin 25s linear infinite;
+    filter: drop-shadow(0 0 3px rgba(94, 234, 173, 0.5));
+    transition: transform 0.3s ease, filter 0.3s ease;
 }
 
 .anim-ctrl-fab.panel-open svg {
-    animation: none;
     transform: rotate(180deg);
 }
 
-/* Hover — glow amplifié + scale */
+/* Hover */
 .anim-ctrl-fab:hover {
-    transform: scale(1.15);
-    border-color: rgba(94, 234, 173, 0.5);
-    box-shadow:
-        0 0 18px rgba(60, 220, 150, 0.55),
-        0 0 45px rgba(50, 190, 130, 0.25),
-        0 0 70px rgba(40, 160, 110, 0.1),
-        0 6px 22px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(200, 255, 220, 0.12);
+    transform: scale(1.1) !important;
+    box-shadow: 0 0 25px rgba(80, 220, 160, 0.6), 0 0 50px rgba(60, 200, 140, 0.2), 0 6px 20px rgba(0, 0, 0, 0.5) !important;
 }
 
 .anim-ctrl-fab:hover svg {
-    filter: drop-shadow(0 0 6px rgba(94, 234, 173, 0.7))
-           drop-shadow(0 0 12px rgba(60, 200, 140, 0.3));
-    animation-duration: 8s;
+    filter: drop-shadow(0 0 6px rgba(94, 234, 173, 0.7));
 }
 
-/* Rotation lente continue de l'étoile */
-@keyframes animStarSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-/* Halo cosmique qui pulse */
-@keyframes animCosmicPulse {
+/* Pulse lumineux doux — cycle 3s */
+@keyframes animGlowPulse {
     0%, 100% {
-        box-shadow:
-            0 0 12px rgba(50, 200, 130, 0.35),
-            0 0 30px rgba(40, 160, 110, 0.15),
-            0 4px 16px rgba(0, 0, 0, 0.45),
-            inset 0 1px 0 rgba(200, 255, 220, 0.08);
+        box-shadow: 0 0 15px rgba(80, 220, 160, 0.4), 0 4px 14px rgba(0, 0, 0, 0.4);
     }
     50% {
-        box-shadow:
-            0 0 16px rgba(60, 220, 150, 0.45),
-            0 0 38px rgba(50, 180, 120, 0.2),
-            0 4px 16px rgba(0, 0, 0, 0.45),
-            inset 0 1px 0 rgba(200, 255, 220, 0.1);
+        box-shadow: 0 0 22px rgba(80, 220, 160, 0.6), 0 0 40px rgba(60, 200, 140, 0.15), 0 4px 14px rgba(0, 0, 0, 0.4);
     }
-}
-
-.anim-ctrl-fab:not(.panel-open) {
-    animation: animCosmicPulse 4s ease-in-out infinite;
 }
 
 /* --- Panel --- */
