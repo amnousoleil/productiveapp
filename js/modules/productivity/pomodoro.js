@@ -251,7 +251,7 @@ const PomodoroTimer = (function() {
         const style = document.createElement('style');
         style.id = 'pomodoro-styles';
         style.textContent = `
-            .pomo-container{position:fixed;bottom:100px;right:24px;z-index:900;font-family:Inter,system-ui,sans-serif}
+            .pomo-container{position:fixed;bottom:175px;right:25px;z-index:900;font-family:Inter,system-ui,sans-serif}
             .pomo-widget{background:var(--bg-secondary,#1a1a2e);border:1px solid var(--border-color,#333);border-radius:16px;padding:16px;width:220px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
             .pomo-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
             .pomo-mode{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
@@ -277,10 +277,10 @@ const PomodoroTimer = (function() {
             .pomo-mini-time{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
             .pomo-mini-pulse{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pomoPulse 1.5s infinite}
             @keyframes pomoPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.3)}}
-            .pomo-fab{position:fixed;bottom:100px;right:24px;z-index:899;width:44px;height:44px;border-radius:50%;background:var(--accent,#d4af37);border:none;color:#000;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:transform 0.2s}
+            .pomo-fab{position:fixed;bottom:165px;right:33px;z-index:899;width:44px;height:44px;border-radius:50%;background:var(--accent,#d4af37);border:none;color:#000;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:transform 0.2s}
             .pomo-fab:hover{transform:scale(1.1)}
             @media(prefers-reduced-motion:reduce){.pomo-mini-pulse{animation:none}.pomo-btn-start:hover{transform:none}}
-            @media(max-width:768px){.pomo-container{bottom:80px;right:12px}.pomo-widget{width:190px;padding:12px}}
+            @media(max-width:768px){.pomo-container{bottom:152px;right:20px}.pomo-widget{width:190px;padding:12px}.pomo-fab{bottom:152px;right:28px}}
         `;
         document.head.appendChild(style);
     }
