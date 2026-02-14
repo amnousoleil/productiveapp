@@ -9,67 +9,88 @@
     position: fixed;
     bottom: 95px;
     right: 25px;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
-    background: radial-gradient(circle at 38% 35%, #0f2b1f 0%, #0a1f18 45%, #061412 100%);
-    border: 1px solid rgba(60, 200, 140, 0.25);
-    color: #50dca0;
+    background: radial-gradient(circle at 40% 35%,
+        #143028 0%, #0c2018 40%, #071510 70%, #040e0a 100%);
+    border: 1.5px solid rgba(60, 200, 140, 0.3);
+    color: #5eeaad;
     cursor: pointer;
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0;
     box-shadow:
-        0 0 10px rgba(50, 180, 120, 0.3),
-        0 0 25px rgba(40, 150, 100, 0.12),
-        0 4px 14px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-    overflow: hidden;
+        0 0 12px rgba(50, 200, 130, 0.35),
+        0 0 30px rgba(40, 160, 110, 0.15),
+        0 4px 16px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(200, 255, 220, 0.08);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s ease,
+                border-color 0.4s ease;
+    overflow: visible;
     -webkit-tap-highlight-color: transparent;
 }
 
-.anim-ctrl-fab:hover {
-    transform: scale(1.14);
-    border-color: rgba(80, 220, 160, 0.45);
-    box-shadow:
-        0 0 16px rgba(60, 210, 140, 0.5),
-        0 0 40px rgba(50, 180, 120, 0.2),
-        0 0 60px rgba(40, 150, 100, 0.08),
-        0 6px 20px rgba(0, 0, 0, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.anim-ctrl-fab:hover svg {
-    filter: drop-shadow(0 0 5px rgba(80, 220, 160, 0.6));
-}
-
+/* SVG icon — perfectly centered, solid fill */
 .anim-ctrl-fab svg {
     width: 20px;
     height: 20px;
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+    display: block;
+    margin: 0 auto;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 3px rgba(94, 234, 173, 0.4));
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.3s ease;
+    animation: animStarSpin 25s linear infinite;
 }
 
 .anim-ctrl-fab.panel-open svg {
+    animation: none;
     transform: rotate(180deg);
 }
 
-/* Cosmic halo pulse */
+/* Hover — glow amplifié + scale */
+.anim-ctrl-fab:hover {
+    transform: scale(1.15);
+    border-color: rgba(94, 234, 173, 0.5);
+    box-shadow:
+        0 0 18px rgba(60, 220, 150, 0.55),
+        0 0 45px rgba(50, 190, 130, 0.25),
+        0 0 70px rgba(40, 160, 110, 0.1),
+        0 6px 22px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(200, 255, 220, 0.12);
+}
+
+.anim-ctrl-fab:hover svg {
+    filter: drop-shadow(0 0 6px rgba(94, 234, 173, 0.7))
+           drop-shadow(0 0 12px rgba(60, 200, 140, 0.3));
+    animation-duration: 8s;
+}
+
+/* Rotation lente continue de l'étoile */
+@keyframes animStarSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Halo cosmique qui pulse */
 @keyframes animCosmicPulse {
     0%, 100% {
         box-shadow:
-            0 0 10px rgba(50, 180, 120, 0.3),
-            0 0 25px rgba(40, 150, 100, 0.12),
-            0 4px 14px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            0 0 12px rgba(50, 200, 130, 0.35),
+            0 0 30px rgba(40, 160, 110, 0.15),
+            0 4px 16px rgba(0, 0, 0, 0.45),
+            inset 0 1px 0 rgba(200, 255, 220, 0.08);
     }
     50% {
         box-shadow:
-            0 0 14px rgba(60, 200, 140, 0.4),
-            0 0 32px rgba(50, 170, 110, 0.18),
-            0 4px 14px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            0 0 16px rgba(60, 220, 150, 0.45),
+            0 0 38px rgba(50, 180, 120, 0.2),
+            0 4px 16px rgba(0, 0, 0, 0.45),
+            inset 0 1px 0 rgba(200, 255, 220, 0.1);
     }
 }
 
