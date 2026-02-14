@@ -128,15 +128,15 @@ var AnimationControls = (function() {
                     'bottom:95px !important;right:25px !important;' +
                     'width:60px !important;height:60px !important;' +
                     'border-radius:50% !important;' +
-                    'background:color-mix(in srgb,var(--accent) 12%,#080808) !important;' +
-                    'border:2px solid color-mix(in srgb,var(--accent) 45%,transparent) !important;' +
+                    'background:none !important;' +
+                    'border:none !important;' +
                     'color:var(--accent) !important;' +
                     'display:flex !important;align-items:center !important;justify-content:center !important;' +
                     'padding:0 !important;margin:0 !important;' +
                     'line-height:0 !important;' +
                     'z-index:9999 !important;cursor:pointer !important;' +
                     'overflow:visible !important;' +
-                    'transition:transform 0.3s ease,box-shadow 0.3s ease,border-color 0.3s ease,background 0.3s ease !important;' +
+                    'transition:transform 0.3s ease,box-shadow 0.3s ease !important;' +
                     'animation:acFabPulse 2.5s ease-in-out infinite !important;' +
                     '-webkit-tap-highlight-color:transparent;' +
                 '}' +
@@ -182,8 +182,7 @@ var AnimationControls = (function() {
                 /* Hover - intense illumination */
                 'button.anim-ctrl-fab:hover{' +
                     'transform:scale(1.15) !important;' +
-                    'background:color-mix(in srgb,var(--accent) 20%,#0a0a0a) !important;' +
-                    'border-color:color-mix(in srgb,var(--accent) 70%,transparent) !important;' +
+                    'background:none !important;' +
                     'box-shadow:' +
                         '0 0 35px color-mix(in srgb,var(--accent) 65%,transparent),' +
                         '0 0 70px color-mix(in srgb,var(--accent) 30%,transparent),' +
