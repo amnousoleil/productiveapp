@@ -8,6 +8,7 @@
    QUICK-ADD FAB - Main Button
    ========================================== */
 .quick-add-fab {
+    display: none !important; /* Hidden: overlaps Pomodoro, redundant with task input */
     position: fixed;
     bottom: 90px;
     right: 24px;
