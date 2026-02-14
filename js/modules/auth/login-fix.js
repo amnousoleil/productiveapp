@@ -16,10 +16,10 @@
             // Login logo
             const loginLogo = document.querySelector('.auth-login-logo img');
             if (loginLogo) {
-                // CRITICAL FIX: Replace CDN URL with local SVG
+                // CRITICAL FIX: Replace CDN URL with local golden-ball
                 if (loginLogo.src.includes('cloudfront') || loginLogo.src.includes('d1yei2z3i6k35z')) {
-                    loginLogo.src = '/assets/images/logos/logo.svg';
-                    console.log('🔧 LoginFix: Replaced CDN logo with local SVG');
+                    loginLogo.src = '/assets/images/logos/golden-ball.png?v=2';
+                    console.log('🔧 LoginFix: Replaced CDN logo with local golden-ball');
                 }
 
                 // Force le logo à être visible
@@ -46,10 +46,10 @@
             // Sidebar logo
             const sidebarLogo = document.querySelector('.sidebar-logo');
             if (sidebarLogo) {
-                // CRITICAL FIX: Ensure local SVG path (already set in sidebar-render.js)
+                // CRITICAL FIX: Ensure local golden-ball path (already set in sidebar-render.js)
                 if (sidebarLogo.src && (sidebarLogo.src.includes('cloudfront') || sidebarLogo.src.includes('d1yei2z3i6k35z'))) {
-                    sidebarLogo.src = '/assets/images/logos/logo.svg';
-                    console.log('🔧 LoginFix: Replaced CDN sidebar logo with local SVG');
+                    sidebarLogo.src = '/assets/images/logos/golden-ball.png?v=2';
+                    console.log('🔧 LoginFix: Replaced CDN sidebar logo with local golden-ball');
                 }
 
                 // Force le logo à être visible
@@ -65,9 +65,9 @@
                     console.warn('⚠️ Sidebar logo image not loading, checking...');
                     sidebarLogo.onerror = function() {
                         console.error('❌ Sidebar logo failed to load, using fallback');
-                        // Fallback: PNG if SVG fails
-                        if (this.src.includes('.svg')) {
-                            this.src = '/assets/images/logos/logo.png';
+                        // Fallback: try logo.png, then emoji
+                        if (!this.src.includes('logo.png')) {
+                            this.src = '/assets/images/logos/logo.png?v=2';
                         } else {
                             // Ultimate fallback: emoji
                             const fallback = document.createElement('div');

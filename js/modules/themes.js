@@ -22,6 +22,22 @@ const Themes = {
         // This prevents theme-auto from overriding user choice on reload
         localStorage.setItem('theme_preference', 'manual');
 
+        // Pip-Boy: add body class + inject "PLEASE STAND BY" backdrop
+        document.body.classList.remove('theme-pipboy');
+        var standby = document.getElementById('pipboy-standby');
+        if (themeId === 'pipboy') {
+            document.body.classList.add('theme-pipboy');
+            if (!standby) {
+                standby = document.createElement('div');
+                standby.id = 'pipboy-standby';
+                standby.innerHTML = '<div id="pipboy-standby-text">PLEASE STAND BY</div>' +
+                    '<div id="pipboy-standby-sub">VAULT-TEC INDUSTRIES \u2022 ROBCO INDUSTRIES</div>';
+                document.body.prepend(standby);
+            }
+        } else if (standby) {
+            standby.remove();
+        }
+
         if (typeof resetAnimationForTheme === 'function') {
             resetAnimationForTheme();
         }

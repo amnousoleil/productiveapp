@@ -77,7 +77,7 @@ const WebSocketService = (function() {
         if (Notification.permission === 'granted') {
             new Notification(p.title || 'ProductiveApp', {
                 body: p.body,
-                icon: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png'
+                icon: '/assets/images/logos/golden-ball.png?v=2'
             });
         }
     }

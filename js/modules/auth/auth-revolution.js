@@ -67,7 +67,7 @@ const AuthRevolution = {
                     <div class="auth-rev-logo-ring ring-1"></div>
                     <div class="auth-rev-logo-ring ring-2"></div>
                     <div class="auth-rev-logo-ring ring-3"></div>
-                    <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png"
+                    <img src="/assets/images/logos/golden-ball.png?v=2"
                          alt="ProductiveApp"
                          class="auth-rev-logo">
                 </div>
@@ -595,7 +595,7 @@ const AuthRevolution = {
         card.innerHTML = `
             <div class="auth-rev-logo-container">
                 <div class="auth-rev-logo-glow"></div>
-                <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png"
+                <img src="/assets/images/logos/golden-ball.png?v=2"
                      alt="ProductiveApp"
                      class="auth-rev-logo">
             </div>

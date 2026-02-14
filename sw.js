@@ -70,11 +70,12 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch : ne rien cacher, passer directement au réseau
-self.addEventListener('fetch', (event) => {
-  // Pass-through mode : ne rien faire, laisser le navigateur gérer
-  console.log(`🔥 SW ${VERSION} - Pass-through fetch: ${event.request.url}`);
-  event.respondWith(fetch(event.request));
+// Fetch : NE PAS intercepter - laisser le navigateur gérer nativement
+// IMPORTANT: Ne pas appeler event.respondWith() pour que le navigateur
+// utilise son pipeline normal (HTTP cache, etc.) sans interférence du SW
+self.addEventListener('fetch', () => {
+  // Retour immédiat sans event.respondWith() = comportement navigateur natif
+  return;
 });
 
 // Message handler

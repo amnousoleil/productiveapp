@@ -184,8 +184,8 @@ self.addEventListener('push', (event) => {
         event.waitUntil(
             self.registration.showNotification(data.title || 'ProductiveApp', {
                 body: data.body || 'Nouvelle notification',
-                icon: '/assets/images/logos/logo.svg',
-                badge: '/assets/images/logos/logo.svg',
+                icon: '/assets/images/logos/golden-ball.png?v=2',
+                badge: '/assets/images/logos/golden-ball.png?v=2',
                 data: data
             })
         );

@@ -3481,454 +3481,331 @@ body.sidebar-collapsed .main-content {
 }
 
 /* ==============================================================
-   PIP-BOY 3000 THEME — FULL IMMERSION FALLOUT TERMINAL
-   VAULT-TEC INDUSTRIES // MODEL 3000 // SER. NO. 4077
+   PIP-BOY 3000 MARK IV — VAULT-TEC INDUSTRIES
+   Uses body.theme-pipboy class (added by themes.js)
    ============================================================== */
 
-/* ── FONT: VT323 monospace rétro partout ── */
-[data-theme="pipboy"],
-[data-theme="pipboy"] * {
-    font-family: 'VT323', 'Courier New', monospace !important;
+/* ─── 1. POLICE VT323 SUR TOUT ─── */
+body.theme-pipboy,
+body.theme-pipboy *,
+body.theme-pipboy *::before,
+body.theme-pipboy *::after {
+    font-family: 'VT323', monospace !important;
 }
-[data-theme="pipboy"] h1,
-[data-theme="pipboy"] h2,
-[data-theme="pipboy"] h3,
-[data-theme="pipboy"] h4,
-[data-theme="pipboy"] .category-title,
-[data-theme="pipboy"] .theme-name,
-[data-theme="pipboy"] .sidebar-nav-text,
-[data-theme="pipboy"] .section-title,
-[data-theme="pipboy"] .column-header h2 {
+
+/* Reset du titre app (override Cormorant Garamond gradient) */
+body.theme-pipboy .app-title {
+    font-family: 'VT323', monospace !important;
+    -webkit-text-fill-color: #00FF77 !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    background: none !important;
+    color: #00FF77 !important;
+    font-size: 2rem !important;
+    letter-spacing: 6px !important;
+    text-transform: uppercase !important;
+}
+
+/* Titres en majuscules */
+body.theme-pipboy h1,
+body.theme-pipboy h2,
+body.theme-pipboy h3,
+body.theme-pipboy h4 {
     text-transform: uppercase !important;
     letter-spacing: 2px !important;
 }
 
-/* ── TEXT GLOW: green phosphor bloom ── */
-[data-theme="pipboy"] body,
-[data-theme="pipboy"] .main-content,
-[data-theme="pipboy"] .sidebar,
-[data-theme="pipboy"] #app-sidebar {
-    text-shadow: 0 0 3px rgba(0,255,119,0.35), 0 0 8px rgba(0,255,119,0.1) !important;
+/* ─── 2. SCANLINES CRT (couvre TOUT l'ecran) ─── */
+body.theme-pipboy::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 9999;
 }
 
-/* ── GLOBAL: no border-radius anywhere, raw terminal ── */
-[data-theme="pipboy"] .bubble,
-[data-theme="pipboy"] .task-card,
-[data-theme="pipboy"] .card,
-[data-theme="pipboy"] .modal-box,
-[data-theme="pipboy"] .modal-content,
-[data-theme="pipboy"] button,
-[data-theme="pipboy"] .btn,
-[data-theme="pipboy"] input,
-[data-theme="pipboy"] textarea,
-[data-theme="pipboy"] select,
-[data-theme="pipboy"] .badge,
-[data-theme="pipboy"] .tag,
-[data-theme="pipboy"] .chip,
-[data-theme="pipboy"] .project-chip,
-[data-theme="pipboy"] .column-count,
-[data-theme="pipboy"] .task-column,
-[data-theme="pipboy"] .menu-dropdown {
+/* ─── 3. GLOW VERT SUR TOUT LE TEXTE ─── */
+body.theme-pipboy {
+    text-shadow: 0 0 8px rgba(0, 255, 119, 0.6) !important;
+    color: #00FF77 !important;
+}
+
+/* ─── 4. VIGNETTE CRT (bords sombres) ─── */
+body.theme-pipboy::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 35%,
+        rgba(0, 0, 0, 0.2) 60%,
+        rgba(0, 0, 0, 0.5) 85%,
+        rgba(0, 0, 0, 0.75) 100%
+    );
+    pointer-events: none;
+    z-index: 9998;
+}
+
+/* ─── 5. FOND PLEASE STAND BY ─── */
+body.theme-pipboy {
+    background-color: #080808 !important;
+}
+
+/* Le div #pipboy-standby est injecte par JS — voir themes.js */
+#pipboy-standby {
+    display: none;
+}
+body.theme-pipboy #pipboy-standby {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: -1 !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+}
+#pipboy-standby-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'VT323', monospace;
+    font-size: 42px;
+    color: rgba(0, 255, 119, 0.04);
+    white-space: nowrap;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    animation: pipboy-pulse 4s ease-in-out infinite;
+    text-align: center;
+    line-height: 1.6;
+}
+#pipboy-standby-sub {
+    position: absolute;
+    top: calc(50% + 40px);
+    left: 50%;
+    transform: translate(-50%, 0);
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: rgba(0, 255, 119, 0.03);
+    white-space: nowrap;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: pipboy-pulse 4s ease-in-out infinite;
+    animation-delay: 0.5s;
+}
+
+@keyframes pipboy-pulse {
+    0%, 100% { opacity: 0.03; }
+    50% { opacity: 0.08; }
+}
+
+/* ─── 6. CARTES : border-radius 0, border vert, fond quasi noir ─── */
+body.theme-pipboy .bubble,
+body.theme-pipboy .task-card,
+body.theme-pipboy .card {
+    border-radius: 0 !important;
+    border: 1px solid #00FF77 !important;
+    background: rgba(0, 10, 5, 0.9) !important;
+    box-shadow: inset 0 0 15px rgba(0, 255, 119, 0.03) !important;
+}
+
+/* ─── 7. ZERO BORDER-RADIUS partout ─── */
+body.theme-pipboy .modal-box,
+body.theme-pipboy .modal-content,
+body.theme-pipboy button,
+body.theme-pipboy .btn,
+body.theme-pipboy input,
+body.theme-pipboy textarea,
+body.theme-pipboy select,
+body.theme-pipboy .badge,
+body.theme-pipboy .tag,
+body.theme-pipboy .chip,
+body.theme-pipboy .project-chip,
+body.theme-pipboy .column-count,
+body.theme-pipboy .task-column,
+body.theme-pipboy .menu-dropdown {
     border-radius: 0 !important;
 }
 
-/* ── TASK CARDS: Vault-Tec terminal fiches with clipped corners ── */
-[data-theme="pipboy"] .bubble,
-[data-theme="pipboy"] .task-card {
-    clip-path: polygon(0 6px, 6px 0, calc(100% - 6px) 0, 100% 6px, 100% calc(100% - 6px), calc(100% - 6px) 100%, 6px 100%, 0 calc(100% - 6px)) !important;
-    border: 1px solid rgba(0,255,119,0.35) !important;
-    background: rgba(0,255,119,0.04) !important;
-    box-shadow: inset 0 0 15px rgba(0,255,119,0.03), 0 0 8px rgba(0,255,119,0.06) !important;
-    position: relative !important;
-}
-/* Decorative corner rivets on task cards */
-[data-theme="pipboy"] .bubble::before,
-[data-theme="pipboy"] .task-card::before {
-    content: '●' !important;
-    position: absolute !important;
-    top: 3px !important;
-    left: 6px !important;
-    font-size: 5px !important;
-    color: rgba(0,180,80,0.35) !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
-}
-[data-theme="pipboy"] .bubble::after,
-[data-theme="pipboy"] .task-card::after {
-    content: '●' !important;
-    position: absolute !important;
-    top: 3px !important;
-    right: 6px !important;
-    font-size: 5px !important;
-    color: rgba(0,180,80,0.35) !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
-    z-index: 1 !important;
+/* ─── 8. COLONNES : labels terminal ─── */
+body.theme-pipboy .task-column {
+    border: 1px solid rgba(0, 255, 119, 0.2) !important;
+    background: rgba(0, 255, 119, 0.01) !important;
 }
 
-/* ── COLUMNS: Terminal panel style ── */
-[data-theme="pipboy"] .task-column {
-    border: 1px solid rgba(0,255,119,0.2) !important;
-    background: rgba(0,255,119,0.015) !important;
-    box-shadow: inset 0 0 25px rgba(0,255,119,0.015), 0 0 12px rgba(0,255,119,0.04) !important;
-    position: relative !important;
+body.theme-pipboy .column-header {
+    border-bottom: 1px solid rgba(0, 255, 119, 0.3) !important;
 }
 
-/* Column headers: ═══ LABEL ═══ style */
-[data-theme="pipboy"] .column-header {
-    border-bottom: 1px solid rgba(0,255,119,0.3) !important;
-    position: relative !important;
-    padding-bottom: 12px !important;
-}
-[data-theme="pipboy"] .column-header::before {
-    content: '════════' !important;
-    position: absolute !important;
-    left: 0 !important;
-    bottom: -1px !important;
-    color: rgba(0,255,119,0.2) !important;
-    font-size: 10px !important;
-    letter-spacing: -1px !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
-}
-[data-theme="pipboy"] .column-header::after {
-    content: '════════' !important;
-    position: absolute !important;
-    right: 0 !important;
-    bottom: -1px !important;
-    color: rgba(0,255,119,0.2) !important;
-    font-size: 10px !important;
-    letter-spacing: -1px !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
-}
-
-/* Column header labels: replace emojis with terminal-style */
-[data-theme="pipboy"] .task-column[data-status="todo"] .column-header h2 {
+body.theme-pipboy .task-column[data-status="todo"] .column-header h2 {
     font-size: 0 !important;
 }
-[data-theme="pipboy"] .task-column[data-status="todo"] .column-header h2::after {
-    content: '[ PENDING ]' !important;
-    font-size: 16px !important;
-    color: #00FF77 !important;
-    letter-spacing: 3px !important;
-    font-family: 'VT323', monospace !important;
+body.theme-pipboy .task-column[data-status="todo"] .column-header h2::after {
+    content: '[ PENDING ]';
+    font-size: 18px;
+    color: #00FF77;
+    letter-spacing: 3px;
+    font-family: 'VT323', monospace;
 }
-[data-theme="pipboy"] .task-column[data-status="inprogress"] .column-header h2 {
+body.theme-pipboy .task-column[data-status="inprogress"] .column-header h2 {
     font-size: 0 !important;
 }
-[data-theme="pipboy"] .task-column[data-status="inprogress"] .column-header h2::after {
-    content: '[ ACTIVE ]' !important;
-    font-size: 16px !important;
-    color: #44FFAA !important;
-    letter-spacing: 3px !important;
-    font-family: 'VT323', monospace !important;
-    text-shadow: 0 0 6px rgba(68,255,170,0.4) !important;
+body.theme-pipboy .task-column[data-status="inprogress"] .column-header h2::after {
+    content: '[ ACTIVE ]';
+    font-size: 18px;
+    color: #44FFAA;
+    letter-spacing: 3px;
+    font-family: 'VT323', monospace;
+    text-shadow: 0 0 8px rgba(68, 255, 170, 0.5);
 }
-[data-theme="pipboy"] .task-column[data-status="done"] .column-header h2 {
+body.theme-pipboy .task-column[data-status="done"] .column-header h2 {
     font-size: 0 !important;
 }
-[data-theme="pipboy"] .task-column[data-status="done"] .column-header h2::after {
-    content: '[ COMPLETE ]' !important;
-    font-size: 16px !important;
-    color: #00CC55 !important;
-    letter-spacing: 3px !important;
-    font-family: 'VT323', monospace !important;
+body.theme-pipboy .task-column[data-status="done"] .column-header h2::after {
+    content: '[ COMPLETE ]';
+    font-size: 18px;
+    color: #00CC55;
+    letter-spacing: 3px;
+    font-family: 'VT323', monospace;
 }
 
-/* Column count badge: terminal style */
-[data-theme="pipboy"] .column-count {
+body.theme-pipboy .column-count {
     background: transparent !important;
-    border: 1px solid rgba(0,255,119,0.4) !important;
+    border: 1px solid rgba(0, 255, 119, 0.4) !important;
     color: #00FF77 !important;
-    font-size: 14px !important;
-    padding: 0 8px !important;
-    clip-path: polygon(0 3px, 3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px)) !important;
+    border-radius: 0 !important;
 }
 
-/* ── SIDEBAR: riveted metal panel ── */
-[data-theme="pipboy"] .sidebar,
-[data-theme="pipboy"] #app-sidebar {
-    border-right: 2px solid rgba(0,255,119,0.3) !important;
-    background:
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 3px,
-            rgba(0,255,119,0.008) 3px,
-            rgba(0,255,119,0.008) 4px
-        ),
-        linear-gradient(180deg, rgba(13,18,13,0.98), rgba(10,10,10,0.99)) !important;
-    box-shadow: inset -1px 0 15px rgba(0,255,119,0.03) !important;
+/* ─── 9. SIDEBAR : separateurs verts fins ═══ ─── */
+body.theme-pipboy .sidebar,
+body.theme-pipboy #app-sidebar {
+    border-right: 2px solid rgba(0, 255, 119, 0.3) !important;
+    background: rgba(8, 8, 8, 0.98) !important;
 }
-/* Sidebar nav items with rivet separators */
-[data-theme="pipboy"] .sidebar-nav-item,
-[data-theme="pipboy"] .nav-item {
-    border-bottom: none !important;
-    position: relative !important;
+
+body.theme-pipboy .sidebar-nav-item,
+body.theme-pipboy .nav-item {
+    border-bottom: 1px solid rgba(0, 255, 119, 0.1) !important;
 }
-[data-theme="pipboy"] .sidebar-nav-item::after,
-[data-theme="pipboy"] .nav-item::after {
-    content: '● ─────────────────────────── ●' !important;
-    display: block !important;
-    text-align: center !important;
-    font-size: 7px !important;
-    color: rgba(0,180,80,0.2) !important;
-    padding: 2px 0 !important;
-    letter-spacing: -0.5px !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
+
+body.theme-pipboy .sidebar-nav-item:hover,
+body.theme-pipboy .nav-item:hover {
+    background: rgba(0, 255, 119, 0.06) !important;
 }
-[data-theme="pipboy"] .sidebar-nav-item:hover,
-[data-theme="pipboy"] .nav-item:hover {
-    background: rgba(0,255,119,0.06) !important;
-}
-[data-theme="pipboy"] .sidebar-nav-item.active,
-[data-theme="pipboy"] .nav-item.active {
-    background: rgba(0,255,119,0.1) !important;
+body.theme-pipboy .sidebar-nav-item.active,
+body.theme-pipboy .nav-item.active {
+    background: rgba(0, 255, 119, 0.1) !important;
     border-left: 3px solid #00FF77 !important;
-    box-shadow: inset 0 0 20px rgba(0,255,119,0.05) !important;
 }
 
-/* ── HEADER: Vault-Tec style ── */
-[data-theme="pipboy"] .app-header {
-    border-bottom: 2px solid rgba(0,255,119,0.25) !important;
-    background:
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 2px,
-            rgba(0,255,119,0.006) 2px,
-            rgba(0,255,119,0.006) 3px
-        ),
-        rgba(10,10,10,0.95) !important;
-    box-shadow: 0 2px 15px rgba(0,255,119,0.05) !important;
+/* ─── 10. HEADER : Vault-Tec serial number ─── */
+body.theme-pipboy .app-header {
+    border-bottom: 2px solid rgba(0, 255, 119, 0.25) !important;
+    background: rgba(8, 8, 8, 0.95) !important;
     position: relative !important;
 }
-/* Serial number watermark */
-[data-theme="pipboy"] .app-header::after {
-    content: 'VAULT-TEC IND. // MODEL 3000 // SER. NO. 4077' !important;
-    position: absolute !important;
-    bottom: 3px !important;
-    right: 12px !important;
-    font-size: 9px !important;
-    color: rgba(0,255,119,0.12) !important;
-    letter-spacing: 1px !important;
-    font-family: 'VT323', monospace !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
-    text-transform: uppercase !important;
-}
-/* App title: terminal decorators */
-[data-theme="pipboy"] .app-title {
-    letter-spacing: 4px !important;
-    text-transform: uppercase !important;
-    text-shadow: 0 0 6px rgba(0,255,119,0.4), 0 0 15px rgba(0,255,119,0.15) !important;
+body.theme-pipboy .app-header::after {
+    content: 'VAULT-TEC IND. // MODEL 3000 // SER. NO. 4077';
+    position: absolute;
+    bottom: 2px;
+    right: 12px;
+    font-size: 11px;
+    color: rgba(0, 255, 119, 0.15);
+    letter-spacing: 2px;
+    font-family: 'VT323', monospace;
+    text-shadow: none;
+    pointer-events: none;
 }
 
-/* ── BUTTONS: mechanical keyboard keys, years-50 relief ── */
-[data-theme="pipboy"] button,
-[data-theme="pipboy"] .btn,
-[data-theme="pipboy"] [class*="btn-"] {
-    border: 1px solid rgba(0,255,119,0.45) !important;
-    background: linear-gradient(180deg, rgba(0,255,119,0.08) 0%, rgba(0,255,119,0.02) 100%) !important;
+/* ─── 11. BOUTONS : touche mecanique ─── */
+body.theme-pipboy button,
+body.theme-pipboy .btn {
+    border: 1px solid rgba(0, 255, 119, 0.5) !important;
+    background: linear-gradient(180deg, rgba(0, 255, 119, 0.1), rgba(0, 255, 119, 0.02)) !important;
     color: #00FF77 !important;
-    text-shadow: 0 0 3px rgba(0,255,119,0.3) !important;
-    transition: all 0.1s ease !important;
-    box-shadow: 0 2px 0 rgba(0,255,119,0.15), inset 0 1px 0 rgba(0,255,119,0.06) !important;
-    position: relative !important;
+    box-shadow: 0 3px 0 rgba(0, 80, 40, 0.5) !important;
+    transition: all 0.08s ease !important;
 }
-/* Key press effect */
-[data-theme="pipboy"] button:active,
-[data-theme="pipboy"] .btn:active,
-[data-theme="pipboy"] [class*="btn-"]:active {
-    transform: translateY(2px) !important;
-    box-shadow: 0 0 0 rgba(0,255,119,0.15), inset 0 2px 4px rgba(0,0,0,0.3) !important;
-    background: linear-gradient(180deg, rgba(0,255,119,0.03) 0%, rgba(0,255,119,0.08) 100%) !important;
-}
-[data-theme="pipboy"] button:hover,
-[data-theme="pipboy"] .btn:hover,
-[data-theme="pipboy"] [class*="btn-"]:hover {
-    background: rgba(0,255,119,0.85) !important;
-    color: #0A0A0A !important;
+body.theme-pipboy button:hover,
+body.theme-pipboy .btn:hover {
+    background: rgba(0, 255, 119, 0.85) !important;
+    color: #080808 !important;
     text-shadow: none !important;
-    box-shadow: 0 2px 0 rgba(0,255,119,0.3), 0 0 12px rgba(0,255,119,0.25) !important;
+}
+body.theme-pipboy button:active,
+body.theme-pipboy .btn:active {
+    transform: translateY(3px) !important;
+    box-shadow: 0 0 0 transparent !important;
 }
 
-/* ── INPUTS: monochrome green terminal ── */
-[data-theme="pipboy"] input,
-[data-theme="pipboy"] textarea,
-[data-theme="pipboy"] select {
-    background: rgba(0,255,119,0.03) !important;
-    border: 1px solid rgba(0,255,119,0.25) !important;
+/* ─── 12. INPUTS ─── */
+body.theme-pipboy input,
+body.theme-pipboy textarea,
+body.theme-pipboy select {
+    background: rgba(0, 255, 119, 0.03) !important;
+    border: 1px solid rgba(0, 255, 119, 0.25) !important;
     color: #00FF77 !important;
     caret-color: #00FF77 !important;
-    box-shadow: inset 0 0 8px rgba(0,255,119,0.02) !important;
 }
-[data-theme="pipboy"] input:focus,
-[data-theme="pipboy"] textarea:focus,
-[data-theme="pipboy"] select:focus {
-    border-color: rgba(0,255,119,0.6) !important;
-    box-shadow: 0 0 8px rgba(0,255,119,0.15), inset 0 0 12px rgba(0,255,119,0.03) !important;
-}
-[data-theme="pipboy"] input::placeholder,
-[data-theme="pipboy"] textarea::placeholder {
-    color: rgba(0,255,119,0.25) !important;
+body.theme-pipboy input::placeholder,
+body.theme-pipboy textarea::placeholder {
+    color: rgba(0, 255, 119, 0.25) !important;
 }
 
-/* ── PROJECT CHIPS: terminal tags ── */
-[data-theme="pipboy"] .project-chip {
-    border: 1px solid rgba(0,255,119,0.2) !important;
+/* ─── 13. MODALS ─── */
+body.theme-pipboy .modal-box,
+body.theme-pipboy .modal-content {
+    border: 1px solid rgba(0, 255, 119, 0.35) !important;
+    background: rgba(8, 8, 8, 0.97) !important;
+}
+
+/* ─── 14. CHIPS, BADGES, LINKS ─── */
+body.theme-pipboy .project-chip {
     background: transparent !important;
-    color: #00FF77 !important;
-    clip-path: polygon(0 3px, 3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px)) !important;
-}
-[data-theme="pipboy"] .project-chip:hover {
-    background: rgba(0,255,119,0.08) !important;
-}
-[data-theme="pipboy"] .project-chip.active {
-    background: rgba(0,255,119,0.12) !important;
-    border-color: rgba(0,255,119,0.5) !important;
-    box-shadow: 0 0 10px rgba(0,255,119,0.1) !important;
-}
-
-/* ── BADGES / TAGS: monochrome ── */
-[data-theme="pipboy"] .badge,
-[data-theme="pipboy"] .tag,
-[data-theme="pipboy"] .chip {
-    background: rgba(0,255,119,0.08) !important;
-    border: 1px solid rgba(0,255,119,0.25) !important;
+    border: 1px solid rgba(0, 255, 119, 0.25) !important;
     color: #00FF77 !important;
 }
-
-/* ── MODALS: terminal panel with corner rivets ── */
-[data-theme="pipboy"] .modal-box,
-[data-theme="pipboy"] .modal-content {
-    border: 1px solid rgba(0,255,119,0.35) !important;
-    background: rgba(10,10,10,0.97) !important;
-    box-shadow: 0 0 30px rgba(0,255,119,0.08), inset 0 0 40px rgba(0,255,119,0.015) !important;
-    clip-path: polygon(0 8px, 8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px)) !important;
+body.theme-pipboy .project-chip.active {
+    background: rgba(0, 255, 119, 0.1) !important;
+    border-color: #00FF77 !important;
 }
-/* Corner decorations on modals */
-[data-theme="pipboy"] .modal-box::before {
-    content: '●                                                              ●' !important;
-    position: absolute !important;
-    top: 5px !important;
-    left: 10px !important;
-    right: 10px !important;
-    font-size: 6px !important;
-    color: rgba(0,180,80,0.3) !important;
-    text-shadow: none !important;
-    pointer-events: none !important;
-    display: flex !important;
-    justify-content: space-between !important;
+body.theme-pipboy a { color: #00FF77 !important; }
+body.theme-pipboy a:hover { color: #44FFAA !important; }
+
+/* ─── 15. SCROLLBAR ─── */
+body.theme-pipboy ::-webkit-scrollbar { width: 5px; }
+body.theme-pipboy ::-webkit-scrollbar-track { background: #080808; }
+body.theme-pipboy ::-webkit-scrollbar-thumb { background: rgba(0, 255, 119, 0.2); border-radius: 0; }
+
+/* ─── 16. MENU DROPDOWN ─── */
+body.theme-pipboy .menu-dropdown {
+    background: rgba(8, 8, 8, 0.97) !important;
+    border: 1px solid rgba(0, 255, 119, 0.3) !important;
 }
 
-/* ── SCROLLBAR: thin green ── */
-[data-theme="pipboy"] ::-webkit-scrollbar {
-    width: 5px;
-}
-[data-theme="pipboy"] ::-webkit-scrollbar-track {
-    background: #0A0A0A;
-}
-[data-theme="pipboy"] ::-webkit-scrollbar-thumb {
-    background: rgba(0,255,119,0.2);
-    border-radius: 0;
-}
-[data-theme="pipboy"] ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0,255,119,0.4);
-}
-
-/* ── LINKS ── */
-[data-theme="pipboy"] a {
-    color: #00FF77 !important;
-}
-[data-theme="pipboy"] a:hover {
-    color: #44FFAA !important;
-    text-shadow: 0 0 6px rgba(0,255,119,0.4) !important;
-}
-
-/* ── SEPARATORS: metallic pipe look ── */
-[data-theme="pipboy"] hr,
-[data-theme="pipboy"] .divider {
-    border: none !important;
-    height: 1px !important;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(0,255,119,0.15) 15%,
-        rgba(0,255,119,0.3) 50%,
-        rgba(0,255,119,0.15) 85%,
-        transparent 100%
-    ) !important;
-    box-shadow: 0 0 4px rgba(0,255,119,0.08) !important;
-}
-
-/* ── MENU DROPDOWN: terminal panel ── */
-[data-theme="pipboy"] .menu-dropdown {
-    background: rgba(10,10,10,0.97) !important;
-    border: 1px solid rgba(0,255,119,0.3) !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 15px rgba(0,255,119,0.06) !important;
-}
-[data-theme="pipboy"] .menu-item {
-    border-bottom: 1px solid rgba(0,255,119,0.08) !important;
-}
-[data-theme="pipboy"] .menu-item:hover {
-    background: rgba(0,255,119,0.1) !important;
-}
-
-/* ── WORN/PATINA effect on borders (irregular shadows) ── */
-[data-theme="pipboy"] .task-column,
-[data-theme="pipboy"] .sidebar,
-[data-theme="pipboy"] #app-sidebar {
-    box-shadow:
-        inset 0 0 25px rgba(0,255,119,0.015),
-        inset 1px 0 0 rgba(0,255,119,0.04),
-        inset -1px 0 0 rgba(0,0,0,0.3),
-        inset 0 1px 0 rgba(0,255,119,0.06),
-        inset 0 -1px 0 rgba(0,0,0,0.2),
-        0 0 12px rgba(0,255,119,0.04) !important;
-}
-
-/* ── Brushed metal texture via repeating gradient on sidebar header ── */
-[data-theme="pipboy"] .sidebar-header,
-[data-theme="pipboy"] .sidebar-profile {
-    background:
-        repeating-linear-gradient(
-            90deg,
-            transparent,
-            transparent 1px,
-            rgba(0,255,119,0.012) 1px,
-            rgba(0,255,119,0.012) 2px
-        ),
-        repeating-linear-gradient(
-            0deg,
-            transparent,
-            transparent 4px,
-            rgba(0,255,119,0.006) 4px,
-            rgba(0,255,119,0.006) 5px
-        ) !important;
-    border-bottom: 1px solid rgba(0,255,119,0.15) !important;
-}
-
-/* ── CRT flicker animation (subtle, 8s cycle) ── */
+/* ─── 17. FLICKER CRT ─── */
 @keyframes pipboy-flicker {
     0%, 100% { opacity: 1; }
-    91% { opacity: 1; }
     92% { opacity: 0.92; }
     93% { opacity: 1; }
     95% { opacity: 0.88; }
     96% { opacity: 1; }
-    98% { opacity: 0.95; }
-    99% { opacity: 1; }
 }
-[data-theme="pipboy"] .main-content {
-    animation: pipboy-flicker 10s infinite !important;
-}
-
-/* ── THEME SELECTOR CARD: highlight for Pip-Boy ── */
-[data-theme="pipboy"] .theme-card[data-theme="pipboy"] {
-    border: 1px solid rgba(0,255,119,0.5) !important;
-    box-shadow: 0 0 10px rgba(0,255,119,0.15) !important;
+body.theme-pipboy .main-content {
+    animation: pipboy-flicker 8s infinite !important;
 }

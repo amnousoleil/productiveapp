@@ -27,7 +27,7 @@ const RegisterModule = {
             <div class="auth-page register-page">
                 <div class="auth-card">
                     <div class="auth-logo">
-                        <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png" alt="ProductiveApp">
+                        <img src="/assets/images/logos/golden-ball.png?v=2" alt="ProductiveApp">
                     </div>
                     <h1>Creer un compte</h1>
                     <p class="auth-subtitle">Rejoignez ProductiveApp gratuitement</p>
