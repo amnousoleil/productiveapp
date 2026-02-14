@@ -91,30 +91,114 @@ var AnimationControls = (function() {
         fabEl.setAttribute('title', 'Animations');
         fabEl.setAttribute('aria-label', 'Controles d\'animation');
         fabEl.innerHTML = SVG_SPARKLE;
-        // Inject pulse animation keyframes (override CSS with higher specificity)
+        // Inject full FAB styling via CSS (theme-adaptive with color-mix)
         if (!document.getElementById('anim-fab-keyframes')) {
             var styleTag = document.createElement('style');
             styleTag.id = 'anim-fab-keyframes';
             styleTag.textContent =
-                '@keyframes acFabPulse{0%,100%{box-shadow:0 0 20px rgba(80,220,160,0.5),0 0 40px rgba(60,200,140,0.2),0 4px 14px rgba(0,0,0,0.5) !important}50%{box-shadow:0 0 30px rgba(80,220,160,0.75),0 0 60px rgba(60,200,140,0.35),0 4px 14px rgba(0,0,0,0.5) !important}}' +
+                /* Pulse glow animation */
+                '@keyframes acFabPulse{' +
+                    '0%,100%{box-shadow:' +
+                        '0 0 15px color-mix(in srgb,var(--accent) 40%,transparent),' +
+                        '0 0 30px color-mix(in srgb,var(--accent) 15%,transparent),' +
+                        '0 4px 14px rgba(0,0,0,0.5)}' +
+                    '50%{box-shadow:' +
+                        '0 0 28px color-mix(in srgb,var(--accent) 65%,transparent),' +
+                        '0 0 55px color-mix(in srgb,var(--accent) 25%,transparent),' +
+                        '0 4px 14px rgba(0,0,0,0.5)}' +
+                '}' +
+                /* Shimmer ring rotation */
+                '@keyframes acFabShimmer{' +
+                    '0%{transform:rotate(0deg)}' +
+                    '100%{transform:rotate(360deg)}' +
+                '}' +
+                /* Outer halo twinkle */
+                '@keyframes acFabTwinkle{' +
+                    '0%,100%{opacity:0.3;transform:scale(1)}' +
+                    '50%{opacity:0.8;transform:scale(1.08)}' +
+                '}' +
+                /* SVG star twinkle */
+                '@keyframes acFabStarTwinkle{' +
+                    '0%,100%{filter:drop-shadow(0 0 3px color-mix(in srgb,var(--accent) 50%,transparent))}' +
+                    '50%{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 80%,transparent))}' +
+                '}' +
+                /* --- Button base --- */
                 'button.anim-ctrl-fab{' +
+                    'position:fixed !important;' +
+                    'bottom:95px !important;right:25px !important;' +
                     'width:56px !important;height:56px !important;' +
-                    'background:radial-gradient(circle at 40% 35%,#0a4d35 0%,#063d28 40%,#021a11 100%) !important;' +
-                    'border:2px solid rgba(94,234,173,0.5) !important;' +
-                    'box-shadow:0 0 20px rgba(80,220,160,0.5),0 0 40px rgba(60,200,140,0.2),0 4px 14px rgba(0,0,0,0.5) !important;' +
+                    'border-radius:50% !important;' +
+                    'background:color-mix(in srgb,var(--accent) 12%,#080808) !important;' +
+                    'border:2px solid color-mix(in srgb,var(--accent) 45%,transparent) !important;' +
+                    'color:var(--accent) !important;' +
+                    'display:flex !important;align-items:center !important;justify-content:center !important;' +
+                    'padding:0 !important;margin:0 !important;' +
+                    'line-height:0 !important;' +
+                    'z-index:9999 !important;cursor:pointer !important;' +
+                    'overflow:visible !important;' +
+                    'transition:transform 0.3s ease,box-shadow 0.3s ease,border-color 0.3s ease,background 0.3s ease !important;' +
                     'animation:acFabPulse 2.5s ease-in-out infinite !important;' +
+                    '-webkit-tap-highlight-color:transparent;' +
                 '}' +
-                'button.anim-ctrl-fab:hover{' +
-                    'transform:scale(1.15) !important;' +
-                    'box-shadow:0 0 35px rgba(80,220,160,0.7),0 0 70px rgba(60,200,140,0.3),0 6px 20px rgba(0,0,0,0.5) !important;' +
-                    'border-color:rgba(94,234,173,0.7) !important;' +
+                /* Shimmer ring (::before) */
+                'button.anim-ctrl-fab::before{' +
+                    'content:"" !important;' +
+                    'position:absolute !important;' +
+                    'top:-4px !important;left:-4px !important;right:-4px !important;bottom:-4px !important;' +
+                    'border-radius:50% !important;' +
+                    'background:conic-gradient(' +
+                        'from 0deg,' +
+                        'transparent 0deg,' +
+                        'color-mix(in srgb,var(--accent) 30%,transparent) 45deg,' +
+                        'transparent 90deg,' +
+                        'color-mix(in srgb,var(--accent) 20%,transparent) 180deg,' +
+                        'transparent 225deg,' +
+                        'color-mix(in srgb,var(--accent) 25%,transparent) 300deg,' +
+                        'transparent 360deg' +
+                    ') !important;' +
+                    'animation:acFabShimmer 8s linear infinite !important;' +
+                    'z-index:-1 !important;' +
+                    'pointer-events:none !important;' +
                 '}' +
+                /* Outer halo ring (::after) */
+                'button.anim-ctrl-fab::after{' +
+                    'content:"" !important;' +
+                    'position:absolute !important;' +
+                    'top:-8px !important;left:-8px !important;right:-8px !important;bottom:-8px !important;' +
+                    'border-radius:50% !important;' +
+                    'border:1px solid color-mix(in srgb,var(--accent) 20%,transparent) !important;' +
+                    'background:transparent !important;' +
+                    'animation:acFabTwinkle 3s ease-in-out infinite !important;' +
+                    'pointer-events:none !important;' +
+                '}' +
+                /* SVG icon */
                 'button.anim-ctrl-fab svg{' +
                     'width:24px !important;height:24px !important;' +
-                    'filter:drop-shadow(0 0 4px rgba(94,234,173,0.6)) !important;' +
+                    'display:block !important;flex-shrink:0 !important;' +
+                    'margin:0 !important;padding:0 !important;' +
+                    'animation:acFabStarTwinkle 2s ease-in-out infinite !important;' +
+                    'transition:transform 0.3s ease !important;' +
+                '}' +
+                /* Hover - intense illumination */
+                'button.anim-ctrl-fab:hover{' +
+                    'transform:scale(1.15) !important;' +
+                    'background:color-mix(in srgb,var(--accent) 20%,#0a0a0a) !important;' +
+                    'border-color:color-mix(in srgb,var(--accent) 70%,transparent) !important;' +
+                    'box-shadow:' +
+                        '0 0 35px color-mix(in srgb,var(--accent) 65%,transparent),' +
+                        '0 0 70px color-mix(in srgb,var(--accent) 30%,transparent),' +
+                        '0 6px 20px rgba(0,0,0,0.5) !important;' +
                 '}' +
                 'button.anim-ctrl-fab:hover svg{' +
-                    'filter:drop-shadow(0 0 8px rgba(94,234,173,0.9)) !important;' +
+                    'filter:drop-shadow(0 0 10px color-mix(in srgb,var(--accent) 90%,transparent)) !important;' +
+                    'transform:scale(1.15) !important;' +
+                '}' +
+                'button.anim-ctrl-fab:hover::before{' +
+                    'animation-duration:3s !important;' +
+                '}' +
+                'button.anim-ctrl-fab:hover::after{' +
+                    'border-color:color-mix(in srgb,var(--accent) 40%,transparent) !important;' +
+                    'opacity:1 !important;' +
                 '}';
             document.head.appendChild(styleTag);
         }
