@@ -4,67 +4,11 @@
    Controles d'intensite et presets d'animation
    ================================================ */
 
-/* --- Floating Action Button --- */
-.anim-ctrl-fab {
-    position: fixed;
-    bottom: 95px;
-    right: 31px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: none;
-    border: none;
-    color: var(--accent);
-    cursor: pointer;
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    box-shadow: none;
-    transition: transform 0.3s ease;
-    overflow: visible;
-    -webkit-tap-highlight-color: transparent;
-    animation: none;
-}
-
-/* SVG centré */
-.anim-ctrl-fab svg {
-    width: 28px;
-    height: 28px;
-    display: block;
-    flex-shrink: 0;
-}
-
-.anim-ctrl-fab.panel-open svg {
-    transform: rotate(180deg);
-}
-
-/* --- Panel --- */
+/* --- FAB + Panel: REMOVED from screen (v3.0) --- */
+/* Controls moved to Settings > Animations */
+.anim-ctrl-fab,
 .anim-ctrl-panel {
-    position: fixed;
-    bottom: 147px;
-    right: 25px;
-    width: 280px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-    z-index: 9998;
-    padding: 20px;
-    opacity: 0;
-    transform: translateY(12px) scale(0.95);
-    pointer-events: none;
-    transition: opacity 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-                transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-}
-
-.anim-ctrl-panel.visible {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    pointer-events: auto;
+    display: none !important;
 }
 
 /* Panel title */
