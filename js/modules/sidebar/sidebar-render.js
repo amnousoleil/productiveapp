@@ -72,7 +72,7 @@
 
             <!-- Header -->
             <div class="sidebar-header">
-                <img src="/assets/images/logos/logo.svg"
+                <img src="/assets/images/logos/golden-ball.png"
                      alt="Logo" class="sidebar-logo" onclick="Sidebar.navigate('dashboard')"
                      onerror="this.src='/assets/images/logos/logo.png'; this.onerror=()=>{this.style.display='none'; const fallback = document.createElement('span'); fallback.textContent='👑'; fallback.style.fontSize='32px'; fallback.style.cursor='pointer'; fallback.onclick=()=>Sidebar.navigate('dashboard'); this.parentElement.appendChild(fallback);};">
                 <div class="sidebar-brand">
