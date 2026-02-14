@@ -1172,7 +1172,7 @@
     <script src="js/modules/settings/settings-styles.js?v=1700"></script>
     <script src="js/modules/settings/settings-view.js?v=2400"></script>
     <!-- Animation Controls -->
-    <script src="js/modules/animation-controls.js?v=2301"></script>
+    <script src="js/modules/animation-controls.js?v=2302"></script>
     <!-- Analytics Module -->
     <script src="js/modules/analytics/analytics-api.js?v=1700"></script>
     <script src="js/modules/analytics/analytics-charts.js?v=1700"></script>
@@ -1459,30 +1459,20 @@
     <script src="js/app-modular.js?v=2600"></script>
 
     <script>
-    // Service Worker Registration
+    // Service Worker: Kill ALL SWs directly from page (no SW file needed)
+    // This bypasses any cached sw.js that the browser might be holding
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
-            try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('✅ Service Worker registered:', registration.scope);
-
-                // Check for updates every 5 minutes
-                setInterval(() => registration.update(), 5 * 60 * 1000);
-
-                // Auto-reload when new version is available
-                registration.addEventListener('updatefound', () => {
-                    const newWorker = registration.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('🔄 New version available - reloading...');
-                            newWorker.postMessage({ type: 'SKIP_WAITING' });
-                            window.location.reload();
-                        }
-                    });
-                });
-            } catch (error) {
-                console.warn('⚠️ Service Worker registration failed:', error);
-            }
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(reg => {
+                reg.unregister().then(() => console.log('🔥 SW unregistered:', reg.scope));
+            });
+        });
+    }
+    // Also clear any SW caches directly
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+            if (names.length) console.log('🗑️ Cleared', names.length, 'SW caches');
         });
     }
 
