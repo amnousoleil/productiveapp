@@ -4,7 +4,7 @@
    Controles d'intensite et presets d'animation
    ================================================ */
 
-/* --- Floating Action Button --- */
+/* --- Floating Action Button — Cosmic Design --- */
 .anim-ctrl-fab {
     position: fixed;
     bottom: 95px;
@@ -12,44 +12,69 @@
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--accent);
+    background: radial-gradient(circle at 38% 35%, #0f2b1f 0%, #0a1f18 45%, #061412 100%);
+    border: 1px solid rgba(60, 200, 140, 0.25);
+    color: #50dca0;
     cursor: pointer;
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    box-shadow:
+        0 0 10px rgba(50, 180, 120, 0.3),
+        0 0 25px rgba(40, 150, 100, 0.12),
+        0 4px 14px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
     overflow: hidden;
     -webkit-tap-highlight-color: transparent;
 }
 
 .anim-ctrl-fab:hover {
-    transform: scale(1.08);
-    box-shadow: 0 6px 24px rgba(0,0,0,0.4);
-    background: var(--bg-tertiary);
+    transform: scale(1.14);
+    border-color: rgba(80, 220, 160, 0.45);
+    box-shadow:
+        0 0 16px rgba(60, 210, 140, 0.5),
+        0 0 40px rgba(50, 180, 120, 0.2),
+        0 0 60px rgba(40, 150, 100, 0.08),
+        0 6px 20px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.anim-ctrl-fab:hover svg {
+    filter: drop-shadow(0 0 5px rgba(80, 220, 160, 0.6));
 }
 
 .anim-ctrl-fab svg {
-    width: 22px;
-    height: 22px;
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
 }
 
 .anim-ctrl-fab.panel-open svg {
     transform: rotate(180deg);
 }
 
-/* Subtle pulse animation on the FAB */
-@keyframes animFabPulse {
-    0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
-    50% { box-shadow: 0 4px 16px rgba(0,0,0,0.3), 0 0 12px var(--accent-glow, rgba(99,102,241,0.3)); }
+/* Cosmic halo pulse */
+@keyframes animCosmicPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 10px rgba(50, 180, 120, 0.3),
+            0 0 25px rgba(40, 150, 100, 0.12),
+            0 4px 14px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    50% {
+        box-shadow:
+            0 0 14px rgba(60, 200, 140, 0.4),
+            0 0 32px rgba(50, 170, 110, 0.18),
+            0 4px 14px rgba(0, 0, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
 }
 
 .anim-ctrl-fab:not(.panel-open) {
-    animation: animFabPulse 3s ease-in-out infinite;
+    animation: animCosmicPulse 4s ease-in-out infinite;
 }
 
 /* --- Panel --- */

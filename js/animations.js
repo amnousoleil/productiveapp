@@ -605,7 +605,7 @@ AT.matrix = {
                 var fullTrailH = trailLen * spacing;
                 state.cols.push({
                     x: i * L.colW + rand(0, L.colW * 0.4),
-                    y: rand(0, H + fullTrailH),
+                    y: -(100 + Math.random() * 200),    // spawn above screen to stabilize before visible
                     speed: 35 + Math.random() * 105,
                     trail: trailLen,
                     fontSize: L.fontSize,
@@ -699,7 +699,7 @@ AT.matrix = {
             }
             // Reset off-screen columns
             if (c.y - trail * spacing > H) {
-                c.y = rand(-trail * spacing * 0.6, -50);
+                c.y = -(100 + Math.random() * 200);
                 c.speed = 35 + Math.random() * 105;
                 for (var rj = 0; rj < c.chars.length; rj++) {
                     c.chars[rj] = chars[(Math.random() * charsLen) | 0];
