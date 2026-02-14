@@ -590,63 +590,67 @@ AT.matrix = {
             { fontSize: 18, alpha: 0.80, colW: 20 }   // near
         ];
 
-        state.cols = [];
+        // Build columns grouped by fontSize (minimizes ctx.font switches)
+        var colsBySize = {};
         for (var li = 0; li < layers.length; li++) {
             var L = layers[li];
+            var key = L.fontSize;
+            if (!colsBySize[key]) colsBySize[key] = [];
             var count = Math.max(6, Math.floor(W / L.colW));
             for (var i = 0; i < count; i++) {
-                // Long trails to compensate for opaque background wipe
                 var trailLen = (80 + (Math.random() * 60)) | 0;
                 var charBuf = [];
                 for (var j = 0; j < trailLen; j++) {
                     charBuf.push(state.matrixChars[(Math.random() * charsLen) | 0]);
                 }
                 var spacing = L.fontSize + 1;
-                var fullTrailH = trailLen * spacing;
-                state.cols.push({
+                var la = L.alpha;
+                // Pre-compute fade LUT: avoid string concat per char per frame
+                var fadeLUT = [];
+                for (var fj = 0; fj < trailLen; fj++) {
+                    if (fj <= 2) {
+                        fadeLUT[fj] = null; // handled by headStyle/bodyStyle
+                    } else {
+                        var fade = (1 - fj / trailLen);
+                        fade = fade * fade * la * 0.7;
+                        fadeLUT[fj] = fade < 0.02 ? null : 'rgba(0,204,51,' + fade.toFixed(3) + ')';
+                    }
+                }
+                colsBySize[key].push({
                     x: i * L.colW + rand(0, L.colW * 0.4),
-                    y: -(100 + Math.random() * 200),    // spawn above screen to stabilize before visible
+                    y: -(100 + Math.random() * 200),
                     speed: 35 + Math.random() * 105,
                     trail: trailLen,
-                    fontSize: L.fontSize,
-                    layerAlpha: L.alpha,
+                    spacing: spacing,
+                    headStyle: 'rgba(100,230,140,' + (la * 0.95).toFixed(3) + ')',
+                    bodyStyle: 'rgba(0,204,51,' + (la * 0.80).toFixed(3) + ')',
+                    fadeLUT: fadeLUT,
                     chars: charBuf
                 });
             }
         }
+        // Create ordered groups array for render loop
+        state.colGroups = [];
+        var sizes = Object.keys(colsBySize);
+        for (var si = 0; si < sizes.length; si++) {
+            state.colGroups.push({
+                font: sizes[si] + 'px monospace',
+                cols: colsBySize[sizes[si]]
+            });
+        }
 
-        // Single-pass instant paint: black bg + all visible chars drawn directly
+        // Black canvas — columns rain down naturally from above screen
         if (ctx) {
             ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
             ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
             ctx.imageSmoothingEnabled = false;
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-            for (var ci = 0; ci < state.cols.length; ci++) {
-                var c = state.cols[ci];
-                ctx.font = c.fontSize + 'px monospace';
-                var sp = c.fontSize + 1;
-                var la = c.layerAlpha;
-                for (var j = 0; j < c.trail; j++) {
-                    var py = c.y - j * sp;
-                    if (py < -20 || py > H + 20) continue;
-                    if (j === 0) {
-                        ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
-                    } else if (j <= 2) {
-                        ctx.fillStyle = 'rgba(0,204,51,' + (la * 0.80) + ')';
-                    } else {
-                        var fade = (1 - j / c.trail);
-                        fade = fade * fade * la * 0.7;
-                        if (fade < 0.02) continue;
-                        ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
-                    }
-                    ctx.fillText(c.chars[j], c.x, py);
-                }
-            }
         }
 
-        // CRT scanlines
+        // CRT scanlines pattern (created once, cached as pattern)
         state.crtScanlines = null;
-        if (quality !== 'low') {
+        state.crtPattern = null;
+        if (quality !== 'low' && ctx) {
             var scanCvs = document.createElement('canvas');
             scanCvs.width = 4; scanCvs.height = H || 1080;
             var sctx = scanCvs.getContext('2d');
@@ -655,8 +659,8 @@ AT.matrix = {
                 sctx.fillRect(0, sy, 4, 1);
             }
             state.crtScanlines = scanCvs;
+            state.crtPattern = ctx.createPattern(scanCvs, 'repeat');
         }
-        state.crtNoiseTimer = 0;
     },
     render(dt) {
         // Near-opaque black wipe — kills ghosting, chars are crisp
@@ -670,61 +674,52 @@ AT.matrix = {
         ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 
-        for (var ci = 0; ci < state.cols.length; ci++) {
-            var c = state.cols[ci];
-            c.y += c.speed * dt;
-            ctx.font = c.fontSize + 'px monospace';
-            var trail = quality === 'low' ? Math.min(c.trail, 20) : c.trail;
-            var spacing = c.fontSize + 1;
-            var la = c.layerAlpha;
-            for (var j = 0; j < trail; j++) {
-                var cy = c.y - j * spacing;
-                if (cy < -20 || cy > H + 20) continue;
-                // Mutation: ~1.5% per visible char per frame
-                if (Math.random() < 0.015) {
-                    c.chars[j] = chars[(Math.random() * charsLen) | 0];
+        // Render by font-size groups to minimize ctx.font switches (expensive)
+        var groups = state.colGroups;
+        for (var gi = 0; gi < groups.length; gi++) {
+            var grp = groups[gi];
+            ctx.font = grp.font;
+            var cols = grp.cols;
+            for (var ci = 0; ci < cols.length; ci++) {
+                var c = cols[ci];
+                c.y += c.speed * dt;
+                var trail = quality === 'low' ? Math.min(c.trail, 20) : c.trail;
+                var spacing = c.spacing;
+                var headStyle = c.headStyle;
+                var bodyStyle = c.bodyStyle;
+                for (var j = 0; j < trail; j++) {
+                    var cy = c.y - j * spacing;
+                    if (cy < -20 || cy > H + 20) continue;
+                    // Mutation: ~1.5% per visible char per frame
+                    if (Math.random() < 0.015) {
+                        c.chars[j] = chars[(Math.random() * charsLen) | 0];
+                    }
+                    // Head bright, body with pre-cached fade LUT
+                    if (j === 0) {
+                        ctx.fillStyle = headStyle;
+                    } else if (j <= 2) {
+                        ctx.fillStyle = bodyStyle;
+                    } else {
+                        ctx.fillStyle = c.fadeLUT[j] || bodyStyle;
+                    }
+                    ctx.fillText(c.chars[j], c.x, cy);
                 }
-                // Head bright, body with quadratic fade
-                if (j === 0) {
-                    ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
-                } else if (j <= 2) {
-                    ctx.fillStyle = 'rgba(0,204,51,' + (la * 0.80) + ')';
-                } else {
-                    var fade = (1 - j / trail);
-                    fade = fade * fade * la * 0.7;
-                    if (fade < 0.02) continue;
-                    ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
-                }
-                ctx.fillText(c.chars[j], c.x, cy);
-            }
-            // Reset off-screen columns
-            if (c.y - trail * spacing > H) {
-                c.y = -(100 + Math.random() * 200);
-                c.speed = 35 + Math.random() * 105;
-                for (var rj = 0; rj < c.chars.length; rj++) {
-                    c.chars[rj] = chars[(Math.random() * charsLen) | 0];
+                // Reset off-screen columns
+                if (c.y - trail * spacing > H) {
+                    c.y = -(100 + Math.random() * 200);
+                    c.speed = 35 + Math.random() * 105;
+                    for (var rj = 0; rj < c.chars.length; rj++) {
+                        c.chars[rj] = chars[(Math.random() * charsLen) | 0];
+                    }
                 }
             }
         }
-        // CRT scanlines + noise
-        if (quality !== 'low') {
-            if (state.crtScanlines) {
-                ctx.globalAlpha = 0.25;
-                var pat = ctx.createPattern(state.crtScanlines, 'repeat');
-                if (pat) { ctx.fillStyle = pat; ctx.fillRect(0, 0, W, H); }
-                ctx.globalAlpha = 1;
-            }
-            state.crtNoiseTimer += dt;
-            if (state.crtNoiseTimer > 0.08) {
-                state.crtNoiseTimer = 0;
-                var nc = quality === 'ultra' ? 120 : 60;
-                for (var n = 0; n < nc; n++) {
-                    ctx.fillStyle = Math.random() > 0.5
-                        ? 'rgba(0,204,51,' + (Math.random() * 0.04) + ')'
-                        : 'rgba(0,0,0,' + (Math.random() * 0.08) + ')';
-                    ctx.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 1, 1);
-                }
-            }
+        // CRT scanlines (no per-frame noise — reduces micro-stutters)
+        if (quality !== 'low' && state.crtScanlines) {
+            ctx.globalAlpha = 0.2;
+            var pat = state.crtPattern;
+            if (pat) { ctx.fillStyle = pat; ctx.fillRect(0, 0, W, H); }
+            ctx.globalAlpha = 1;
         }
     }
 };

@@ -40,7 +40,10 @@ var PomodoroTimer = (function() {
         s.id = 'pomodoro-styles';
         s.textContent = [
             '.pomodoro-widget{position:fixed;bottom:155px;right:31px;z-index:9000;border-radius:20px;background:color-mix(in srgb,var(--surface,#1e1e2e) 95%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid color-mix(in srgb,var(--border,#333) 60%,transparent);box-shadow:0 8px 32px rgba(0,0,0,.25);transition:all .4s cubic-bezier(.22,1,.36,1);cursor:default;user-select:none}',
-            '.pomodoro-widget.collapsed{width:48px;height:48px;border-radius:50%;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:none;border:none;outline:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}',
+            '.pomodoro-widget.collapsed{width:48px;height:26px;border-radius:12px;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:color-mix(in srgb,var(--surface,#1e1e2e) 88%,transparent);border:none;outline:none;box-shadow:0 2px 8px rgba(0,0,0,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}',
+            '.pomodoro-widget.collapsed .pomodoro-ring-container{display:none}',
+            '.pomodoro-widget.collapsed .pomodoro-time-text{position:static;transform:none;font-size:11px;font-weight:700;color:var(--accent,#d4af37);font-variant-numeric:tabular-nums;letter-spacing:0.5px}',
+            '.pomodoro-widget.collapsed .pomodoro-session-badge{display:none}',
             '.pomodoro-widget.expanded{width:280px;padding:20px;border-radius:20px}',
             '.pomodoro-collapsed{display:flex;align-items:center;justify-content:center;position:relative;width:100%;height:100%}',
             '.pomodoro-expanded{display:none}',
