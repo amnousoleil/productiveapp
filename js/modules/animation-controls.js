@@ -91,40 +91,33 @@ var AnimationControls = (function() {
         fabEl.setAttribute('title', 'Animations');
         fabEl.setAttribute('aria-label', 'Controles d\'animation');
         fabEl.innerHTML = SVG_SPARKLE;
-        // Inject pulse animation keyframes
+        // Inject pulse animation keyframes (override CSS with higher specificity)
         if (!document.getElementById('anim-fab-keyframes')) {
             var styleTag = document.createElement('style');
             styleTag.id = 'anim-fab-keyframes';
-            styleTag.textContent = '@keyframes acFabPulse{0%,100%{box-shadow:0 0 15px rgba(80,220,160,0.45),0 0 30px rgba(60,200,140,0.15),0 4px 14px rgba(0,0,0,0.5)}50%{box-shadow:0 0 22px rgba(80,220,160,0.65),0 0 45px rgba(60,200,140,0.25),0 4px 14px rgba(0,0,0,0.5)}}';
+            styleTag.textContent =
+                '@keyframes acFabPulse{0%,100%{box-shadow:0 0 20px rgba(80,220,160,0.5),0 0 40px rgba(60,200,140,0.2),0 4px 14px rgba(0,0,0,0.5) !important}50%{box-shadow:0 0 30px rgba(80,220,160,0.75),0 0 60px rgba(60,200,140,0.35),0 4px 14px rgba(0,0,0,0.5) !important}}' +
+                'button.anim-ctrl-fab{' +
+                    'width:56px !important;height:56px !important;' +
+                    'background:radial-gradient(circle at 40% 35%,#0a4d35 0%,#063d28 40%,#021a11 100%) !important;' +
+                    'border:2px solid rgba(94,234,173,0.5) !important;' +
+                    'box-shadow:0 0 20px rgba(80,220,160,0.5),0 0 40px rgba(60,200,140,0.2),0 4px 14px rgba(0,0,0,0.5) !important;' +
+                    'animation:acFabPulse 2.5s ease-in-out infinite !important;' +
+                '}' +
+                'button.anim-ctrl-fab:hover{' +
+                    'transform:scale(1.15) !important;' +
+                    'box-shadow:0 0 35px rgba(80,220,160,0.7),0 0 70px rgba(60,200,140,0.3),0 6px 20px rgba(0,0,0,0.5) !important;' +
+                    'border-color:rgba(94,234,173,0.7) !important;' +
+                '}' +
+                'button.anim-ctrl-fab svg{' +
+                    'width:24px !important;height:24px !important;' +
+                    'filter:drop-shadow(0 0 4px rgba(94,234,173,0.6)) !important;' +
+                '}' +
+                'button.anim-ctrl-fab:hover svg{' +
+                    'filter:drop-shadow(0 0 8px rgba(94,234,173,0.9)) !important;' +
+                '}';
             document.head.appendChild(styleTag);
         }
-        var baseCss = 'position:fixed;bottom:95px;right:25px;width:48px;height:48px;border-radius:50%;' +
-            'background:radial-gradient(circle at 40% 35%,#0e3325 0%,#092118 50%,#04120e 100%);' +
-            'border:1.5px solid rgba(80,220,160,0.35);color:#5eeaad;' +
-            'display:flex;align-items:center;justify-content:center;padding:0;' +
-            'box-shadow:0 0 15px rgba(80,220,160,0.45),0 0 30px rgba(60,200,140,0.15),0 4px 14px rgba(0,0,0,0.5);' +
-            'z-index:9999;cursor:pointer;overflow:visible;' +
-            'transition:transform 0.3s ease,box-shadow 0.3s ease;' +
-            'animation:acFabPulse 3s ease-in-out infinite;';
-        fabEl.style.cssText = baseCss;
-        // SVG icon styling
-        var svgEl = fabEl.querySelector('svg');
-        if (svgEl) {
-            svgEl.style.cssText = 'width:20px;height:20px;display:block;flex-shrink:0;filter:drop-shadow(0 0 3px rgba(94,234,173,0.5));';
-        }
-        // Hover effects
-        fabEl.addEventListener('mouseenter', function() {
-            fabEl.style.transform = 'scale(1.1)';
-            fabEl.style.boxShadow = '0 0 25px rgba(80,220,160,0.65),0 0 50px rgba(60,200,140,0.25),0 6px 20px rgba(0,0,0,0.5)';
-            fabEl.style.borderColor = 'rgba(80,220,160,0.55)';
-            if (svgEl) svgEl.style.filter = 'drop-shadow(0 0 6px rgba(94,234,173,0.8))';
-        });
-        fabEl.addEventListener('mouseleave', function() {
-            fabEl.style.transform = '';
-            fabEl.style.boxShadow = '';
-            fabEl.style.borderColor = '';
-            if (svgEl) svgEl.style.filter = 'drop-shadow(0 0 3px rgba(94,234,173,0.5))';
-        });
         fabEl.addEventListener('click', function(e) {
             e.stopPropagation();
             togglePanel();
