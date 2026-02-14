@@ -3371,7 +3371,6 @@ select:focus {
 #matrix-bg {
     display: block !important;
     visibility: visible !important;
-    /* opacity controlled by JS animation engine — no !important override */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;

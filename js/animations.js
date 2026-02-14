@@ -582,19 +582,20 @@ AT.matrix = {
             '0123456789:.*<>';
         var charsLen = state.matrixChars.length;
 
-        // 3 depth layers for parallax perspective
+        // 3 depth layers for parallax
         var layers = [
-            { fontSize: 10, alpha: 0.30, colW: 8  },  // far
-            { fontSize: 14, alpha: 0.55, colW: 11 },  // mid
-            { fontSize: 18, alpha: 0.80, colW: 14 }   // near
+            { fontSize: 10, alpha: 0.30, colW: 12 },  // far
+            { fontSize: 14, alpha: 0.55, colW: 16 },  // mid
+            { fontSize: 18, alpha: 0.80, colW: 20 }   // near
         ];
 
         state.cols = [];
         for (var li = 0; li < layers.length; li++) {
             var L = layers[li];
-            var count = Math.max(8, Math.floor(W / L.colW));
+            var count = Math.max(6, Math.floor(W / L.colW));
             for (var i = 0; i < count; i++) {
-                var trailLen = (40 + (Math.random() * 50)) | 0;
+                // Long trails to compensate for opaque background wipe
+                var trailLen = (80 + (Math.random() * 60)) | 0;
                 var charBuf = [];
                 for (var j = 0; j < trailLen; j++) {
                     charBuf.push(state.matrixChars[(Math.random() * charsLen) | 0]);
@@ -602,9 +603,9 @@ AT.matrix = {
                 var spacing = L.fontSize + 1;
                 var fullTrailH = trailLen * spacing;
                 state.cols.push({
-                    x: i * L.colW + rand(0, L.colW * 0.3),
+                    x: i * L.colW + rand(0, L.colW * 0.4),
                     y: rand(0, H + fullTrailH),
-                    speed: 35 + Math.random() * 105,   // +40% → 35-140 px/s
+                    speed: 35 + Math.random() * 105,
                     trail: trailLen,
                     fontSize: L.fontSize,
                     layerAlpha: L.alpha,
@@ -613,45 +614,31 @@ AT.matrix = {
             }
         }
 
-        // Simulate 80 frames (~1.3s) so canvas is already "mature" on first paint
+        // Single-pass instant paint: black bg + all visible chars drawn directly
         if (ctx) {
             ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
             ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
             ctx.imageSmoothingEnabled = false;
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-            var simDt = 1 / 60;
-            var chars = state.matrixChars;
-            for (var frame = 0; frame < 80; frame++) {
-                // Semi-opaque black wipe each simulated frame (same as render)
-                ctx.fillStyle = 'rgba(0,0,0,0.12)';
-                ctx.fillRect(0, 0, W, H);
-                for (var ci = 0; ci < state.cols.length; ci++) {
-                    var c = state.cols[ci];
-                    c.y += c.speed * simDt;
-                    ctx.font = c.fontSize + 'px monospace';
-                    var trail = c.trail;
-                    var spacing = c.fontSize + 1;
-                    var la = c.layerAlpha;
-                    for (var j = 0; j < trail; j++) {
-                        var cy = c.y - j * spacing;
-                        if (cy < -20 || cy > H + 20) continue;
-                        if (j === 0) {
-                            ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
-                        } else if (j <= 2) {
-                            ctx.fillStyle = 'rgba(0,204,51,' + (la * (0.85 - j * 0.05)) + ')';
-                        } else {
-                            var fade = (1 - j / trail);
-                            fade = fade * fade * la * 0.6;
-                            if (fade < 0.03) continue;
-                            ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
-                        }
-                        ctx.fillText(c.chars[j], c.x, cy);
+            for (var ci = 0; ci < state.cols.length; ci++) {
+                var c = state.cols[ci];
+                ctx.font = c.fontSize + 'px monospace';
+                var sp = c.fontSize + 1;
+                var la = c.layerAlpha;
+                for (var j = 0; j < c.trail; j++) {
+                    var py = c.y - j * sp;
+                    if (py < -20 || py > H + 20) continue;
+                    if (j === 0) {
+                        ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
+                    } else if (j <= 2) {
+                        ctx.fillStyle = 'rgba(0,204,51,' + (la * 0.80) + ')';
+                    } else {
+                        var fade = (1 - j / c.trail);
+                        fade = fade * fade * la * 0.7;
+                        if (fade < 0.02) continue;
+                        ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
                     }
-                    // Reset off-screen
-                    if (c.y - trail * spacing > H) {
-                        c.y = rand(-trail * spacing * 0.6, -50);
-                        c.speed = 35 + Math.random() * 105;
-                    }
+                    ctx.fillText(c.chars[j], c.x, py);
                 }
             }
         }
@@ -671,14 +658,14 @@ AT.matrix = {
         state.crtNoiseTimer = 0;
     },
     render(dt) {
-        // Strong black wipe — prevents blur/ghosting, chars stay crisp
-        ctx.fillStyle = 'rgba(0,0,0,0.12)';
+        // Near-opaque black wipe — kills ghosting, chars are crisp
+        ctx.fillStyle = 'rgba(0,0,0,0.85)';
         ctx.fillRect(0, 0, W, H);
         var chars = state.matrixChars;
         var charsLen = chars.length;
         if (!state.cols) return;
 
-        // CRISP: force zero blur/shadow every frame
+        // Zero blur for razor-sharp characters
         ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
         ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
 
@@ -686,25 +673,25 @@ AT.matrix = {
             var c = state.cols[ci];
             c.y += c.speed * dt;
             ctx.font = c.fontSize + 'px monospace';
-            var trail = quality === 'low' ? Math.min(c.trail, 15) : c.trail;
+            var trail = quality === 'low' ? Math.min(c.trail, 20) : c.trail;
             var spacing = c.fontSize + 1;
             var la = c.layerAlpha;
             for (var j = 0; j < trail; j++) {
                 var cy = c.y - j * spacing;
                 if (cy < -20 || cy > H + 20) continue;
-                // MUTATION: ~1.5% per visible char per frame (perf-safe)
+                // Mutation: ~1.5% per visible char per frame
                 if (Math.random() < 0.015) {
                     c.chars[j] = chars[(Math.random() * charsLen) | 0];
                 }
-                // Color: #00CC33, head slightly brighter, quadratic fade
+                // Head bright, body with quadratic fade
                 if (j === 0) {
                     ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
                 } else if (j <= 2) {
-                    ctx.fillStyle = 'rgba(0,204,51,' + (la * (0.85 - j * 0.05)) + ')';
+                    ctx.fillStyle = 'rgba(0,204,51,' + (la * 0.80) + ')';
                 } else {
                     var fade = (1 - j / trail);
-                    fade = fade * fade * la * 0.6;
-                    if (fade < 0.03) continue;
+                    fade = fade * fade * la * 0.7;
+                    if (fade < 0.02) continue;
                     ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
                 }
                 ctx.fillText(c.chars[j], c.x, cy);
@@ -729,7 +716,7 @@ AT.matrix = {
             state.crtNoiseTimer += dt;
             if (state.crtNoiseTimer > 0.08) {
                 state.crtNoiseTimer = 0;
-                var nc = quality === 'ultra' ? 180 : 90;
+                var nc = quality === 'ultra' ? 120 : 60;
                 for (var n = 0; n < nc; n++) {
                     ctx.fillStyle = Math.random() > 0.5
                         ? 'rgba(0,204,51,' + (Math.random() * 0.04) + ')'
@@ -1036,7 +1023,15 @@ function initTheme() {
         // Set canvas opacity per theme, scaled by intensity
         if (canvas) {
             var baseOpacity = cfg ? cfg.a : 0.7;
-            canvas.style.opacity = String(baseOpacity * Math.max(0.05, intensityFactor));
+            var targetOpacity = String(baseOpacity * Math.max(0.05, intensityFactor));
+            // Matrix: start invisible, fade in over 2s to hide init artefacts
+            if (cfg && cfg.type === 'matrix') {
+                canvas.style.transition = 'none';
+                canvas.style.opacity = '0';
+            } else {
+                canvas.style.opacity = targetOpacity;
+            }
+            state._targetOpacity = targetOpacity;
         }
 
         if (ctx) { ctx.setTransform(canvasScale, 0, 0, canvasScale, 0, 0); ctx.clearRect(0, 0, W, H); }
@@ -1044,6 +1039,13 @@ function initTheme() {
         if (cfg) {
             const anim = AT[cfg.type];
             if (anim && anim.init) anim.init(cfg);
+            // Matrix fade-in: trigger after init so first paint is done
+            if (cfg.type === 'matrix' && canvas) {
+                setTimeout(function() {
+                    canvas.style.transition = 'opacity 2s ease-in';
+                    canvas.style.opacity = state._targetOpacity;
+                }, 50);
+            }
         }
     } catch(e) {
         console.error('Animation initTheme error (non-fatal):', e);
