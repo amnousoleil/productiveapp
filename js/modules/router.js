@@ -246,7 +246,15 @@ const ViewRouter = (function() {
                 }
                 break;
             case 'tasks':
-                // Tasks are already rendered by the existing system
+                // Initialize Tasks 2.0 Supreme if available
+                if (typeof Tasks2Supreme !== 'undefined') {
+                    Tasks2Supreme.init();
+                } else {
+                    // Fallback to classic tasks
+                    if (typeof Tasks !== 'undefined' && Tasks.render) {
+                        Tasks.render();
+                    }
+                }
                 break;
             case 'galaxy':
                 if (typeof GalaxieView !== 'undefined') {

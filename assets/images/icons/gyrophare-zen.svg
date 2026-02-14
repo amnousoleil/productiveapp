@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="gyro-grad-zen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow-zen">
+      <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Base -->
+  <rect x="10" y="24" width="12" height="6" rx="2" fill="#065F46"/>
+  <!-- Corps -->
+  <path d="M 12 10 L 12 24 L 20 24 L 20 10 Q 20 6 16 6 Q 12 6 12 10 Z" fill="url(#gyro-grad-zen)" filter="url(#glow-zen)"/>
+  <!-- Dôme -->
+  <ellipse cx="16" cy="10" rx="6" ry="4" fill="#10B981" opacity="0.6"/>
+  <ellipse cx="16" cy="10" rx="4" ry="2.5" fill="#6EE7B7" opacity="0.7"/>
+  <!-- Éclat -->
+  <circle cx="16" cy="10" r="1.5" fill="#D1FAE5"/>
+</svg>

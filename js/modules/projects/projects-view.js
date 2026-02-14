@@ -294,10 +294,19 @@ const ProjectsView = (function() {
                         <label>Description courte</label>
                         <input type="text" class="form-input" id="new-project-desc" placeholder="Ex: Application de suivi des ventes...">
                         <button class="ai-suggest-btn" onclick="ProjectsView.suggestProjectName()" id="ai-name-btn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                            </svg>
-                            Suggérer un nom avec l'IA
+                            <span class="ai-btn-icon-container">
+                                <svg class="ai-sparkle ai-sparkle-1" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
+                                </svg>
+                                <svg class="ai-sparkle ai-sparkle-2" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
+                                </svg>
+                                <svg class="ai-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M9.5 2C7.5 2 6 3.5 6 5.5C6 6.06 6.13 6.58 6.35 7.05C5.05 7.35 4 8.5 4 10C4 11.5 5.05 12.65 6.35 12.95C6.13 13.42 6 13.94 6 14.5C6 16.5 7.5 18 9.5 18C10.06 18 10.58 17.87 11.05 17.65C11.35 18.95 12.5 20 14 20C15.5 20 16.65 18.95 16.95 17.65C17.42 17.87 17.94 18 18.5 18C20.5 18 22 16.5 22 14.5C22 13.94 21.87 13.42 21.65 12.95C22.95 12.65 24 11.5 24 10C24 8.5 22.95 7.35 21.65 7.05C21.87 6.58 22 6.06 22 5.5C22 3.5 20.5 2 18.5 2C17.94 2 17.42 2.13 16.95 2.35C16.65 1.05 15.5 0 14 0C12.5 0 11.35 1.05 11.05 2.35C10.58 2.13 10.06 2 9.5 2Z"/>
+                                </svg>
+                            </span>
+                            <span class="ai-btn-text">Suggérer un nom avec l'IA</span>
+                            <span class="ai-btn-shine"></span>
                         </button>
                     </div>
                     <div class="form-group">
@@ -498,10 +507,19 @@ const ProjectsView = (function() {
             if (btn) {
                 btn.classList.remove('loading');
                 btn.innerHTML = `
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                    </svg>
-                    Suggérer un nom avec l'IA
+                    <span class="ai-btn-icon-container">
+                        <svg class="ai-sparkle ai-sparkle-1" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
+                        </svg>
+                        <svg class="ai-sparkle ai-sparkle-2" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
+                        </svg>
+                        <svg class="ai-brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M9.5 2C7.5 2 6 3.5 6 5.5C6 6.06 6.13 6.58 6.35 7.05C5.05 7.35 4 8.5 4 10C4 11.5 5.05 12.65 6.35 12.95C6.13 13.42 6 13.94 6 14.5C6 16.5 7.5 18 9.5 18C10.06 18 10.58 17.87 11.05 17.65C11.35 18.95 12.5 20 14 20C15.5 20 16.65 18.95 16.95 17.65C17.42 17.87 17.94 18 18.5 18C20.5 18 22 16.5 22 14.5C22 13.94 21.87 13.42 21.65 12.95C22.95 12.65 24 11.5 24 10C24 8.5 22.95 7.35 21.65 7.05C21.87 6.58 22 6.06 22 5.5C22 3.5 20.5 2 18.5 2C17.94 2 17.42 2.13 16.95 2.35C16.65 1.05 15.5 0 14 0C12.5 0 11.35 1.05 11.05 2.35C10.58 2.13 10.06 2 9.5 2Z"/>
+                        </svg>
+                    </span>
+                    <span class="ai-btn-text">Suggérer un nom avec l'IA</span>
+                    <span class="ai-btn-shine"></span>
                 `;
             }
         }

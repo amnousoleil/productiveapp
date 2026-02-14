@@ -14,18 +14,6 @@
     <meta name="apple-mobile-web-app-title" content="ProductiveApp">
     <link rel="apple-touch-icon" href="https://d1yei2z3i6k35z.cloudfront.net/15127401/69726e0a0f7c4_ChatGPTImage29d%C3%A9c.202514_44_011.png">
 
-    <!-- PERFORMANCE: Preload critical resources -->
-    <link rel="preload" href="css/style-base.css?v=2500" as="style">
-    <link rel="preload" href="css/style-themes.css?v=1900" as="style">
-    <link rel="preload" href="js/modules/state.js?v=2500" as="script">
-    <link rel="preload" href="js/modules/router.js?v=2500" as="script">
-    <!-- PERFORMANCE: GPU Acceleration + Ultra Fluidité -->
-    <link rel="stylesheet" href="css/performance-boost.css?v=100">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://d1yei2z3i6k35z.cloudfront.net">
-
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -48,16 +36,12 @@
     <link rel="stylesheet" href="css/dash-ai-widget.css?v=2200">
     <link rel="stylesheet" href="css/notes-editor.css?v=1700">
     <link rel="stylesheet" href="css/notes-ai.css?v=1700">
-    <link rel="stylesheet" href="css/notes-ai-classifier.css?v=5000">
-    <link rel="stylesheet" href="css/notes-graph.css?v=5000">
     <link rel="stylesheet" href="css/tasks-ai.css?v=2200">
     <link rel="stylesheet" href="css/settings.css?v=1900">
     <link rel="stylesheet" href="css/settings-health.css?v=2100">
     <link rel="stylesheet" href="css/settings-notifications.css?v=2500">
     <link rel="stylesheet" href="css/auth.css?v=1700">
     <link rel="stylesheet" href="css/gamification.css?v=1700">
-    <link rel="stylesheet" href="css/gamification-vgx.css?v=400">
-    <link rel="stylesheet" href="css/xp-feedback.css?v=500">
     <link rel="stylesheet" href="css/messaging.css?v=1700">
     <link rel="stylesheet" href="css/notifications.css?v=1700">
     <link rel="stylesheet" href="css/analytics.css?v=1700">
@@ -401,7 +385,7 @@
                 <div class="custom-select-options" id="user-filter-options"></div>
             </div>
             <button id="urgent-filter-btn" class="urgent-filter-btn" title="Organiser par priorité - Urgents en premier">
-                <img src="https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png" alt="Urgent" class="gyrophare-icon">
+                <img src="/assets/images/icons/gyrophare-off.png" alt="Urgent" class="gyrophare-icon">
                 <div class="urgent-particles"></div>
             </button>
             <!-- RECHERCHE TÂCHES -->
@@ -1113,10 +1097,9 @@
 
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
-    <script src="js/modules/config.js?v=1700"></script>
+    <script src="js/modules/config.js?v=6300"></script>
     <script src="js/modules/state.js?v=1700"></script>
     <script src="js/modules/utils.js?v=1700"></script>
-    <script src="js/modules/performance-utils.js?v=100"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
     <script src="js/modules/services/api-config.js?v=1700"></script>
@@ -1150,7 +1133,7 @@
     <script src="js/modules/notes/journal.js?v=1700"></script>
     <script src="js/modules/ai/chat-actions.js?v=1700"></script>
     <script src="js/modules/ai/chatbot.js?v=1700"></script>
-    <script src="js/modules/effects.js?v=1700"></script>
+    <script src="js/modules/effects.js?v=6300"></script>
     <script src="js/modules/reports/report.js?v=2200"></script>
     <script src="js/modules/services/backup.js?v=1700"></script>
     <script src="js/modules/sidebar/sidebar-core.js?v=3700"></script>
@@ -1171,10 +1154,6 @@
     <script src="js/modules/notes/notes-editor.js?v=1700"></script>
     <script src="js/modules/notes/notes-ai.js?v=1700"></script>
     <script src="js/modules/notes/notes-init.js?v=1700"></script>
-    <script src="js/modules/services/api-notes-graph.js?v=5000"></script>
-    <script src="js/modules/notes/notes-ai-classifier.js?v=5000"></script>
-    <script src="js/modules/notes/notes-graph-3d.js?v=5000"></script>
-    <script src="js/modules/notes/notes-graph-view.js?v=5000"></script>
     <script src="js/modules/projects/projects-view.js?v=1700"></script>
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
@@ -1225,11 +1204,6 @@
     <script src="js/modules/mail/mail-contacts.js?v=2700"></script>
     <script src="js/modules/mail/mail-view.js?v=2700"></script>
 
-    <script src="js/modules/gamification/gamification-vgx-hero.js?v=500"></script>
-    <script src="js/modules/gamification/gamification-vgx-main.js?v=400"></script>
-    <script src="js/modules/gamification/gamification-vgx-quests.js?v=400"></script>
-    <script src="js/modules/gamification/gamification-vgx-stubs.js?v=400"></script>
-    <script src="js/xp-feedback.js?v=500"></script>
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
     <script src="js/modules/gamification/gamification-api.js?v=1900"></script>

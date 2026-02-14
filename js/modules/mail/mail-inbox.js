@@ -78,20 +78,26 @@ const MailInbox = {
   },
 
   renderMailCard(mail) {
-    // Meilleur nettoyage du HTML pour le preview
+    // Nettoyage ULTRA STRICT du HTML pour preview propre
     let preview = '';
     if (mail.is_html) {
       preview = mail.body
+        .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '') // Supprimer head complet
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Supprimer styles
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Supprimer scripts
-        .replace(/<[^>]*>/g, '') // Supprimer tags
+        .replace(/<!--[\s\S]*?-->/g, '') // Supprimer commentaires HTML
+        .replace(/<[^>]*>/g, '') // Supprimer TOUS les tags HTML
         .replace(/&nbsp;/g, ' ') // Remplacer &nbsp;
-        .replace(/&[a-z]+;/gi, ' ') // Supprimer autres entités HTML
-        .replace(/\s+/g, ' ') // Normaliser espaces
+        .replace(/&[a-z0-9]+;/gi, '') // Supprimer TOUTES entités HTML
+        .replace(/\s+/g, ' ') // Normaliser espaces multiples
+        .replace(/[^\w\s\u00C0-\u024F.,!?-]/g, '') // Garder seulement lettres, chiffres, ponctuation
         .trim()
-        .substring(0, 120);
+        .substring(0, 60); // LIMITÉ à 60 caractères max
     } else {
-      preview = mail.body.trim().substring(0, 120);
+      preview = mail.body
+        .replace(/\s+/g, ' ')
+        .trim()
+        .substring(0, 60); // LIMITÉ à 60 caractères max
     }
 
     // Formater les destinataires (limite 3, puis "et X autres")

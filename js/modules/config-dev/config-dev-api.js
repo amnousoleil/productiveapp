@@ -11,11 +11,19 @@ const ConfigDevAPI = {
    */
   async getConfig() {
     try {
-      const response = await fetch('/api/v1/config/app');
+      const token = ApiTokens.getAccessToken() || localStorage.getItem('accessToken');
+      const response = await fetch('/api/v1/config/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      return await response.json();
+      const result = await response.json();
+      return result.data || result;
     } catch (error) {
       console.error('[ConfigDevAPI] getConfig error:', error);
       throw error;
@@ -34,7 +42,7 @@ const ConfigDevAPI = {
         throw new Error('Non authentifié');
       }
 
-      const response = await fetch('/api/v1/config/app', {
+      const response = await fetch('/api/v1/config/', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -71,7 +79,7 @@ const ConfigDevAPI = {
       const formData = new FormData();
       formData.append('logo', file);
 
-      const response = await fetch('/api/v1/config/app/logo', {
+      const response = await fetch('/api/v1/config/upload-logo', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

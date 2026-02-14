@@ -263,11 +263,11 @@ const Effects = {
         if (!btn) return;
 
         btn.addEventListener('click', () => {
-            const modes = ['off', 'urgent', 'normal', 'zen'];
+            const modes = ['off', 'urgent', 'important', 'normal', 'zen'];
             const currentIndex = modes.indexOf(AppState.filters.priority);
             AppState.setFilter('priority', modes[(currentIndex + 1) % modes.length]);
 
-            btn.classList.remove('active', 'mode-urgent', 'mode-normal', 'mode-zen');
+            btn.classList.remove('active', 'mode-urgent', 'mode-important', 'mode-normal', 'mode-zen');
             if (AppState.filters.priority !== 'off') {
                 btn.classList.add('active', 'mode-' + AppState.filters.priority);
             }

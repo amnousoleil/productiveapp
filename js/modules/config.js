@@ -204,10 +204,11 @@ const AppConfig = {
 
     // === IMAGES GYROPHARE ===
     GYRO_IMAGES: {
-        off: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png',
-        urgent: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa2efd9d54_gyrophare.png',
-        normal: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa8fb04267_ChatGPTImage1f%C3%A9vr.202620_25_30.png',
-        zen: 'https://d1yei2z3i6k35z.cloudfront.net/15127401/697fa94e3a225_3ced8da8-b8c7-4a26-9fd0-feb9a7715dae.png'
+        off: '/assets/images/icons/gyrophare-off.png',
+        urgent: '/assets/images/icons/gyrophare-urgent.png',
+        important: '/assets/images/icons/gyrophare-important.png',
+        normal: '/assets/images/icons/gyrophare-normal.png',
+        zen: '/assets/images/icons/gyrophare-zen.png'
     },
 
     // === TAILLES DE POLICE CHATBOT ===

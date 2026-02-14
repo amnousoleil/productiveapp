@@ -11,15 +11,15 @@
 
 /* HTML et Body: scroll naturel activé */
 html {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   scroll-behavior: smooth;
   height: 100%;
 }
 
 body {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   scroll-behavior: smooth;
   min-height: 100vh;
   /* height: auto est déjà le défaut, pas besoin de forcer */
@@ -37,8 +37,8 @@ body {
 
 /* View containers: doivent pouvoir scroller si contenu dépasse */
 .view-container {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   /* min-height du CSS original préservé */
@@ -76,8 +76,8 @@ body {
 #view-mail,
 #view-admin,
 #view-config-dev {
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }

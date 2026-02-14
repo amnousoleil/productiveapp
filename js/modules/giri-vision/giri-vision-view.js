@@ -5,7 +5,9 @@
  */
 const GiriVisionView = {
   currentMeeting: null,
-  jitsiApi: null,
+  _meetApi: null, // Private: Meet API wrapper (neutral name)
+  _connectionManager: null, // Connection manager instance
+  _eventListeners: [], // Track all event listeners for cleanup
   sessionTimer: null,
   sessionSeconds: 0,
   participantsCount: 1, // Start with 1 (current user)
@@ -117,7 +119,7 @@ const GiriVisionView = {
             </button>
           </div>
         </div>
-        <div class="gv-video-container" id="gv-jitsi-container">
+        <div class="gv-video-container" id="gv-video-frame">
           <!-- Custom GIRI VISION logo overlay -->
           <div class="gv-custom-logo">
             <span class="gv-custom-logo-icon">🎥</span>
@@ -203,14 +205,19 @@ const GiriVisionView = {
     if (mainContent) mainContent.style.display = 'block';
   },
 
-  initJitsi(roomName, userName) {
-    const container = document.getElementById('gv-jitsi-container');
+  initMeetEngine(roomName, userName) {
+    const container = document.getElementById('gv-video-frame');
     if (!container) return;
 
-    if (!window.JitsiMeetExternalAPI) {
+    if (!window.GiriMeetEngine) {
       const script = document.createElement('script');
       script.src = 'https://meet.jit.si/external_api.js';
-      script.onload = () => this.createJitsiRoom(roomName, userName, container);
+      script.onload = () => {
+        // Wrap and hide original Jitsi class
+        window.GiriMeetEngine = window.JitsiMeetExternalAPI;
+        delete window.JitsiMeetExternalAPI;
+        this.createMeetRoom(roomName, userName, container);
+      };
       script.onerror = () => {
         container.innerHTML = `
           <div class="gv-empty" style="height:100%;background:var(--bg-primary)">
@@ -222,16 +229,16 @@ const GiriVisionView = {
       };
       document.head.appendChild(script);
     } else {
-      this.createJitsiRoom(roomName, userName, container);
+      this.createMeetRoom(roomName, userName, container);
     }
   },
 
-  createJitsiRoom(roomName, userName, container) {
-    if (this.jitsiApi) {
-      this.jitsiApi.dispose();
+  createMeetRoom(roomName, userName, container) {
+    if (this._meetApi) {
+      this._meetApi.dispose();
     }
 
-    this.jitsiApi = new JitsiMeetExternalAPI('meet.jit.si', {
+    this._meetApi = new GiriMeetEngine('meet.jit.si', {
       roomName: roomName,
       parentNode: container,
       width: '100%',
@@ -266,11 +273,11 @@ const GiriVisionView = {
     });
 
     // Event listeners
-    this.jitsiApi.addEventListener('videoConferenceLeft', () => {
+    this._meetApi.addEventListener('videoConferenceLeft', () => {
       this.endMeeting();
     });
 
-    this.jitsiApi.addEventListener('participantJoined', (participant) => {
+    this._meetApi.addEventListener('participantJoined', (participant) => {
       this.participantsCount++;
       this.updateParticipantsCount();
 
@@ -279,7 +286,7 @@ const GiriVisionView = {
       }
     });
 
-    this.jitsiApi.addEventListener('participantLeft', (participant) => {
+    this._meetApi.addEventListener('participantLeft', (participant) => {
       this.participantsCount = Math.max(1, this.participantsCount - 1);
       this.updateParticipantsCount();
 
@@ -289,9 +296,9 @@ const GiriVisionView = {
     });
 
     // Get initial participant count
-    this.jitsiApi.addEventListener('videoConferenceJoined', () => {
+    this._meetApi.addEventListener('videoConferenceJoined', () => {
       setTimeout(() => {
-        this.jitsiApi.getNumberOfParticipants().then(count => {
+        this._meetApi.getNumberOfParticipants().then(count => {
           this.participantsCount = count;
           this.updateParticipantsCount();
         });
@@ -371,10 +378,10 @@ const GiriVisionView = {
       }
     }
 
-    // Dispose Jitsi
-    if (this.jitsiApi) {
-      this.jitsiApi.dispose();
-      this.jitsiApi = null;
+    // Cleanup Meet API
+    if (this._meetApi) {
+      this._meetApi.dispose();
+      this._meetApi = null;
     }
 
     // Stop timer
@@ -613,7 +620,7 @@ const GiriVisionView = {
   },
 
   async toggleRecording() {
-    if (!this.jitsiApi) return;
+    if (!this._meetApi) return;
 
     const recordBtn = document.getElementById('recording-btn');
     if (!recordBtn) return;
@@ -820,9 +827,9 @@ const GiriVisionView = {
 
   // Cleanup
   destroy() {
-    if (this.jitsiApi) {
-      this.jitsiApi.dispose();
-      this.jitsiApi = null;
+    if (this._meetApi) {
+      this._meetApi.dispose();
+      this._meetApi = null;
     }
     if (this.sessionTimer) {
       clearInterval(this.sessionTimer);

@@ -9,8 +9,22 @@ const ConfigDevView = {
   currentTab: 'branding',
 
   async render() {
-    const container = document.getElementById('view-config-dev');
-    if (!container) return;
+    console.log('[ConfigDevView] Rendering config dev interface');
+
+    let container = document.querySelector('#view-config-dev');
+    const mainContent = document.querySelector('.main-content');
+
+    if (!mainContent) {
+      console.error('[ConfigDevView] .main-content not found');
+      return;
+    }
+
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'view-config-dev';
+      container.className = 'view-container';
+      mainContent.appendChild(container);
+    }
 
     // Charger config
     try {

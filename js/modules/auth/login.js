@@ -406,6 +406,12 @@ const AuthLogin = {
         // 5. Ajouter la classe logged-in
         document.body.classList.add('logged-in');
 
+        // 5.5. Émettre l'event userLoggedIn pour animations upgrade
+        console.log('🎨 Emitting userLoggedIn event');
+        window.dispatchEvent(new CustomEvent('userLoggedIn', {
+            detail: { member, timestamp: Date.now() }
+        }));
+
         // 6. Afficher la vue tasks
         document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
         const tasksView = document.getElementById('view-tasks');

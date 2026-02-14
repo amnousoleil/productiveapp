@@ -72,83 +72,77 @@ const NotesRender = (function() {
     function renderEditor(note, toolbarHtml) {
         const isPublic = note.isPublic || false;
         const visibilityIcon = isPublic ? '&#127760;' : '&#128274;';
-        const visibilityLabel = isPublic ? 'Publique' : 'Privee';
+        const visibilityLabel = isPublic ? 'Publique' : 'Privée';
         const visibilityClass = isPublic ? 'note-public' : 'note-private';
 
         return `
-            <div class="notes-editor-header">
-                <input type="text"
-                       class="note-title-input"
-                       placeholder="Titre de la note..."
-                       value="${escapeHtml(note.title)}"
-                       oninput="NotesEditor.handleAutoSave()">
-                <div class="note-header-actions">
-                    <button class="btn btn-icon btn-secondary note-visibility-toggle ${visibilityClass}"
-                            onclick="NotesEditor.toggleVisibility('${note.id}')"
-                            title="${visibilityLabel}">
-                        ${visibilityIcon}
-                    </button>
-                    <button class="btn btn-icon btn-secondary" onclick="NotesEditor.confirmDelete('${note.id}')" title="Supprimer">
-                        ${icons.trash}
-                    </button>
+            <div class="notes-editor-wrapper">
+                <div class="notes-editor-header">
+                    <div class="note-title-wrapper">
+                        <input type="text"
+                               class="note-title-input"
+                               placeholder="✨ Titre de la note..."
+                               value="${escapeHtml(note.title)}"
+                               oninput="NotesEditor.handleAutoSave()">
+                    </div>
+                    <div class="note-header-actions">
+                        <button class="note-action-btn note-visibility-toggle ${visibilityClass}"
+                                onclick="NotesEditor.toggleVisibility('${note.id}')"
+                                title="${visibilityLabel}">
+                            ${visibilityIcon}
+                        </button>
+                        <button class="note-action-btn note-delete-btn"
+                                onclick="NotesEditor.confirmDelete('${note.id}')"
+                                title="Supprimer">
+                            ${icons.trash}
+                        </button>
+                    </div>
                 </div>
-            </div>
-            ${toolbarHtml}
-            <div class="notes-editor-content">
-                <textarea class="note-textarea"
-                          placeholder="Tapez '/' pour les commandes..."
-                          oninput="NotesEditor.handleInput(this)"
-                          onkeydown="NotesEditor.handleKeydown(event)">${escapeHtml(note.content)}</textarea>
-                ${typeof NotesAI !== 'undefined' ? NotesAI.getFabHTML() : ''}
-            </div>
-            <div class="notes-editor-footer">
-                <div class="save-indicator saved">${renderSaveIndicator('saved')}</div>
-                <div class="word-count">${countWords(note.content)} mots</div>
+                ${toolbarHtml}
+                <div class="notes-editor-content">
+                    <textarea class="note-textarea"
+                              placeholder="✍️ Commencez à écrire votre note..."
+                              oninput="NotesEditor.handleInput(this)"
+                              onkeydown="NotesEditor.handleKeydown(event)">${escapeHtml(note.content)}</textarea>
+                </div>
+                <div class="notes-editor-footer">
+                    <div class="save-indicator saved">${renderSaveIndicator('saved')}</div>
+                    <div class="word-count">${countWords(note.content)} mots</div>
+                </div>
             </div>
         `;
     }
 
     function renderLayout(notesCount) {
-        // Build project filter options
-        let projectOptions = '';
-        if (typeof AppState !== 'undefined' && AppState.projects) {
-            projectOptions = AppState.projects.map(p =>
-                `<option value="${p.id}">${p.icon || ''} ${p.name}</option>`
-            ).join('');
-        } else if (typeof AppConfig !== 'undefined' && AppConfig.DEFAULT_PROJECTS) {
-            projectOptions = AppConfig.DEFAULT_PROJECTS.map(p =>
-                `<option value="${p.id}">${p.icon || ''} ${p.name}</option>`
-            ).join('');
-        }
-
         return `
-            <div class="view-header">
-                <h1 class="view-title">
-                    <span class="view-title-icon">${icons['file-text']}</span>
-                    Notes
-                </h1>
-                <div class="view-actions">
-                    <button class="btn btn-primary" onclick="NotesEditor.createNew()">
-                        ${icons.plus} Nouvelle note
-                    </button>
-                </div>
-            </div>
-
             <div class="notes-layout">
                 <div class="notes-sidebar">
-                    <div class="notes-sidebar-header">
-                        <h3>Mes notes (${notesCount})</h3>
-                        <select class="notes-project-filter"
-                                onchange="NotesEditor.filterByProject(this.value)">
-                            <option value="">Tous les projets</option>
-                            ${projectOptions}
-                        </select>
+                    <div class="sidebar-toolbar">
+                        <div class="notes-sidebar-title">
+                            <span>✨ Notes</span>
+                            <span class="notes-count">${notesCount}</span>
+                        </div>
+                        <button class="sidebar-btn sidebar-btn-primary" onclick="NotesEditor.createNew()">
+                            ${icons.plus} Nouvelle note
+                        </button>
+                        <button class="sidebar-btn" onclick="NotesGraphView && NotesGraphView.open()" title="Vision panoramique 3D">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <circle cx="6" cy="6" r="2"/>
+                                <circle cx="18" cy="6" r="2"/>
+                                <circle cx="6" cy="18" r="2"/>
+                                <circle cx="18" cy="18" r="2"/>
+                                <line x1="12" y1="9" x2="12" y2="15"/>
+                                <line x1="9" y1="12" x2="15" y2="12"/>
+                            </svg>
+                            Vision Graph 3D
+                        </button>
                     </div>
-                    <div class="notes-search">
-                        <span class="notes-search-icon">${icons.search}</span>
+                    <div class="sidebar-search">
+                        <span class="sidebar-search-icon">${icons.search}</span>
                         <input type="text"
-                               class="notes-search-input"
-                               placeholder="Rechercher..."
+                               class="sidebar-search-input"
+                               placeholder="Rechercher dans les notes..."
                                oninput="NotesEditor.handleSearch(this.value)">
                     </div>
                     <div class="notes-list"></div>
