@@ -255,7 +255,7 @@ const TC = {
     porcelain:   { type: 'shimmer',   c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.30 },
     espresso:    { type: 'fireflies', c: ['#A87848','#C89868','#B08858'], a: 0.75 },
     // TECH
-    matrix:      { type: 'matrix',    c: ['#00FF41','#80FFB0'], a: 0.98 },
+    matrix:      { type: 'matrix',    c: ['#00CC33','#66E68C'], a: 0.98 },
     cyberpunk:   { type: 'cyberpunk', c: ['#ff00ff','#00ffff','#ff0088','#8800ff'], a: 0.97 },
     terminal:    { type: 'terminal',  c: ['#FFB000','#FFD060','#FF8800'], a: 0.97 },
     tron:        { type: 'trongrid',  c: ['#00D4FF','#40E0FF','#0080A0'], a: 0.92 },
@@ -574,83 +574,148 @@ AT.hologram = {
     }
 };
 
-// --- UNIQUE: MATRIX (Film-accurate 1999 digital rain) ---
+// --- UNIQUE: MATRIX ("I don't even see the code" — Cypher, 1999) ---
 AT.matrix = {
     init() {
-        // Dense columns like the actual film — spacing ~14px
-        const colW = 14;
-        const count = Math.max(10, Math.floor(W / colW));
-        // Extended character set: full katakana + half-width + digits + symbols
         state.matrixChars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲンヴガギグゲゴザジズゼゾダヂヅデドバビブベボパピプペポ' +
             'ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝ' +
-            '0123456789' +
-            ':.="*+-<>|¦╌';
+            '0123456789:.*<>';
+        var charsLen = state.matrixChars.length;
+
+        // 3 depth layers with different font sizes for parallax perspective
+        // layer 0 = far (small, dim), layer 1 = mid, layer 2 = near (large, bright)
+        var layers = [
+            { fontSize: 10, alpha: 0.30, colW: 8  },  // far — small, many, dim
+            { fontSize: 14, alpha: 0.55, colW: 11 },  // mid
+            { fontSize: 18, alpha: 0.80, colW: 14 }   // near — large, fewer, bright
+        ];
+
         state.cols = [];
-        for (let i = 0; i < count; i++) {
-            const depth = rand(0.4, 1);
-            const fontSize = (12 + depth * 8) | 0;
-            const trail = (15 + depth * 20) | 0;
-            // Pre-fill each column with random characters (for flickering)
-            const charBuf = [];
-            for (let j = 0; j < trail; j++) {
-                charBuf.push(state.matrixChars[(Math.random() * state.matrixChars.length) | 0]);
+        for (var li = 0; li < layers.length; li++) {
+            var L = layers[li];
+            var count = Math.max(8, Math.floor(W / L.colW));
+            for (var i = 0; i < count; i++) {
+                // Long trails: 40-90 chars (fills most of screen vertically)
+                var trailLen = (40 + (Math.random() * 50)) | 0;
+                var charBuf = [];
+                var mutTimers = [];
+                for (var j = 0; j < trailLen; j++) {
+                    charBuf.push(state.matrixChars[(Math.random() * charsLen) | 0]);
+                    mutTimers.push(Math.random() * 4);
+                }
+                var spacing = L.fontSize + 1;
+                state.cols.push({
+                    x: i * L.colW + rand(0, L.colW * 0.3),
+                    // PRE-FILL: columns already mid-fall across full screen height
+                    y: rand(-trailLen * spacing * 0.3, H + trailLen * spacing * 0.5),
+                    speed: 25 + Math.random() * 75,  // 25-100 px/s
+                    trail: trailLen,
+                    fontSize: L.fontSize,
+                    layerAlpha: L.alpha,
+                    chars: charBuf,
+                    mutTimers: mutTimers
+                });
             }
-            state.cols.push({
-                x: i * colW + rand(-2, 2),
-                y: rand(-H * 2, 0),
-                speed: 40 + depth * 260,
-                trail: trail,
-                depth: depth,
-                fontSize: fontSize,
-                chars: charBuf
-            });
         }
+
+        // Pre-render first frame: paint all visible chars onto canvas immediately
+        if (ctx) {
+            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+            noGlow();
+            for (var ci = 0; ci < state.cols.length; ci++) {
+                var c = state.cols[ci];
+                ctx.font = c.fontSize + 'px monospace';
+                var sp = c.fontSize + 1;
+                for (var pj = 0; pj < c.trail; pj++) {
+                    var py = c.y - pj * sp;
+                    if (py < -20 || py > H + 20) continue;
+                    var pFade = (1 - pj / c.trail);
+                    pFade = pFade * pFade * c.layerAlpha * 0.6;
+                    if (pFade < 0.03) continue;
+                    ctx.fillStyle = 'rgba(0,204,51,' + pFade + ')';
+                    ctx.fillText(c.chars[pj], c.x, py);
+                }
+            }
+        }
+
+        // CRT scanlines
+        state.crtScanlines = null;
+        if (quality !== 'low') {
+            var scanCvs = document.createElement('canvas');
+            scanCvs.width = 4; scanCvs.height = H || 1080;
+            var sctx = scanCvs.getContext('2d');
+            sctx.fillStyle = 'rgba(0,0,0,0.10)';
+            for (var sy = 0; sy < scanCvs.height; sy += 3) {
+                sctx.fillRect(0, sy, 4, 1);
+            }
+            state.crtScanlines = scanCvs;
+        }
+        state.crtNoiseTimer = 0;
     },
     render(dt) {
-        // Semi-transparent black fill for ghosting trail (pure black, not green-tinted)
-        ctx.fillStyle = 'rgba(0,0,0,0.05)';
+        // Slow fade — trails persist on screen
+        ctx.fillStyle = 'rgba(0,0,0,0.04)';
         ctx.fillRect(0, 0, W, H);
-        const chars = state.matrixChars;
-        const voidR = 100;
+        var chars = state.matrixChars;
+        var charsLen = chars.length;
         if (!state.cols) return;
-        for (const c of state.cols) {
+        noGlow();
+        for (var ci = 0; ci < state.cols.length; ci++) {
+            var c = state.cols[ci];
             c.y += c.speed * dt;
             ctx.font = c.fontSize + 'px monospace';
-            const trail = quality === 'low' ? Math.min(c.trail, 10) : c.trail;
-            const spacing = c.fontSize + 2;
-            for (let j = 0; j < trail; j++) {
-                const cy = c.y - j * spacing;
+            var trail = quality === 'low' ? Math.min(c.trail, 15) : c.trail;
+            var spacing = c.fontSize + 1;
+            var la = c.layerAlpha;
+            for (var j = 0; j < trail; j++) {
+                var cy = c.y - j * spacing;
                 if (cy < -20 || cy > H + 20) continue;
-                if (mouse.active && dist(c.x, cy, mouse.sx, mouse.sy) < voidR * c.depth) continue;
-                // Flickering: ~2% chance per frame each trailing char changes
-                if (j > 0 && Math.random() < 0.02) {
-                    c.chars[j] = chars[(Math.random() * chars.length) | 0];
+                // Slow mutation: each char on its own 2-6s timer
+                c.mutTimers[j] -= dt;
+                if (c.mutTimers[j] <= 0) {
+                    c.chars[j] = chars[(Math.random() * charsLen) | 0];
+                    c.mutTimers[j] = 2 + Math.random() * 4;
                 }
-                const ch = c.chars[j] || chars[(Math.random() * chars.length) | 0];
+                // Color: #00CC33 with per-layer brightness, crisp (no glow)
                 if (j === 0) {
-                    // Head character: bright white with strong green glow
-                    ctx.fillStyle = '#FFFFFF';
-                    glow(18 * c.depth, '#00FF41');
-                } else if (j === 1) {
-                    // Second char: very bright green
-                    ctx.fillStyle = '#00FF41';
-                    glow(8 * c.depth, '#00FF41');
+                    ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
+                } else if (j <= 2) {
+                    ctx.fillStyle = 'rgba(0,204,51,' + (la * (0.85 - j * 0.05)) + ')';
                 } else {
-                    // Trail: progressive fade from bright green to dark
-                    const fade = Math.max(0.02, (1 - j / trail) * c.depth);
-                    ctx.fillStyle = 'rgba(0,255,65,' + fade + ')';
-                    noGlow();
+                    var fade = (1 - j / trail);
+                    fade = fade * fade * la * 0.6;
+                    if (fade < 0.03) continue; // skip invisible chars
+                    ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
                 }
-                ctx.fillText(ch, c.x, cy);
+                ctx.fillText(c.chars[j], c.x, cy);
             }
-            noGlow();
-            // Reset column when fully off screen
-            if (c.y - trail * (c.fontSize + 2) > H) {
-                c.y = rand(-600, -50);
-                c.speed = 40 + c.depth * 260;
-                // Refresh character buffer
-                for (let j = 0; j < c.chars.length; j++) {
-                    c.chars[j] = chars[(Math.random() * chars.length) | 0];
+            // Reset off-screen columns
+            if (c.y - trail * spacing > H) {
+                c.y = rand(-trail * spacing * 0.6, -50);
+                c.speed = 25 + Math.random() * 75;
+                for (var rj = 0; rj < c.chars.length; rj++) {
+                    c.chars[rj] = chars[(Math.random() * charsLen) | 0];
+                    c.mutTimers[rj] = Math.random() * 4;
+                }
+            }
+        }
+        // CRT scanlines + noise
+        if (quality !== 'low') {
+            if (state.crtScanlines) {
+                ctx.globalAlpha = 0.25;
+                var pat = ctx.createPattern(state.crtScanlines, 'repeat');
+                if (pat) { ctx.fillStyle = pat; ctx.fillRect(0, 0, W, H); }
+                ctx.globalAlpha = 1;
+            }
+            state.crtNoiseTimer += dt;
+            if (state.crtNoiseTimer > 0.08) {
+                state.crtNoiseTimer = 0;
+                var nc = quality === 'ultra' ? 180 : 90;
+                for (var n = 0; n < nc; n++) {
+                    ctx.fillStyle = Math.random() > 0.5
+                        ? 'rgba(0,204,51,' + (Math.random() * 0.04) + ')'
+                        : 'rgba(0,0,0,' + (Math.random() * 0.08) + ')';
+                    ctx.fillRect((Math.random() * W) | 0, (Math.random() * H) | 0, 1, 1);
                 }
             }
         }

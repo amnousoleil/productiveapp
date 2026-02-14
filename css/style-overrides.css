@@ -3364,30 +3364,44 @@ select:focus {
 }
 
 /* =============================================
-   FORCE MATRIX BACKGROUND ANIMATION VISIBILITY
+   CANVAS BACKGROUND ANIMATION
    ============================================= */
 
-/* Canvas DERRIÈRE tout le contenu (z-index: -1) */
+/* Canvas behind content but visible through transparent body */
 #matrix-bg {
     display: block !important;
     visibility: visible !important;
-    opacity: 0.3 !important;
+    /* opacity controlled by JS animation engine — no !important override */
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
-    z-index: -1 !important;
+    z-index: 0 !important;
     pointer-events: none !important;
 }
 
-body, .app-container {
-    background: var(--bg-primary) !important;
+/* Body transparent so canvas shows through (gradient on html provides fallback) */
+body {
+    background: transparent !important;
 }
 
-.main-content, .view-container, #app-sidebar {
+/* App container transparent too */
+.app-container {
+    background: transparent !important;
+}
+
+/* Content above canvas, transparent background to let animation show through */
+.main-content, .view-container {
     position: relative !important;
     z-index: 1 !important;
+    background: transparent !important;
+}
+
+/* Sidebar keeps opaque background for readability */
+#app-sidebar {
+    position: relative !important;
+    z-index: 100 !important;
     background: var(--bg-primary) !important;
 }
 
