@@ -582,12 +582,11 @@ AT.matrix = {
             '0123456789:.*<>';
         var charsLen = state.matrixChars.length;
 
-        // 3 depth layers with different font sizes for parallax perspective
-        // layer 0 = far (small, dim), layer 1 = mid, layer 2 = near (large, bright)
+        // 3 depth layers for parallax perspective
         var layers = [
-            { fontSize: 10, alpha: 0.30, colW: 8  },  // far — small, many, dim
+            { fontSize: 10, alpha: 0.30, colW: 8  },  // far
             { fontSize: 14, alpha: 0.55, colW: 11 },  // mid
-            { fontSize: 18, alpha: 0.80, colW: 14 }   // near — large, fewer, bright
+            { fontSize: 18, alpha: 0.80, colW: 14 }   // near
         ];
 
         state.cols = [];
@@ -595,45 +594,64 @@ AT.matrix = {
             var L = layers[li];
             var count = Math.max(8, Math.floor(W / L.colW));
             for (var i = 0; i < count; i++) {
-                // Long trails: 40-90 chars (fills most of screen vertically)
                 var trailLen = (40 + (Math.random() * 50)) | 0;
                 var charBuf = [];
-                var mutTimers = [];
                 for (var j = 0; j < trailLen; j++) {
                     charBuf.push(state.matrixChars[(Math.random() * charsLen) | 0]);
-                    mutTimers.push(Math.random() * 4);
                 }
                 var spacing = L.fontSize + 1;
+                var fullTrailH = trailLen * spacing;
                 state.cols.push({
                     x: i * L.colW + rand(0, L.colW * 0.3),
-                    // PRE-FILL: columns already mid-fall across full screen height
-                    y: rand(-trailLen * spacing * 0.3, H + trailLen * spacing * 0.5),
-                    speed: 25 + Math.random() * 75,  // 25-100 px/s
+                    y: rand(0, H + fullTrailH),
+                    speed: 35 + Math.random() * 105,   // +40% → 35-140 px/s
                     trail: trailLen,
                     fontSize: L.fontSize,
                     layerAlpha: L.alpha,
-                    chars: charBuf,
-                    mutTimers: mutTimers
+                    chars: charBuf
                 });
             }
         }
 
-        // Pre-render first frame: paint all visible chars onto canvas immediately
+        // Simulate 80 frames (~1.3s) so canvas is already "mature" on first paint
         if (ctx) {
+            ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+            ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+            ctx.imageSmoothingEnabled = false;
             ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-            noGlow();
-            for (var ci = 0; ci < state.cols.length; ci++) {
-                var c = state.cols[ci];
-                ctx.font = c.fontSize + 'px monospace';
-                var sp = c.fontSize + 1;
-                for (var pj = 0; pj < c.trail; pj++) {
-                    var py = c.y - pj * sp;
-                    if (py < -20 || py > H + 20) continue;
-                    var pFade = (1 - pj / c.trail);
-                    pFade = pFade * pFade * c.layerAlpha * 0.6;
-                    if (pFade < 0.03) continue;
-                    ctx.fillStyle = 'rgba(0,204,51,' + pFade + ')';
-                    ctx.fillText(c.chars[pj], c.x, py);
+            var simDt = 1 / 60;
+            var chars = state.matrixChars;
+            for (var frame = 0; frame < 80; frame++) {
+                // Semi-opaque black wipe each simulated frame (same as render)
+                ctx.fillStyle = 'rgba(0,0,0,0.12)';
+                ctx.fillRect(0, 0, W, H);
+                for (var ci = 0; ci < state.cols.length; ci++) {
+                    var c = state.cols[ci];
+                    c.y += c.speed * simDt;
+                    ctx.font = c.fontSize + 'px monospace';
+                    var trail = c.trail;
+                    var spacing = c.fontSize + 1;
+                    var la = c.layerAlpha;
+                    for (var j = 0; j < trail; j++) {
+                        var cy = c.y - j * spacing;
+                        if (cy < -20 || cy > H + 20) continue;
+                        if (j === 0) {
+                            ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
+                        } else if (j <= 2) {
+                            ctx.fillStyle = 'rgba(0,204,51,' + (la * (0.85 - j * 0.05)) + ')';
+                        } else {
+                            var fade = (1 - j / trail);
+                            fade = fade * fade * la * 0.6;
+                            if (fade < 0.03) continue;
+                            ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
+                        }
+                        ctx.fillText(c.chars[j], c.x, cy);
+                    }
+                    // Reset off-screen
+                    if (c.y - trail * spacing > H) {
+                        c.y = rand(-trail * spacing * 0.6, -50);
+                        c.speed = 35 + Math.random() * 105;
+                    }
                 }
             }
         }
@@ -653,13 +671,17 @@ AT.matrix = {
         state.crtNoiseTimer = 0;
     },
     render(dt) {
-        // Slow fade — trails persist on screen
-        ctx.fillStyle = 'rgba(0,0,0,0.04)';
+        // Strong black wipe — prevents blur/ghosting, chars stay crisp
+        ctx.fillStyle = 'rgba(0,0,0,0.12)';
         ctx.fillRect(0, 0, W, H);
         var chars = state.matrixChars;
         var charsLen = chars.length;
         if (!state.cols) return;
-        noGlow();
+
+        // CRISP: force zero blur/shadow every frame
+        ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+        ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
+
         for (var ci = 0; ci < state.cols.length; ci++) {
             var c = state.cols[ci];
             c.y += c.speed * dt;
@@ -670,13 +692,11 @@ AT.matrix = {
             for (var j = 0; j < trail; j++) {
                 var cy = c.y - j * spacing;
                 if (cy < -20 || cy > H + 20) continue;
-                // Slow mutation: each char on its own 2-6s timer
-                c.mutTimers[j] -= dt;
-                if (c.mutTimers[j] <= 0) {
+                // MUTATION: ~1.5% per visible char per frame (perf-safe)
+                if (Math.random() < 0.015) {
                     c.chars[j] = chars[(Math.random() * charsLen) | 0];
-                    c.mutTimers[j] = 2 + Math.random() * 4;
                 }
-                // Color: #00CC33 with per-layer brightness, crisp (no glow)
+                // Color: #00CC33, head slightly brighter, quadratic fade
                 if (j === 0) {
                     ctx.fillStyle = 'rgba(100,230,140,' + (la * 0.95) + ')';
                 } else if (j <= 2) {
@@ -684,7 +704,7 @@ AT.matrix = {
                 } else {
                     var fade = (1 - j / trail);
                     fade = fade * fade * la * 0.6;
-                    if (fade < 0.03) continue; // skip invisible chars
+                    if (fade < 0.03) continue;
                     ctx.fillStyle = 'rgba(0,204,51,' + fade + ')';
                 }
                 ctx.fillText(c.chars[j], c.x, cy);
@@ -692,10 +712,9 @@ AT.matrix = {
             // Reset off-screen columns
             if (c.y - trail * spacing > H) {
                 c.y = rand(-trail * spacing * 0.6, -50);
-                c.speed = 25 + Math.random() * 75;
+                c.speed = 35 + Math.random() * 105;
                 for (var rj = 0; rj < c.chars.length; rj++) {
                     c.chars[rj] = chars[(Math.random() * charsLen) | 0];
-                    c.mutTimers[rj] = Math.random() * 4;
                 }
             }
         }
