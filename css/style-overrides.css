@@ -1620,8 +1620,8 @@ body .bubble.done .bubble-text {
     }
 
     .chatbot-fab img {
-        width: 38px !important;
-        height: 38px !important;
+        width: 100% !important;
+        height: 100% !important;
     }
 }
 

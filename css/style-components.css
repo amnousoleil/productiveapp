@@ -1079,9 +1079,10 @@
 }
 
 .chatbot-fab img {
-    width: 42px;
-    height: 42px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
+    object-fit: cover;
 }
 
 .chatbot-fab:hover {

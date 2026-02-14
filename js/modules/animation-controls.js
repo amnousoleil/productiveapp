@@ -31,7 +31,7 @@ var AnimationControls = (function() {
 
     // ---- SVG Icons ----
     var SVG_SPARKLE = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none">' +
-        '<path d="M12 1.5 L13.8 9.2 L21.5 12 L13.8 14.8 L12 22.5 L10.2 14.8 L2.5 12 L10.2 9.2 Z"/>' +
+        '<path d="M12 0 L12.6 10.8 L24 12 L12.6 13.2 L12 24 L11.4 13.2 L0 12 L11.4 10.8 Z"/>' +
         '</svg>';
 
     // ---- Initialization ----
@@ -99,7 +99,7 @@ var AnimationControls = (function() {
                 /* --- Button base: 60x60, no background, no halo --- */
                 'button.anim-ctrl-fab{' +
                     'position:fixed !important;' +
-                    'bottom:100px !important;right:25px !important;' +
+                    'bottom:95px !important;right:25px !important;' +
                     'width:60px !important;height:60px !important;' +
                     'border-radius:50% !important;' +
                     'background:none !important;' +
