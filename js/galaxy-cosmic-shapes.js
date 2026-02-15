@@ -44,8 +44,13 @@ const CosmicShapes = {
 };
 
 // Hit-test: is (worldX, worldY) inside node?
+// Adds tolerance so small shapes remain clickable: min 10px world-radius + 5px margin
 function hitTestNode(node, wx, wy) {
-    const dx = wx - node.x, dy = wy - node.y, r = node.radius;
+    const zoom = (CosmicState && CosmicState.camera) ? CosmicState.camera.zoom : 1;
+    const minR = 10 / zoom;       // 20px minimum hitbox (10px radius) in screen space
+    const margin = 5 / zoom;      // 5px extra margin in screen space
+    const r = Math.max(node.radius, minR) + margin;
+    const dx = wx - node.x, dy = wy - node.y;
     switch (node.shape) {
         case 'rect': return Math.abs(dx) <= r * 0.8 && Math.abs(dy) <= r * 0.6;
         case 'diamond': return (Math.abs(dx) / r + Math.abs(dy) / r) <= 1;
@@ -75,27 +80,21 @@ class ShapeInteraction {
         this.dragOffX = 0;
         this.dragOffY = 0;
         this.pendingConnFrom = null;
+        this._lastShape = 'circle';
+        // Marquee (group select)
+        this.isMarquee = false;
+        this.marqueeOrigin = null;
+        this.marqueeCurrent = null;
+        // Group drag
+        this.isDraggingGroup = false;
+        this.groupDragStart = null;
     }
 
     onMouseDown(e) {
         const tool = CosmicState.currentTool;
         const wX = CosmicState.mouse.worldX, wY = CosmicState.mouse.worldY;
 
-        if (tool === 'select') {
-            const node = getNodeAtWorld(wX, wY);
-            if (node) {
-                CosmicState.selectedNodes.clear();
-                CosmicState.selectedNodes.add(node);
-                this.isDraggingNode = true;
-                this.dragNode = node;
-                this.dragOffX = wX - node.x;
-                this.dragOffY = wY - node.y;
-                return true;
-            }
-            CosmicState.selectedNodes.clear();
-            return false;
-        }
-
+        // Hand tool: always pan
         if (tool === 'hand') {
             CosmicState.interaction.isPanning = true;
             CosmicState.interaction.dragStart = {
@@ -104,6 +103,24 @@ class ShapeInteraction {
             return true;
         }
 
+        // Marquee tool: group selection rectangle
+        if (tool === 'marquee') {
+            const node = getNodeAtWorld(wX, wY);
+            if (node && CosmicState.selectedNodes.has(node) && CosmicState.selectedNodes.size > 1) {
+                // Drag the existing group
+                this.isDraggingGroup = true;
+                this.groupDragStart = { x: wX, y: wY };
+                return true;
+            }
+            // Start marquee rectangle
+            CosmicState.selectedNodes.clear();
+            this.isMarquee = true;
+            this.marqueeOrigin = { x: wX, y: wY };
+            this.marqueeCurrent = { x: wX, y: wY };
+            return true;
+        }
+
+        // Connector tool: click nodes to link them
         if (tool === 'connector') {
             const node = getNodeAtWorld(wX, wY);
             if (!node) { this.pendingConnFrom = null; return false; }
@@ -119,18 +136,44 @@ class ShapeInteraction {
             return true;
         }
 
-        if (SHAPE_TOOLS.includes(tool)) {
-            this.isDrawing = true;
-            this.drawOrigin = { x: wX, y: wY };
-            this.drawRadius = 0;
-            this.drawShape = tool;
+        // Unified select+draw: click on node → select/drag, empty → draw
+        const node = getNodeAtWorld(wX, wY);
+        if (node) {
+            CosmicState.selectedNodes.clear();
+            CosmicState.selectedNodes.add(node);
+            if (!node.locked) {
+                this.isDraggingNode = true;
+                this.dragNode = node;
+                this.dragOffX = wX - node.x;
+                this.dragOffY = wY - node.y;
+            }
             return true;
         }
 
-        return false;
+        // Empty space: deselect and start drawing
+        CosmicState.selectedNodes.clear();
+        const shape = SHAPE_TOOLS.includes(tool) ? tool : (this._lastShape || 'circle');
+        this.isDrawing = true;
+        this.drawOrigin = { x: wX, y: wY };
+        this.drawRadius = 0;
+        this.drawShape = shape;
+        return true;
     }
 
     onMouseMove(e) {
+        if (this.isMarquee && this.marqueeOrigin) {
+            this.marqueeCurrent = { x: CosmicState.mouse.worldX, y: CosmicState.mouse.worldY };
+            return true;
+        }
+        if (this.isDraggingGroup && this.groupDragStart) {
+            const dx = CosmicState.mouse.worldX - this.groupDragStart.x;
+            const dy = CosmicState.mouse.worldY - this.groupDragStart.y;
+            for (const node of CosmicState.selectedNodes) {
+                if (!node.locked) { node.x += dx; node.y += dy; }
+            }
+            this.groupDragStart = { x: CosmicState.mouse.worldX, y: CosmicState.mouse.worldY };
+            return true;
+        }
         if (this.isDrawing && this.drawOrigin) {
             const dx = CosmicState.mouse.worldX - this.drawOrigin.x;
             const dy = CosmicState.mouse.worldY - this.drawOrigin.y;
@@ -156,6 +199,27 @@ class ShapeInteraction {
     }
 
     onMouseUp(e) {
+        if (this.isMarquee && this.marqueeOrigin) {
+            const o = this.marqueeOrigin, c = this.marqueeCurrent;
+            const x1 = Math.min(o.x, c.x), x2 = Math.max(o.x, c.x);
+            const y1 = Math.min(o.y, c.y), y2 = Math.max(o.y, c.y);
+            CosmicState.selectedNodes.clear();
+            for (const node of CosmicState.nodes) {
+                if (node.x >= x1 && node.x <= x2 && node.y >= y1 && node.y <= y2) {
+                    CosmicState.selectedNodes.add(node);
+                }
+            }
+            this.isMarquee = false;
+            this.marqueeOrigin = null;
+            this.marqueeCurrent = null;
+            return true;
+        }
+        if (this.isDraggingGroup) {
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            this.isDraggingGroup = false;
+            this.groupDragStart = null;
+            return true;
+        }
         if (this.isDrawing) {
             if (this.drawRadius >= 15) {
                 CosmicState.nodes.push({
@@ -171,6 +235,7 @@ class ShapeInteraction {
                 });
                 if (window.CosmicHistory) window.CosmicHistory.save();
             }
+            this._lastShape = this.drawShape;
             this.isDrawing = false;
             this.drawOrigin = null;
             this.drawRadius = 0;
@@ -217,8 +282,58 @@ function renderShapePreview(ctx, camera) {
     ctx.restore();
 }
 
+// Delete/Backspace: remove selected nodes (only when Galaxy View is open)
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+    if (!CosmicState || !CosmicState.canvas) return;
+    const galaxy = document.getElementById('view-galaxy');
+    if (!galaxy || !galaxy.classList.contains('active')) return;
+    // Don't intercept when typing in an input/textarea
+    const tag = document.activeElement && document.activeElement.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+    const selected = Array.from(CosmicState.selectedNodes);
+    if (selected.length === 0) return;
+
+    e.preventDefault();
+    let deleted = 0;
+    for (const node of selected) {
+        if (node.locked) continue;
+        CosmicState.connections = CosmicState.connections.filter(
+            c => c.fromId !== node.id && c.toId !== node.id
+        );
+        CosmicState.nodes = CosmicState.nodes.filter(n => n.id !== node.id);
+        CosmicState.selectedNodes.delete(node);
+        deleted++;
+    }
+    if (deleted > 0) {
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof debouncedSave === 'function') debouncedSave();
+    }
+});
+
+// Render the marquee selection rectangle
+function renderMarqueeRect(ctx, camera) {
+    const si = window.CosmicShapeInteraction;
+    if (!si || !si.isMarquee || !si.marqueeOrigin || !si.marqueeCurrent) return;
+    const { x: camX, y: camY, zoom } = camera;
+    const toSx = wx => (wx - camX) * zoom + ctx.canvas.width / 2;
+    const toSy = wy => (wy - camY) * zoom + ctx.canvas.height / 2;
+    const sx = toSx(si.marqueeOrigin.x), sy = toSy(si.marqueeOrigin.y);
+    const ex = toSx(si.marqueeCurrent.x), ey = toSy(si.marqueeCurrent.y);
+    ctx.save();
+    ctx.strokeStyle = '#60a5fa';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 4]);
+    ctx.strokeRect(sx, sy, ex - sx, ey - sy);
+    ctx.fillStyle = 'rgba(96, 165, 250, 0.08)';
+    ctx.fillRect(sx, sy, ex - sx, ey - sy);
+    ctx.restore();
+}
+
 window.CosmicShapes = CosmicShapes;
 window.CosmicShapeInteraction = new ShapeInteraction();
 window.renderShapePreview = renderShapePreview;
+window.renderMarqueeRect = renderMarqueeRect;
 
 console.log('📦 galaxy-cosmic-shapes.js loaded');

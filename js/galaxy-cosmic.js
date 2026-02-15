@@ -638,8 +638,10 @@ class CosmicRenderer {
             window.renderShapePreview(ctx, camera);
         }
 
-        // Sélection (lasso organique)
-        this.renderSelection(ctx);
+        // Marquee selection rectangle
+        if (window.renderMarqueeRect) {
+            window.renderMarqueeRect(ctx, camera);
+        }
 
         // UI Fantôme
         if (!CosmicState.prefs.zenMode) {
@@ -793,6 +795,20 @@ class CosmicRenderer {
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(node.text, 0, 0);
+            }
+
+            // Padlock icon on locked nodes
+            if (node.locked) {
+                const sz = Math.max(12, 14 * zoom);
+                const px = radius * 0.6;
+                const py = radius * 0.5;
+                ctx.font = `${sz}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillText('🔒', px + 1, py + 1);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('🔒', px, py);
             }
 
             ctx.restore();
