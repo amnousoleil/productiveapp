@@ -536,8 +536,7 @@
 }
 
 .ccp-hex-input {
-    flex: 1;
-    min-width: 0;
+    width: 70px;
     background: none;
     border: none;
     padding: 0;
