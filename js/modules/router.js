@@ -128,6 +128,12 @@ const ViewRouter = (function() {
         // Update sidebar active state
         if (typeof Sidebar !== 'undefined') {
             Sidebar.setActiveItem(viewId);
+            // Auto-collapse sidebar for Galaxy immersion, restore on leave
+            if (viewId === 'galaxy') {
+                Sidebar.collapse();
+            } else if (previousView === 'galaxy') {
+                Sidebar.expand();
+            }
         }
 
         // Update page title
