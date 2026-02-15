@@ -426,6 +426,8 @@ class CosmicToolbar {
 
         // --- Close on outside click ---
         document.addEventListener('click', (e) => {
+            // Skip if floating picker was just opened (guard window)
+            if (self._cpFloatingGuard) return;
             if (!e.target.closest('.cosmic-color-wrapper') && !e.target.closest('.cosmic-color-popup') && !e.target.closest('.cosmic-color-adv-panel')) {
                 popup.classList.remove('open');
                 advPanel.classList.remove('open');
@@ -446,6 +448,7 @@ class CosmicToolbar {
         this._cpPopup = popup;
         this._cpAdvPanel = advPanel;
         this._cpOnColorChange = null;
+        this._cpFloatingGuard = false;
     }
 
     /**
@@ -466,10 +469,10 @@ class CosmicToolbar {
         // Set callback
         this._cpOnColorChange = onPick;
 
-        // Defer to next tick so the current click event doesn't
-        // immediately close the popup via the document click handler
+        // Guard: ignore all document clicks for a short window
+        // so the popup isn't closed by stale/bubbling events
+        this._cpFloatingGuard = true;
         setTimeout(() => {
-            // Switch to fixed positioning
             popup.classList.add('floating');
             popup.style.left = x + 'px';
             popup.style.top = y + 'px';
@@ -477,9 +480,11 @@ class CosmicToolbar {
             advPanel.style.left = x + 'px';
             advPanel.style.top = (y - 280) + 'px';
 
-            // Open presets popup
             popup.classList.add('open');
-        }, 0);
+
+            // Drop the guard after all pending events have flushed
+            requestAnimationFrame(() => { this._cpFloatingGuard = false; });
+        }, 10);
     }
 
     closeFloatingColorPicker() {
@@ -680,8 +685,17 @@ class RadialMenu {
         this.lastY = y;
         this.element.style.left = x + 'px';
         this.element.style.top = y + 'px';
+        this.updateLockButton();
         this.element.classList.add('active');
         this.active = true;
+    }
+
+    updateLockButton() {
+        const locked = this.targetNode && this.targetNode.locked;
+        const lockBtn = this.element.querySelector('[data-action="lock"]');
+        if (!lockBtn) return;
+        lockBtn.textContent = locked ? '🔓' : '🔒';
+        lockBtn.title = locked ? 'Déverrouiller (Ctrl+L)' : 'Verrouiller (Ctrl+L)';
     }
 
     hide() {
@@ -690,6 +704,13 @@ class RadialMenu {
     }
 
     executeAction(action) {
+        if (action === 'lock') {
+            this.toggleLockTarget();
+            return;
+        }
+        // Block actions on locked nodes (except lock itself)
+        if (this.targetNode && this.targetNode.locked) return;
+
         if (action === 'delete') {
             this.deleteTarget();
         } else if (action === 'duplicate') {
@@ -697,6 +718,15 @@ class RadialMenu {
         } else if (action === 'color') {
             this.openColorForTarget();
         }
+    }
+
+    toggleLockTarget() {
+        const node = this.targetNode;
+        if (!node) return;
+        node.locked = !node.locked;
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof debouncedSave === 'function') debouncedSave();
+        console.log(node.locked ? '🔒 Forme verrouillée' : '🔓 Forme déverrouillée', node.id);
     }
 
     openColorForTarget() {
