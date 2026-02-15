@@ -1986,6 +1986,12 @@ body .bubble.done .bubble-text {
     background: #f5f0e8 !important;
 }
 
+/* Masquer le Pomodoro quand Galaxy View est active */
+body.galaxy-active .pomodoro-widget,
+body.galaxy-active #pomodoro-widget {
+    display: none !important;
+}
+
 /* Galaxy toolbar: toujours visible et fixée en bas */
 #view-galaxy.active .cosmic-toolbar {
     position: fixed !important;
@@ -3214,6 +3220,7 @@ select:focus {
     border: none !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
     overflow: hidden !important;
+    padding: 0 !important;
 }
 
 .fab-btn:hover {
