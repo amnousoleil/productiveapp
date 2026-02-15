@@ -681,12 +681,9 @@ class CosmicRenderer {
         const { x: camX, y: camY, zoom } = camera;
         const desert = this.background.skin === 'desert';
         const prevCol = desert ? 'rgba(120,70,20,0.6)' : 'rgba(96,165,250,0.5)';
-        // Metallic color stops per skin
-        const hi  = desert ? 'rgba(200,155,85,0.92)' : 'rgba(215,225,245,0.88)';
-        const mid = desert ? 'rgba(110,70,30,0.82)' : 'rgba(140,155,180,0.72)';
-        const lo  = desert ? 'rgba(38,22,8,0.88)'   : 'rgba(40,48,65,0.78)';
-        const dHi = desert ? 'rgba(210,165,90,0.95)' : 'rgba(230,238,255,0.95)';
-        const dLo = desert ? 'rgba(70,42,15,0.9)'    : 'rgba(70,80,105,0.85)';
+        // Metallic white tubes (both skins), fully opaque
+        const hi = '#ffffff', mid = '#b0b8c4', lo = '#5a6270';
+        const dHi = '#ffffff', dLo = '#7a8494';
         const nodeMap = {};
         CosmicState.nodes.forEach(n => { nodeMap[n.id] = n; });
 
@@ -697,8 +694,8 @@ class CosmicRenderer {
             const y1 = (from.y - camY) * zoom + ctx.canvas.height / 2;
             const x2 = (to.x - camX) * zoom + ctx.canvas.width / 2;
             const y2 = (to.y - camY) * zoom + ctx.canvas.height / 2;
-            const w1 = Math.max(3, Math.min(30, from.radius * zoom * 0.4));
-            const w2 = Math.max(3, Math.min(30, to.radius * zoom * 0.4));
+            const w1 = Math.max(1, Math.min(10, from.radius * zoom * 0.08));
+            const w2 = Math.max(1, Math.min(10, to.radius * zoom * 0.08));
             const dx = x2 - x1, dy = y2 - y1;
             const len = Math.hypot(dx, dy) || 1;
             const nx = -dy / len, ny = dx / len;

@@ -117,6 +117,14 @@ const ViewRouter = (function() {
             console.warn(`ViewRouter: conteneur ${VIEWS[viewId]} introuvable`);
         }
 
+        // Toggle galaxy-active class on body (hides Pomodoro etc.)
+        document.body.classList.toggle('galaxy-active', viewId === 'galaxy');
+
+        // Pause/resume matrix background animation for Galaxy View
+        if (window.AnimEngine) {
+            window.AnimEngine.setIntensity(viewId === 'galaxy' ? 0 : 45);
+        }
+
         // Update sidebar active state
         if (typeof Sidebar !== 'undefined') {
             Sidebar.setActiveItem(viewId);
