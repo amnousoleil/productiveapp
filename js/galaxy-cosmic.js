@@ -19,6 +19,7 @@ const CosmicState = {
     // Éléments cosmiques
     nodes: [],           // Pensées cristallisées
     connections: [],     // Flux d'énergie
+    strokes: [],         // Traits de feutre (dessin libre)
     particles: [],       // Particules cosmiques
     nebulae: [],        // Nébuleuses génératives
 
@@ -27,6 +28,7 @@ const CosmicState = {
     clipboard: null,
     currentTool: 'circle',  // circle par défaut pour dessin immédiat
     currentColor: '#60a5fa', // Couleur de dessin par défaut
+    penWidth: 4,             // Épaisseur feutre (1-20)
 
     // Transformation spatiale
     camera: {
@@ -630,6 +632,9 @@ class CosmicRenderer {
             this.renderConnections(ctx, camera, now);
         }
 
+        // Traits de feutre (dessin libre)
+        this.renderStrokes(ctx, camera);
+
         // Nœuds (pensées cristallisées)
         this.renderNodes(ctx, camera, now);
 
@@ -677,6 +682,38 @@ class CosmicRenderer {
             ctx.lineTo(ctx.canvas.width, screenY);
             ctx.stroke();
         }
+    }
+
+    renderStrokes(ctx, camera) {
+        const { x: camX, y: camY, zoom } = camera;
+        const all = CosmicState.strokes.slice();
+        // Include live stroke being drawn
+        const si = window.CosmicShapeInteraction;
+        if (si && si._penStroke && si._penStroke.points.length > 1) all.push(si._penStroke);
+        all.forEach(s => {
+            if (s.points.length < 2) return;
+            ctx.save();
+            ctx.strokeStyle = s.color;
+            ctx.lineWidth = s.width * zoom;
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath();
+            const p0 = s.points[0];
+            ctx.moveTo((p0.x - camX) * zoom + ctx.canvas.width / 2,
+                       (p0.y - camY) * zoom + ctx.canvas.height / 2);
+            for (let i = 1; i < s.points.length - 1; i++) {
+                const p = s.points[i], pn = s.points[i + 1];
+                const cx = ((p.x + pn.x) / 2 - camX) * zoom + ctx.canvas.width / 2;
+                const cy = ((p.y + pn.y) / 2 - camY) * zoom + ctx.canvas.height / 2;
+                const px = (p.x - camX) * zoom + ctx.canvas.width / 2;
+                const py = (p.y - camY) * zoom + ctx.canvas.height / 2;
+                ctx.quadraticCurveTo(px, py, cx, cy);
+            }
+            const pl = s.points[s.points.length - 1];
+            ctx.lineTo((pl.x - camX) * zoom + ctx.canvas.width / 2,
+                       (pl.y - camY) * zoom + ctx.canvas.height / 2);
+            ctx.stroke();
+            ctx.restore();
+        });
     }
 
     renderConnections(ctx, camera, time) {
@@ -790,8 +827,9 @@ class CosmicRenderer {
 
             // Texte
             if (node.text) {
-                ctx.fillStyle = '#ffffff';
-                ctx.font = `${14 * zoom}px "Segoe UI", sans-serif`;
+                const fs = (node.fontSize || 14) * zoom;
+                ctx.fillStyle = node.textColor || '#ffffff';
+                ctx.font = `${fs}px "Segoe UI", sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(node.text, 0, 0);
@@ -891,6 +929,13 @@ function setupEventListeners() {
 
     // Double-clic : Créer pensée
     canvas.addEventListener('dblclick', (e) => {
+        // Double-click on existing node → edit text
+        const node = typeof getNodeAtWorld === 'function' ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
+        if (node && window.RadialMenu) {
+            window.RadialMenu.targetNode = node;
+            window.RadialMenu.editText();
+            return;
+        }
         if (window.IntentionSystem) {
             const intent = window.IntentionSystem.detectIntent(e, CosmicState);
             if (intent) window.IntentionSystem.triggerIntent(intent);

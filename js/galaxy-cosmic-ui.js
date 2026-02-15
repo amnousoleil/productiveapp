@@ -129,6 +129,13 @@ class CosmicToolbar {
                 </svg>
             </button>
 
+            <button class="cosmic-btn" data-tool="pen" title="Feutre (P)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                    <path d="m15 5 4 4"/>
+                </svg>
+            </button>
+
             <button class="cosmic-btn" data-tool="text" title="Texte (T)">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="4 7 4 4 20 4 20 7"/>
@@ -181,15 +188,39 @@ class CosmicToolbar {
             </button>
         `;
 
+        // Pen width slider (above toolbar, shown only when pen tool is active)
+        const penSlider = document.createElement('div');
+        penSlider.className = 'cosmic-pen-slider';
+        penSlider.id = 'cosmic-pen-slider';
+        penSlider.style.display = 'none';
+        penSlider.innerHTML = `
+            <span class="pen-slider-label">1</span>
+            <input type="range" id="cosmic-pen-width" min="1" max="20" value="4" class="pen-slider-range">
+            <span class="pen-slider-label">20</span>
+        `;
+
         // Ajouter la toolbar DANS #view-galaxy, pas dans body
         const galaxyView = document.getElementById('view-galaxy');
         if (galaxyView) {
             galaxyView.appendChild(toolbar);
+            galaxyView.appendChild(penSlider);
         } else {
             console.warn('⚠️ #view-galaxy not found, toolbar not created');
             return;
         }
         this.element = toolbar;
+        this.penSlider = penSlider;
+
+        // Pen width slider event
+        const penWidthInput = penSlider.querySelector('#cosmic-pen-width');
+        penWidthInput.addEventListener('input', (e) => {
+            e.stopPropagation();
+            CosmicState.penWidth = parseInt(e.target.value);
+        });
+
+        // Don't hide toolbar when hovering pen slider
+        penSlider.addEventListener('mouseenter', () => { clearTimeout(this.hideTimer); });
+        penSlider.addEventListener('mouseleave', () => { this.scheduleHide(); });
 
         // Event listeners
         toolbar.querySelectorAll('[data-tool]').forEach(btn => {
@@ -530,11 +561,13 @@ class CosmicToolbar {
     show() {
         clearTimeout(this.hideTimer);
         this.element.classList.add('visible');
+        if (this.penSlider) this.penSlider.classList.add('visible');
         this.visible = true;
     }
 
     hide() {
         this.element.classList.remove('visible');
+        if (this.penSlider) this.penSlider.classList.remove('visible');
         this.visible = false;
     }
 
@@ -565,8 +598,13 @@ class CosmicToolbar {
             cv.className = shapes.includes(tool) ? 'tool-shape'
                 : tool === 'hand' ? 'tool-hand'
                 : tool === 'connector' ? 'tool-shape'
+                : tool === 'pen' ? 'tool-pen'
                 : tool === 'marquee' ? 'tool-shape' : '';
         }
+
+        // Show/hide pen width slider
+        const slider = document.getElementById('cosmic-pen-slider');
+        if (slider) slider.style.display = tool === 'pen' ? 'flex' : 'none';
 
         console.log('🛠️ Outil sélectionné:', tool);
     }
@@ -606,7 +644,7 @@ class RadialMenu {
             { id: 'duplicate', icon: '📋', label: 'Dupliquer', shortcut: 'Ctrl+D' },
             { id: 'delete', icon: '🗑️', label: 'Supprimer', shortcut: 'Del' },
             { id: 'copy', icon: '📄', label: 'Copier', shortcut: 'Ctrl+C' },
-            { id: 'paste', icon: '📌', label: 'Coller', shortcut: 'Ctrl+V' },
+            { id: 'text', icon: 'T', label: 'Texte', shortcut: 'T' },
             { id: 'link', icon: '🔗', label: 'Lier', shortcut: 'L' },
             { id: 'color', icon: '🎨', label: 'Couleur', shortcut: 'Alt+C' },
             { id: 'lock', icon: '🔒', label: 'Verrouiller', shortcut: 'Ctrl+L' },
@@ -641,7 +679,7 @@ class RadialMenu {
 
             btn.addEventListener('click', () => {
                 this.executeAction(item.id);
-                if (item.id !== 'color') this.hide();
+                if (item.id !== 'color' && item.id !== 'text') this.hide();
             });
 
             menu.appendChild(btn);
@@ -665,7 +703,14 @@ class RadialMenu {
             const { x: camX, y: camY, zoom } = CosmicState.camera;
             const wx = (mx - canvas.width / 2) / zoom + camX;
             const wy = (my - canvas.height / 2) / zoom + camY;
-            this.targetNode = typeof getNodeAtWorld === 'function' ? getNodeAtWorld(wx, wy) : null;
+            this.targetNode = typeof window.getNodeAtWorld === 'function' ? window.getNodeAtWorld(wx, wy) : null;
+
+            // Right-click on text → show text-specific menu
+            const textNode = typeof window.getTextNodeAtWorld === 'function' ? window.getTextNodeAtWorld(wx, wy) : null;
+            if (textNode) {
+                this.showTextMenu(e.clientX, e.clientY, textNode);
+                return;
+            }
             this.show(e.clientX, e.clientY);
         });
 
@@ -678,8 +723,9 @@ class RadialMenu {
 
         // Échap pour fermer
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.active) {
-                this.hide();
+            if (e.key === 'Escape') {
+                if (this.active) this.hide();
+                if (this._textMenu && this._textMenu.classList.contains('active')) this.hideTextMenu();
             }
         });
     }
@@ -722,6 +768,9 @@ class RadialMenu {
             this.duplicateTarget();
         } else if (action === 'color') {
             this.showColorSubmenu();
+        } else if (action === 'text') {
+            this.hide();
+            this.editText();
         }
     }
 
@@ -824,6 +873,48 @@ class RadialMenu {
         this.element.classList.remove('color-mode');
     }
 
+    editText() {
+        const node = this.targetNode;
+        if (!node) return;
+        const canvas = document.getElementById('galaxy-canvas');
+        if (!canvas) return;
+
+        // Compute screen position of node center
+        const { x: camX, y: camY, zoom } = CosmicState.camera;
+        const sx = (node.x - camX) * zoom + canvas.width / 2;
+        const sy = (node.y - camY) * zoom + canvas.height / 2;
+        const rect = canvas.getBoundingClientRect();
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = node.text || '';
+        input.placeholder = 'Texte…';
+        input.style.cssText = `
+            position:fixed; z-index:3000;
+            left:${rect.left + sx}px; top:${rect.top + sy}px;
+            transform:translate(-50%,-50%);
+            background:rgba(15,15,25,0.9); color:#e2e8f0;
+            border:1px solid rgba(96,165,250,0.5); border-radius:6px;
+            padding:6px 12px; font:${Math.max(13, 14 * zoom)}px "Segoe UI",sans-serif;
+            text-align:center; outline:none; min-width:60px; max-width:200px;
+        `;
+        document.body.appendChild(input);
+        input.focus();
+        input.select();
+
+        const commit = () => {
+            node.text = input.value.trim();
+            input.remove();
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            if (typeof debouncedSave === 'function') debouncedSave();
+        };
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); commit(); }
+            if (e.key === 'Escape') { input.remove(); }
+        });
+        input.addEventListener('blur', commit);
+    }
+
     duplicateTarget() {
         const node = this.targetNode;
         if (!node) return;
@@ -837,6 +928,8 @@ class RadialMenu {
             radius: node.radius,
             color: node.color,
             text: node.text || '',
+            fontSize: node.fontSize,
+            textColor: node.textColor,
             createdAt: Date.now()
         };
 
@@ -872,6 +965,80 @@ class RadialMenu {
 
         this.targetNode = null;
         console.log('🗑️ Forme supprimée:', node.id);
+    }
+
+    // ─── Text-specific mini menu ───
+
+    createTextMenu() {
+        const menu = document.createElement('div');
+        menu.className = 'cosmic-text-menu';
+        menu.innerHTML = `
+            <button class="text-menu-item" data-action="text-color" title="Couleur du texte">🎨</button>
+            <button class="text-menu-item text-size-btn" data-action="size-minus" title="Réduire la police">A−</button>
+            <span class="text-size-value">14</span>
+            <button class="text-menu-item text-size-btn" data-action="size-plus" title="Agrandir la police">A+</button>
+        `;
+        document.body.appendChild(menu);
+        this._textMenu = menu;
+        this._textMenuNode = null;
+
+        menu.querySelector('[data-action="text-color"]').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openTextColorPicker();
+        });
+        menu.querySelector('[data-action="size-minus"]').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.changeTextSize(-2);
+        });
+        menu.querySelector('[data-action="size-plus"]').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.changeTextSize(2);
+        });
+
+        document.addEventListener('click', (e) => {
+            if (this._textMenu && !this._textMenu.contains(e.target) && this._textMenu.classList.contains('active')) {
+                this.hideTextMenu();
+            }
+        });
+    }
+
+    showTextMenu(x, y, node) {
+        if (!this._textMenu) this.createTextMenu();
+        this._textMenuNode = node;
+        this._textMenu.style.left = x + 'px';
+        this._textMenu.style.top = y + 'px';
+        this._textMenu.querySelector('.text-size-value').textContent = node.fontSize || 14;
+        this._textMenu.classList.add('active');
+        // Hide regular radial if open
+        this.hide();
+    }
+
+    hideTextMenu() {
+        if (this._textMenu) {
+            this._textMenu.classList.remove('active');
+            this._textMenuNode = null;
+        }
+    }
+
+    changeTextSize(delta) {
+        const node = this._textMenuNode;
+        if (!node) return;
+        node.fontSize = Math.max(6, Math.min(120, (node.fontSize || 14) + delta));
+        this._textMenu.querySelector('.text-size-value').textContent = node.fontSize;
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof debouncedSave === 'function') debouncedSave();
+    }
+
+    openTextColorPicker() {
+        const node = this._textMenuNode;
+        if (!node || !window.CosmicToolbar) return;
+        const menu = this._textMenu;
+        const rect = menu.getBoundingClientRect();
+        window.CosmicToolbar.openColorPickerAt(rect.left, rect.top - 10, (color) => {
+            node.textColor = color;
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            if (typeof debouncedSave === 'function') debouncedSave();
+        });
     }
 }
 

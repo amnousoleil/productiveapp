@@ -107,6 +107,98 @@
 #galaxy-canvas.tool-shape { cursor: crosshair; }
 #galaxy-canvas.tool-hand { cursor: grab; }
 #galaxy-canvas.tool-hand:active { cursor: grabbing; }
+#galaxy-canvas.tool-pen { cursor: crosshair; }
+
+/* ── Pen width slider (floats above toolbar) ── */
+.cosmic-pen-slider {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    background: var(--cosmic-surface);
+    backdrop-filter: blur(var(--cosmic-blur));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 999;
+}
+
+.cosmic-pen-slider.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+}
+
+.pen-slider-label {
+    color: var(--cosmic-text-dim);
+    font-size: 11px;
+    font-weight: 600;
+    user-select: none;
+    min-width: 16px;
+    text-align: center;
+}
+
+.pen-slider-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 140px;
+    height: 6px;
+    background: linear-gradient(to right, rgba(96,165,250,0.15), rgba(96,165,250,0.5));
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+
+.pen-slider-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--cosmic-primary, #60a5fa);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    cursor: grab;
+    transition: transform 0.15s ease;
+}
+
+.pen-slider-range::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+.pen-slider-range::-webkit-slider-thumb:active {
+    cursor: grabbing;
+}
+
+.pen-slider-range::-moz-range-track {
+    height: 6px;
+    background: linear-gradient(to right, rgba(96,165,250,0.15), rgba(96,165,250,0.5));
+    border: none;
+    border-radius: 3px;
+}
+
+.pen-slider-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--cosmic-primary, #60a5fa);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+    cursor: grab;
+}
+
+/* Desert skin for pen slider */
+#view-galaxy[data-galaxy-skin="desert"] .cosmic-pen-slider {
+    border-color: rgba(180, 160, 130, 0.3);
+    box-shadow: 0 8px 30px rgba(140, 120, 80, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
 
 #galaxy-canvas.dragging {
     cursor: grabbing;
@@ -1121,4 +1213,62 @@ body.zen-mode #galaxy-canvas {
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 6px solid var(--cosmic-overlay);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   TEXT MINI-MENU (clic droit sur texte)
+   ═══════════════════════════════════════════════════════════════════ */
+
+.cosmic-text-menu {
+    display: none;
+    position: fixed;
+    z-index: 2500;
+    background: rgba(15, 15, 25, 0.95);
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 10px;
+    padding: 6px 8px;
+    gap: 6px;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.cosmic-text-menu.active {
+    display: flex;
+}
+
+.text-menu-item {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    padding: 0;
+}
+
+.text-menu-item:hover {
+    background: rgba(96, 165, 250, 0.2);
+}
+
+.text-menu-item.text-size-btn {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: "Segoe UI", sans-serif;
+}
+
+.text-size-value {
+    color: #60a5fa;
+    font-size: 13px;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: center;
+    font-family: "Segoe UI", sans-serif;
 }

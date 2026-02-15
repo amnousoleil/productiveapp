@@ -8,17 +8,19 @@ const CosmicHistory = (function() {
     const stack = [];   // snapshots of CosmicState.nodes
     let idx = -1;       // current position in stack
 
-    // Deep-clone nodes + connections
+    // Deep-clone nodes + connections + strokes
     function snap() {
         return JSON.parse(JSON.stringify({
             nodes: CosmicState.nodes,
-            connections: CosmicState.connections
+            connections: CosmicState.connections,
+            strokes: CosmicState.strokes || []
         }));
     }
 
     function restore(s) {
         CosmicState.nodes = JSON.parse(JSON.stringify(s.nodes));
         CosmicState.connections = JSON.parse(JSON.stringify(s.connections));
+        CosmicState.strokes = s.strokes ? JSON.parse(JSON.stringify(s.strokes)) : [];
     }
 
     // Save current state (call after every mutation)

@@ -88,11 +88,24 @@ class ShapeInteraction {
         // Group drag
         this.isDraggingGroup = false;
         this.groupDragStart = null;
+        // Freehand pen
+        this._penStroke = null;
     }
 
     onMouseDown(e) {
         const tool = CosmicState.currentTool;
         const wX = CosmicState.mouse.worldX, wY = CosmicState.mouse.worldY;
+
+        // Pen tool: start freehand stroke
+        if (tool === 'pen') {
+            this._penStroke = {
+                id: Date.now() + '_s',
+                points: [{ x: wX, y: wY }],
+                color: CosmicState.currentColor || '#60a5fa',
+                width: CosmicState.penWidth || 4
+            };
+            return true;
+        }
 
         // Hand tool: always pan
         if (tool === 'hand') {
@@ -136,12 +149,18 @@ class ShapeInteraction {
             return true;
         }
 
-        // Unified select+draw: click on node → select/drag, empty → draw
+        // Any tool: click on node → select/drag
         const node = getNodeAtWorld(wX, wY);
         if (node) {
-            CosmicState.selectedNodes.clear();
-            CosmicState.selectedNodes.add(node);
-            if (!node.locked) {
+            if (!CosmicState.selectedNodes.has(node)) {
+                CosmicState.selectedNodes.clear();
+                CosmicState.selectedNodes.add(node);
+            }
+            // Drag group if multiple selected, else single drag
+            if (CosmicState.selectedNodes.size > 1 && !node.locked) {
+                this.isDraggingGroup = true;
+                this.groupDragStart = { x: wX, y: wY };
+            } else if (!node.locked) {
                 this.isDraggingNode = true;
                 this.dragNode = node;
                 this.dragOffX = wX - node.x;
@@ -150,17 +169,28 @@ class ShapeInteraction {
             return true;
         }
 
-        // Empty space: deselect and start drawing
+        // Empty space with shape tool → draw new shape
         CosmicState.selectedNodes.clear();
-        const shape = SHAPE_TOOLS.includes(tool) ? tool : (this._lastShape || 'circle');
-        this.isDrawing = true;
-        this.drawOrigin = { x: wX, y: wY };
-        this.drawRadius = 0;
-        this.drawShape = shape;
+        if (SHAPE_TOOLS.includes(tool)) {
+            this.isDrawing = true;
+            this.drawOrigin = { x: wX, y: wY };
+            this.drawRadius = 0;
+            this.drawShape = tool;
+            return true;
+        }
+
+        // Empty space without shape tool → marquee lasso
+        this.isMarquee = true;
+        this.marqueeOrigin = { x: wX, y: wY };
+        this.marqueeCurrent = { x: wX, y: wY };
         return true;
     }
 
     onMouseMove(e) {
+        if (this._penStroke) {
+            this._penStroke.points.push({ x: CosmicState.mouse.worldX, y: CosmicState.mouse.worldY });
+            return true;
+        }
         if (this.isMarquee && this.marqueeOrigin) {
             this.marqueeCurrent = { x: CosmicState.mouse.worldX, y: CosmicState.mouse.worldY };
             return true;
@@ -199,6 +229,14 @@ class ShapeInteraction {
     }
 
     onMouseUp(e) {
+        if (this._penStroke) {
+            if (this._penStroke.points.length >= 2) {
+                CosmicState.strokes.push(this._penStroke);
+                if (window.CosmicHistory) window.CosmicHistory.save();
+            }
+            this._penStroke = null;
+            return true;
+        }
         if (this.isMarquee && this.marqueeOrigin) {
             const o = this.marqueeOrigin, c = this.marqueeCurrent;
             const x1 = Math.min(o.x, c.x), x2 = Math.max(o.x, c.x);
@@ -335,5 +373,6 @@ window.CosmicShapes = CosmicShapes;
 window.CosmicShapeInteraction = new ShapeInteraction();
 window.renderShapePreview = renderShapePreview;
 window.renderMarqueeRect = renderMarqueeRect;
+window.getNodeAtWorld = getNodeAtWorld;
 
 console.log('📦 galaxy-cosmic-shapes.js loaded');
