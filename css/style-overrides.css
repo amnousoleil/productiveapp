@@ -1964,12 +1964,12 @@ body .bubble.done .bubble-text {
     position: relative;
 }
 
-/* Galaxy View: couvrir 100% du viewport, opaque par-dessus tout */
+/* Galaxy View: couvrir le viewport à droite de la sidebar */
 #view-galaxy.active {
     position: fixed !important;
     top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
+    left: var(--sb-width-open, 260px) !important;
+    width: calc(100vw - var(--sb-width-open, 260px)) !important;
     height: 100vh !important;
     background: #030308 !important;
     z-index: 100 !important;
@@ -1978,7 +1978,21 @@ body .bubble.done .bubble-text {
     margin: 0 !important;
     max-width: none !important;
     border-radius: 0 !important;
-    transition: background-color 0.6s ease;
+    transition: background-color 0.6s ease, left 0.3s cubic-bezier(0.4,0,0.2,1), width 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Galaxy View: adjust for collapsed sidebar */
+body.sidebar-collapsed #view-galaxy.active {
+    left: var(--sb-width-closed, 64px) !important;
+    width: calc(100vw - var(--sb-width-closed, 64px)) !important;
+}
+
+/* Galaxy View: mobile — full width, no sidebar offset */
+@media (max-width: 768px) {
+    #view-galaxy.active {
+        left: 0 !important;
+        width: 100vw !important;
+    }
 }
 
 /* Galaxy View: skin désert — fond sable clair opaque */
@@ -1992,11 +2006,9 @@ body.galaxy-active #pomodoro-widget {
     display: none !important;
 }
 
-/* Galaxy toolbar: toujours visible et fixée en bas */
+/* Galaxy toolbar: toujours visible, positionnée en bas du Galaxy View */
 #view-galaxy.active .cosmic-toolbar {
-    position: fixed !important;
     bottom: 40px !important;
-    left: 50% !important;
     z-index: 200 !important;
     opacity: 1 !important;
     pointer-events: all !important;

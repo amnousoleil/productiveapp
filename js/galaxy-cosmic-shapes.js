@@ -94,6 +94,43 @@ class ShapeInteraction {
         this._altCloned = false;
     }
 
+    // Clone all selected nodes (and their inter-connections) for Alt+drag group duplication
+    _cloneSelectedGroup() {
+        const cloneMap = new Map(); // oldId → cloneNode
+        for (const n of CosmicState.selectedNodes) {
+            const clone = {
+                id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                type: n.type || 'shape',
+                shape: n.shape,
+                x: n.x, y: n.y,
+                radius: n.radius,
+                color: n.color,
+                text: n.text || '',
+                fontSize: n.fontSize,
+                textColor: n.textColor,
+                createdAt: Date.now()
+            };
+            CosmicState.nodes.push(clone);
+            cloneMap.set(n.id, clone);
+        }
+        // Clone connections between selected nodes
+        for (const conn of CosmicState.connections) {
+            if (cloneMap.has(conn.fromId) && cloneMap.has(conn.toId)) {
+                CosmicState.connections.push({
+                    id: Date.now() + '_c' + Math.random().toString(36).substr(2, 5),
+                    fromId: cloneMap.get(conn.fromId).id,
+                    toId: cloneMap.get(conn.toId).id
+                });
+            }
+        }
+        // Select only the clones — the group drag will move them
+        CosmicState.selectedNodes.clear();
+        for (const clone of cloneMap.values()) {
+            CosmicState.selectedNodes.add(clone);
+        }
+        this._altCloned = true;
+    }
+
     onMouseDown(e) {
         const tool = CosmicState.currentTool;
         const wX = CosmicState.mouse.worldX, wY = CosmicState.mouse.worldY;
@@ -122,7 +159,8 @@ class ShapeInteraction {
         if (tool === 'marquee') {
             const node = getNodeAtWorld(wX, wY);
             if (node && CosmicState.selectedNodes.has(node) && CosmicState.selectedNodes.size > 1) {
-                // Drag the existing group
+                // Alt+drag: duplicate the whole group
+                if (e.altKey) this._cloneSelectedGroup();
                 this.isDraggingGroup = true;
                 this.groupDragStart = { x: wX, y: wY };
                 return true;
@@ -160,6 +198,7 @@ class ShapeInteraction {
             }
             // Drag group if multiple selected, else single drag
             if (CosmicState.selectedNodes.size > 1 && !node.locked) {
+                if (e.altKey) this._cloneSelectedGroup();
                 this.isDraggingGroup = true;
                 this.groupDragStart = { x: wX, y: wY };
             } else if (!node.locked) {
@@ -279,6 +318,10 @@ class ShapeInteraction {
         }
         if (this.isDraggingGroup) {
             if (window.CosmicHistory) window.CosmicHistory.save();
+            if (this._altCloned) {
+                if (typeof debouncedSave === 'function') debouncedSave();
+                this._altCloned = false;
+            }
             this.isDraggingGroup = false;
             this.groupDragStart = null;
             return true;
