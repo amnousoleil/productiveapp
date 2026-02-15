@@ -466,16 +466,20 @@ class CosmicToolbar {
         // Set callback
         this._cpOnColorChange = onPick;
 
-        // Switch to fixed positioning
-        popup.classList.add('floating');
-        popup.style.left = x + 'px';
-        popup.style.top = y + 'px';
-        advPanel.classList.add('floating');
-        advPanel.style.left = x + 'px';
-        advPanel.style.top = (y - 280) + 'px';
+        // Defer to next tick so the current click event doesn't
+        // immediately close the popup via the document click handler
+        setTimeout(() => {
+            // Switch to fixed positioning
+            popup.classList.add('floating');
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+            advPanel.classList.add('floating');
+            advPanel.style.left = x + 'px';
+            advPanel.style.top = (y - 280) + 'px';
 
-        // Open presets popup
-        popup.classList.add('open');
+            // Open presets popup
+            popup.classList.add('open');
+        }, 0);
     }
 
     closeFloatingColorPicker() {
@@ -688,6 +692,8 @@ class RadialMenu {
     executeAction(action) {
         if (action === 'delete') {
             this.deleteTarget();
+        } else if (action === 'duplicate') {
+            this.duplicateTarget();
         } else if (action === 'color') {
             this.openColorForTarget();
         }
@@ -704,6 +710,31 @@ class RadialMenu {
             if (window.CosmicHistory) window.CosmicHistory.save();
             if (typeof debouncedSave === 'function') debouncedSave();
         });
+    }
+
+    duplicateTarget() {
+        const node = this.targetNode;
+        if (!node) return;
+
+        const clone = {
+            id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            type: node.type || 'shape',
+            shape: node.shape,
+            x: node.x + 30,
+            y: node.y + 30,
+            radius: node.radius,
+            color: node.color,
+            text: node.text || '',
+            createdAt: Date.now()
+        };
+
+        CosmicState.nodes.push(clone);
+        CosmicState.selectedNodes.clear();
+        CosmicState.selectedNodes.add(clone);
+
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof debouncedSave === 'function') debouncedSave();
+        console.log('📋 Forme dupliquée:', clone.id);
     }
 
     deleteTarget() {
