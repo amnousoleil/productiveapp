@@ -93,7 +93,8 @@
 
 /* Hide notification bells in Galaxy View */
 body.galaxy-active #notif-badge-container,
-body.galaxy-active .sidebar-notif-bell { display: none !important; }
+body.galaxy-active .sidebar-notif-bell,
+body.galaxy-active .notif-center-bell { display: none !important; }
 
 /* ═══════════════════════════════════════════════════════════════════
    CANVAS PRINCIPAL
