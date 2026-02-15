@@ -25,7 +25,8 @@ const CosmicState = {
     // Interaction
     selectedNodes: new Set(),
     clipboard: null,
-    currentTool: 'intention',  // intention, shape, connector, text
+    currentTool: 'circle',  // circle par défaut pour dessin immédiat
+    currentColor: '#60a5fa', // Couleur de dessin par défaut
 
     // Transformation spatiale
     camera: {
@@ -263,10 +264,7 @@ class CosmicBackground {
                 const breathY = Math.sin(t.breathPhase) * t.breathAmp;
                 const step = 6;  // px per segment — smooth enough
 
-                ctx.save();
-                // Blur proportional to thickness — misty dissolving edges
-                ctx.filter = `blur(${Math.round(t.blur + t.thickness * 0.3)}px)`;
-
+                // Build path once, stroke multiple times for soft edges (no ctx.filter)
                 const grad = ctx.createLinearGradient(t.startX, 0, t.endX, 0);
                 grad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0)`);
                 grad.addColorStop(0.12, `rgba(${cr}, ${cg}, ${cb}, ${t.opacity})`);
@@ -274,21 +272,30 @@ class CosmicBackground {
                 grad.addColorStop(0.88, `rgba(${cr}, ${cg}, ${cb}, ${t.opacity})`);
                 grad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
 
-                ctx.strokeStyle = grad;
-                ctx.lineWidth = t.thickness;
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
-                ctx.beginPath();
 
+                // Build path
+                const path = new Path2D();
                 for (let x = t.startX; x <= t.endX; x += step) {
                     const xShifted = x - t.driftOffset;
                     const wave = Math.sin(xShifted * t.waveFreq + t.wavePhase) * t.waveAmp;
                     const y = t.baseY + wave + breathY;
-                    if (x === t.startX) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
+                    if (x === t.startX) path.moveTo(x, y);
+                    else path.lineTo(x, y);
                 }
-                ctx.stroke();
-                ctx.restore();
+
+                // Multi-pass soft edges: thick faint outer + thin bright core
+                ctx.strokeStyle = grad;
+                ctx.globalAlpha = 0.3;
+                ctx.lineWidth = t.thickness * 2.5;
+                ctx.stroke(path);
+                ctx.globalAlpha = 0.5;
+                ctx.lineWidth = t.thickness * 1.4;
+                ctx.stroke(path);
+                ctx.globalAlpha = 1;
+                ctx.lineWidth = t.thickness;
+                ctx.stroke(path);
             });
         }
 
@@ -583,6 +590,10 @@ class CosmicRenderer {
     constructor() {
         this.background = new CosmicBackground();
         this.lastFrameTime = Date.now();
+        // Offscreen canvas for cached background (perf: heavy blur runs every N frames)
+        this._bgCache = document.createElement('canvas');
+        this._bgCacheCtx = this._bgCache.getContext('2d');
+        this._bgFrame = 0;
     }
 
     render() {
@@ -592,21 +603,40 @@ class CosmicRenderer {
 
         const ctx = CosmicState.ctx;
         const camera = CosmicState.camera;
+        const cw = ctx.canvas.width, ch = ctx.canvas.height;
 
-        // Clear
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        // Sync offscreen size
+        if (this._bgCache.width !== cw || this._bgCache.height !== ch) {
+            this._bgCache.width = cw;
+            this._bgCache.height = ch;
+            this._bgFrame = 0; // force re-render on resize
+        }
 
-        // Fond cosmique
-        this.background.render(ctx, camera, deltaTime);
+        // Freeze background completely during shape drawing (perf)
+        const isDrawing = window.CosmicShapeInteraction &&
+            (window.CosmicShapeInteraction.isDrawing || window.CosmicShapeInteraction.isDraggingNode);
+        if (!isDrawing && this._bgFrame % 4 === 0) {
+            this.background.render(this._bgCacheCtx, camera, deltaTime);
+        }
+        this._bgFrame++;
 
-        // Grille subtile (optionnelle)
-        this.renderGrid(ctx, camera);
+        // Blit cached background
+        ctx.clearRect(0, 0, cw, ch);
+        ctx.drawImage(this._bgCache, 0, 0);
 
-        // Connexions (flux d'énergie)
-        this.renderConnections(ctx, camera, now);
+        // Skip grid + connections during active drawing (perf)
+        if (!isDrawing) {
+            this.renderGrid(ctx, camera);
+            this.renderConnections(ctx, camera, now);
+        }
 
         // Nœuds (pensées cristallisées)
         this.renderNodes(ctx, camera, now);
+
+        // Preview forme en cours de dessin
+        if (window.renderShapePreview) {
+            window.renderShapePreview(ctx, camera);
+        }
 
         // Sélection (lasso organique)
         this.renderSelection(ctx);
@@ -648,7 +678,69 @@ class CosmicRenderer {
     }
 
     renderConnections(ctx, camera, time) {
-        // TODO: Connexions avec courbes Bézier et animation de flux
+        const { x: camX, y: camY, zoom } = camera;
+        const desert = this.background.skin === 'desert';
+        const prevCol = desert ? 'rgba(120,70,20,0.6)' : 'rgba(96,165,250,0.5)';
+        // Metallic color stops per skin
+        const hi  = desert ? 'rgba(200,155,85,0.92)' : 'rgba(215,225,245,0.88)';
+        const mid = desert ? 'rgba(110,70,30,0.82)' : 'rgba(140,155,180,0.72)';
+        const lo  = desert ? 'rgba(38,22,8,0.88)'   : 'rgba(40,48,65,0.78)';
+        const dHi = desert ? 'rgba(210,165,90,0.95)' : 'rgba(230,238,255,0.95)';
+        const dLo = desert ? 'rgba(70,42,15,0.9)'    : 'rgba(70,80,105,0.85)';
+        const nodeMap = {};
+        CosmicState.nodes.forEach(n => { nodeMap[n.id] = n; });
+
+        CosmicState.connections.forEach(conn => {
+            const from = nodeMap[conn.fromId], to = nodeMap[conn.toId];
+            if (!from || !to) return;
+            const x1 = (from.x - camX) * zoom + ctx.canvas.width / 2;
+            const y1 = (from.y - camY) * zoom + ctx.canvas.height / 2;
+            const x2 = (to.x - camX) * zoom + ctx.canvas.width / 2;
+            const y2 = (to.y - camY) * zoom + ctx.canvas.height / 2;
+            const w1 = Math.max(3, Math.min(30, from.radius * zoom * 0.4));
+            const w2 = Math.max(3, Math.min(30, to.radius * zoom * 0.4));
+            const dx = x2 - x1, dy = y2 - y1;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len, ny = dx / len;
+            // Trapezoid path
+            ctx.beginPath();
+            ctx.moveTo(x1 + nx * w1, y1 + ny * w1);
+            ctx.lineTo(x2 + nx * w2, y2 + ny * w2);
+            ctx.lineTo(x2 - nx * w2, y2 - ny * w2);
+            ctx.lineTo(x1 - nx * w1, y1 - ny * w1);
+            ctx.closePath();
+            // Metallic gradient perpendicular to tube, light from top
+            const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+            const gw = Math.max(w1, w2);
+            const s = ny <= 0 ? 1 : -1; // +normal faces up when ny<=0
+            const grad = ctx.createLinearGradient(
+                mx + nx * gw * s, my + ny * gw * s,
+                mx - nx * gw * s, my - ny * gw * s
+            );
+            grad.addColorStop(0, hi); grad.addColorStop(0.4, mid);
+            grad.addColorStop(0.7, mid); grad.addColorStop(1, lo);
+            ctx.fillStyle = grad; ctx.fill();
+            // Metallic rivet dots (radial gradient)
+            [[ x1, y1, w1 ], [ x2, y2, w2 ]].forEach(([cx, cy, w]) => {
+                const r = w + 1;
+                const dg = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 0, cx, cy, r);
+                dg.addColorStop(0, dHi); dg.addColorStop(1, dLo);
+                ctx.fillStyle = dg;
+                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
+            });
+        });
+
+        // Preview line from pending connector to mouse
+        const si = window.CosmicShapeInteraction;
+        if (si && si.pendingConnFrom && CosmicState.currentTool === 'connector') {
+            const from = si.pendingConnFrom;
+            const fx = (from.x - camX) * zoom + ctx.canvas.width / 2;
+            const fy = (from.y - camY) * zoom + ctx.canvas.height / 2;
+            ctx.beginPath(); ctx.moveTo(fx, fy);
+            ctx.lineTo(CosmicState.mouse.x, CosmicState.mouse.y);
+            ctx.strokeStyle = prevCol; ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]); ctx.stroke(); ctx.setLineDash([]);
+        }
     }
 
     renderNodes(ctx, camera, time) {
@@ -669,29 +761,31 @@ class CosmicRenderer {
             ctx.save();
             ctx.translate(screenX, screenY);
 
-            // Breathing
-            const breathScale = LifeAnimations.renderBreathing(ctx, node, time);
-            ctx.scale(breathScale, breathScale);
-
-            // Float
-            const float = LifeAnimations.renderFloat(ctx, node, time);
-            ctx.translate(float.x, float.y);
-
-            // Glow
-            const glowIntensity = LifeAnimations.renderGlow(ctx, node, time);
-
-            // Dessiner la forme
+            // Dessiner la forme — flat fill + simple stroke, no effects
             const radius = node.radius * zoom;
 
-            if (node.shape === 'circle') {
+            const pathFn = window.CosmicShapes && window.CosmicShapes[node.shape];
+            if (pathFn) {
+                pathFn(ctx, radius);
                 ctx.fillStyle = node.color;
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                if (CosmicState.selectedNodes.has(node)) {
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([6, 3]);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            } else {
                 ctx.beginPath();
                 ctx.arc(0, 0, radius, 0, Math.PI * 2);
+                ctx.fillStyle = node.color;
                 ctx.fill();
-
-                // Contour
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1;
                 ctx.stroke();
             }
 
@@ -721,10 +815,17 @@ class CosmicRenderer {
 // INITIALISATION
 // ═══════════════════════════════════════════════════════════════════
 
+let _cosmicInitialized = false;
+
 function initGalaxyCosmic() {
+    // Guard: never init twice (prevents duplicate render loops + event listeners)
+    if (_cosmicInitialized) {
+        console.log('🌌 Galaxy Cosmic already initialized, skipping');
+        return;
+    }
+
     console.log('🌌 Galaxy Cosmic v3.0 - Initialisation...');
 
-    // Canvas principal
     const canvas = document.getElementById('galaxy-canvas');
     if (!canvas) {
         console.error('Canvas #galaxy-canvas introuvable');
@@ -736,28 +837,23 @@ function initGalaxyCosmic() {
 
     CosmicState.canvas = canvas;
     CosmicState.ctx = canvas.getContext('2d');
-
-    // Position initiale caméra (centré)
     CosmicState.camera.x = 0;
     CosmicState.camera.y = 0;
 
-    // Event listeners
     setupEventListeners();
 
-    // Démarrer le rendu
     const renderer = new CosmicRenderer();
     renderer.render();
-
-    // Appliquer le skin sauvegardé
     renderer.background.setSkin(renderer.background.skin);
-
-    // Exposer le renderer pour le skin toggle
     window.GalaxyCosmic._renderer = renderer;
-
-    // Système d'intentions
     window.IntentionSystem = new IntentionSystem();
 
-    console.log('✨ Galaxy Cosmic initialisée - L\'univers vivant vous attend');
+    // Pause matrix background animation while Galaxy View is open
+    if (window.AnimEngine) window.AnimEngine.setIntensity(0);
+
+    _cosmicInitialized = true;
+    if (window.CosmicHistory) window.CosmicHistory.save(); // initial snapshot
+    console.log('✨ Galaxy Cosmic initialisée');
 }
 
 function setupEventListeners() {
@@ -774,6 +870,7 @@ function setupEventListeners() {
         CosmicState.mouse.worldX = (CosmicState.mouse.x - canvas.width / 2) / zoom + camX;
         CosmicState.mouse.worldY = (CosmicState.mouse.y - canvas.height / 2) / zoom + camY;
 
+        if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseMove(e)) return;
         if (window.IntentionSystem) {
             window.IntentionSystem.detectIntent(e, CosmicState);
         }
@@ -789,9 +886,18 @@ function setupEventListeners() {
 
     // Mouse down/up
     canvas.addEventListener('mousedown', (e) => {
+        // Update coords so drawOrigin is fresh on first click
+        const rect = canvas.getBoundingClientRect();
+        CosmicState.mouse.x = e.clientX - rect.left;
+        CosmicState.mouse.y = e.clientY - rect.top;
+        const { x: camX, y: camY, zoom } = CosmicState.camera;
+        CosmicState.mouse.worldX = (CosmicState.mouse.x - canvas.width / 2) / zoom + camX;
+        CosmicState.mouse.worldY = (CosmicState.mouse.y - canvas.height / 2) / zoom + camY;
+
         CosmicState.mouse.down = true;
         CosmicState.interaction.dragStart = { x: CosmicState.mouse.x, y: CosmicState.mouse.y };
 
+        if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseDown(e)) return;
         if (window.IntentionSystem) {
             window.IntentionSystem.detectIntent(e, CosmicState);
         }
@@ -800,23 +906,28 @@ function setupEventListeners() {
     canvas.addEventListener('mouseup', (e) => {
         CosmicState.mouse.down = false;
 
+        if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseUp(e)) return;
         if (window.IntentionSystem) {
             const intent = window.IntentionSystem.detectIntent(e, CosmicState);
             if (intent) window.IntentionSystem.triggerIntent(intent);
         }
     });
 
-    // Zoom (molette)
+    // Wheel: trackpad pan (2 fingers) vs pinch zoom (ctrlKey)
     canvas.addEventListener('wheel', (e) => {
         e.preventDefault();
 
-        const zoomSpeed = 0.1;
-        const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
-
-        CosmicState.camera.targetZoom = Math.max(0.01, Math.min(100, CosmicState.camera.zoom * (1 + delta)));
-
-        // Smooth zoom
-        smoothZoom();
+        if (e.ctrlKey) {
+            // Pinch-to-zoom (browser sends ctrlKey for trackpad pinch)
+            const zoomSpeed = 0.1;
+            const delta = e.deltaY > 0 ? -zoomSpeed : zoomSpeed;
+            CosmicState.camera.targetZoom = Math.max(0.01, Math.min(100, CosmicState.camera.zoom * (1 + delta)));
+            smoothZoom();
+        } else {
+            // Two-finger pan: shift camera by delta
+            CosmicState.camera.x += e.deltaX / CosmicState.camera.zoom;
+            CosmicState.camera.y += e.deltaY / CosmicState.camera.zoom;
+        }
     });
 
     // Resize

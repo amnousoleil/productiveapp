@@ -41,6 +41,8 @@ class CosmicToolbar {
                 </svg>
             </button>
 
+            <input type="color" id="cosmic-color-picker" class="cosmic-color-input" value="#60a5fa" title="Couleur des formes">
+
             <div class="cosmic-separator"></div>
 
             <button class="cosmic-btn" data-tool="circle" title="Cercle (C)">
@@ -77,7 +79,7 @@ class CosmicToolbar {
 
             <button class="cosmic-btn" data-tool="connector" title="Connecteur (L)">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 19V5M5 12l7-7 7 7"/>
+                    <circle cx="5" cy="5" r="3" fill="currentColor"/><line x1="7" y1="7" x2="17" y2="17"/><circle cx="19" cy="19" r="3" fill="currentColor"/>
                 </svg>
             </button>
 
@@ -155,6 +157,14 @@ class CosmicToolbar {
                 this.executeAction(btn.dataset.action);
             });
         });
+
+        // Color picker
+        const colorInput = toolbar.querySelector('#cosmic-color-picker');
+        if (colorInput) {
+            colorInput.addEventListener('input', (e) => {
+                CosmicState.currentColor = e.target.value;
+            });
+        }
     }
 
     setupAutoHide() {
@@ -211,6 +221,15 @@ class CosmicToolbar {
             window.GalaxyCosmic.state.currentTool = tool;
         }
 
+        // Cursor on canvas
+        const cv = document.getElementById('galaxy-canvas');
+        if (cv) {
+            const shapes = ['circle', 'rect', 'diamond', 'hexagon', 'star'];
+            cv.className = shapes.includes(tool) ? 'tool-shape'
+                : tool === 'hand' ? 'tool-hand'
+                : tool === 'connector' ? 'tool-shape' : '';
+        }
+
         console.log('🛠️ Outil sélectionné:', tool);
     }
 
@@ -219,10 +238,10 @@ class CosmicToolbar {
 
         switch (action) {
             case 'undo':
-                // TODO: Implémenter undo
+                if (window.CosmicHistory) window.CosmicHistory.undo();
                 break;
             case 'redo':
-                // TODO: Implémenter redo
+                if (window.CosmicHistory) window.CosmicHistory.redo();
                 break;
             case 'zen':
                 document.body.classList.toggle('zen-mode');
@@ -506,9 +525,10 @@ function initCosmicUI() {
     window.RadialMenu = new RadialMenu();
     window.CosmicColorPicker = new CosmicColorPicker();
 
-    // Montrer la toolbar au démarrage
+    // Montrer la toolbar au démarrage + sélectionner cercle par défaut
     setTimeout(() => {
         window.CosmicToolbar.show();
+        window.CosmicToolbar.selectTool('circle');
         window.CosmicToolbar.scheduleHide();
     }, 500);
 

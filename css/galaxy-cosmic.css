@@ -46,6 +46,10 @@
     background: rgba(184, 149, 106, 0.15);
 }
 
+#view-galaxy[data-galaxy-skin="desert"] .cosmic-color-input {
+    border-color: rgba(160, 140, 110, 0.3);
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    CANVAS PRINCIPAL
    ═══════════════════════════════════════════════════════════════════ */
@@ -59,6 +63,9 @@
     cursor: crosshair;
     touch-action: none;
 }
+#galaxy-canvas.tool-shape { cursor: crosshair; }
+#galaxy-canvas.tool-hand { cursor: grab; }
+#galaxy-canvas.tool-hand:active { cursor: grabbing; }
 
 #galaxy-canvas.dragging {
     cursor: grabbing;
@@ -202,6 +209,41 @@
     --tx: 0;
     --ty: -20px;
     animation: none;
+}
+
+/* Color picker inline */
+.cosmic-color-input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.cosmic-color-input::-webkit-color-swatch-wrapper {
+    padding: 0;
+}
+
+.cosmic-color-input::-webkit-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+
+.cosmic-color-input::-moz-color-swatch {
+    border: none;
+    border-radius: 50%;
+}
+
+.cosmic-color-input:hover {
+    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Séparateur */
