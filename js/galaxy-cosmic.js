@@ -653,6 +653,9 @@ class CosmicRenderer {
             this.renderUI(ctx, now);
         }
 
+        // Floating text toolbar (positioned over canvas via DOM)
+        if (window.TextToolbar) window.TextToolbar.update();
+
         // Boucle
         requestAnimationFrame(() => this.render());
     }
@@ -913,8 +916,11 @@ function setupEventListeners() {
     // Mouse move
     canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
-        CosmicState.mouse.x = e.clientX - rect.left;
-        CosmicState.mouse.y = e.clientY - rect.top;
+        // Scale CSS pixels → internal canvas pixels (fixes offset when display size ≠ resolution)
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        CosmicState.mouse.x = (e.clientX - rect.left) * scaleX;
+        CosmicState.mouse.y = (e.clientY - rect.top) * scaleY;
 
         // Conversion en coordonnées monde
         const { x: camX, y: camY, zoom } = CosmicState.camera;
@@ -946,8 +952,10 @@ function setupEventListeners() {
     canvas.addEventListener('mousedown', (e) => {
         // Update coords so drawOrigin is fresh on first click
         const rect = canvas.getBoundingClientRect();
-        CosmicState.mouse.x = e.clientX - rect.left;
-        CosmicState.mouse.y = e.clientY - rect.top;
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        CosmicState.mouse.x = (e.clientX - rect.left) * scaleX;
+        CosmicState.mouse.y = (e.clientY - rect.top) * scaleY;
         const { x: camX, y: camY, zoom } = CosmicState.camera;
         CosmicState.mouse.worldX = (CosmicState.mouse.x - canvas.width / 2) / zoom + camX;
         CosmicState.mouse.worldY = (CosmicState.mouse.y - canvas.height / 2) / zoom + camY;
