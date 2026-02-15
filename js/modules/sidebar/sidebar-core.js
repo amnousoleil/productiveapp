@@ -81,12 +81,6 @@ const Sidebar = (function() {
                     label: 'Admin',
                     tooltip: 'Administration système',
                     tag: 'ADMIN'
-                }, {
-                    id: 'configDev',
-                    icon: 'settings',
-                    label: 'Config',
-                    tooltip: 'Configuration développeur',
-                    tag: 'DEV'
                 });
             }
         }
@@ -209,7 +203,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'mail', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'admin', 'configDev'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'mail', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'admin'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);

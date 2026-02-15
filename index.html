@@ -37,6 +37,7 @@
     <link rel="stylesheet" href="css/dash-ai-widget.css?v=2200">
     <link rel="stylesheet" href="css/notes-editor.css?v=1700">
     <link rel="stylesheet" href="css/notes-ai.css?v=1700">
+    <link rel="stylesheet" href="css/notes-graph.css?v=100">
     <link rel="stylesheet" href="css/tasks-ai.css?v=2200">
     <link rel="stylesheet" href="css/settings.css?v=1900">
     <link rel="stylesheet" href="css/settings-health.css?v=2100">
@@ -45,6 +46,7 @@
     <link rel="stylesheet" href="css/gamification.css?v=1700">
     <link rel="stylesheet" href="css/messaging.css?v=1700">
     <link rel="stylesheet" href="css/notifications.css?v=1700">
+    <link rel="stylesheet" href="css/notifications-premium.css?v=100">
     <link rel="stylesheet" href="css/analytics.css?v=1700">
     <link rel="stylesheet" href="css/reports.css?v=2200">
     <link rel="stylesheet" href="css/ai-reports.css?v=2200">
@@ -54,9 +56,10 @@
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/style-views.css?v=2400">
     <link rel="stylesheet" href="css/galaxy.css?v=1700">
+    <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3500">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
+    <link rel="stylesheet" href="css/projects.css?v=5300">
     <link rel="stylesheet" href="css/giri-vision.css?v=3600">
-    <link rel="stylesheet" href="css/config-dev.css?v=200">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
     <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
     <link rel="stylesheet" href="css/responsive.css?v=2300">
@@ -66,7 +69,7 @@
     <link rel="stylesheet" href="css/quick-add.css?v=2001">
     <link rel="stylesheet" href="css/productivity-tools.css?v=2000">
     <link rel="stylesheet" href="css/kanban.css?v=2000">
-    <link rel="stylesheet" href="css/mail-premium-v7.css?v=3701">
+    <link rel="stylesheet" href="css/mail-premium-v7.css?v=8100">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
     <link rel="stylesheet" href="css/style-overrides.css?v=2809">
@@ -248,7 +251,7 @@
             </div>
 
             <div id="galaxy-3d-container">
-                <canvas id="galaxy-3d-canvas"></canvas>
+                <canvas id="galaxy-canvas"></canvas>
                 <div id="galaxy-tooltip" class="galaxy-tooltip"></div>
             </div>
         </div>
@@ -298,10 +301,6 @@
             <!-- Rendered by GiriVisionView -->
         </div>
 
-        <!-- Config Dev - Developer Configuration Panel -->
-        <div id="view-config-dev" class="view-container">
-            <!-- Rendered by ConfigDevView -->
-        </div>
 
         <!-- Calendar View -->
         <div id="view-calendar" class="view-container">
@@ -1113,7 +1112,7 @@
     <script src="js/modules/services/api-fetch.js?v=1700"></script>
     <script src="js/modules/services/api.js?v=1700"></script>
     <script src="js/modules/services/api-auth.js?v=1700"></script>
-    <script src="js/modules/services/api-projects.js?v=1700"></script>
+    <script src="js/modules/services/api-projects.js?v=5100"></script>
     <script src="js/modules/services/api-notes.js?v=2200"></script>
     <script src="js/modules/services/api-tasks.js?v=1700"></script>
     <script src="js/modules/services/api-ai.js?v=1700"></script>
@@ -1135,7 +1134,7 @@
     <script src="js/modules/confirm-modal.js?v=1700"></script>
     <script src="js/modules/tasks/tasks.js?v=1700"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
-    <script src="js/modules/projects/projects.js?v=1700"></script>
+    <script src="js/modules/projects/projects.js?v=5100"></script>
     <script src="js/modules/notes/journal.js?v=1700"></script>
     <script src="js/modules/ai/chat-actions.js?v=1700"></script>
     <script src="js/modules/ai/chatbot.js?v=1700"></script>
@@ -1159,8 +1158,10 @@
     <script src="js/modules/notes/notes-slash.js?v=1700"></script>
     <script src="js/modules/notes/notes-editor.js?v=1700"></script>
     <script src="js/modules/notes/notes-ai.js?v=1700"></script>
+    <script src="js/modules/notes/notes-graph-3d.js?v=100"></script>
+    <script src="js/modules/notes/notes-graph-view.js?v=100"></script>
     <script src="js/modules/notes/notes-init.js?v=1700"></script>
-    <script src="js/modules/projects/projects-view.js?v=1700"></script>
+    <script src="js/modules/projects/projects-view.js?v=5100"></script>
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
     <script src="js/modules/settings/settings-data.js?v=1700"></script>
@@ -1203,7 +1204,7 @@
     <!-- Mail Module v2.0 - Professional Emailing (includes campaigns) -->
     <script src="js/modules/mail/mail-api.js?v=2700"></script>
     <script src="js/modules/mail/mail-composer-v7.js?v=3800"></script>
-    <script src="js/modules/mail/mail-inbox.js?v=3700"></script>
+    <script src="js/modules/mail/mail-inbox.js?v=3900"></script>
     <script src="js/modules/mail/mail-templates.js?v=2700"></script>
     <script src="js/modules/mail/mail-stats.js?v=2700"></script>
     <script src="js/modules/mail/mail-campaigns.js?v=3900"></script>
@@ -1231,6 +1232,7 @@
     <script src="js/modules/notifications/notifications-list.js?v=1700"></script>
     <script src="js/modules/notifications/notifications-badge.js?v=1700"></script>
     <script src="js/modules/notifications/notifications.js?v=1700"></script>
+    <script src="js/modules/notifications/notifications-premium-ui.js?v=100"></script>
 
     <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=1700"></script>
@@ -1240,9 +1242,13 @@
     <!-- <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script> -->
 
     <!-- NEW Galaxy Canvas v2 - Interactive Fix -->
-    <script src="js/galaxy-canvas-v2.js?v=3230"></script>
-    <script src="js/galaxy-constellation.js?v=3000"></script>
-    <script src="js/modules/canvases/galaxie-view.js?v=3200"></script>
+    <!-- <script src="js/galaxy-canvas-v2.js?v=3230"></script> -->
+    <!-- <script src="js/galaxy-constellation.js?v=3000"></script> -->
+    <script src="js/modules/canvases/galaxie-view.js?v=3500"></script>
+
+    <!-- GALAXY COSMIC v3.1 PHASE 2 - L'Univers Vivant - TOUT FONCTIONNEL -->
+    <script src="js/galaxy-cosmic.js?v=3500"></script>
+    <script src="js/galaxy-cosmic-ui.js?v=3500"></script>
 
     <!-- FinScan Accounting Module v3.0 -->
     <script src="js/modules/accounting/acc-state.js?v=1900"></script>
@@ -1296,10 +1302,6 @@
     <script src="js/modules/admin/admin-api.js?v=2600"></script>
     <script src="js/modules/admin/admin-view.js?v=2600"></script>
 
-    <!-- Config Dev - Configuration développeur (RÉSERVÉ: contact@mahagiri.fr) -->
-    <script src="js/modules/config-dev/config-dev-api.js?v=200"></script>
-    <script src="js/modules/config-dev/config-dev-view.js?v=100"></script>
-
     <!-- NEW: Auth Login Module -->
     <script src="js/modules/auth/login.js?v=1900"></script>
     <!-- Login Fix Patch (uses LOCAL logo SVG, fixes member picker, avatars) -->
@@ -1313,7 +1315,7 @@
     <script src="js/modules/workspaces/workspaces.js?v=1700"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=2517"></script>
+    <script src="js/animations.js?v=5000"></script>
 
     <!-- Animation Force Init & Debug -->
     <script>

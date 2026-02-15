@@ -1,8 +1,9 @@
 // ============================================================
-// PRODUCTIVE APP — ANIMATION ENGINE v4.0
-// 40-theme parameterized edition
+// PRODUCTIVE APP — ANIMATION ENGINE v5.0
+// 60-theme ULTRA edition — Toutes animations UNIQUES
 //
 // Features:
+//   - 63 animations UNIQUES (60 thèmes + 3 parameterized fallbacks)
 //   - Simplex noise for organic movement
 //   - Mouse/touch interactivity
 //   - 4-tier adaptive quality (ultra > high > medium > low)
@@ -13,8 +14,12 @@
 //   - Per-theme canvas opacity (light themes = low opacity)
 //   - prefers-reduced-motion support
 //   - Page Visibility API (pause when hidden)
-//   - 11 unique + 7 parameterized animation types
-//   - 40 theme mappings
+//   - MINIMALISTE: pastel, mint, paper, porcelain, zen, clay, espresso
+//   - ARTISTE: watercolor, nordic, artdeco, cosmic
+//   - SAISONS: printemps, ete, automne, hiver
+//   - PRÉCIEUX: amethyst, jade, ruby, pearl, copper
+//   - VOYAGE: bamboo, provence, snow
+//   - MODERNE: bubblegum, retrowave, coral, charcoal, ukiyo-e
 // ============================================================
 
 (function() {
@@ -219,41 +224,41 @@ function noGlow() { ctx.shadowBlur = 0; }
 // SECTION 6: THEME CONFIG MAP
 // ==========================================================
 const TC = {
-    // ÉLÉGANCE
-    executive:   { type: 'particles', c: ['#d4af37','#f0d975'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    corporate:   { type: 'particles', c: ['#6495ed','#89b4f7'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    ivory:       { type: 'shimmer',   c: ['#B8A080','#D4C8B8','#C8B898'], a: 0.92 },
-    sterling:    { type: 'particles', c: ['#C0C8D0','#D8DDE5'], a: 0.98 }, // MASSIVELY BOOSTED for visibility
-    diplomat:    { type: 'particles', c: ['#C4324A','#E05A72'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    academie:    { type: 'particles', c: ['#daa520','#f0c850'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    // NATURE
-    ocean:       { type: 'ocean',     c: ['#00b4d8','#48cae4','#06d6a0'], a: 0.95 },
-    forest:      { type: 'forest',    c: ['#4aaa64','#70c888','#a3e635'], a: 0.92 },
-    sunset:      { type: 'sunset',    c: ['#f97316','#fbbf24','#ef4444','#fb7185'], a: 0.92 },
-    desert:      { type: 'desert',    c: ['#e07840','#f4a261','#fbbf24'], a: 0.92 },
-    lavender:    { type: 'fireflies', c: ['#B07CC8','#D0A0E8','#E8C0FF'], a: 0.88 },
-    sakura:      { type: 'shimmer',   c: ['#D4688C','#E890A8','#F0B0C0'], a: 0.45 },
-    // ATMOSPHÈRE
-    aurora:      { type: 'aurora',    c: ['#93c5fd','#c4b5fd','#86efac','#a7f3d0'], a: 0.97 },
-    midnight:    { type: 'midnight',  c: ['#7c9fff','#a0c0ff','#88d8a0'], a: 0.97 },
-    twilight:    { type: 'stars',     c: ['#C490E0','#D8B0F0','#A080C8'], a: 0.98 },
-    candlelight: { type: 'fireflies', c: ['#E8A840','#F0C060','#FFE080'], a: 0.88 },
-    moonlit:     { type: 'stars',     c: ['#A0B8D8','#C0D0E8','#8098B8'], a: 0.88 },
-    'golden-hour': { type: 'fireflies', c: ['#D4A040','#E8C060','#F0D880'], a: 0.98 },
-    storm:       { type: 'waves',     c: ['#6B8DB5','#90B0D0','#4A7098'], a: 0.88 },
+    // ÉLÉGANCE — 6 animations UNIQUES
+    executive:   { type: 'executive',  c: ['#d4af37','#f0d975','#c9a000'], a: 0.92 }, // Art-déco géométrique
+    corporate:   { type: 'corporate',  c: ['#6495ed','#89b4f7','#4169e1'], a: 0.92 }, // Flux de données
+    ivory:       { type: 'ivory',      c: ['#B8A080','#D4C8B8','#C8B898'], a: 0.92 }, // Soie fluide
+    sterling:    { type: 'sterling',   c: ['#C0C8D0','#D8DDE5','#A8B0C0'], a: 0.98 }, // Cristaux de givre
+    diplomat:    { type: 'diplomat',   c: ['#C4324A','#E05A72','#A02838'], a: 0.92 }, // Rubans ondulants
+    academie:    { type: 'academie',   c: ['#daa520','#f0c850','#b8860b'], a: 0.92 }, // Pages de livre
+    // NATURE — 7 animations UNIQUES
+    ocean:       { type: 'ocean',     c: ['#00b4d8','#48cae4','#06d6a0'], a: 0.95 }, // CONSERVER - Vagues + poissons
+    forest:      { type: 'forest',    c: ['#4aaa64','#70c888','#a3e635'], a: 0.92 }, // CONSERVER - Feuilles qui tombent
+    sunset:      { type: 'sunset',    c: ['#f97316','#fbbf24','#ef4444','#fb7185'], a: 0.92 }, // CONSERVER - God rays
+    desert:      { type: 'desert',    c: ['#e07840','#f4a261','#fbbf24'], a: 0.92 }, // CONSERVER - Tempête de sable
+    lavender:    { type: 'lavender',  c: ['#B07CC8','#D0A0E8','#E8C0FF'], a: 0.88 }, // Champ ondulant + papillons
+    sakura:      { type: 'sakura',    c: ['#D4688C','#E890A8','#F0B0C0'], a: 0.92 }, // Pétales en spirale
+    // ATMOSPHÈRE — 8 animations UNIQUES
+    aurora:      { type: 'aurora',    c: ['#93c5fd','#c4b5fd','#86efac','#a7f3d0'], a: 0.97 }, // CONSERVER - Aurore boréale
+    midnight:    { type: 'midnight',  c: ['#7c9fff','#a0c0ff','#88d8a0'], a: 0.97 }, // CONSERVER - Ciel étoilé
+    twilight:    { type: 'twilight',  c: ['#C490E0','#D8B0F0','#A080C8'], a: 0.98 }, // Nuages crépuscule
+    candlelight: { type: 'candlelight', c: ['#E8A840','#F0C060','#FFE080'], a: 0.88 }, // Flammes dansantes
+    moonlit:     { type: 'moonlit',   c: ['#A0B8D8','#C0D0E8','#8098B8'], a: 0.88 }, // Rayons de lune
+    'golden-hour': { type: 'goldenhour', c: ['#D4A040','#E8C060','#F0D880'], a: 0.98 }, // Lumière dorée
+    storm:       { type: 'storm',     c: ['#6B8DB5','#90B0D0','#4A7098'], a: 0.88 }, // Éclairs + pluie
     // MODERNE
     bubblegum:   { type: 'bubblegum', c: ['#ff6b9d','#ff9ec4','#ffc0d0','#38bdf8'], a: 0.92 },
     neon:        { type: 'neonp',     c: ['#FF1493','#FF69B4','#00FFAA','#FFD700'], a: 0.92 },
-    pastel:      { type: 'shimmer',   c: ['#A888C8','#C8A8E0','#88B8D8'], a: 0.45 },
-    retrowave:   { type: 'neonp',     c: ['#FF6EC7','#FF90D8','#00E5A0','#8866FF'], a: 0.92 },
-    mint:        { type: 'shimmer',   c: ['#3DA878','#60C898','#88E0B8'], a: 0.45 },
-    coral:       { type: 'particles', c: ['#FF6F61','#FF9488'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
+    pastel:      { type: 'pastel',    c: ['#A888C8','#C8A8E0','#88B8D8'], a: 0.45 },
+    retrowave:   { type: 'retrowave', c: ['#FF6EC7','#FF90D8','#00E5A0','#8866FF'], a: 0.92 },
+    mint:        { type: 'mint',      c: ['#3DA878','#60C898','#88E0B8'], a: 0.45 },
+    coral:       { type: 'coral',     c: ['#FF6F61','#FF9488'], a: 0.92 },
     // MINIMALISTE
     obsidian:    { type: 'obsidian',  c: ['#a78bfa','#8b5cf6'], a: 0.88 },
-    paper:       { type: 'shimmer',   c: ['#8B7B65','#B0A088','#C8B8A0'], a: 0.30 },
-    clay:        { type: 'fireflies', c: ['#B89878','#D0B898','#C8A878'], a: 0.75 },
-    porcelain:   { type: 'shimmer',   c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.30 },
-    espresso:    { type: 'fireflies', c: ['#A87848','#C89868','#B08858'], a: 0.75 },
+    paper:       { type: 'paper',     c: ['#8B7B65','#B0A088','#C8B8A0'], a: 0.30 },
+    clay:        { type: 'clay',      c: ['#B89878','#D0B898','#C8A878'], a: 0.75 },
+    porcelain:   { type: 'porcelain', c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.30 },
+    espresso:    { type: 'espresso',  c: ['#A87848','#C89868','#B08858'], a: 0.75 },
     // TECH
     matrix:      { type: 'matrix',    c: ['#00CC33','#66E68C'], a: 0.98 },
     cyberpunk:   { type: 'cyberpunk', c: ['#ff00ff','#00ffff','#ff0088','#8800ff'], a: 0.97 },
@@ -261,35 +266,35 @@ const TC = {
     tron:        { type: 'trongrid',  c: ['#00D4FF','#40E0FF','#0080A0'], a: 0.92 },
     hologram:    { type: 'hologram',  c: ['#88DDFF','#FF88DD','#88FFBB','#FFDD88'], a: 0.88 },
     // ARTISTE
-    zen:         { type: 'shimmer',   c: ['#708058','#90A070','#A8B888'], a: 0.30 },
-    'art-deco':  { type: 'particles', c: ['#C8A040','#E0C060'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    watercolor:  { type: 'shimmer',   c: ['#8888C0','#A8A8D8','#9898B8'], a: 0.45 },
-    nordic:      { type: 'shimmer',   c: ['#5A7A6A','#78A890','#90C0A8'], a: 0.40 },
-    cosmic:      { type: 'stars',     c: ['#9966FF','#B888FF','#7744DD'], a: 0.95 },
+    zen:         { type: 'zen',        c: ['#708058','#90A070','#A8B888'], a: 0.30 },
+    'art-deco':  { type: 'artdeco',    c: ['#C8A040','#E0C060'], a: 0.92 },
+    watercolor:  { type: 'watercolor', c: ['#8888C0','#A8A8D8','#9898B8'], a: 0.45 },
+    nordic:      { type: 'nordic',     c: ['#5A7A6A','#78A890','#90C0A8'], a: 0.40 },
+    cosmic:      { type: 'cosmic',     c: ['#9966FF','#B888FF','#7744DD'], a: 0.95 },
     // SAISONS
-    printemps:   { type: 'shimmer',   c: ['#78B464','#98D080','#B8E8A0'], a: 0.92 },
-    ete:         { type: 'shimmer',   c: ['#2890C0','#48B0E0','#F0D080'], a: 0.92 },
-    automne:     { type: 'fireflies', c: ['#C85A28','#E07840','#D8A030'], a: 0.98 },
-    hiver:       { type: 'stars',     c: ['#88B8E0','#A8D0F0','#C0D8F0'], a: 0.88 },
+    printemps:   { type: 'printemps',  c: ['#78B464','#98D080','#B8E8A0'], a: 0.92 },
+    ete:         { type: 'ete',        c: ['#2890C0','#48B0E0','#F0D080'], a: 0.92 },
+    automne:     { type: 'automne',    c: ['#C85A28','#E07840','#D8A030'], a: 0.98 },
+    hiver:       { type: 'hiver',      c: ['#88B8E0','#A8D0F0','#C0D8F0'], a: 0.88 },
     // PRÉCIEUX
-    amethyst:    { type: 'stars',     c: ['#9060D8','#B080F0','#7040B8'], a: 0.92 },
-    jade:        { type: 'fireflies', c: ['#40A878','#60C898','#308860'], a: 0.97 },
-    ruby:        { type: 'particles', c: ['#D83040','#F05060'], a: 0.92 }, // MASSIVELY BOOSTED for visibility
-    pearl:       { type: 'shimmer',   c: ['#A098B0','#B8B0C8','#D0C8D8'], a: 0.40 },
-    copper:      { type: 'fireflies', c: ['#C87850','#E09870','#A06038'], a: 0.82 },
+    amethyst:    { type: 'amethyst',   c: ['#9060D8','#B080F0','#7040B8'], a: 0.92 },
+    jade:        { type: 'jade',       c: ['#40A878','#60C898','#308860'], a: 0.97 },
+    ruby:        { type: 'ruby',       c: ['#D83040','#F05060'], a: 0.92 },
+    pearl:       { type: 'pearl',      c: ['#A098B0','#B8B0C8','#D0C8D8'], a: 0.40 },
+    copper:      { type: 'copper',     c: ['#C87850','#E09870','#A06038'], a: 0.82 },
     // VOYAGE
     sahara:      { type: 'desert',    c: ['#D2AF5A','#E8C878','#C09838'], a: 0.98 },
     fjord:       { type: 'waves',     c: ['#3C8296','#58A8C0','#286878'], a: 0.88 },
-    bamboo:      { type: 'shimmer',   c: ['#64803C','#88A858','#A0C070'], a: 0.40 },
+    bamboo:      { type: 'bamboo',    c: ['#64803C','#88A858','#A0C070'], a: 0.40 },
     bali:        { type: 'ocean',     c: ['#00B496','#30D8B8','#008870'], a: 0.92 },
-    provence:    { type: 'shimmer',   c: ['#8C6EA0','#A888C0','#C0A0D0'], a: 0.92 },
-    // ADDITIONS
-    moss:        { type: 'forest',    c: ['#507832','#70A048','#3A5A20'], a: 0.88 },
-    ember:       { type: 'fireflies', c: ['#DC5020','#F07040','#FF9060'], a: 0.92 },
-    snow:        { type: 'shimmer',   c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.35 },
-    charcoal:    { type: 'particles', c: ['#909AA4','#B0B8C0'], a: 0.92 },
+    provence:    { type: 'provence',  c: ['#8C6EA0','#A888C0','#C0A0D0'], a: 0.92 },
+    // ADDITIONS (NATURE + ATMOSPHÈRE)
+    moss:        { type: 'moss',      c: ['#507832','#70A048','#3A5A20'], a: 0.88 }, // Mycélium organique
+    ember:       { type: 'ember',     c: ['#DC5020','#F07040','#FF9060'], a: 0.92 }, // Braises volantes
+    snow:        { type: 'snow',      c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.35 },
+    charcoal:    { type: 'charcoal',  c: ['#909AA4','#B0B8C0'], a: 0.92 },
     bioluminescence: { type: 'ocean', c: ['#00C8DC','#40E8F0','#00E8A0'], a: 0.97 },
-    'ukiyo-e':   { type: 'particles', c: ['#B45038','#D07050'], a: 0.82 },
+    'ukiyo-e':   { type: 'ukiyoe',    c: ['#B45038','#D07050'], a: 0.82 },
     pipboy:      { type: 'pipboy',  c: ['#00FF77','#00CC55'], a: 0.98 }
 };
 
@@ -297,6 +302,2821 @@ const TC = {
 // SECTION 7: ANIMATION TYPES
 // ==========================================================
 const AT = {};
+
+// ==========================================================
+// ÉLÉGANCE — 6 ANIMATIONS UNIQUES
+// ==========================================================
+
+// --- EXECUTIVE: Art-déco géométrique avec polygones dorés rotatifs ---
+AT.executive = {
+    init(cfg) {
+        const count = cap(16, quality);
+        state.polygons = [];
+        for (let i = 0; i < count; i++) {
+            state.polygons.push({
+                x: rand(0, W), y: rand(0, H),
+                rotation: rand(0, Math.PI*2),
+                rotSpeed: rand(-0.3, 0.3),
+                size: rand(30, 80),
+                sides: [3, 4, 6][Math.floor(Math.random() * 3)], // Triangle, carré, hexagone
+                phase: rand(0, Math.PI*2),
+                orbit: rand(20, 50),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        // Connexions Delaunay entre polygones proches
+        if (quality !== 'low' && state.polygons) {
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < state.polygons.length; i++) {
+                for (let j = i + 1; j < state.polygons.length; j++) {
+                    const a = state.polygons[i], b = state.polygons[j];
+                    const d = dist(a.x, a.y, b.x, b.y);
+                    if (d < 200) {
+                        ctx.globalAlpha = fadeIn * (1-d/200) * 0.15;
+                        ctx.strokeStyle = cfg.c[0];
+                        ctx.beginPath();
+                        ctx.moveTo(a.x, a.y);
+                        ctx.lineTo(b.x, b.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        // Polygones rotatifs
+        if (state.polygons) for (const p of state.polygons) {
+            p.rotation += p.rotSpeed * dt;
+            p.phase += dt * 0.3;
+            const pulse = (Math.sin(p.phase) + 1) * 0.5;
+
+            // Orbite organique
+            const nx = quality === 'low' ? Math.sin(p.phase) : noise2D(p.phase, p.y * 0.005);
+            const ny = quality === 'low' ? Math.cos(p.phase * 0.7) : noise2D(p.x * 0.005, p.phase);
+            const px = p.x + nx * p.orbit;
+            const py = p.y + ny * p.orbit;
+
+            ctx.save();
+            ctx.translate(px, py);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = fadeIn * (0.3 + pulse * 0.4);
+
+            // Dessiner polygone
+            ctx.beginPath();
+            for (let i = 0; i <= p.sides; i++) {
+                const angle = (Math.PI * 2 / p.sides) * i;
+                const vx = Math.cos(angle) * p.size * (0.8 + pulse * 0.2);
+                const vy = Math.sin(angle) * p.size * (0.8 + pulse * 0.2);
+                if (i === 0) ctx.moveTo(vx, vy);
+                else ctx.lineTo(vx, vy);
+            }
+            ctx.closePath();
+
+            glow(8, p.color);
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- CORPORATE: Flux de données ascendants style Bloomberg Terminal ---
+AT.corporate = {
+    init(cfg) {
+        const count = cap(25, quality);
+        state.dataLines = [];
+        for (let i = 0; i < count; i++) {
+            state.dataLines.push({
+                x: rand(0, W),
+                y: rand(0, H),
+                speed: rand(80, 200),
+                height: rand(60, 150),
+                width: rand(2, 5),
+                color: cfg.c[i % cfg.c.length],
+                segments: []
+            });
+            // Créer segments de données
+            for (let j = 0; j < 8; j++) {
+                state.dataLines[i].segments.push({
+                    offset: j * 15,
+                    alpha: rand(0.3, 1)
+                });
+            }
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        // Grille de fond subtile
+        if (quality !== 'low') {
+            ctx.strokeStyle = 'rgba(100, 149, 237, 0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < W; x += 40) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, H);
+                ctx.stroke();
+            }
+        }
+
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.dataLines) for (const line of state.dataLines) {
+            line.y -= line.speed * dt;
+            if (line.y < -line.height - 150) {
+                line.y = H + 50;
+                line.x = rand(0, W);
+            }
+
+            // Dessiner segments de données
+            for (const seg of line.segments) {
+                const sy = line.y + seg.offset;
+                if (sy > -20 && sy < H + 20) {
+                    ctx.globalAlpha = fadeIn * seg.alpha * 0.6;
+                    glow(6, line.color);
+                    ctx.fillStyle = line.color;
+                    ctx.fillRect(line.x, sy, line.width, 10);
+                }
+            }
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- IVORY: Soie fluide avec effet marbré véronèse ---
+AT.ivory = {
+    init(cfg) {
+        state.silkWaves = [];
+        const layers = quality === 'low' ? 3 : 5;
+        for (let i = 0; i < layers; i++) {
+            state.silkWaves.push({
+                yOffset: (i / layers) * H,
+                speed: 0.3 + i * 0.1,
+                amplitude: 40 + i * 15,
+                frequency: 0.003 + i * 0.001,
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        const ws = getStep();
+        if (state.silkWaves) for (let l = 0; l < state.silkWaves.length; l++) {
+            const wave = state.silkWaves[l];
+
+            // Gradient vertical pour effet soie
+            const grad = ctx.createLinearGradient(0, 0, 0, H);
+            const hr = parseInt(wave.color.slice(1,3),16);
+            const hg = parseInt(wave.color.slice(3,5),16);
+            const hb = parseInt(wave.color.slice(5,7),16);
+            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+',0.02)');
+            grad.addColorStop(0.5, 'rgba('+hr+','+hg+','+hb+',0.08)');
+            grad.addColorStop(1, 'rgba('+hr+','+hg+','+hb+',0.02)');
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+
+            for (let x = 0; x <= W; x += ws) {
+                // Multi-octave noise pour mouvement organique
+                const n1 = noise2D(x * wave.frequency, time * wave.speed);
+                const n2 = noise2D(x * wave.frequency * 2.3, time * wave.speed * 0.7);
+                const y = wave.yOffset + n1 * wave.amplitude + n2 * wave.amplitude * 0.4;
+
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            ctx.lineTo(W, H);
+            ctx.lineTo(0, H);
+            ctx.closePath();
+
+            ctx.fillStyle = grad;
+            ctx.globalAlpha = fadeIn;
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- STERLING: Cristaux de givre qui croissent et se dissolvent ---
+AT.sterling = {
+    init(cfg) {
+        const count = cap(12, quality);
+        state.crystals = [];
+        for (let i = 0; i < count; i++) {
+            state.crystals.push({
+                x: rand(0, W),
+                y: rand(0, H),
+                growth: rand(0, 1),
+                growSpeed: rand(0.15, 0.4),
+                maxSize: rand(40, 100),
+                branches: rand(4, 8),
+                rotation: rand(0, Math.PI*2),
+                color: cfg.c[i % cfg.c.length],
+                phase: rand(0, Math.PI*2)
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.crystals) for (const c of state.crystals) {
+            c.phase += dt * 0.5;
+
+            // Cycle de croissance/dissolution
+            c.growth += c.growSpeed * dt;
+            if (c.growth > 2) c.growth = 0;
+
+            const growthFactor = c.growth <= 1 ? c.growth : (2 - c.growth);
+            const size = c.maxSize * growthFactor;
+
+            if (size > 2) {
+                ctx.save();
+                ctx.translate(c.x, c.y);
+                ctx.rotate(c.rotation + c.phase * 0.1);
+
+                // Dessiner branches de cristal (fractales)
+                for (let i = 0; i < c.branches; i++) {
+                    const angle = (Math.PI * 2 / c.branches) * i;
+                    ctx.globalAlpha = fadeIn * growthFactor * 0.5;
+                    glow(4, c.color);
+                    ctx.strokeStyle = c.color;
+                    ctx.lineWidth = 1.5;
+
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    const ex = Math.cos(angle) * size;
+                    const ey = Math.sin(angle) * size;
+                    ctx.lineTo(ex, ey);
+
+                    // Sous-branches
+                    if (quality !== 'low') {
+                        ctx.lineTo(ex * 0.7 + Math.cos(angle + 0.5) * size * 0.3, ey * 0.7 + Math.sin(angle + 0.5) * size * 0.3);
+                        ctx.moveTo(ex, ey);
+                        ctx.lineTo(ex * 0.7 + Math.cos(angle - 0.5) * size * 0.3, ey * 0.7 + Math.sin(angle - 0.5) * size * 0.3);
+                    }
+
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- DIPLOMAT: Rubans rouges ondulants type drapeau diplomatique ---
+AT.diplomat = {
+    init(cfg) {
+        const count = quality === 'low' ? 3 : 5;
+        state.ribbons = [];
+        for (let i = 0; i < count; i++) {
+            state.ribbons.push({
+                yBase: (i + 1) * (H / (count + 1)),
+                phase: rand(0, Math.PI*2),
+                speed: rand(0.4, 0.8),
+                amplitude: rand(30, 60),
+                width: rand(80, 150),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.ribbons) for (const r of state.ribbons) {
+            r.phase += r.speed * dt;
+
+            // Courbe de Bézier pour ruban fluide
+            ctx.save();
+            ctx.globalAlpha = fadeIn * 0.6;
+
+            const points = [];
+            const segments = quality === 'low' ? 15 : 30;
+
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const x = t * W;
+                const wave1 = Math.sin(x * 0.01 + r.phase) * r.amplitude;
+                const wave2 = Math.sin(x * 0.02 + r.phase * 0.7) * r.amplitude * 0.5;
+                const y = r.yBase + wave1 + wave2;
+                points.push({x, y});
+            }
+
+            // Dessiner ruban avec gradient
+            const grad = ctx.createLinearGradient(0, r.yBase - r.width/2, 0, r.yBase + r.width/2);
+            const hr = parseInt(r.color.slice(1,3),16);
+            const hg = parseInt(r.color.slice(3,5),16);
+            const hb = parseInt(r.color.slice(5,7),16);
+            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+',0.1)');
+            grad.addColorStop(0.5, 'rgba('+hr+','+hg+','+hb+',0.4)');
+            grad.addColorStop(1, 'rgba('+hr+','+hg+','+hb+',0.1)');
+
+            // Partie haute du ruban
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y - r.width/2);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y - r.width/2);
+            }
+            for (let i = points.length - 1; i >= 0; i--) {
+                ctx.lineTo(points[i].x, points[i].y + r.width/2);
+            }
+            ctx.closePath();
+
+            ctx.fillStyle = grad;
+            ctx.fill();
+
+            // Contour brillant
+            glow(6, r.color);
+            ctx.strokeStyle = r.color;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(points[0].x, points[0].y);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i].x, points[i].y);
+            }
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- ACADEMIE: Pages de livre qui tournent + particules de connaissance ---
+AT.academie = {
+    init(cfg) {
+        const pageCount = cap(8, quality);
+        const particleCount = cap(30, quality);
+
+        state.pages = [];
+        state.knowledgeParticles = [];
+
+        for (let i = 0; i < pageCount; i++) {
+            state.pages.push({
+                x: rand(W * 0.2, W * 0.8),
+                y: rand(H * 0.2, H * 0.8),
+                rotation: rand(0, Math.PI*2),
+                rotSpeed: rand(0.3, 0.8),
+                width: rand(40, 80),
+                height: rand(60, 100),
+                flip: 0,
+                flipSpeed: rand(0.5, 1.2),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+
+        for (let i = 0; i < particleCount; i++) {
+            state.knowledgeParticles.push({
+                x: rand(0, W),
+                y: rand(0, H),
+                vy: -rand(20, 60),
+                size: rand(1, 3),
+                alpha: rand(0.3, 1),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        // Particules de connaissance ascendantes
+        if (state.knowledgeParticles) for (const p of state.knowledgeParticles) {
+            p.y += p.vy * dt;
+            if (p.y < -20) {
+                p.y = H + 20;
+                p.x = rand(0, W);
+            }
+
+            ctx.globalAlpha = fadeIn * p.alpha * 0.4;
+            glow(3, p.color);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        // Pages qui tournent (effet 3D simplifié)
+        if (state.pages) for (const page of state.pages) {
+            page.rotation += page.rotSpeed * dt;
+            page.flip += page.flipSpeed * dt;
+
+            const flipFactor = Math.abs(Math.sin(page.flip)); // 0 = de profil, 1 = face
+            const width3D = page.width * flipFactor;
+
+            if (width3D > 5) { // Ne pas dessiner si trop fin
+                ctx.save();
+                ctx.translate(page.x, page.y);
+                ctx.rotate(page.rotation);
+
+                ctx.globalAlpha = fadeIn * (0.3 + flipFactor * 0.5);
+
+                // Rectangle de page avec perspective
+                const hr = parseInt(page.color.slice(1,3),16);
+                const hg = parseInt(page.color.slice(3,5),16);
+                const hb = parseInt(page.color.slice(5,7),16);
+
+                ctx.fillStyle = 'rgba('+hr+','+hg+','+hb+',0.2)';
+                ctx.fillRect(-width3D/2, -page.height/2, width3D, page.height);
+
+                glow(4, page.color);
+                ctx.strokeStyle = page.color;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(-width3D/2, -page.height/2, width3D, page.height);
+
+                // Lignes de texte
+                if (quality !== 'low' && flipFactor > 0.3) {
+                    ctx.strokeStyle = 'rgba('+hr+','+hg+','+hb+',0.3)';
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < 5; i++) {
+                        const ly = -page.height/2 + 15 + i * 12;
+                        ctx.beginPath();
+                        ctx.moveTo(-width3D/2 + 8, ly);
+                        ctx.lineTo(width3D/2 - 8, ly);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.restore();
+            }
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// NATURE — 2 ANIMATIONS UNIQUES (+ 4 conservées: ocean, forest, sunset, desert)
+// ==========================================================
+
+// --- LAVENDER: Champ de lavande ondulant + papillons ---
+AT.lavender = {
+    init(cfg) {
+        const fieldLines = quality === 'low' ? 8 : 15;
+        const butterflyCount = cap(6, quality);
+
+        state.lavenderField = [];
+        state.butterflies = [];
+
+        for (let i = 0; i < fieldLines; i++) {
+            state.lavenderField.push({
+                y: (H / (fieldLines + 1)) * (i + 1),
+                phase: rand(0, Math.PI*2),
+                speed: rand(0.3, 0.6),
+                amplitude: rand(15, 30)
+            });
+        }
+
+        for (let i = 0; i < butterflyCount; i++) {
+            state.butterflies.push({
+                x: rand(0, W),
+                y: rand(0, H),
+                phase: rand(0, Math.PI*2),
+                speed: rand(0.8, 1.5),
+                wingPhase: rand(0, Math.PI*2),
+                wingSpeed: rand(8, 12),
+                path: rand(40, 80),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        // Champ de lavande ondulant
+        if (state.lavenderField) for (const line of state.lavenderField) {
+            line.phase += line.speed * dt;
+
+            ctx.globalAlpha = fadeIn * 0.15;
+            ctx.strokeStyle = cfg.c[0];
+            ctx.lineWidth = 2;
+
+            ctx.beginPath();
+            for (let x = 0; x <= W; x += 8) {
+                const wave = Math.sin(x * 0.01 + line.phase) * line.amplitude;
+                const y = line.y + wave;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        // Papillons
+        ctx.globalCompositeOperation = 'lighter';
+        if (state.butterflies) for (const b of state.butterflies) {
+            b.phase += b.speed * dt;
+            b.wingPhase += b.wingSpeed * dt;
+
+            const nx = noise2D(b.phase, b.y * 0.01);
+            const ny = noise2D(b.x * 0.01, b.phase);
+            b.x += nx * b.path * dt;
+            b.y += ny * b.path * dt * 0.5;
+
+            // Wrap around
+            if (b.x < -20) b.x = W + 20;
+            if (b.x > W + 20) b.x = -20;
+            if (b.y < -20) b.y = H + 20;
+            if (b.y > H + 20) b.y = -20;
+
+            const wingFlap = Math.abs(Math.sin(b.wingPhase));
+
+            ctx.save();
+            ctx.translate(b.x, b.y);
+
+            ctx.globalAlpha = fadeIn * (0.4 + wingFlap * 0.4);
+            glow(4, b.color);
+            ctx.fillStyle = b.color;
+
+            // Ailes simplifiées
+            ctx.beginPath();
+            ctx.ellipse(-3, 0, 5 * wingFlap, 8, 0, 0, Math.PI*2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(3, 0, 5 * wingFlap, 8, 0, 0, Math.PI*2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- SAKURA: Pétales de cerisier en spirale avec vent ---
+AT.sakura = {
+    init(cfg) {
+        const count = cap(40, quality);
+        state.petals = [];
+
+        for (let i = 0; i < count; i++) {
+            state.petals.push({
+                x: rand(0, W),
+                y: rand(-H, H),
+                rotation: rand(0, Math.PI*2),
+                rotSpeed: rand(-3, 3),
+                fallSpeed: rand(30, 80),
+                sway: rand(40, 100),
+                swayPhase: rand(0, Math.PI*2),
+                swaySpeed: rand(0.5, 1.5),
+                size: rand(4, 10),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.petals) for (const p of state.petals) {
+            p.y += p.fallSpeed * dt;
+            p.swayPhase += p.swaySpeed * dt;
+            p.rotation += p.rotSpeed * dt;
+
+            const swayX = Math.sin(p.swayPhase) * p.sway * dt;
+            p.x += swayX;
+
+            // Vortex effect near mouse
+            if (mouse.active) {
+                const md = dist(p.x, p.y, mouse.sx, mouse.sy);
+                if (md < 200) {
+                    const angle = Math.atan2(p.y - mouse.sy, p.x - mouse.sx);
+                    const force = (1 - md/200) * 100 * dt;
+                    p.x += Math.cos(angle + Math.PI/2) * force;
+                    p.y += Math.sin(angle + Math.PI/2) * force;
+                }
+            }
+
+            // Wrap
+            if (p.y > H + 20) {
+                p.y = -20;
+                p.x = rand(0, W);
+            }
+            if (p.x < -20) p.x = W + 20;
+            if (p.x > W + 20) p.x = -20;
+
+            // Dessiner pétale (forme de coeur simplifiée)
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+
+            ctx.globalAlpha = fadeIn * 0.6;
+            glow(3, p.color);
+            ctx.fillStyle = p.color;
+
+            ctx.beginPath();
+            ctx.moveTo(0, -p.size/2);
+            ctx.bezierCurveTo(-p.size/2, -p.size, -p.size, -p.size/2, 0, p.size/2);
+            ctx.bezierCurveTo(p.size, -p.size/2, p.size/2, -p.size, 0, -p.size/2);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- MOSS: Croissance organique mycélium/réseau neuronal ---
+AT.moss = {
+    init(cfg) {
+        const nodeCount = cap(20, quality);
+        state.nodes = [];
+        state.growthAge = 0;
+
+        for (let i = 0; i < nodeCount; i++) {
+            state.nodes.push({
+                x: rand(W * 0.3, W * 0.7),
+                y: rand(H * 0.3, H * 0.7),
+                size: rand(3, 8),
+                growth: rand(0, 1),
+                maxConnections: 4,
+                color: cfg.c[i % cfg.c.length],
+                pulse: rand(0, Math.PI*2)
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        state.growthAge += dt * 0.3;
+
+        // Connexions organiques
+        if (quality !== 'low' && state.nodes) {
+            ctx.lineWidth = 1;
+            for (let i = 0; i < state.nodes.length; i++) {
+                const node = state.nodes[i];
+                let connections = 0;
+
+                for (let j = i + 1; j < state.nodes.length && connections < node.maxConnections; j++) {
+                    const other = state.nodes[j];
+                    const d = dist(node.x, node.y, other.x, other.y);
+
+                    if (d < 150) {
+                        const growFactor = Math.min(node.growth, other.growth);
+                        const pulse = (Math.sin(state.growthAge + i * 0.5) + 1) * 0.5;
+
+                        ctx.globalAlpha = fadeIn * growFactor * (1 - d/150) * 0.2 * pulse;
+                        ctx.strokeStyle = node.color;
+
+                        ctx.beginPath();
+                        ctx.moveTo(node.x, node.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.stroke();
+
+                        connections++;
+                    }
+                }
+            }
+        }
+
+        // Nodes qui croissent
+        ctx.globalCompositeOperation = 'lighter';
+        if (state.nodes) for (const node of state.nodes) {
+            node.pulse += dt * 2;
+            node.growth = Math.min(1, node.growth + dt * 0.3);
+
+            const pulseFactor = (Math.sin(node.pulse) + 1) * 0.5;
+            const size = node.size * node.growth * (0.8 + pulseFactor * 0.2);
+
+            ctx.globalAlpha = fadeIn * node.growth * (0.5 + pulseFactor * 0.3);
+            glow(6, node.color);
+            ctx.fillStyle = node.color;
+
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, size, 0, Math.PI*2);
+            ctx.fill();
+
+            // Tendrils de croissance
+            if (quality !== 'low') {
+                const tendrils = 3;
+                for (let i = 0; i < tendrils; i++) {
+                    const angle = (Math.PI*2 / tendrils) * i + node.pulse * 0.1;
+                    const length = size * 2 * node.growth;
+                    const ex = node.x + Math.cos(angle) * length;
+                    const ey = node.y + Math.sin(angle) * length;
+
+                    ctx.globalAlpha = fadeIn * node.growth * 0.3;
+                    ctx.strokeStyle = node.color;
+                    ctx.lineWidth = 1;
+
+                    ctx.beginPath();
+                    ctx.moveTo(node.x, node.y);
+                    ctx.lineTo(ex, ey);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// ATMOSPHÈRE — 5 ANIMATIONS UNIQUES (+ 2 conservées: aurora, midnight)
+// ==========================================================
+
+// --- TWILIGHT: Nuages de crépuscule + étoiles naissantes ---
+AT.twilight = {
+    init(cfg) {
+        const cloudCount = quality === 'low' ? 3 : 5;
+        const starCount = cap(50, quality);
+
+        state.clouds = [];
+        state.twilightStars = [];
+
+        for (let i = 0; i < cloudCount; i++) {
+            state.clouds.push({
+                x: rand(0, W),
+                y: rand(H * 0.2, H * 0.6),
+                width: rand(150, 300),
+                height: rand(40, 80),
+                speed: rand(10, 30),
+                opacity: rand(0.1, 0.3),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+
+        for (let i = 0; i < starCount; i++) {
+            state.twilightStars.push({
+                x: rand(0, W),
+                y: rand(0, H * 0.7),
+                size: rand(0.5, 2),
+                brightness: 0,
+                brightenSpeed: rand(0.2, 0.5),
+                twinkle: rand(0, Math.PI*2)
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        // Nuages qui dérivent
+        if (state.clouds) for (const cloud of state.clouds) {
+            cloud.x += cloud.speed * dt;
+            if (cloud.x > W + cloud.width) cloud.x = -cloud.width;
+
+            const grad = ctx.createRadialGradient(cloud.x, cloud.y, 0, cloud.x, cloud.y, cloud.width/2);
+            const hr = parseInt(cloud.color.slice(1,3),16);
+            const hg = parseInt(cloud.color.slice(3,5),16);
+            const hb = parseInt(cloud.color.slice(5,7),16);
+            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+','+cloud.opacity+')');
+            grad.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = grad;
+            ctx.globalAlpha = fadeIn;
+            ctx.fillRect(cloud.x - cloud.width/2, cloud.y - cloud.height/2, cloud.width, cloud.height);
+        }
+
+        // Étoiles qui apparaissent progressivement
+        ctx.globalCompositeOperation = 'lighter';
+        if (state.twilightStars) for (const star of state.twilightStars) {
+            star.brightness = Math.min(1, star.brightness + star.brightenSpeed * dt);
+            star.twinkle += dt * 2;
+
+            const twinkleFactor = (Math.sin(star.twinkle) + 1) * 0.5;
+            const alpha = star.brightness * (0.3 + twinkleFactor * 0.7);
+
+            ctx.globalAlpha = fadeIn * alpha;
+            glow(3, cfg.c[0]);
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- CANDLELIGHT: Flammes de bougies dansantes ---
+AT.candlelight = {
+    init(cfg) {
+        const candleCount = quality === 'low' ? 4 : 7;
+        state.candles = [];
+
+        for (let i = 0; i < candleCount; i++) {
+            state.candles.push({
+                x: (W / (candleCount + 1)) * (i + 1),
+                y: H * 0.7,
+                flameHeight: rand(40, 70),
+                flicker: rand(0, Math.PI*2),
+                flickerSpeed: rand(4, 8),
+                glowRadius: rand(100, 180),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.candles) for (const candle of state.candles) {
+            candle.flicker += candle.flickerSpeed * dt;
+
+            const flickerAmount = (Math.sin(candle.flicker) + 1) * 0.5;
+            const height = candle.flameHeight * (0.8 + flickerAmount * 0.2);
+
+            // Halo de lumière chaud
+            const grad = ctx.createRadialGradient(candle.x, candle.y, 0, candle.x, candle.y, candle.glowRadius);
+            const hr = parseInt(candle.color.slice(1,3),16);
+            const hg = parseInt(candle.color.slice(3,5),16);
+            const hb = parseInt(candle.color.slice(5,7),16);
+            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+',0.15)');
+            grad.addColorStop(0.5, 'rgba('+hr+','+hg+','+hb+',0.05)');
+            grad.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = grad;
+            ctx.globalAlpha = fadeIn * (0.6 + flickerAmount * 0.4);
+            ctx.fillRect(candle.x - candle.glowRadius, candle.y - candle.glowRadius, candle.glowRadius*2, candle.glowRadius*2);
+
+            // Flamme
+            ctx.save();
+            ctx.translate(candle.x, candle.y);
+
+            ctx.globalAlpha = fadeIn * (0.7 + flickerAmount * 0.3);
+            glow(12, candle.color);
+            ctx.fillStyle = candle.color;
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(-8, -height * 0.3, -6, -height * 0.7, 0, -height);
+            ctx.bezierCurveTo(6, -height * 0.7, 8, -height * 0.3, 0, 0);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- MOONLIT: Rayons de lune à travers nuages ---
+AT.moonlit = {
+    init(cfg) {
+        state.moonX = W * 0.75;
+        state.moonY = H * 0.25;
+        state.moonGlow = 0;
+
+        const rayCount = quality === 'low' ? 5 : 9;
+        state.moonRays = [];
+
+        for (let i = 0; i < rayCount; i++) {
+            state.moonRays.push({
+                angle: (Math.PI / 4) + (i / rayCount) * (Math.PI / 2),
+                length: rand(200, 400),
+                width: rand(40, 80),
+                opacity: rand(0.05, 0.15),
+                drift: rand(0, Math.PI*2),
+                driftSpeed: rand(0.1, 0.3)
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        state.moonGlow += dt;
+
+        const glowPulse = (Math.sin(state.moonGlow * 0.5) + 1) * 0.5;
+
+        // Rayons de lune
+        ctx.globalCompositeOperation = 'lighter';
+        if (state.moonRays) for (const ray of state.moonRays) {
+            ray.drift += ray.driftSpeed * dt;
+
+            const angleOffset = Math.sin(ray.drift) * 0.1;
+            const finalAngle = ray.angle + angleOffset;
+
+            const startX = state.moonX;
+            const startY = state.moonY;
+            const endX = startX + Math.cos(finalAngle) * ray.length;
+            const endY = startY + Math.sin(finalAngle) * ray.length;
+
+            const grad = ctx.createLinearGradient(startX, startY, endX, endY);
+            const hr = parseInt(cfg.c[0].slice(1,3),16);
+            const hg = parseInt(cfg.c[0].slice(3,5),16);
+            const hb = parseInt(cfg.c[0].slice(5,7),16);
+            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+','+ray.opacity+')');
+            grad.addColorStop(1, 'transparent');
+
+            ctx.fillStyle = grad;
+            ctx.globalAlpha = fadeIn;
+
+            ctx.beginPath();
+            const perpX = -Math.sin(finalAngle);
+            const perpY = Math.cos(finalAngle);
+            ctx.moveTo(startX + perpX * ray.width/2, startY + perpY * ray.width/2);
+            ctx.lineTo(endX + perpX * ray.width/4, endY + perpY * ray.width/4);
+            ctx.lineTo(endX - perpX * ray.width/4, endY - perpY * ray.width/4);
+            ctx.lineTo(startX - perpX * ray.width/2, startY - perpY * ray.width/2);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Lune
+        const moonGrad = ctx.createRadialGradient(state.moonX, state.moonY, 0, state.moonX, state.moonY, 60);
+        moonGrad.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+        moonGrad.addColorStop(0.5, 'rgba(200, 210, 230, 0.3)');
+        moonGrad.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = moonGrad;
+        ctx.globalAlpha = fadeIn * (0.7 + glowPulse * 0.3);
+        ctx.fillRect(state.moonX - 60, state.moonY - 60, 120, 120);
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- GOLDENHOUR: Lumière dorée qui change de direction ---
+AT.goldenhour = {
+    init(cfg) {
+        state.sunAngle = 0;
+        state.sunX = W * 0.2;
+        state.sunY = H * 0.3;
+
+        const particleCount = cap(25, quality);
+        state.dustParticles = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            state.dustParticles.push({
+                x: rand(0, W),
+                y: rand(0, H),
+                size: rand(2, 6),
+                drift: rand(0, Math.PI*2),
+                driftSpeed: rand(0.3, 0.8),
+                floatSpeed: rand(10, 30),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        state.sunAngle += dt * 0.2;
+
+        // Soleil qui se déplace lentement
+        state.sunX = W * 0.3 + Math.cos(state.sunAngle) * W * 0.2;
+        state.sunY = H * 0.3 + Math.sin(state.sunAngle * 0.5) * H * 0.1;
+
+        // Gradient de lumière dorée global
+        const bgGrad = ctx.createRadialGradient(state.sunX, state.sunY, 0, state.sunX, state.sunY, Math.max(W, H));
+        const hr = parseInt(cfg.c[0].slice(1,3),16);
+        const hg = parseInt(cfg.c[0].slice(3,5),16);
+        const hb = parseInt(cfg.c[0].slice(5,7),16);
+        bgGrad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+',0.1)');
+        bgGrad.addColorStop(0.5, 'rgba('+hr+','+hg+','+hb+',0.03)');
+        bgGrad.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = bgGrad;
+        ctx.globalAlpha = fadeIn;
+        ctx.fillRect(0, 0, W, H);
+
+        // Particules de poussière dans la lumière
+        ctx.globalCompositeOperation = 'lighter';
+        if (state.dustParticles) for (const p of state.dustParticles) {
+            p.drift += p.driftSpeed * dt;
+            p.x += Math.cos(p.drift) * p.floatSpeed * dt;
+            p.y += Math.sin(p.drift * 0.7) * p.floatSpeed * dt * 0.5;
+
+            // Wrap
+            if (p.x < -20) p.x = W + 20;
+            if (p.x > W + 20) p.x = -20;
+            if (p.y < -20) p.y = H + 20;
+            if (p.y > H + 20) p.y = -20;
+
+            // Plus visible près du soleil
+            const distToSun = dist(p.x, p.y, state.sunX, state.sunY);
+            const sunFactor = Math.max(0, 1 - distToSun / 300);
+
+            ctx.globalAlpha = fadeIn * (0.2 + sunFactor * 0.6);
+            glow(4, p.color);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- STORM: Éclairs qui frappent + pluie torrentielle ---
+AT.storm = {
+    init(cfg) {
+        const rainCount = cap(60, quality);
+        state.rainDrops = [];
+        state.lightnings = [];
+        state.nextLightning = rand(2, 5);
+
+        for (let i = 0; i < rainCount; i++) {
+            state.rainDrops.push({
+                x: rand(0, W),
+                y: rand(-H, H),
+                speed: rand(400, 700),
+                length: rand(15, 30),
+                width: rand(1, 2)
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        // Pluie
+        if (state.rainDrops) for (const drop of state.rainDrops) {
+            drop.y += drop.speed * dt;
+            if (drop.y > H + 50) {
+                drop.y = -50;
+                drop.x = rand(0, W);
+            }
+
+            ctx.globalAlpha = fadeIn * 0.3;
+            ctx.strokeStyle = cfg.c[0];
+            ctx.lineWidth = drop.width;
+            ctx.beginPath();
+            ctx.moveTo(drop.x, drop.y);
+            ctx.lineTo(drop.x - 2, drop.y + drop.length);
+            ctx.stroke();
+        }
+
+        // Gestion des éclairs
+        state.nextLightning -= dt;
+        if (state.nextLightning <= 0) {
+            // Créer nouvel éclair
+            state.lightnings.push({
+                x: rand(W * 0.2, W * 0.8),
+                age: 0,
+                duration: 0.2,
+                branches: []
+            });
+
+            // Générer branches d'éclair
+            const lightning = state.lightnings[state.lightnings.length - 1];
+            let currentX = lightning.x;
+            let currentY = 0;
+
+            for (let i = 0; i < 8; i++) {
+                const nextX = currentX + rand(-30, 30);
+                const nextY = currentY + rand(H / 10, H / 8);
+                lightning.branches.push({x1: currentX, y1: currentY, x2: nextX, y2: nextY});
+                currentX = nextX;
+                currentY = nextY;
+
+                if (currentY > H) break;
+            }
+
+            state.nextLightning = rand(3, 7);
+        }
+
+        // Dessiner éclairs actifs
+        ctx.globalCompositeOperation = 'lighter';
+        if (state.lightnings) {
+            for (let i = state.lightnings.length - 1; i >= 0; i--) {
+                const lightning = state.lightnings[i];
+                lightning.age += dt;
+
+                if (lightning.age > lightning.duration) {
+                    state.lightnings.splice(i, 1);
+                    continue;
+                }
+
+                const alpha = 1 - (lightning.age / lightning.duration);
+
+                ctx.globalAlpha = fadeIn * alpha;
+                glow(15, '#ffffff');
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 3;
+
+                for (const branch of lightning.branches) {
+                    ctx.beginPath();
+                    ctx.moveTo(branch.x1, branch.y1);
+                    ctx.lineTo(branch.x2, branch.y2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- EMBER: Braises qui s'envolent d'un feu + fumée ---
+AT.ember = {
+    init(cfg) {
+        const emberCount = cap(30, quality);
+        state.embers = [];
+
+        for (let i = 0; i < emberCount; i++) {
+            state.embers.push({
+                x: W * 0.5 + rand(-100, 100),
+                y: H + rand(0, 50),
+                vy: -rand(40, 120),
+                vx: rand(-20, 20),
+                size: rand(2, 6),
+                life: rand(0.5, 1),
+                decay: rand(0.2, 0.4),
+                glow: rand(0, Math.PI*2),
+                glowSpeed: rand(4, 8),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.embers) for (let i = state.embers.length - 1; i >= 0; i--) {
+            const e = state.embers[i];
+            e.y += e.vy * dt;
+            e.x += e.vx * dt;
+            e.life -= e.decay * dt;
+            e.glow += e.glowSpeed * dt;
+
+            // Respawn si mort ou hors écran
+            if (e.life <= 0 || e.y < -50) {
+                e.x = W * 0.5 + rand(-100, 100);
+                e.y = H + rand(0, 50);
+                e.life = rand(0.5, 1);
+                e.vy = -rand(40, 120);
+                e.vx = rand(-20, 20);
+            }
+
+            const glowFactor = (Math.sin(e.glow) + 1) * 0.5;
+            const alpha = e.life * (0.4 + glowFactor * 0.6);
+
+            ctx.globalAlpha = fadeIn * alpha;
+            glow(8, e.color);
+            ctx.fillStyle = e.color;
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, e.size * e.life, 0, Math.PI*2);
+            ctx.fill();
+
+            // Trail de fumée
+            if (quality !== 'low') {
+                ctx.globalAlpha = fadeIn * e.life * 0.2;
+                ctx.fillStyle = 'rgba(100, 100, 100, 0.3)';
+                ctx.beginPath();
+                ctx.arc(e.x, e.y + 10, e.size * 1.5, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// MINIMALISTE - 5 ANIMATIONS UNIQUES
+// ==========================================================
+
+// --- PASTEL: Aquarelle diffuse ---
+AT.pastel = {
+    init(cfg) {
+        state.blobs = [];
+        for (let i = 0; i < cap(8, quality); i++) {
+            state.blobs.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI*2),
+                speed: rand(0.1, 0.3),
+                size: rand(80, 160),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'multiply';
+
+        if (state.blobs) for (const b of state.blobs) {
+            b.phase += b.speed * dt;
+            const pulse = (Math.sin(b.phase) + 1) * 0.5;
+
+            // Mouvement organique
+            const nx = quality === 'low' ? Math.sin(b.phase * 0.5) : noise2D(b.phase, b.y * 0.003);
+            const ny = quality === 'low' ? Math.cos(b.phase * 0.3) : noise2D(b.x * 0.003, b.phase);
+            const bx = b.x + nx * 50;
+            const by = b.y + ny * 50;
+
+            // Gradient aquarelle
+            const grad = ctx.createRadialGradient(bx, by, 0, bx, by, b.size * (0.7 + pulse * 0.3));
+            grad.addColorStop(0, b.color.replace(')', ', 0.4)').replace('rgb', 'rgba'));
+            grad.addColorStop(0.5, b.color.replace(')', ', 0.2)').replace('rgb', 'rgba'));
+            grad.addColorStop(1, 'transparent');
+
+            ctx.globalAlpha = fadeIn * (0.3 + pulse * 0.2);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(bx, by, b.size * (0.7 + pulse * 0.3), 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- MINT: Feuilles de menthe flottantes ---
+AT.mint = {
+    init(cfg) {
+        state.leaves = [];
+        for (let i = 0; i < cap(20, quality); i++) {
+            state.leaves.push({
+                x: rand(0, W), y: rand(-H, 0),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-1, 1),
+                vy: rand(20, 50),
+                vx: rand(-10, 10),
+                size: rand(15, 35),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.leaves) for (const leaf of state.leaves) {
+            leaf.y += leaf.vy * dt;
+            leaf.x += leaf.vx * dt + Math.sin(leaf.y * 0.01) * 15 * dt;
+            leaf.rotation += leaf.rotSpeed * dt;
+
+            if (leaf.y > H + 50) {
+                leaf.y = -50;
+                leaf.x = rand(0, W);
+            }
+
+            ctx.save();
+            ctx.translate(leaf.x, leaf.y);
+            ctx.rotate(leaf.rotation);
+            ctx.globalAlpha = fadeIn * 0.7;
+
+            // Forme feuille menthe (ovale pointu)
+            ctx.beginPath();
+            ctx.ellipse(0, 0, leaf.size * 0.6, leaf.size, 0, 0, Math.PI * 2);
+            glow(6, leaf.color);
+            ctx.fillStyle = leaf.color;
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- PAPER: Fibres de papier ---
+AT.paper = {
+    init(cfg) {
+        state.fibers = [];
+        for (let i = 0; i < cap(60, quality); i++) {
+            state.fibers.push({
+                x: rand(0, W), y: rand(0, H),
+                length: rand(5, 25),
+                angle: rand(0, Math.PI * 2),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.05, 0.2),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 1;
+
+        if (state.fibers) for (const f of state.fibers) {
+            f.phase += f.speed * dt;
+            const pulse = (Math.sin(f.phase) + 1) * 0.5;
+
+            const x1 = f.x + Math.cos(f.angle) * f.length * 0.5;
+            const y1 = f.y + Math.sin(f.angle) * f.length * 0.5;
+            const x2 = f.x - Math.cos(f.angle) * f.length * 0.5;
+            const y2 = f.y - Math.sin(f.angle) * f.length * 0.5;
+
+            ctx.globalAlpha = fadeIn * pulse * 0.25;
+            ctx.strokeStyle = f.color;
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- PORCELAIN: Motifs céramique ---
+AT.porcelain = {
+    init(cfg) {
+        state.patterns = [];
+        for (let i = 0; i < cap(12, quality); i++) {
+            state.patterns.push({
+                x: rand(0, W), y: rand(0, H),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-0.2, 0.2),
+                size: rand(40, 80),
+                phase: rand(0, Math.PI * 2),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.patterns) for (const p of state.patterns) {
+            p.rotation += p.rotSpeed * dt;
+            p.phase += dt * 0.5;
+            const pulse = (Math.sin(p.phase) + 1) * 0.5;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = fadeIn * (0.15 + pulse * 0.1);
+
+            // Motif céramique (cercles concentriques)
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 1.5;
+            for (let r = 0; r < 3; r++) {
+                ctx.beginPath();
+                ctx.arc(0, 0, p.size * (0.3 + r * 0.25), 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Petits motifs décoratifs
+            for (let a = 0; a < Math.PI * 2; a += Math.PI / 4) {
+                const px = Math.cos(a) * p.size * 0.6;
+                const py = Math.sin(a) * p.size * 0.6;
+                ctx.beginPath();
+                ctx.arc(px, py, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- ZEN: Cercles concentriques ---
+AT.zen = {
+    init(cfg) {
+        state.ripples = [];
+        state.nextRipple = 0;
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        // Créer nouveau ripple toutes les 2-4s
+        state.nextRipple -= dt;
+        if (state.nextRipple <= 0 && state.ripples.length < cap(5, quality)) {
+            state.ripples.push({
+                x: rand(W * 0.2, W * 0.8),
+                y: rand(H * 0.2, H * 0.8),
+                radius: 0,
+                maxRadius: rand(150, 300),
+                speed: rand(30, 60),
+                color: cfg.c[state.ripples.length % cfg.c.length]
+            });
+            state.nextRipple = rand(2, 4);
+        }
+
+        // Animer ripples
+        if (state.ripples) {
+            ctx.lineWidth = 2;
+            for (let i = state.ripples.length - 1; i >= 0; i--) {
+                const r = state.ripples[i];
+                r.radius += r.speed * dt;
+
+                if (r.radius > r.maxRadius) {
+                    state.ripples.splice(i, 1);
+                    continue;
+                }
+
+                const alpha = 1 - (r.radius / r.maxRadius);
+                ctx.globalAlpha = fadeIn * alpha * 0.4;
+                ctx.strokeStyle = r.color;
+                ctx.beginPath();
+                ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- CLAY: Argile texturée ---
+AT.clay = {
+    init(cfg) {
+        state.grains = [];
+        for (let i = 0; i < cap(80, quality); i++) {
+            state.grains.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.05, 0.15),
+                size: rand(2, 6),
+                orbit: rand(5, 15),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.grains) for (const g of state.grains) {
+            g.phase += g.speed * dt;
+            const pulse = (Math.sin(g.phase * 3) + 1) * 0.5;
+
+            const nx = Math.sin(g.phase) * g.orbit;
+            const ny = Math.cos(g.phase * 0.8) * g.orbit;
+            const gx = g.x + nx;
+            const gy = g.y + ny;
+
+            ctx.globalAlpha = fadeIn * (0.3 + pulse * 0.2);
+            glow(3, g.color);
+            ctx.fillStyle = g.color;
+            ctx.beginPath();
+            ctx.arc(gx, gy, g.size * (0.8 + pulse * 0.2), 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- ESPRESSO: Vapeur de café ---
+AT.espresso = {
+    init(cfg) {
+        state.steam = [];
+        for (let i = 0; i < cap(15, quality); i++) {
+            state.steam.push({
+                x: rand(W * 0.3, W * 0.7),
+                y: H,
+                vy: rand(-40, -80),
+                vx: rand(-10, 10),
+                size: rand(15, 40),
+                life: 1.0,
+                decay: rand(0.15, 0.3),
+                phase: rand(0, Math.PI * 2),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.steam) for (let i = state.steam.length - 1; i >= 0; i--) {
+            const s = state.steam[i];
+
+            s.y += s.vy * dt;
+            s.x += s.vx * dt + Math.sin(s.y * 0.02) * 30 * dt;
+            s.life -= s.decay * dt;
+            s.phase += dt * 2;
+            s.size += 20 * dt; // Expansion
+
+            if (s.life <= 0 || s.y < -100) {
+                state.steam.splice(i, 1);
+                // Respawn
+                if (state.steam.length < cap(15, quality)) {
+                    state.steam.push({
+                        x: rand(W * 0.3, W * 0.7), y: H,
+                        vy: rand(-40, -80), vx: rand(-10, 10),
+                        size: rand(15, 40), life: 1.0, decay: rand(0.15, 0.3),
+                        phase: rand(0, Math.PI * 2),
+                        color: cfg.c[Math.floor(rand(0, cfg.c.length))]
+                    });
+                }
+                continue;
+            }
+
+            const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size);
+            grad.addColorStop(0, s.color.replace(')', ', ' + s.life * 0.3 + ')').replace('rgb', 'rgba'));
+            grad.addColorStop(0.5, s.color.replace(')', ', ' + s.life * 0.15 + ')').replace('rgb', 'rgba'));
+            grad.addColorStop(1, 'transparent');
+
+            ctx.globalAlpha = fadeIn * s.life;
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- ARTDECO: Motifs géométriques dorés ---
+AT.artdeco = {
+    init(cfg) {
+        state.patterns = [];
+        for (let i = 0; i < cap(10, quality); i++) {
+            state.patterns.push({
+                x: rand(0, W), y: rand(0, H),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-0.3, 0.3),
+                size: rand(50, 100),
+                phase: rand(0, Math.PI * 2),
+                shape: Math.floor(rand(0, 3)), // 0=éventail, 1=chevron, 2=diamant
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.patterns) for (const p of state.patterns) {
+            p.rotation += p.rotSpeed * dt;
+            p.phase += dt * 0.5;
+            const pulse = (Math.sin(p.phase) + 1) * 0.5;
+
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotation);
+            ctx.globalAlpha = fadeIn * (0.3 + pulse * 0.3);
+
+            glow(10, p.color);
+            ctx.strokeStyle = p.color;
+            ctx.lineWidth = 2;
+
+            if (p.shape === 0) {
+                // Éventail art déco
+                for (let i = 0; i < 7; i++) {
+                    const a = (Math.PI / 6) * (i - 3);
+                    const r = p.size * (0.8 + pulse * 0.2);
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+                    ctx.stroke();
+                }
+                // Arcs
+                for (let r = p.size * 0.3; r <= p.size; r += p.size * 0.2) {
+                    ctx.beginPath();
+                    ctx.arc(0, 0, r, -Math.PI / 2, Math.PI / 2);
+                    ctx.stroke();
+                }
+            } else if (p.shape === 1) {
+                // Chevron
+                ctx.beginPath();
+                ctx.moveTo(0, -p.size);
+                ctx.lineTo(p.size * 0.5, 0);
+                ctx.lineTo(0, p.size);
+                ctx.lineTo(-p.size * 0.5, 0);
+                ctx.closePath();
+                ctx.stroke();
+            } else {
+                // Diamant avec motifs
+                ctx.beginPath();
+                ctx.moveTo(0, -p.size);
+                ctx.lineTo(p.size * 0.6, 0);
+                ctx.lineTo(0, p.size);
+                ctx.lineTo(-p.size * 0.6, 0);
+                ctx.closePath();
+                ctx.stroke();
+
+                // Lignes internes
+                ctx.beginPath();
+                ctx.moveTo(-p.size * 0.6, 0);
+                ctx.lineTo(p.size * 0.6, 0);
+                ctx.moveTo(0, -p.size);
+                ctx.lineTo(0, p.size);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- COSMIC: Nébuleuse cosmique ---
+AT.cosmic = {
+    init(cfg) {
+        state.nebula = [];
+        state.cosmicStars = [];
+
+        // Nuages de nébuleuse
+        for (let i = 0; i < cap(6, quality); i++) {
+            state.nebula.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.05, 0.15),
+                size: rand(150, 300),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+
+        // Étoiles scintillantes
+        for (let i = 0; i < cap(50, quality); i++) {
+            state.cosmicStars.push({
+                x: rand(0, W), y: rand(0, H),
+                twinkle: rand(0, Math.PI * 2),
+                speed: rand(2, 5),
+                size: rand(1, 4),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        // Nébuleuse
+        if (state.nebula) for (const n of state.nebula) {
+            n.phase += n.speed * dt;
+            const pulse = (Math.sin(n.phase) + 1) * 0.5;
+
+            const nx = Math.sin(n.phase * 0.5) * 40;
+            const ny = Math.cos(n.phase * 0.3) * 40;
+
+            const grad = ctx.createRadialGradient(
+                n.x + nx, n.y + ny, 0,
+                n.x + nx, n.y + ny, n.size * (0.8 + pulse * 0.2)
+            );
+            grad.addColorStop(0, n.color.replace(')', ', 0.4)').replace('rgb', 'rgba'));
+            grad.addColorStop(0.5, n.color.replace(')', ', 0.2)').replace('rgb', 'rgba'));
+            grad.addColorStop(1, 'transparent');
+
+            ctx.globalAlpha = fadeIn * 0.6;
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(n.x + nx, n.y + ny, n.size * (0.8 + pulse * 0.2), 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Étoiles
+        if (state.cosmicStars) for (const s of state.cosmicStars) {
+            s.twinkle += s.speed * dt;
+            const brightness = (Math.sin(s.twinkle) + 1) * 0.5;
+
+            ctx.globalAlpha = fadeIn * (0.3 + brightness * 0.6);
+            glow(8, s.color);
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size * (0.5 + brightness * 0.5), 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// ARTISTE - 6 ANIMATIONS UNIQUES (watercolor, nordic, artdeco, cosmic, zen)
+// ==========================================================
+
+// --- WATERCOLOR: Taches d'aquarelle ---
+AT.watercolor = {
+    init(cfg) {
+        state.splashes = [];
+        for (let i = 0; i < cap(6, quality); i++) {
+            state.splashes.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.1, 0.25),
+                size: rand(100, 200),
+                color: cfg.c[i % cfg.c.length],
+                blobs: []
+            });
+
+            // Créer blobs pour chaque splash
+            for (let j = 0; j < 5; j++) {
+                state.splashes[i].blobs.push({
+                    offsetX: rand(-30, 30),
+                    offsetY: rand(-30, 30),
+                    size: rand(0.4, 1.0)
+                });
+            }
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'multiply';
+
+        if (state.splashes) for (const s of state.splashes) {
+            s.phase += s.speed * dt;
+            const pulse = (Math.sin(s.phase) + 1) * 0.5;
+
+            // Dessiner blobs organiques
+            for (const b of s.blobs) {
+                const bx = s.x + b.offsetX + Math.sin(s.phase + b.offsetX) * 10;
+                const by = s.y + b.offsetY + Math.cos(s.phase + b.offsetY) * 10;
+                const bsize = s.size * b.size * (0.8 + pulse * 0.2);
+
+                const grad = ctx.createRadialGradient(bx, by, 0, bx, by, bsize);
+                grad.addColorStop(0, s.color.replace(')', ', 0.3)').replace('rgb', 'rgba'));
+                grad.addColorStop(0.6, s.color.replace(')', ', 0.15)').replace('rgb', 'rgba'));
+                grad.addColorStop(1, 'transparent');
+
+                ctx.globalAlpha = fadeIn * 0.35;
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(bx, by, bsize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- NORDIC: Flocons géométriques ---
+AT.nordic = {
+    init(cfg) {
+        state.snowflakes = [];
+        for (let i = 0; i < cap(15, quality); i++) {
+            state.snowflakes.push({
+                x: rand(0, W), y: rand(-H, 0),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-0.5, 0.5),
+                vy: rand(15, 40),
+                vx: rand(-5, 5),
+                size: rand(20, 45),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 2;
+
+        if (state.snowflakes) for (const flake of state.snowflakes) {
+            flake.y += flake.vy * dt;
+            flake.x += flake.vx * dt + Math.sin(flake.y * 0.01) * 10 * dt;
+            flake.rotation += flake.rotSpeed * dt;
+
+            if (flake.y > H + 50) {
+                flake.y = -50;
+                flake.x = rand(0, W);
+            }
+
+            ctx.save();
+            ctx.translate(flake.x, flake.y);
+            ctx.rotate(flake.rotation);
+            ctx.globalAlpha = fadeIn * 0.5;
+            ctx.strokeStyle = flake.color;
+
+            // Flocon géométrique nordique (6 branches)
+            for (let a = 0; a < Math.PI * 2; a += Math.PI / 3) {
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                const ex = Math.cos(a) * flake.size;
+                const ey = Math.sin(a) * flake.size;
+                ctx.lineTo(ex, ey);
+
+                // Branches secondaires
+                const mx = ex * 0.6, my = ey * 0.6;
+                ctx.moveTo(mx + Math.cos(a + Math.PI/4) * flake.size * 0.3, my + Math.sin(a + Math.PI/4) * flake.size * 0.3);
+                ctx.lineTo(mx, my);
+                ctx.lineTo(mx + Math.cos(a - Math.PI/4) * flake.size * 0.3, my + Math.sin(a - Math.PI/4) * flake.size * 0.3);
+
+                ctx.stroke();
+            }
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// SAISONS - 4 ANIMATIONS UNIQUES
+// ==========================================================
+
+// --- PRINTEMPS: Fleurs qui éclosent ---
+AT.printemps = {
+    init(cfg) {
+        state.flowers = [];
+        for (let i = 0; i < cap(12, quality); i++) {
+            state.flowers.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.2, 0.5),
+                size: rand(25, 50),
+                petals: 5 + Math.floor(rand(0, 3)),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.flowers) for (const f of state.flowers) {
+            f.phase += f.speed * dt;
+            const bloom = (Math.sin(f.phase * 0.5) + 1) * 0.5; // Ouverture/fermeture
+
+            ctx.save();
+            ctx.translate(f.x, f.y);
+            ctx.globalAlpha = fadeIn * 0.6;
+
+            // Pétales
+            for (let i = 0; i < f.petals; i++) {
+                const angle = (Math.PI * 2 / f.petals) * i + f.phase * 0.1;
+                ctx.save();
+                ctx.rotate(angle);
+
+                glow(5, f.color);
+                ctx.fillStyle = f.color;
+                ctx.beginPath();
+                ctx.ellipse(f.size * bloom * 0.5, 0, f.size * bloom * 0.4, f.size * bloom * 0.25, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            // Centre de la fleur
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(0, 0, f.size * 0.15, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- ETE: Rayons de soleil ---
+AT.ete = {
+    init(cfg) {
+        state.rays = [];
+        for (let i = 0; i < cap(8, quality); i++) {
+            state.rays.push({
+                angle: (Math.PI * 2 / 8) * i,
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.3, 0.6),
+                length: rand(0.6, 1.0),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+        state.sunX = W * 0.8;
+        state.sunY = H * 0.2;
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        // Rayons de soleil
+        if (state.rays) for (const r of state.rays) {
+            r.phase += r.speed * dt;
+            const pulse = (Math.sin(r.phase) + 1) * 0.5;
+
+            const endX = state.sunX + Math.cos(r.angle) * 300 * r.length;
+            const endY = state.sunY + Math.sin(r.angle) * 300 * r.length;
+
+            const grad = ctx.createLinearGradient(state.sunX, state.sunY, endX, endY);
+            grad.addColorStop(0, r.color);
+            grad.addColorStop(1, 'transparent');
+
+            ctx.globalAlpha = fadeIn * (0.2 + pulse * 0.3);
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 40;
+            ctx.beginPath();
+            ctx.moveTo(state.sunX, state.sunY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+        }
+
+        // Soleil
+        const sunGrad = ctx.createRadialGradient(state.sunX, state.sunY, 0, state.sunX, state.sunY, 60);
+        sunGrad.addColorStop(0, '#FFD700');
+        sunGrad.addColorStop(0.5, '#FFA500');
+        sunGrad.addColorStop(1, 'transparent');
+
+        ctx.globalAlpha = fadeIn * 0.5;
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(state.sunX, state.sunY, 60, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- AUTOMNE: Feuilles tombantes uniques ---
+AT.automne = {
+    init(cfg) {
+        state.leaves = [];
+        for (let i = 0; i < cap(30, quality); i++) {
+            state.leaves.push({
+                x: rand(0, W), y: rand(-H, 0),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-2, 2),
+                vy: rand(30, 80),
+                vx: rand(-20, 20),
+                size: rand(10, 25),
+                shape: Math.floor(rand(0, 3)), // 0=érable, 1=chêne, 2=simple
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.leaves) for (const leaf of state.leaves) {
+            leaf.y += leaf.vy * dt;
+            leaf.x += leaf.vx * dt + Math.sin(leaf.y * 0.02) * 30 * dt;
+            leaf.rotation += leaf.rotSpeed * dt;
+
+            if (leaf.y > H + 50) {
+                leaf.y = -50;
+                leaf.x = rand(0, W);
+            }
+
+            ctx.save();
+            ctx.translate(leaf.x, leaf.y);
+            ctx.rotate(leaf.rotation);
+            ctx.globalAlpha = fadeIn * 0.8;
+
+            glow(4, leaf.color);
+            ctx.fillStyle = leaf.color;
+
+            // Différentes formes de feuilles
+            ctx.beginPath();
+            if (leaf.shape === 0) {
+                // Feuille d'érable (étoile)
+                for (let i = 0; i < 5; i++) {
+                    const a = (Math.PI * 2 / 5) * i - Math.PI / 2;
+                    const r = i % 2 === 0 ? leaf.size : leaf.size * 0.5;
+                    ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+                }
+            } else if (leaf.shape === 1) {
+                // Feuille de chêne (lobée)
+                ctx.ellipse(0, 0, leaf.size * 0.6, leaf.size, 0, 0, Math.PI * 2);
+            } else {
+                // Feuille simple (ovale)
+                ctx.ellipse(0, 0, leaf.size * 0.5, leaf.size * 0.8, 0, 0, Math.PI * 2);
+            }
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- HIVER: Flocons de neige uniques ---
+AT.hiver = {
+    init(cfg) {
+        state.snowflakes = [];
+        for (let i = 0; i < cap(40, quality); i++) {
+            state.snowflakes.push({
+                x: rand(0, W), y: rand(-H, 0),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-1, 1),
+                vy: rand(20, 60),
+                vx: rand(-10, 10),
+                size: rand(3, 12),
+                twinkle: rand(0, Math.PI * 2),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.snowflakes) for (const flake of state.snowflakes) {
+            flake.y += flake.vy * dt;
+            flake.x += flake.vx * dt + Math.sin(flake.y * 0.01) * 5 * dt;
+            flake.rotation += flake.rotSpeed * dt;
+            flake.twinkle += dt * 3;
+
+            if (flake.y > H + 20) {
+                flake.y = -20;
+                flake.x = rand(0, W);
+            }
+
+            const brightness = (Math.sin(flake.twinkle) + 1) * 0.5;
+
+            ctx.save();
+            ctx.translate(flake.x, flake.y);
+            ctx.rotate(flake.rotation);
+            ctx.globalAlpha = fadeIn * (0.4 + brightness * 0.5);
+
+            glow(6, flake.color);
+            ctx.fillStyle = flake.color;
+
+            // Flocon en étoile
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const a = (Math.PI * 2 / 6) * i;
+                ctx.moveTo(0, 0);
+                ctx.lineTo(Math.cos(a) * flake.size, Math.sin(a) * flake.size);
+            }
+            ctx.stroke();
+
+            // Centre brillant
+            ctx.beginPath();
+            ctx.arc(0, 0, flake.size * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// PRÉCIEUX - 5 ANIMATIONS UNIQUES
+// ==========================================================
+
+// --- AMETHYST: Cristaux améthyste ---
+AT.amethyst = {
+    init(cfg) {
+        state.crystals = [];
+        for (let i = 0; i < cap(15, quality); i++) {
+            state.crystals.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.3, 0.8),
+                size: rand(20, 50),
+                sides: 6,
+                rotation: rand(0, Math.PI / 3),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.crystals) for (const c of state.crystals) {
+            c.phase += c.speed * dt;
+            const pulse = (Math.sin(c.phase) + 1) * 0.5;
+
+            ctx.save();
+            ctx.translate(c.x, c.y);
+            ctx.rotate(c.rotation);
+            ctx.globalAlpha = fadeIn * (0.3 + pulse * 0.4);
+
+            // Cristal hexagonal
+            ctx.beginPath();
+            for (let i = 0; i < c.sides; i++) {
+                const a = (Math.PI * 2 / c.sides) * i;
+                const r = c.size * (0.8 + pulse * 0.2);
+                const px = Math.cos(a) * r;
+                const py = Math.sin(a) * r;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+
+            glow(12, c.color);
+            ctx.strokeStyle = c.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Éclat interne
+            ctx.fillStyle = c.color.replace(')', ', 0.3)').replace('rgb', 'rgba');
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- JADE: Spirales de jade ---
+AT.jade = {
+    init(cfg) {
+        state.spirals = [];
+        for (let i = 0; i < cap(10, quality); i++) {
+            state.spirals.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.2, 0.5),
+                size: rand(40, 80),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineWidth = 2;
+
+        if (state.spirals) for (const s of state.spirals) {
+            s.phase += s.speed * dt;
+            const pulse = (Math.sin(s.phase) + 1) * 0.5;
+
+            ctx.globalAlpha = fadeIn * (0.3 + pulse * 0.3);
+            glow(8, s.color);
+            ctx.strokeStyle = s.color;
+
+            // Spirale jade
+            ctx.beginPath();
+            for (let i = 0; i < 50; i++) {
+                const t = i / 50;
+                const a = t * Math.PI * 4 + s.phase;
+                const r = s.size * t * (0.8 + pulse * 0.2);
+                const px = s.x + Math.cos(a) * r;
+                const py = s.y + Math.sin(a) * r;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.stroke();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- RUBY: Gemmes rubis pulsantes ---
+AT.ruby = {
+    init(cfg) {
+        state.gems = [];
+        for (let i = 0; i < cap(18, quality); i++) {
+            state.gems.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.5, 1.2),
+                size: rand(8, 20),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-0.5, 0.5),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.gems) for (const g of state.gems) {
+            g.phase += g.speed * dt;
+            g.rotation += g.rotSpeed * dt;
+            const pulse = (Math.sin(g.phase) + 1) * 0.5;
+
+            ctx.save();
+            ctx.translate(g.x, g.y);
+            ctx.rotate(g.rotation);
+            ctx.globalAlpha = fadeIn * (0.5 + pulse * 0.4);
+
+            // Gemme diamant (losange)
+            ctx.beginPath();
+            ctx.moveTo(0, -g.size);
+            ctx.lineTo(g.size * 0.6, 0);
+            ctx.lineTo(0, g.size);
+            ctx.lineTo(-g.size * 0.6, 0);
+            ctx.closePath();
+
+            glow(15, g.color);
+            ctx.fillStyle = g.color;
+            ctx.fill();
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- PEARL: Perles nacrées ---
+AT.pearl = {
+    init(cfg) {
+        state.pearls = [];
+        for (let i = 0; i < cap(20, quality); i++) {
+            state.pearls.push({
+                x: rand(0, W), y: rand(0, H),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.1, 0.3),
+                size: rand(15, 35),
+                orbit: rand(20, 50),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.pearls) for (const p of state.pearls) {
+            p.phase += p.speed * dt;
+            const pulse = (Math.sin(p.phase * 2) + 1) * 0.5;
+
+            const nx = Math.sin(p.phase) * p.orbit;
+            const ny = Math.cos(p.phase * 0.7) * p.orbit;
+            const px = p.x + nx;
+            const py = p.y + ny;
+
+            // Perle avec reflet
+            const grad = ctx.createRadialGradient(
+                px - p.size * 0.3, py - p.size * 0.3, 0,
+                px, py, p.size
+            );
+            grad.addColorStop(0, '#FFFFFF');
+            grad.addColorStop(0.3, p.color);
+            grad.addColorStop(1, p.color.replace(')', ', 0.5)').replace('rgb', 'rgba'));
+
+            ctx.globalAlpha = fadeIn * (0.4 + pulse * 0.2);
+            glow(8, p.color);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(px, py, p.size * (0.9 + pulse * 0.1), 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- COPPER: Étincelles cuivrées ---
+AT.copper = {
+    init(cfg) {
+        state.sparks = [];
+        for (let i = 0; i < cap(30, quality); i++) {
+            state.sparks.push({
+                x: rand(0, W), y: H + rand(0, 100),
+                vx: rand(-30, 30),
+                vy: rand(-100, -200),
+                gravity: rand(150, 250),
+                life: 1.0,
+                decay: rand(0.3, 0.6),
+                size: rand(2, 6),
+                trail: [],
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.sparks) for (let i = state.sparks.length - 1; i >= 0; i--) {
+            const s = state.sparks[i];
+
+            s.vy += s.gravity * dt;
+            s.x += s.vx * dt;
+            s.y += s.vy * dt;
+            s.life -= s.decay * dt;
+
+            // Trail
+            s.trail.unshift({ x: s.x, y: s.y });
+            if (s.trail.length > 8) s.trail.pop();
+
+            if (s.life <= 0 || s.y > H + 50) {
+                state.sparks.splice(i, 1);
+                // Respawn
+                if (state.sparks.length < cap(30, quality)) {
+                    state.sparks.push({
+                        x: rand(0, W), y: H + rand(0, 100),
+                        vx: rand(-30, 30), vy: rand(-100, -200),
+                        gravity: rand(150, 250), life: 1.0, decay: rand(0.3, 0.6),
+                        size: rand(2, 6), trail: [], color: cfg.c[Math.floor(rand(0, cfg.c.length))]
+                    });
+                }
+                continue;
+            }
+
+            // Dessiner trail
+            ctx.lineWidth = s.size;
+            for (let j = 0; j < s.trail.length - 1; j++) {
+                const alpha = (1 - j / s.trail.length) * s.life;
+                ctx.globalAlpha = fadeIn * alpha * 0.6;
+                ctx.strokeStyle = s.color;
+                ctx.beginPath();
+                ctx.moveTo(s.trail[j].x, s.trail[j].y);
+                ctx.lineTo(s.trail[j + 1].x, s.trail[j + 1].y);
+                ctx.stroke();
+            }
+
+            // Étincelle principale
+            ctx.globalAlpha = fadeIn * s.life;
+            glow(12, s.color);
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// VOYAGE - 3 ANIMATIONS UNIQUES
+// ==========================================================
+
+// --- BAMBOO: Tiges de bambou ondulantes ---
+AT.bamboo = {
+    init(cfg) {
+        state.stalks = [];
+        for (let i = 0; i < cap(10, quality); i++) {
+            state.stalks.push({
+                x: rand(0, W),
+                segments: 5 + Math.floor(rand(0, 3)),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.3, 0.6),
+                width: rand(8, 15),
+                segHeight: rand(50, 80),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 4;
+
+        if (state.stalks) for (const stalk of state.stalks) {
+            stalk.phase += stalk.speed * dt;
+            const sway = Math.sin(stalk.phase) * 15;
+
+            ctx.strokeStyle = stalk.color;
+            ctx.globalAlpha = fadeIn * 0.6;
+
+            // Dessiner segments de bambou
+            for (let i = 0; i < stalk.segments; i++) {
+                const y1 = H - i * stalk.segHeight;
+                const y2 = H - (i + 1) * stalk.segHeight;
+                const x1 = stalk.x + sway * (i / stalk.segments);
+                const x2 = stalk.x + sway * ((i + 1) / stalk.segments);
+
+                // Tige
+                ctx.lineWidth = stalk.width * (1 - i / stalk.segments * 0.5);
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                // Nœud
+                ctx.globalAlpha = fadeIn * 0.8;
+                ctx.beginPath();
+                ctx.arc(x2, y2, stalk.width * 0.6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = fadeIn * 0.6;
+            }
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- PROVENCE: Champs de lavande ---
+AT.provence = {
+    init(cfg) {
+        state.lavender = [];
+        for (let i = 0; i < cap(25, quality); i++) {
+            state.lavender.push({
+                x: rand(0, W),
+                y: H * 0.6 + rand(0, H * 0.4),
+                height: rand(40, 100),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.4, 0.8),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.lavender) for (const plant of state.lavender) {
+            plant.phase += plant.speed * dt;
+            const sway = Math.sin(plant.phase) * 8;
+
+            ctx.strokeStyle = plant.color;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = fadeIn * 0.7;
+
+            // Tige
+            ctx.beginPath();
+            ctx.moveTo(plant.x, plant.y);
+            ctx.lineTo(plant.x + sway, plant.y - plant.height);
+            ctx.stroke();
+
+            // Fleurs de lavande (petits cercles)
+            for (let i = 0; i < 8; i++) {
+                const t = i / 8;
+                const fx = lerp(plant.x, plant.x + sway, t);
+                const fy = lerp(plant.y, plant.y - plant.height, t);
+                const pulse = (Math.sin(plant.phase + i) + 1) * 0.5;
+
+                ctx.globalAlpha = fadeIn * (0.5 + pulse * 0.3);
+                glow(4, plant.color);
+                ctx.fillStyle = plant.color;
+                ctx.beginPath();
+                ctx.arc(fx, fy, 3 * (0.8 + pulse * 0.2), 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- SNOW: Tempête de neige ---
+AT.snow = {
+    init(cfg) {
+        state.snowfall = [];
+        for (let i = 0; i < cap(100, quality); i++) {
+            state.snowfall.push({
+                x: rand(0, W), y: rand(-H, H),
+                vx: rand(-30, 30),
+                vy: rand(40, 120),
+                size: rand(2, 8),
+                twinkle: rand(0, Math.PI * 2),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+        state.wind = 0;
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        // Vent variable
+        state.wind = Math.sin(time * 0.3) * 20;
+
+        if (state.snowfall) for (const flake of state.snowfall) {
+            flake.x += (flake.vx + state.wind) * dt;
+            flake.y += flake.vy * dt;
+            flake.twinkle += dt * 4;
+
+            // Wrap autour
+            if (flake.x < -10) flake.x = W + 10;
+            if (flake.x > W + 10) flake.x = -10;
+            if (flake.y > H + 10) {
+                flake.y = -10;
+                flake.x = rand(0, W);
+            }
+
+            const brightness = (Math.sin(flake.twinkle) + 1) * 0.5;
+            ctx.globalAlpha = fadeIn * (0.4 + brightness * 0.4);
+
+            glow(4, flake.color);
+            ctx.fillStyle = flake.color;
+            ctx.beginPath();
+            ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// AUTRES - 5 ANIMATIONS UNIQUES (coral, charcoal, ukiyo-e, bubblegum, retrowave)
+// ==========================================================
+
+// --- CORAL: Récif de corail ondulant ---
+AT.coral = {
+    init(cfg) {
+        state.branches = [];
+        for (let i = 0; i < cap(12, quality); i++) {
+            state.branches.push({
+                x: rand(W * 0.2, W * 0.8),
+                y: H * 0.7 + rand(0, H * 0.3),
+                segments: 8 + Math.floor(rand(0, 5)),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.3, 0.6),
+                angle: rand(-Math.PI / 4, Math.PI / 4),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+
+        if (state.branches) for (const branch of state.branches) {
+            branch.phase += branch.speed * dt;
+
+            let x = branch.x;
+            let y = branch.y;
+            let angle = branch.angle;
+
+            ctx.strokeStyle = branch.color;
+            ctx.globalAlpha = fadeIn * 0.7;
+
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+
+            for (let i = 0; i < branch.segments; i++) {
+                const sway = Math.sin(branch.phase + i * 0.5) * 5;
+                angle += sway * 0.1;
+                x += Math.cos(angle - Math.PI / 2) * 15;
+                y += Math.sin(angle - Math.PI / 2) * 15;
+
+                ctx.lineTo(x, y);
+                ctx.lineWidth = 6 * (1 - i / branch.segments);
+            }
+
+            glow(8, branch.color);
+            ctx.stroke();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- CHARCOAL: Cendres volantes ---
+AT.charcoal = {
+    init(cfg) {
+        state.ashes = [];
+        for (let i = 0; i < cap(50, quality); i++) {
+            state.ashes.push({
+                x: rand(0, W), y: H + rand(0, 50),
+                vx: rand(-15, 15),
+                vy: rand(-60, -120),
+                rotation: rand(0, Math.PI * 2),
+                rotSpeed: rand(-2, 2),
+                size: rand(3, 10),
+                life: 1.0,
+                decay: rand(0.2, 0.4),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+
+        if (state.ashes) for (let i = state.ashes.length - 1; i >= 0; i--) {
+            const ash = state.ashes[i];
+
+            ash.x += ash.vx * dt;
+            ash.y += ash.vy * dt;
+            ash.rotation += ash.rotSpeed * dt;
+            ash.life -= ash.decay * dt;
+            ash.vy += 30 * dt; // Gravité légère
+
+            if (ash.life <= 0 || ash.y < -50) {
+                state.ashes.splice(i, 1);
+                // Respawn
+                if (state.ashes.length < cap(50, quality)) {
+                    state.ashes.push({
+                        x: rand(0, W), y: H + rand(0, 50),
+                        vx: rand(-15, 15), vy: rand(-60, -120),
+                        rotation: rand(0, Math.PI * 2), rotSpeed: rand(-2, 2),
+                        size: rand(3, 10), life: 1.0, decay: rand(0.2, 0.4),
+                        color: cfg.c[Math.floor(rand(0, cfg.c.length))]
+                    });
+                }
+                continue;
+            }
+
+            ctx.save();
+            ctx.translate(ash.x, ash.y);
+            ctx.rotate(ash.rotation);
+            ctx.globalAlpha = fadeIn * ash.life * 0.6;
+
+            ctx.fillStyle = ash.color;
+            ctx.fillRect(-ash.size / 2, -ash.size / 2, ash.size, ash.size);
+
+            ctx.restore();
+        }
+
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- UKIYO-E: Vagues japonaises ---
+AT.ukiyoe = {
+    init(cfg) {
+        state.waves = [];
+        for (let i = 0; i < 5; i++) {
+            state.waves.push({
+                y: H * 0.4 + i * 60,
+                phase: rand(0, Math.PI * 2),
+                speed: 0.5 + i * 0.1,
+                amplitude: 30 - i * 3,
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.lineWidth = 4;
+
+        if (state.waves) for (const wave of state.waves) {
+            wave.phase += wave.speed * dt;
+
+            ctx.strokeStyle = wave.color;
+            ctx.globalAlpha = fadeIn * 0.6;
+
+            ctx.beginPath();
+            for (let x = 0; x <= W; x += 10) {
+                const y = wave.y + Math.sin(x * 0.02 + wave.phase) * wave.amplitude;
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+
+            glow(6, wave.color);
+            ctx.stroke();
+        }
+
+        noGlow();
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- BUBBLEGUM: Bulles de chewing-gum ---
+AT.bubblegum = {
+    init(cfg) {
+        state.bubbles = [];
+        for (let i = 0; i < cap(15, quality); i++) {
+            state.bubbles.push({
+                x: rand(0, W), y: H + rand(0, 100),
+                vy: rand(-30, -80),
+                vx: rand(-10, 10),
+                size: rand(30, 80),
+                phase: rand(0, Math.PI * 2),
+                speed: rand(0.5, 1.5),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        if (state.bubbles) for (let i = state.bubbles.length - 1; i >= 0; i--) {
+            const b = state.bubbles[i];
+
+            b.y += b.vy * dt;
+            b.x += b.vx * dt + Math.sin(b.y * 0.01) * 20 * dt;
+            b.phase += b.speed * dt;
+
+            if (b.y < -100) {
+                b.y = H + 100;
+                b.x = rand(0, W);
+            }
+
+            const pulse = (Math.sin(b.phase) + 1) * 0.5;
+            const r = b.size * (0.9 + pulse * 0.1);
+
+            // Bulle avec reflet
+            const grad = ctx.createRadialGradient(
+                b.x - r * 0.3, b.y - r * 0.3, 0,
+                b.x, b.y, r
+            );
+            grad.addColorStop(0, '#FFFFFF');
+            grad.addColorStop(0.3, b.color);
+            grad.addColorStop(0.7, b.color);
+            grad.addColorStop(1, 'transparent');
+
+            ctx.globalAlpha = fadeIn * 0.6;
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Contour brillant
+            ctx.globalAlpha = fadeIn * 0.8;
+            ctx.strokeStyle = b.color;
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// --- RETROWAVE: Grille rétro + soleil ---
+AT.retrowave = {
+    init(cfg) {
+        state.gridLines = 20;
+        state.sunY = H * 0.3;
+        state.gridPhase = 0;
+    },
+    render(dt, cfg) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
+
+        state.gridPhase += dt * 50;
+
+        // Grille perspective
+        ctx.strokeStyle = cfg.c[0];
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = fadeIn * 0.5;
+
+        const horizon = H * 0.5;
+        const gridSpacing = 40;
+
+        // Lignes horizontales
+        for (let i = 0; i < state.gridLines; i++) {
+            const y = horizon + i * gridSpacing - (state.gridPhase % gridSpacing);
+            const scale = (y - horizon) / (H - horizon);
+            const width = W * (1 - scale * 0.5);
+
+            ctx.beginPath();
+            ctx.moveTo((W - width) / 2, y);
+            ctx.lineTo((W + width) / 2, y);
+            ctx.stroke();
+        }
+
+        // Lignes verticales
+        for (let i = -10; i <= 10; i++) {
+            ctx.beginPath();
+            const xTop = W / 2 + i * 30;
+            const xBot = W / 2 + i * 100;
+            ctx.moveTo(xTop, horizon);
+            ctx.lineTo(xBot, H);
+            ctx.stroke();
+        }
+
+        // Soleil rétro
+        const sunGrad = ctx.createRadialGradient(W / 2, state.sunY, 0, W / 2, state.sunY, 100);
+        sunGrad.addColorStop(0, cfg.c[1]);
+        sunGrad.addColorStop(0.5, cfg.c[2]);
+        sunGrad.addColorStop(1, 'transparent');
+
+        ctx.globalAlpha = fadeIn * 0.7;
+        ctx.fillStyle = sunGrad;
+        ctx.beginPath();
+        ctx.arc(W / 2, state.sunY, 100, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Lignes du soleil
+        ctx.strokeStyle = cfg.c[3] || cfg.c[0];
+        ctx.lineWidth = 2;
+        for (let i = 0; i < 10; i++) {
+            const y = state.sunY - 50 + i * 10;
+            ctx.beginPath();
+            ctx.arc(W / 2, state.sunY, Math.abs(state.sunY - y), 0, Math.PI, true);
+            ctx.stroke();
+        }
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fadeIn;
+    }
+};
+
+// ==========================================================
+// ANCIENNES ANIMATIONS (à conserver pour compatibilité)
+// ==========================================================
 
 // --- PARTICLES: elegant floating orbs ---
 AT.particles = {

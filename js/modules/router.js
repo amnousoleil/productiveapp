@@ -29,8 +29,7 @@ const ViewRouter = (function() {
         giriVision: 'Giri Vision',
         calendar: 'Calendrier',
         mail: 'Mail',
-        admin: 'Administration',
-        configDev: 'Configuration'
+        admin: 'Administration'
     };
 
     // Available views
@@ -92,46 +91,6 @@ const ViewRouter = (function() {
             // Show admin view
             if (typeof AdminView !== 'undefined') {
                 AdminView.show();
-            }
-
-            return true;
-        }
-
-        // Special handling for config-dev view (custom rendering)
-        if (viewId === 'configDev') {
-            previousView = currentView;
-            currentView = viewId;
-
-            // Hide all views
-            document.querySelectorAll('.view-container').forEach(view => {
-                view.classList.remove('active');
-            });
-
-            // Show config-dev view container
-            const configDevContainer = document.getElementById('view-config-dev');
-            if (configDevContainer) {
-                configDevContainer.classList.add('active');
-            }
-
-            // Update sidebar active state
-            if (typeof Sidebar !== 'undefined') {
-                Sidebar.setActiveItem(viewId);
-            }
-
-            // Update page title
-            document.title = 'Configuration - ProductiveApp';
-
-            // Update URL hash
-            history.pushState({ view: viewId }, '', `#${viewId}`);
-
-            // Emit event
-            document.dispatchEvent(new CustomEvent('viewchange', {
-                detail: { view: viewId, previous: previousView }
-            }));
-
-            // Show config-dev view
-            if (typeof ConfigDevView !== 'undefined') {
-                ConfigDevView.render();
             }
 
             return true;

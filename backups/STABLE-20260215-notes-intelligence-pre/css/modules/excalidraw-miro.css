@@ -1,0 +1,595 @@
+/**
+ * =============================================
+ * EXCALIDRAW MIRO - Styles Premium Miro
+ * =============================================
+ *
+ * Transforme l'UI Excalidraw en clone Miro parfait
+ * Toolbar horizontal, glassmorphism, animations smooth
+ */
+
+/* =============================================
+   CONTAINER PRINCIPAL
+   ============================================= */
+
+#excalidraw-container {
+  width: 100%;
+  height: calc(100vh - 60px); /* Header height */
+  position: relative;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+#excalidraw-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* =============================================
+   TOOLBAR MIRO (HORIZONTAL EN BAS)
+   ============================================= */
+
+.miro-toolbar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(225, 228, 232, 0.8);
+  border-radius: 16px;
+  padding: 12px 24px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  z-index: 9999;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUpFade 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.miro-toolbar:hover {
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.10),
+    0 16px 40px rgba(0, 0, 0, 0.14),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* =============================================
+   TOOLBAR SECTIONS
+   ============================================= */
+
+.miro-toolbar-section {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding-right: 20px;
+  border-right: 1px solid rgba(225, 228, 232, 0.6);
+}
+
+.miro-toolbar-section:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+/* =============================================
+   TOOLBAR BUTTONS (OUTILS)
+   ============================================= */
+
+.miro-tool {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #050038;
+  position: relative;
+}
+
+.miro-tool:hover {
+  background: rgba(5, 0, 56, 0.06);
+  transform: scale(1.05);
+}
+
+.miro-tool:active {
+  transform: scale(0.95);
+}
+
+.miro-tool.active {
+  background: linear-gradient(135deg, #E8F5FD 0%, #D0EBFF 100%);
+  border: 2px solid #0074E8;
+  box-shadow: 0 2px 8px rgba(0, 116, 232, 0.2);
+}
+
+.miro-tool.active::after {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #0074E8;
+  border-radius: 50%;
+  animation: activeIndicatorPulse 2s ease-in-out infinite;
+}
+
+@keyframes activeIndicatorPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(1.3);
+  }
+}
+
+.miro-tool svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  transition: all 0.2s;
+}
+
+.miro-tool.active svg {
+  stroke: #0074E8;
+}
+
+.miro-tool:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* =============================================
+   COLOR SWATCHES (PALETTE MIRO)
+   ============================================= */
+
+.miro-toolbar-colors {
+  gap: 8px;
+  padding-right: 20px;
+}
+
+.color-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.color-swatch:active {
+  transform: scale(1.05);
+}
+
+.color-swatch.active {
+  border-color: #050038;
+  box-shadow:
+    0 0 0 3px rgba(5, 0, 56, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: scale(1.1);
+}
+
+.color-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: bold;
+  color: #FFFFFF;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Blanc nécessite un check noir */
+.color-swatch[data-color="#FFFFFF"].active::after {
+  color: #050038;
+}
+
+/* =============================================
+   MODAL OVERLAY (TEMPLATES & EXPORT)
+   ============================================= */
+
+.miro-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 10, 26, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.miro-modal {
+  background: #FFFFFF;
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.miro-modal h3 {
+  margin: 0 0 24px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #050038;
+}
+
+.miro-modal-close {
+  width: 100%;
+  padding: 12px 24px;
+  margin-top: 24px;
+  border: 1px solid #E1E4E8;
+  background: #FFFFFF;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #050038;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.miro-modal-close:hover {
+  background: #F6F8FA;
+  border-color: #050038;
+}
+
+/* =============================================
+   TEMPLATES GRID
+   ============================================= */
+
+.miro-templates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.miro-template-card {
+  padding: 24px;
+  border: 2px solid #E1E4E8;
+  border-radius: 12px;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.miro-template-card:hover {
+  border-color: #0074E8;
+  background: #F8FCFF;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 116, 232, 0.15);
+}
+
+.miro-template-card:active {
+  transform: translateY(-2px);
+}
+
+.template-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.template-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #050038;
+}
+
+/* =============================================
+   EXPORT OPTIONS
+   ============================================= */
+
+.miro-export-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.miro-export-btn {
+  padding: 16px 24px;
+  border: 2px solid #E1E4E8;
+  border-radius: 10px;
+  background: #FFFFFF;
+  font-size: 16px;
+  font-weight: 500;
+  color: #050038;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.miro-export-btn:hover {
+  border-color: #0074E8;
+  background: #F8FCFF;
+  transform: translateX(4px);
+}
+
+.miro-export-btn:active {
+  transform: translateX(2px);
+}
+
+/* =============================================
+   ZOOM CONTROLS (COIN DROIT)
+   ============================================= */
+
+.miro-zoom-controls {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(225, 228, 232, 0.8);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  z-index: 9998;
+}
+
+.miro-zoom-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #050038;
+  transition: all 0.2s;
+}
+
+.miro-zoom-btn:hover {
+  background: rgba(5, 0, 56, 0.06);
+}
+
+/* =============================================
+   RESPONSIVE MOBILE
+   ============================================= */
+
+@media (max-width: 768px) {
+  .miro-toolbar {
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    transform: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .miro-toolbar:hover {
+    transform: none;
+  }
+
+  .miro-toolbar-section {
+    border-right: none;
+    padding-right: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .miro-tool {
+    width: 40px;
+    height: 40px;
+  }
+
+  .color-swatch {
+    width: 32px;
+    height: 32px;
+  }
+
+  .miro-modal {
+    padding: 24px;
+    max-width: 90%;
+  }
+
+  .miro-templates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .miro-zoom-controls {
+    bottom: 12px;
+    right: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .miro-toolbar {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .miro-tool {
+    width: 36px;
+    height: 36px;
+  }
+
+  .miro-tool svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .color-swatch {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* =============================================
+   DARK MODE (OPTIONNEL)
+   ============================================= */
+
+@media (prefers-color-scheme: dark) {
+  #excalidraw-container {
+    background: #0A0A1A;
+  }
+
+  .miro-toolbar {
+    background: rgba(26, 26, 42, 0.95);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .miro-tool {
+    color: #E0E8FF;
+  }
+
+  .miro-tool:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .miro-tool.active {
+    background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
+    border-color: #60A5FA;
+  }
+
+  .miro-tool.active svg {
+    stroke: #E0E8FF;
+  }
+
+  .miro-modal {
+    background: #1A1A2A;
+    color: #E0E8FF;
+  }
+
+  .miro-modal h3,
+  .template-name,
+  .miro-export-btn,
+  .miro-modal-close {
+    color: #E0E8FF;
+  }
+
+  .miro-template-card,
+  .miro-export-btn,
+  .miro-modal-close {
+    background: #0A0A1A;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .miro-template-card:hover,
+  .miro-export-btn:hover {
+    background: #1E1E2E;
+    border-color: #60A5FA;
+  }
+}
+
+/* =============================================
+   ANIMATIONS SMOOTH
+   ============================================= */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =============================================
+   SCROLLBAR CUSTOM (SI BESOIN)
+   ============================================= */
+
+.miro-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.miro-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.miro-modal::-webkit-scrollbar-thumb {
+  background: rgba(5, 0, 56, 0.2);
+  border-radius: 4px;
+}
+
+.miro-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(5, 0, 56, 0.3);
+}
+
+/* =============================================
+   UTILITIES
+   ============================================= */
+
+.miro-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.miro-slide-up {
+  animation: modalSlideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.miro-pulse {
+  animation: activeIndicatorPulse 2s ease-in-out infinite;
+}

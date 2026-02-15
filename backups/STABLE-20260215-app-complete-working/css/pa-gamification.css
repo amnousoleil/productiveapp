@@ -1,0 +1,1010 @@
+/**
+ * PSYCHO-AUDIT GAMIFICATION CSS v1.0
+ * ProductiveApp v7.0 - Styles Gamification Premium
+ *
+ * Animations spectaculaires, micro-interactions ludiques,
+ * célébrations visuelles et feedback immersif.
+ */
+
+/* =========================================================================
+   XP BAR - Toujours visible dans le header
+   ========================================================================= */
+.pa-xp-bar-wrapper {
+    background: var(--surface, #1e1e2e);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border, #333);
+    position: relative;
+    overflow: hidden;
+}
+
+.pa-xp-bar-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(139,92,246,0.03), transparent);
+    animation: xpShimmer 4s ease infinite;
+}
+
+@keyframes xpShimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.pa-xp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.pa-xp-level {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pa-xp-level-icon {
+    font-size: 24px;
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.pa-xp-level-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--primary, #8b5cf6);
+    background: rgba(139,92,246,0.12);
+    padding: 3px 10px;
+    border-radius: 8px;
+}
+
+.pa-xp-level-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text, #fff);
+}
+
+.pa-xp-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--accent, #f59e0b);
+    font-variant-numeric: tabular-nums;
+}
+
+.pa-xp-bar {
+    height: 10px;
+    background: var(--surface-hover, #2a2a3e);
+    border-radius: 5px;
+    overflow: visible;
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.pa-xp-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    box-shadow: 0 0 10px currentColor;
+}
+
+.pa-xp-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent);
+    border-radius: 5px 5px 0 0;
+}
+
+.pa-xp-glow {
+    position: absolute;
+    top: -4px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 12px rgba(139,92,246,0.8), 0 0 24px rgba(139,92,246,0.4);
+    transform: translateX(-50%);
+    transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 2;
+}
+
+.pa-xp-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pa-xp-progress {
+    font-size: 11px;
+    color: var(--text-secondary, #888);
+    font-variant-numeric: tabular-nums;
+}
+
+.pa-xp-next, .pa-xp-max {
+    font-size: 11px;
+    color: var(--text-secondary, #888);
+}
+
+/* =========================================================================
+   STREAK WIDGET - Flamme animée
+   ========================================================================= */
+.pa-streak-widget {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface, #1e1e2e);
+    border-radius: 12px;
+    border: 1px solid var(--border, #333);
+    transition: all 0.3s ease;
+}
+
+.pa-streak-widget.warm {
+    border-color: rgba(251,146,60,0.3);
+    background: linear-gradient(135deg, var(--surface, #1e1e2e), rgba(251,146,60,0.05));
+}
+
+.pa-streak-widget.burning {
+    border-color: rgba(239,68,68,0.3);
+    background: linear-gradient(135deg, var(--surface, #1e1e2e), rgba(239,68,68,0.05));
+}
+
+.pa-streak-widget.blazing {
+    border-color: rgba(245,158,11,0.4);
+    background: linear-gradient(135deg, var(--surface, #1e1e2e), rgba(245,158,11,0.08));
+    box-shadow: 0 0 20px rgba(245,158,11,0.1);
+}
+
+.pa-streak-widget.inferno {
+    border-color: rgba(239,68,68,0.5);
+    background: linear-gradient(135deg, var(--surface, #1e1e2e), rgba(239,68,68,0.08));
+    box-shadow: 0 0 30px rgba(239,68,68,0.15);
+    animation: infernoGlow 2s ease-in-out infinite;
+}
+
+@keyframes infernoGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(239,68,68,0.15); }
+    50% { box-shadow: 0 0 40px rgba(239,68,68,0.25); }
+}
+
+.pa-streak-flame {
+    position: relative;
+}
+
+.pa-flame-icon {
+    font-size: 28px;
+    display: block;
+    animation: flameDance 0.6s ease-in-out infinite alternate;
+}
+
+.pa-flame-icon.cold {
+    animation: none;
+    opacity: 0.5;
+}
+
+@keyframes flameDance {
+    0% { transform: scale(1) rotate(-3deg); }
+    100% { transform: scale(1.1) rotate(3deg); }
+}
+
+.pa-streak-info {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.pa-streak-count {
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--text, #fff);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.pa-streak-label {
+    font-size: 12px;
+    color: var(--text-secondary, #888);
+}
+
+.pa-streak-best {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--text-secondary, #666);
+    background: var(--surface-hover, #2a2a3e);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+/* =========================================================================
+   GAMIFICATION HEADER (XP + Streak side by side)
+   ========================================================================= */
+.pa-gamification-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .pa-gamification-header {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================================
+   CHALLENGE CARDS
+   ========================================================================= */
+.pa-challenges-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .pa-challenges-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pa-challenge-card {
+    background: var(--surface, #1e1e2e);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid var(--border, #333);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.pa-challenge-card.weekly {
+    border-color: rgba(139,92,246,0.3);
+}
+
+.pa-challenge-card.completed {
+    border-color: rgba(34,197,94,0.3);
+    background: linear-gradient(135deg, var(--surface, #1e1e2e), rgba(34,197,94,0.05));
+}
+
+.pa-challenge-card.completed::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, transparent, rgba(34,197,94,0.03));
+    pointer-events: none;
+}
+
+.pa-challenge-type {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent, #f59e0b);
+    margin-bottom: 10px;
+}
+
+.pa-challenge-card.weekly .pa-challenge-type {
+    color: var(--primary, #8b5cf6);
+}
+
+.pa-challenge-card.completed .pa-challenge-type {
+    color: #22c55e;
+}
+
+.pa-challenge-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pa-challenge-icon {
+    font-size: 28px;
+    min-width: 36px;
+    text-align: center;
+}
+
+.pa-challenge-info {
+    flex: 1;
+}
+
+.pa-challenge-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text, #fff);
+    margin-bottom: 2px;
+}
+
+.pa-challenge-desc {
+    font-size: 12px;
+    color: var(--text-secondary, #888);
+}
+
+.pa-challenge-reward {
+    text-align: center;
+}
+
+.pa-challenge-xp {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--accent, #f59e0b);
+    background: rgba(245,158,11,0.12);
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.pa-challenge-done {
+    font-size: 20px;
+    font-weight: 800;
+    color: #22c55e;
+    background: rgba(34,197,94,0.12);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: checkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes checkBounce {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* =========================================================================
+   BADGE WALL
+   ========================================================================= */
+.pa-badge-wall {
+    padding: 20px 0;
+}
+
+.pa-badge-stats {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pa-badges-earned {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--primary, #8b5cf6);
+}
+
+.pa-badges-total {
+    font-size: 16px;
+    color: var(--text-secondary, #888);
+    margin-left: 4px;
+}
+
+.pa-badge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+}
+
+.pa-badge-item {
+    text-align: center;
+    padding: 12px 6px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.pa-badge-item.earned {
+    background: var(--surface, #1e1e2e);
+}
+
+.pa-badge-item.earned:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.pa-badge-item.locked {
+    opacity: 0.35;
+    filter: grayscale(1);
+}
+
+.pa-badge-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    border: 2px solid var(--border, #333);
+    background: var(--surface-hover, #2a2a3e);
+    transition: all 0.3s ease;
+}
+
+.pa-badge-item.earned .pa-badge-icon-wrap {
+    background: var(--surface, #1e1e2e);
+}
+
+.pa-badge-icon {
+    font-size: 26px;
+}
+
+.pa-badge-name {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text-secondary, #888);
+    line-height: 1.3;
+}
+
+.pa-badge-item.earned .pa-badge-name {
+    color: var(--text, #fff);
+}
+
+/* Rarity glow effects */
+.pa-badge-item.earned.rarity-uncommon .pa-badge-icon-wrap {
+    animation: badgeGlowGreen 3s ease-in-out infinite;
+}
+
+.pa-badge-item.earned.rarity-rare .pa-badge-icon-wrap {
+    animation: badgeGlowBlue 3s ease-in-out infinite;
+}
+
+.pa-badge-item.earned.rarity-epic .pa-badge-icon-wrap {
+    animation: badgeGlowPurple 2.5s ease-in-out infinite;
+}
+
+.pa-badge-item.earned.rarity-legendary .pa-badge-icon-wrap {
+    animation: badgeGlowGold 2s ease-in-out infinite;
+}
+
+@keyframes badgeGlowGreen {
+    0%, 100% { box-shadow: 0 0 8px rgba(34,197,94,0.3); }
+    50% { box-shadow: 0 0 16px rgba(34,197,94,0.5); }
+}
+
+@keyframes badgeGlowBlue {
+    0%, 100% { box-shadow: 0 0 8px rgba(59,130,246,0.3); }
+    50% { box-shadow: 0 0 16px rgba(59,130,246,0.5); }
+}
+
+@keyframes badgeGlowPurple {
+    0%, 100% { box-shadow: 0 0 10px rgba(168,85,247,0.3); }
+    50% { box-shadow: 0 0 20px rgba(168,85,247,0.5); }
+}
+
+@keyframes badgeGlowGold {
+    0%, 100% { box-shadow: 0 0 12px rgba(245,158,11,0.4); }
+    50% { box-shadow: 0 0 24px rgba(245,158,11,0.6); }
+}
+
+/* =========================================================================
+   STATS GRID
+   ========================================================================= */
+.pa-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+    .pa-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.pa-stat-item {
+    text-align: center;
+    padding: 16px 10px;
+    background: var(--surface, #1e1e2e);
+    border-radius: 12px;
+    border: 1px solid var(--border, #333);
+    transition: transform 0.2s ease;
+}
+
+.pa-stat-item:hover {
+    transform: translateY(-2px);
+}
+
+.pa-stat-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+}
+
+.pa-stat-value {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--text, #fff);
+    font-variant-numeric: tabular-nums;
+}
+
+.pa-stat-label {
+    font-size: 11px;
+    color: var(--text-secondary, #888);
+    margin-top: 2px;
+}
+
+/* =========================================================================
+   XP TOAST - Floating notification
+   ========================================================================= */
+.pa-xp-toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(245,158,11,0.95), rgba(251,146,60,0.95));
+    color: #000;
+    padding: 10px 18px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 10001;
+    box-shadow: 0 8px 32px rgba(245,158,11,0.3);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(10px);
+}
+
+.pa-xp-toast.show {
+    transform: translateX(0);
+}
+
+.pa-xp-toast.hide {
+    transform: translateX(120%);
+    transition: transform 0.3s ease-in;
+}
+
+.pa-xp-amount {
+    font-size: 16px;
+    font-weight: 900;
+}
+
+.pa-xp-reason {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* =========================================================================
+   LEVEL UP CELEBRATION - Full overlay
+   ========================================================================= */
+.pa-levelup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10002;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    backdrop-filter: blur(8px);
+}
+
+.pa-levelup-overlay.show {
+    opacity: 1;
+}
+
+.pa-levelup-overlay.hide {
+    opacity: 0;
+}
+
+.pa-levelup-content {
+    text-align: center;
+    position: relative;
+    animation: levelUpBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes levelUpBounce {
+    0% { transform: scale(0.3); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.pa-levelup-particles {
+    position: absolute;
+    inset: -100px;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.pa-particle {
+    position: absolute;
+    font-size: 24px;
+    animation: particleRise 2s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes particleRise {
+    0% { transform: translateY(100px) scale(0); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translateY(-200px) scale(1) rotate(360deg); opacity: 0; }
+}
+
+.pa-levelup-icon {
+    font-size: 80px;
+    margin-bottom: 16px;
+    animation: levelUpPulse 1s ease-in-out infinite;
+}
+
+@keyframes levelUpPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.pa-levelup-text {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--text-secondary, #888);
+    margin-bottom: 8px;
+}
+
+.pa-levelup-title {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    text-shadow: 0 0 30px currentColor;
+}
+
+.pa-levelup-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary, #aaa);
+    margin-bottom: 32px;
+    font-style: italic;
+}
+
+.pa-levelup-btn {
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--primary, #8b5cf6), #6366f1);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pa-levelup-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.4);
+}
+
+/* =========================================================================
+   BADGE CELEBRATION TOAST
+   ========================================================================= */
+.pa-badge-toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--surface, #1e1e2e);
+    border: 1px solid var(--border, #333);
+    border-radius: 16px;
+    padding: 16px 20px;
+    z-index: 10001;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.pa-badge-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.pa-badge-toast.hide {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+}
+
+.pa-badge-toast.rarity-uncommon { border-color: rgba(34,197,94,0.3); }
+.pa-badge-toast.rarity-rare { border-color: rgba(59,130,246,0.4); }
+.pa-badge-toast.rarity-epic { border-color: rgba(168,85,247,0.5); box-shadow: 0 16px 48px rgba(168,85,247,0.2); }
+.pa-badge-toast.rarity-legendary { border-color: rgba(245,158,11,0.5); box-shadow: 0 16px 48px rgba(245,158,11,0.2); }
+
+.pa-badge-toast-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.pa-badge-toast-icon {
+    font-size: 40px;
+    animation: badgePopIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePopIn {
+    0% { transform: scale(0) rotate(-180deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.pa-badge-toast-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+}
+
+.pa-badge-toast-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text, #fff);
+    margin-bottom: 2px;
+}
+
+.pa-badge-toast-desc {
+    font-size: 12px;
+    color: var(--text-secondary, #888);
+    margin-bottom: 4px;
+}
+
+.pa-badge-toast-rarity {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* =========================================================================
+   CHALLENGE CELEBRATION TOAST
+   ========================================================================= */
+.pa-challenge-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(16,185,129,0.95));
+    border-radius: 14px;
+    padding: 14px 20px;
+    z-index: 10001;
+    box-shadow: 0 12px 36px rgba(34,197,94,0.3);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(10px);
+}
+
+.pa-challenge-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.pa-challenge-toast.hide {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+}
+
+.pa-challenge-toast-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+}
+
+.pa-challenge-toast-icon {
+    font-size: 32px;
+}
+
+.pa-challenge-toast-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+}
+
+.pa-challenge-toast-title {
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.pa-challenge-toast-xp {
+    font-size: 14px;
+    font-weight: 800;
+    background: rgba(255,255,255,0.2);
+    padding: 4px 10px;
+    border-radius: 8px;
+}
+
+/* =========================================================================
+   GAMIFICATION TAB
+   ========================================================================= */
+.pa-gamification-tab {
+    animation: fadeSlideIn 0.4s ease;
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pa-gamification-section {
+    margin-bottom: 28px;
+}
+
+.pa-gamification-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text, #fff);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================================================================
+   PREMIUM TAB BAR UPGRADE - With badge count indicator
+   ========================================================================= */
+.pa-tab-btn {
+    position: relative;
+}
+
+.pa-tab-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    background: #ef4444;
+    border-radius: 50%;
+    animation: tabBadgePulse 2s ease infinite;
+}
+
+@keyframes tabBadgePulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+/* =========================================================================
+   EXERCISE CARD GAMIFICATION ENHANCEMENTS
+   ========================================================================= */
+.pa-ex-card-xp {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent, #f59e0b);
+    background: rgba(245,158,11,0.12);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.pa-ex-completed-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: #22c55e;
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(34,197,94,0.3);
+}
+
+/* =========================================================================
+   MOOD BUTTON GAMIFICATION
+   ========================================================================= */
+.pa-mood-btn.selected {
+    border-color: var(--primary, #8b5cf6) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 16px rgba(139,92,246,0.3);
+}
+
+.pa-mood-xp-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--accent, #f59e0b);
+    margin-top: 8px;
+    opacity: 0.7;
+}
+
+/* =========================================================================
+   QUESTIONNAIRE GAMIFICATION - Progress indicator
+   ========================================================================= */
+.pa-quiz-progress {
+    margin-bottom: 20px;
+}
+
+.pa-quiz-progress-bar {
+    height: 6px;
+    background: var(--surface-hover, #2a2a3e);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.pa-quiz-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary, #8b5cf6), #d946ef);
+    border-radius: 3px;
+    transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pa-quiz-progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary, #888);
+}
+
+.pa-quiz-xp-preview {
+    font-size: 11px;
+    color: var(--accent, #f59e0b);
+    font-weight: 600;
+}
+
+/* =========================================================================
+   MICRO-INTERACTIONS & POLISH
+   ========================================================================= */
+
+/* Subtle scale on exercise card hover */
+.pa-exercise-card {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Glow effect on focused inputs */
+.pa-prompt-input:focus,
+.pa-gratitude-input:focus {
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15);
+}
+
+/* Animated analyze button */
+.btn-analyze:not(:disabled) {
+    animation: analyzePulse 2s ease-in-out infinite;
+}
+
+@keyframes analyzePulse {
+    0%, 100% { box-shadow: 0 4px 16px rgba(139,92,246,0.2); }
+    50% { box-shadow: 0 4px 24px rgba(139,92,246,0.4); }
+}
+
+/* Journal save button success state */
+.pa-btn-primary.saved {
+    background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+    animation: savedBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes savedBounce {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .pa-xp-bar-wrapper::before,
+    .pa-flame-icon,
+    .pa-xp-level-icon,
+    .pa-levelup-icon,
+    .pa-badge-item.earned .pa-badge-icon-wrap,
+    .pa-xp-glow,
+    .btn-analyze:not(:disabled) {
+        animation: none !important;
+    }
+
+    .pa-xp-fill,
+    .pa-badge-toast,
+    .pa-xp-toast,
+    .pa-challenge-toast,
+    .pa-levelup-overlay {
+        transition-duration: 0.01ms !important;
+    }
+}

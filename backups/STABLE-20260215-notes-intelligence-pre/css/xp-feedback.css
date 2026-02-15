@@ -1,0 +1,928 @@
+/**
+ * XP FEEDBACK SYSTEM - CSS
+ * Animations et styles pour le feedback XP global
+ */
+
+/* =============================================
+   FLOATING XP NUMBERS
+   ============================================= */
+.xp-float-global {
+  position: fixed;
+  z-index: 10000;
+  pointer-events: none;
+  animation: xpFloatUp 2.5s ease-out forwards;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 28px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5),
+               0 0 20px rgba(16, 185, 129, 0.6);
+}
+
+.xp-float-global .xp-value {
+  color: #10b981;
+  font-size: 32px;
+  letter-spacing: -0.5px;
+}
+
+.xp-float-global .xp-icon {
+  font-size: 28px;
+  animation: xpIconPulse 0.5s ease-in-out 3;
+}
+
+@keyframes xpFloatUp {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.2);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-60px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100px) scale(0.8);
+  }
+}
+
+@keyframes xpIconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+/* =============================================
+   SIDEBAR XP BAR (Quick Win #2)
+   ============================================= */
+.sidebar-xp-mini {
+  padding: 12px 16px;
+  margin: 8px 12px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-xp-mini:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.xp-bar-mini {
+  height: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.xp-bar-fill-mini {
+  height: 100%;
+  background: linear-gradient(90deg, #8b5cf6 0%, #3b82f6 50%, #10b981 100%);
+  border-radius: 3px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* Shine effect sur la barre */
+.xp-bar-fill-mini::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: xpBarShine 2s ease-in-out infinite;
+}
+
+@keyframes xpBarShine {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 200%;
+  }
+}
+
+.xp-text-mini {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+/* Pulse animation quand proche du level up */
+.sidebar-xp-mini.near-levelup {
+  animation: xpNearLevelup 1.5s ease-in-out infinite;
+}
+
+@keyframes xpNearLevelup {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px rgba(139, 92, 246, 0.4);
+  }
+}
+
+/* =============================================
+   LEVEL UP ANIMATION (Simple version)
+   ============================================= */
+.levelup-flash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9998;
+  animation: levelupFlash 1s ease-out forwards;
+}
+
+@keyframes levelupFlash {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* =============================================
+   ACHIEVEMENT UNLOCK TOAST (Enhanced)
+   ============================================= */
+.toast.achievement-unlock {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(59, 130, 246, 0.95) 100%);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4),
+              0 0 20px rgba(245, 158, 11, 0.3);
+  animation: achievementPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes achievementPop {
+  0% {
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* =============================================
+   MOBILE RESPONSIVE
+   ============================================= */
+@media (max-width: 768px) {
+  .xp-float-global {
+    font-size: 20px;
+  }
+
+  .xp-float-global .xp-value {
+    font-size: 24px;
+  }
+
+  .xp-float-global .xp-icon {
+    font-size: 20px;
+  }
+
+  .sidebar-xp-mini {
+    margin: 6px 8px;
+    padding: 10px 12px;
+  }
+
+  .xp-bar-mini {
+    height: 4px;
+    margin-bottom: 6px;
+  }
+
+  .xp-text-mini {
+    font-size: 10px;
+  }
+}
+
+/* =============================================
+   ANIMATIONS DÉSACTIVÉES (accessibility)
+   ============================================= */
+@media (prefers-reduced-motion: reduce) {
+  .xp-float-global,
+  .xp-bar-fill-mini,
+  .levelup-flash,
+  .toast.achievement-unlock {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .xp-float-global {
+    opacity: 1;
+  }
+}
+
+/* =============================================
+   THEME ADAPTATION
+   ============================================= */
+[data-theme="light"] .sidebar-xp-mini {
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+[data-theme="light"] .xp-bar-mini {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* =============================================
+   LOGIN BONUS CELEBRATION (Quick Win #5)
+   ============================================= */
+.login-bonus-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10002;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.login-bonus-overlay.visible {
+  opacity: 1;
+}
+
+.login-bonus-content {
+  text-align: center;
+  animation: loginBonusPopIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes loginBonusPopIn {
+  0% {
+    transform: scale(0.3) translateY(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.login-bonus-icon {
+  font-size: 120px;
+  margin-bottom: 24px;
+  animation: loginBonusFire 2s ease-in-out infinite;
+  filter: drop-shadow(0 8px 32px rgba(245, 158, 11, 0.6));
+}
+
+@keyframes loginBonusFire {
+  0%, 100% {
+    transform: scale(1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg);
+  }
+}
+
+.login-bonus-title {
+  font-size: 56px;
+  font-weight: 800;
+  margin: 0 0 24px 0;
+  background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4px 24px rgba(245, 158, 11, 0.5);
+  animation: loginBonusTitleGlow 2s ease-in-out infinite;
+}
+
+@keyframes loginBonusTitleGlow {
+  0%, 100% {
+    filter: drop-shadow(0 4px 24px rgba(245, 158, 11, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 4px 32px rgba(245, 158, 11, 0.8));
+  }
+}
+
+.login-bonus-xp {
+  font-size: 72px;
+  font-weight: 900;
+  color: #10b981;
+  margin-bottom: 32px;
+  text-shadow: 0 4px 16px rgba(16, 185, 129, 0.6),
+               0 0 40px rgba(16, 185, 129, 0.4);
+  animation: loginBonusXpPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loginBonusXpPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.login-bonus-streak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.streak-number {
+  font-size: 96px;
+  font-weight: 900;
+  color: #f59e0b;
+  line-height: 1;
+  text-shadow: 0 4px 16px rgba(245, 158, 11, 0.6);
+  animation: streakNumberScale 1s ease-in-out infinite;
+}
+
+@keyframes streakNumberScale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.streak-text {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.login-bonus-milestone {
+  padding: 16px 32px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(59, 130, 246, 0.3));
+  border: 2px solid #10b981;
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #10b981;
+  margin-bottom: 16px;
+  animation: loginBonusMilestone 1s ease-in-out infinite;
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+}
+
+.login-bonus-milestone.legendary {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(239, 68, 68, 0.3));
+  border-color: #f59e0b;
+  color: #f59e0b;
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.6);
+  animation: loginBonusMilestoneLegendary 2s ease-in-out infinite;
+}
+
+@keyframes loginBonusMilestone {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 8px 40px rgba(16, 185, 129, 0.6);
+  }
+}
+
+@keyframes loginBonusMilestoneLegendary {
+  0%, 100% {
+    transform: scale(1) rotate(-1deg);
+    box-shadow: 0 8px 32px rgba(245, 158, 11, 0.6);
+  }
+  50% {
+    transform: scale(1.05) rotate(1deg);
+    box-shadow: 0 12px 48px rgba(245, 158, 11, 0.9);
+  }
+}
+
+.login-bonus-next {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .login-bonus-icon {
+    font-size: 80px;
+  }
+
+  .login-bonus-title {
+    font-size: 36px;
+  }
+
+  .login-bonus-xp {
+    font-size: 48px;
+  }
+
+  .streak-number {
+    font-size: 64px;
+  }
+
+  .streak-text {
+    font-size: 20px;
+  }
+
+  .login-bonus-milestone {
+    font-size: 18px;
+    padding: 12px 24px;
+  }
+
+  .login-bonus-next {
+    font-size: 14px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .login-bonus-overlay,
+  .login-bonus-content,
+  .login-bonus-icon,
+  .login-bonus-title,
+  .login-bonus-xp,
+  .streak-number,
+  .login-bonus-milestone,
+  .achievement-unlock-modal,
+  .achievement-unlock-content,
+  .achievement-icon,
+  .achievement-rays {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =============================================
+   ACHIEVEMENT UNLOCK ANIMATION (Quick Win #4)
+   ============================================= */
+.achievement-unlock-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10003;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.achievement-unlock-modal.visible {
+  opacity: 1;
+}
+
+.achievement-unlock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.95) 100%);
+  backdrop-filter: blur(8px);
+}
+
+.achievement-unlock-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 60px 40px;
+  max-width: 600px;
+  animation: achievementPopIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes achievementPopIn {
+  0% {
+    transform: scale(0.3) translateY(200px) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1) translateY(-20px) rotate(2deg);
+  }
+  100% {
+    transform: scale(1) translateY(0) rotate(0);
+    opacity: 1;
+  }
+}
+
+/* Rays de lumière */
+.achievement-rays {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  background:
+    linear-gradient(0deg, transparent 40%, rgba(255, 215, 0, 0.2) 50%, transparent 60%),
+    linear-gradient(60deg, transparent 40%, rgba(255, 215, 0, 0.2) 50%, transparent 60%),
+    linear-gradient(120deg, transparent 40%, rgba(255, 215, 0, 0.2) 50%, transparent 60%),
+    linear-gradient(180deg, transparent 40%, rgba(255, 215, 0, 0.2) 50%, transparent 60%),
+    linear-gradient(240deg, transparent 40%, rgba(255, 215, 0, 0.2) 50%, transparent 60%),
+    linear-gradient(300deg, transparent 40%, rgba(255, 215, 0, 0.2) 50%, transparent 60%);
+  animation: achievementRaysRotate 8s linear infinite;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+@keyframes achievementRaysRotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Glow central */
+.achievement-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+  animation: achievementGlowPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes achievementGlowPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    opacity: 1;
+  }
+}
+
+/* Icône achievement */
+.achievement-icon-container {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 24px;
+}
+
+.achievement-icon {
+  font-size: 120px;
+  display: inline-block;
+  animation: achievementIconBounce 1s ease-out;
+  filter: drop-shadow(0 8px 32px rgba(255, 215, 0, 0.8));
+}
+
+@keyframes achievementIconBounce {
+  0% {
+    transform: scale(0) rotate(-180deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+  }
+}
+
+.achievement-unlock-title {
+  font-size: 32px;
+  font-weight: 900;
+  margin: 0 0 16px 0;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ef4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  animation: achievementTitleGlow 2s ease-in-out infinite;
+}
+
+@keyframes achievementTitleGlow {
+  0%, 100% {
+    filter: drop-shadow(0 4px 16px rgba(251, 191, 36, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 4px 24px rgba(251, 191, 36, 1));
+  }
+}
+
+.achievement-name {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0 0 16px 0;
+  color: #fff;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8);
+  animation: achievementNameSlide 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation-delay: 0.2s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes achievementNameSlide {
+  from {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.achievement-description {
+  font-size: 18px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+  animation: achievementDescFade 0.8s ease-out;
+  animation-delay: 0.4s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes achievementDescFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Badge de rareté */
+.achievement-rarity-badge {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 24px;
+  animation: achievementBadgeFlip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation-delay: 0.6s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes achievementBadgeFlip {
+  from {
+    transform: rotateY(90deg) scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: rotateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.achievement-rarity-badge.rarity-common {
+  background: linear-gradient(135deg, #9ca3af, #d1d5db);
+  color: #1f2937;
+  box-shadow: 0 4px 16px rgba(156, 163, 175, 0.5);
+}
+
+.achievement-rarity-badge.rarity-rare {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.6);
+}
+
+.achievement-rarity-badge.rarity-epic {
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.6);
+  animation: achievementBadgeFlip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), epicPulse 2s ease-in-out infinite;
+  animation-delay: 0.6s, 1.4s;
+  animation-fill-mode: backwards, forwards;
+}
+
+.achievement-rarity-badge.rarity-legendary {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24, #ef4444);
+  color: #000;
+  box-shadow: 0 4px 24px rgba(245, 158, 11, 0.9);
+  animation: achievementBadgeFlip 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), legendaryShine 2s ease-in-out infinite;
+  animation-delay: 0.6s, 1.4s;
+  animation-fill-mode: backwards, forwards;
+}
+
+@keyframes epicPulse {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.6);
+  }
+  50% {
+    box-shadow: 0 4px 32px rgba(139, 92, 246, 1);
+  }
+}
+
+@keyframes legendaryShine {
+  0%, 100% {
+    box-shadow: 0 4px 24px rgba(245, 158, 11, 0.9);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 8px 48px rgba(245, 158, 11, 1);
+    filter: brightness(1.3);
+  }
+}
+
+/* Récompenses */
+.achievement-rewards {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  animation: achievementRewardsPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation-delay: 0.8s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes achievementRewardsPop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.reward-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  animation: rewardItemFloat 2s ease-in-out infinite;
+}
+
+.reward-item:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.reward-item:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+@keyframes rewardItemFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.reward-icon {
+  font-size: 24px;
+}
+
+.reward-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* Bouton continuer */
+.achievement-close-btn {
+  padding: 16px 48px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  border: none;
+  border-radius: 12px;
+  color: #000;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4);
+  animation: achievementButtonAppear 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation-delay: 1s;
+  animation-fill-mode: backwards;
+}
+
+@keyframes achievementButtonAppear {
+  from {
+    transform: translateY(50px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.achievement-close-btn:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.6);
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+}
+
+.achievement-close-btn:active {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* Variantes de couleurs selon rareté du modal */
+.achievement-unlock-modal.rarity-legendary .achievement-rays {
+  background:
+    linear-gradient(0deg, transparent 40%, rgba(245, 158, 11, 0.3) 50%, transparent 60%),
+    linear-gradient(60deg, transparent 40%, rgba(245, 158, 11, 0.3) 50%, transparent 60%),
+    linear-gradient(120deg, transparent 40%, rgba(245, 158, 11, 0.3) 50%, transparent 60%),
+    linear-gradient(180deg, transparent 40%, rgba(245, 158, 11, 0.3) 50%, transparent 60%),
+    linear-gradient(240deg, transparent 40%, rgba(245, 158, 11, 0.3) 50%, transparent 60%),
+    linear-gradient(300deg, transparent 40%, rgba(245, 158, 11, 0.3) 50%, transparent 60%);
+}
+
+.achievement-unlock-modal.rarity-epic .achievement-glow {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+}
+
+.achievement-unlock-modal.rarity-legendary .achievement-glow {
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.5) 0%, transparent 70%);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .achievement-unlock-content {
+    padding: 40px 24px;
+    max-width: 90%;
+  }
+
+  .achievement-icon {
+    font-size: 80px;
+  }
+
+  .achievement-unlock-title {
+    font-size: 24px;
+  }
+
+  .achievement-name {
+    font-size: 28px;
+  }
+
+  .achievement-description {
+    font-size: 16px;
+  }
+
+  .achievement-rarity-badge {
+    font-size: 12px;
+    padding: 6px 16px;
+  }
+
+  .achievement-rewards {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .reward-item {
+    padding: 10px 20px;
+  }
+
+  .reward-icon {
+    font-size: 20px;
+  }
+
+  .reward-value {
+    font-size: 16px;
+  }
+
+  .achievement-close-btn {
+    padding: 14px 32px;
+    font-size: 16px;
+  }
+}

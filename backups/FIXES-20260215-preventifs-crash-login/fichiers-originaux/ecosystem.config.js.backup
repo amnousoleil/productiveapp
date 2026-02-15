@@ -1,0 +1,51 @@
+/**
+ * PM2 Ecosystem Configuration - Scalable ProductiveApp
+ * Cluster mode pour gérer 10k-100k utilisateurs simultanés
+ */
+
+module.exports = {
+  apps: [
+    {
+      name: 'productive-core',
+      script: './dist/index.js',
+
+      // ===== CLUSTER MODE (Multi-core scaling) =====
+      instances: 'max', // Utiliser TOUS les CPU cores (4 dans ce cas)
+      exec_mode: 'cluster', // Mode cluster (vs fork)
+
+      // ===== AUTO-RESTART & STABILITY =====
+      autorestart: true,
+      watch: false, // Désactivé en production (sinon restart à chaque modif fichier)
+      max_memory_restart: '500M', // Restart si > 500MB par instance
+      min_uptime: '10s', // Minimum uptime avant de considérer comme stable
+      max_restarts: 10, // Max 10 restarts en listen_timeout
+      listen_timeout: 5000, // Timeout pour listen
+      kill_timeout: 5000, // Timeout pour kill graceful
+
+      // ===== ENVIRONMENT =====
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3000
+      },
+
+      // ===== LOGS =====
+      error_file: '/var/log/pm2/productive-core-error.log',
+      out_file: '/var/log/pm2/productive-core-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true, // Merge logs de toutes les instances
+
+      // ===== PERFORMANCE =====
+      instance_var: 'INSTANCE_ID', // Env var avec l'ID de l'instance
+
+      // ===== MONITORING =====
+      // PM2 Plus monitoring (optionnel, nécessite clé API)
+      // pmx: true,
+
+      // ===== GRACEFUL SHUTDOWN =====
+      // Permet aux requêtes en cours de finir avant restart
+      wait_ready: true,
+      listen_timeout: 10000,
+      shutdown_with_message: true
+    }
+  ]
+};

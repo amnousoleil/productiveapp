@@ -1,8 +1,8 @@
-// sw-fast.js v99.0 - FORCE TOTAL REFRESH 🚀
+// sw-fast.js v100.0 - NOTES v6.0 OBSIDIAN MODE ACTIVATION 🚀
 // Strategy: Network-first for critical, Cache-first for static, Stale-while-revalidate for API
-// v99.0: NUCLEAR CACHE CLEAR - Notes v6.0
+// v100.0: Notes v6.0 Obsidian Mode - Full activation
 
-const CACHE_VERSION = 'v99-nuclear-refresh-2026-02-14';
+const CACHE_VERSION = 'v100-notes-v6-obsidian-2026-02-15';
 const CACHE_CRITICAL = `${CACHE_VERSION}-critical`;
 const CACHE_STATIC = `${CACHE_VERSION}-static`;
 const CACHE_API = `${CACHE_VERSION}-api`;

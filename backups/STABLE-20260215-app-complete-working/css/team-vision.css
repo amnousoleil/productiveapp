@@ -1,0 +1,404 @@
+/* ================================================
+   TEAM VISION VIEW - ProductiveApp v4.0
+   ================================================ */
+
+/* Team Summary Bar */
+.tv-team-summary {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+}
+
+.tv-summary-card {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface, #18181b);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+}
+
+.tv-summary-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text, #fafafa);
+}
+
+.tv-summary-label {
+    font-size: 12px;
+    color: var(--text-muted, #71717a);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tv-summary-card.tv-done .tv-summary-value {
+    color: var(--success, #22c55e);
+}
+
+/* Section Title */
+.tv-section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    margin-bottom: 16px;
+}
+
+/* Members Grid */
+.tv-members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.tv-member-card {
+    background: var(--surface, #18181b);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 14px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.tv-member-card:hover {
+    border-color: var(--primary, #d4af37);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.tv-member-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.tv-member-avatar {
+    font-size: 32px;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-hover, rgba(255,255,255,0.05));
+    border-radius: 12px;
+}
+
+.tv-member-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+}
+
+.tv-member-role {
+    font-size: 12px;
+    color: var(--text-muted, #71717a);
+}
+
+/* Member Stats Row */
+.tv-member-stats {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.tv-stat {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 8px;
+    background: var(--surface-hover, rgba(255,255,255,0.03));
+}
+
+.tv-stat-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text, #fafafa);
+}
+
+.tv-stat-label {
+    display: block;
+    font-size: 10px;
+    color: var(--text-muted, #71717a);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tv-stat-todo .tv-stat-value { color: var(--text-muted, #a1a1aa); }
+.tv-stat-progress .tv-stat-value { color: var(--warning, #f59e0b); }
+.tv-stat-done .tv-stat-value { color: var(--success, #22c55e); }
+
+/* Progress Bar */
+.tv-member-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tv-progress-bar {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.tv-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary, #d4af37), var(--success, #22c55e));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.tv-progress-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted, #71717a);
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Urgent Badge */
+.tv-urgent-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+/* ================================================
+   MEMBER DETAIL VIEW
+   ================================================ */
+
+.tv-back-btn {
+    margin-right: 8px;
+    padding: 6px;
+    border-radius: 8px;
+}
+
+.tv-back-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.tv-detail-avatar {
+    font-size: 28px;
+    margin-right: 4px;
+}
+
+/* Detail Stats Cards */
+.tv-detail-stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.tv-detail-card {
+    flex: 1;
+    min-width: 140px;
+    background: var(--surface, #18181b);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.tv-detail-card-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.tv-detail-card-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text, #fafafa);
+}
+
+.tv-detail-card-label {
+    font-size: 12px;
+    color: var(--text-muted, #71717a);
+    margin-top: 4px;
+}
+
+/* Detail Progress */
+.tv-detail-progress-section {
+    background: var(--surface, #18181b);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.tv-detail-progress-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    margin-bottom: 12px;
+}
+
+.tv-detail-progress-bar {
+    display: flex;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 12px;
+}
+
+.tv-dp-done { background: #22c55e; }
+.tv-dp-progress { background: #f59e0b; }
+.tv-dp-todo { background: rgba(255,255,255,0.1); }
+
+.tv-detail-progress-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.tv-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted, #71717a);
+}
+
+.tv-legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.tv-dot-done { background: #22c55e; }
+.tv-dot-progress { background: #f59e0b; }
+.tv-dot-todo { background: rgba(255,255,255,0.2); }
+
+/* Detail Columns */
+.tv-detail-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .tv-detail-columns { grid-template-columns: 1fr; }
+}
+
+.tv-detail-section {
+    background: var(--surface, #18181b);
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.tv-detail-section h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    margin-bottom: 12px;
+}
+
+/* Task List */
+.tv-task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.tv-task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--surface-hover, rgba(255,255,255,0.03));
+}
+
+.tv-task-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.tv-task-todo .tv-task-status-dot { background: #71717a; }
+.tv-task-inprogress .tv-task-status-dot { background: #f59e0b; }
+.tv-task-done .tv-task-status-dot { background: #22c55e; }
+
+.tv-task-title {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text, #fafafa);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tv-task-done .tv-task-title {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.tv-task-time {
+    font-size: 11px;
+    color: var(--text-muted, #71717a);
+    flex-shrink: 0;
+}
+
+/* Project List */
+.tv-project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tv-project-item {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--surface-hover, rgba(255,255,255,0.03));
+}
+
+.tv-project-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text, #fafafa);
+    margin-bottom: 4px;
+}
+
+.tv-project-stats {
+    font-size: 11px;
+    color: var(--text-muted, #71717a);
+    margin-bottom: 6px;
+}
+
+.tv-project-bar {
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.tv-project-bar-fill {
+    height: 100%;
+    background: var(--primary, #d4af37);
+    border-radius: 2px;
+}
+
+.tv-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-muted, #71717a);
+    font-size: 13px;
+}

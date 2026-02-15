@@ -13,7 +13,8 @@ const AppConfig = {
         // Endpoints principaux (productive-core)
         TASKS: '/api/v1/tasks',
         PROJECTS: '/api/v1/projects',
-        NOTES: '/api/v1/notes',           // Remplace JOURNAL
+        NOTES: '/api/v1/notes',
+        JOURNAL: '/api/v1/journal',       // Journal du jour - tracking activité
 
         // Endpoints IA (OpenAI direct)
         AI_CHAT: '/api/v1/ai/chat',       // Chatbot intelligent

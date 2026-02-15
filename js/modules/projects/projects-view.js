@@ -16,11 +16,13 @@ const ProjectsView = (function() {
         '#d946ef', '#ec4899', '#f43f5e', '#64748b'
     ];
 
-    // Available icons
+    // Available icons - PREMIUM COLLECTION
     const ICONS = [
-        '📁', '📂', '💼', '🎯', '🚀', '💡', '⭐', '🔥',
-        '💎', '🎨', '📊', '📈', '🛠️', '⚡', '🌟', '💫',
-        '🎮', '🎬', '📱', '💻', '🌐', '📚', '✨', '🔮'
+        '💎', '✨', '🎯', '🚀', '💡', '⭐',
+        '🔥', '🌟', '💫', '👑', '🏆', '⚡',
+        '🎨', '📊', '📈', '🛠️', '🌐', '🔮',
+        '📱', '💻', '📚', '🎮', '🎬', '📁',
+        '📂', '💼', '🎭', '🎪', '🎸', '🎹'
     ];
 
     const icons = {
@@ -33,7 +35,7 @@ const ProjectsView = (function() {
     };
 
     let selectedColor = COLORS[4]; // Green by default
-    let selectedIcon = ICONS[0]; // Folder by default
+    let selectedIcon = ICONS[0]; // Diamond by default 💎 - PREMIUM!
 
     /**
      * Get projects from AppState
@@ -284,16 +286,16 @@ const ProjectsView = (function() {
         modal.innerHTML = `
             <div class="modal-card">
                 <div class="modal-header">
-                    <h2>Nouveau projet</h2>
+                    <h2>✨ Nouveau projet</h2>
                     <button class="modal-close" onclick="ProjectsView.closeCreateModal()">
                         ${icons['x']}
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Description courte</label>
-                        <input type="text" class="form-input" id="new-project-desc" placeholder="Ex: Application de suivi des ventes...">
-                        <button class="ai-suggest-btn" onclick="ProjectsView.suggestProjectName()" id="ai-name-btn">
+                        <label>Description du projet</label>
+                        <textarea class="form-input form-textarea" id="new-project-desc" rows="2" placeholder="Ex: Application de suivi des ventes avec dashboard en temps réel..."></textarea>
+                        <button class="ai-suggest-btn ai-suggest-btn-compact" onclick="ProjectsView.suggestProjectName()" id="ai-name-btn">
                             <span class="ai-btn-icon-container">
                                 <svg class="ai-sparkle ai-sparkle-1" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 0L14.5 9.5L24 12L14.5 14.5L12 24L9.5 14.5L0 12L9.5 9.5L12 0Z"/>
@@ -305,16 +307,24 @@ const ProjectsView = (function() {
                                     <path d="M9.5 2C7.5 2 6 3.5 6 5.5C6 6.06 6.13 6.58 6.35 7.05C5.05 7.35 4 8.5 4 10C4 11.5 5.05 12.65 6.35 12.95C6.13 13.42 6 13.94 6 14.5C6 16.5 7.5 18 9.5 18C10.06 18 10.58 17.87 11.05 17.65C11.35 18.95 12.5 20 14 20C15.5 20 16.65 18.95 16.95 17.65C17.42 17.87 17.94 18 18.5 18C20.5 18 22 16.5 22 14.5C22 13.94 21.87 13.42 21.65 12.95C22.95 12.65 24 11.5 24 10C24 8.5 22.95 7.35 21.65 7.05C21.87 6.58 22 6.06 22 5.5C22 3.5 20.5 2 18.5 2C17.94 2 17.42 2.13 16.95 2.35C16.65 1.05 15.5 0 14 0C12.5 0 11.35 1.05 11.05 2.35C10.58 2.13 10.06 2 9.5 2Z"/>
                                 </svg>
                             </span>
-                            <span class="ai-btn-text">Suggérer un nom avec l'IA</span>
-                            <span class="ai-btn-shine"></span>
+                            <span class="ai-btn-text">✨ Générer le nom avec l'IA</span>
                         </button>
                     </div>
                     <div class="form-group">
                         <label>Nom du projet</label>
-                        <input type="text" class="form-input" id="new-project-name" placeholder="Le nom sera généré par l'IA...">
+                        <input type="text" class="form-input" id="new-project-name" placeholder="Sera généré automatiquement...">
                     </div>
                     <div class="form-group">
-                        <label>Couleur</label>
+                        <label>Icône du projet</label>
+                        <div class="icon-picker">
+                            ${ICONS.map(i => `
+                                <div class="icon-option ${i === selectedIcon ? 'selected' : ''}"
+                                     onclick="ProjectsView.selectIcon('${i}')">${i}</div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Couleur du projet</label>
                         <div class="color-picker">
                             ${COLORS.map(c => `
                                 <div class="color-option ${c === selectedColor ? 'selected' : ''}"
@@ -323,19 +333,12 @@ const ProjectsView = (function() {
                             `).join('')}
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Icône</label>
-                        <div class="icon-picker">
-                            ${ICONS.map(i => `
-                                <div class="icon-option ${i === selectedIcon ? 'selected' : ''}"
-                                     onclick="ProjectsView.selectIcon('${i}')">${i}</div>
-                            `).join('')}
-                        </div>
-                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary" onclick="ProjectsView.closeCreateModal()">Annuler</button>
-                    <button class="btn btn-primary" onclick="ProjectsView.createProject()">Créer le projet</button>
+                    <button class="btn btn-primary btn-large" onclick="ProjectsView.createProject()">
+                        ${icons['plus']} Créer le projet
+                    </button>
                 </div>
             </div>
         `;

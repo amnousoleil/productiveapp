@@ -1,0 +1,794 @@
+/* =============================================
+   PRODUCTIVEAPP - GALAXY.CSS v1.0
+   Styles pour Galaxy View
+   ============================================= */
+
+/* === OVERLAY === */
+.galaxy-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.galaxy-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* === CANVAS === */
+.galaxy-canvas {
+    width: calc(100% - 80px);
+    height: 100%;
+    cursor: grab;
+    position: absolute;
+    top: 0;
+    left: 80px;
+}
+
+.galaxy-canvas:active {
+    cursor: grabbing;
+}
+
+/* === TOOLBAR LATÉRALE GAUCHE === */
+.galaxy-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 80px;
+    background: linear-gradient(180deg,
+        rgba(20, 20, 28, 0.98) 0%,
+        rgba(30, 30, 40, 0.98) 50%,
+        rgba(20, 20, 28, 0.98) 100%);
+    border-right: 2px solid transparent;
+    border-image: linear-gradient(180deg,
+        rgba(96, 165, 250, 0.3),
+        rgba(168, 85, 247, 0.3),
+        rgba(96, 165, 250, 0.3)) 1;
+    box-shadow:
+        0 0 20px rgba(96, 165, 250, 0.1),
+        inset 0 0 60px rgba(96, 165, 250, 0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 10px;
+    z-index: 10002;
+    gap: 16px;
+}
+
+.toolbar-separator {
+    width: 50px;
+    height: 2px;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(96, 165, 250, 0.3),
+        transparent);
+    margin: 8px 0;
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.2);
+}
+
+.galaxy-title {
+    background: linear-gradient(135deg,
+        #fbbf24 0%,
+        #f59e0b 50%,
+        #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    filter: drop-shadow(0 2px 8px rgba(251, 191, 36, 0.4));
+    animation: titleShine 3s ease-in-out infinite;
+}
+
+@keyframes titleShine {
+    0%, 100% {
+        filter: drop-shadow(0 2px 8px rgba(251, 191, 36, 0.4));
+    }
+    50% {
+        filter: drop-shadow(0 2px 12px rgba(251, 191, 36, 0.6));
+    }
+}
+
+/* === COLOR PALETTE VERTICAL === */
+.galaxy-color-palette {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 6px;
+    background: linear-gradient(135deg,
+        rgba(30, 30, 45, 0.7),
+        rgba(40, 40, 55, 0.7));
+    border: 2px solid rgba(96, 165, 250, 0.2);
+    border-radius: 12px;
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.color-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 2px solid rgba(100, 100, 110, 0.3);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.color-btn::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 10px;
+    background: linear-gradient(135deg,
+        rgba(96, 165, 250, 0.3),
+        rgba(168, 85, 247, 0.3));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: -1;
+}
+
+.color-btn:hover {
+    transform: scale(1.2);
+    border-color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.color-btn:hover::before {
+    opacity: 1;
+}
+
+.color-btn:active {
+    transform: scale(1.05);
+}
+
+/* === SHAPE SELECTOR VERTICAL === */
+.galaxy-shape-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 6px;
+    background: linear-gradient(135deg,
+        rgba(30, 30, 45, 0.7),
+        rgba(40, 40, 55, 0.7));
+    border: 2px solid rgba(96, 165, 250, 0.2);
+    border-radius: 12px;
+    box-shadow:
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.shape-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background: transparent;
+    color: #e5e7eb;
+    font-size: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.shape-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: linear-gradient(135deg,
+        rgba(96, 165, 250, 0),
+        rgba(96, 165, 250, 0.1));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.shape-btn:hover {
+    background: rgba(100, 100, 110, 0.3);
+    transform: scale(1.1);
+}
+
+.shape-btn:hover::after {
+    opacity: 1;
+}
+
+.shape-btn.active {
+    background: linear-gradient(135deg,
+        rgba(59, 130, 246, 0.4),
+        rgba(96, 165, 250, 0.4));
+    border-color: #60a5fa;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
+}
+
+/* === THEME SELECTOR === */
+.galaxy-theme-selector {
+    display: none; /* Caché pour style Excalidraw - fond blanc uniquement */
+}
+
+.theme-btn {
+    display: none;
+}
+
+/* === TOOL BUTTONS === */
+.galaxy-tool-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    border: 2px solid rgba(100, 100, 110, 0.2);
+    background: linear-gradient(135deg,
+        rgba(40, 40, 55, 0.7),
+        rgba(50, 50, 65, 0.7));
+    color: #e5e7eb;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.galaxy-tool-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(96, 165, 250, 0.2),
+        transparent);
+    transition: left 0.5s ease;
+}
+
+.galaxy-tool-btn:hover::before {
+    left: 100%;
+}
+
+.galaxy-tool-btn:hover {
+    background: linear-gradient(135deg,
+        rgba(59, 130, 246, 0.3),
+        rgba(96, 165, 250, 0.3));
+    border-color: #60a5fa;
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+    transform: translateY(-2px);
+}
+
+.galaxy-tool-btn:active {
+    transform: translateY(0) scale(0.95);
+}
+
+/* Style actif pour le bouton link mode */
+.galaxy-tool-btn.active {
+    background: linear-gradient(135deg,
+        rgba(59, 130, 246, 0.5),
+        rgba(96, 165, 250, 0.5)) !important;
+    border-color: #60a5fa !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(96, 165, 250, 0.6) !important;
+}
+
+/* Bouton aide avec animation clignotante */
+.galaxy-help-btn {
+    animation: helpPulse 3s ease-in-out infinite;
+}
+
+.galaxy-help-btn:hover {
+    animation: none;
+}
+
+@keyframes helpPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(251, 191, 36, 0);
+        border-color: rgba(100, 100, 110, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+        border-color: rgba(251, 191, 36, 0.5);
+    }
+}
+
+/* === BOUTON FERMETURE === */
+.galaxy-close-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,
+        rgba(40, 40, 55, 0.95),
+        rgba(50, 50, 65, 0.95));
+    border: 2px solid rgba(239, 68, 68, 0.4);
+    color: #f87171;
+    font-size: 24px;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10001;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.galaxy-close-btn::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,
+        rgba(239, 68, 68, 0.3),
+        rgba(220, 38, 38, 0.3));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.galaxy-close-btn:hover {
+    background: linear-gradient(135deg,
+        rgba(239, 68, 68, 0.3),
+        rgba(220, 38, 38, 0.3));
+    border-color: #ef4444;
+    color: #ffffff;
+    transform: scale(1.15) rotate(90deg);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+}
+
+.galaxy-close-btn:hover::before {
+    opacity: 1;
+}
+
+.galaxy-close-btn:active {
+    transform: scale(1.05) rotate(90deg);
+}
+
+/* === ICÔNE GALAXY DANS HEADER - ŒIL D'HORUS === */
+.galaxy-icon-container {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.galaxy-icon {
+    width: 32px;
+    height: 32px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 6px rgba(218, 165, 32, 0.4));
+    opacity: 0.9;
+    z-index: 2;
+}
+
+.galaxy-icon-container:hover .galaxy-icon {
+    transform: scale(1.15);
+    filter: drop-shadow(0 6px 20px rgba(218, 165, 32, 0.8)) brightness(1.2);
+    opacity: 1;
+}
+
+.galaxy-icon-container:active .galaxy-icon {
+    transform: scale(0.95);
+}
+
+/* === PARTICULES DIVINES DORÉES === */
+.divine-particles {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.galaxy-icon-container:hover .divine-particles {
+    opacity: 1;
+}
+
+.divine-particles::before,
+.divine-particles::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 70%);
+    animation: divineGlow 2s ease-in-out infinite;
+}
+
+.divine-particles::after {
+    animation-delay: 1s;
+}
+
+/* Particules individuelles */
+.galaxy-icon-container::before,
+.galaxy-icon-container::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.9), rgba(218, 165, 32, 0.6));
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.galaxy-icon-container:hover::before {
+    animation: particle1 2s ease-out infinite;
+}
+
+.galaxy-icon-container:hover::after {
+    animation: particle2 2.5s ease-out infinite;
+}
+
+/* Animations particules */
+@keyframes divineGlow {
+    0%, 100% {
+        transform: scale(0.8);
+        opacity: 0.3;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.6;
+    }
+}
+
+@keyframes particle1 {
+    0% {
+        top: 50%;
+        left: 50%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 0.8;
+    }
+    100% {
+        top: 20%;
+        left: 70%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+@keyframes particle2 {
+    0% {
+        top: 50%;
+        left: 50%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    25% {
+        opacity: 1;
+    }
+    75% {
+        opacity: 0.7;
+    }
+    100% {
+        top: 80%;
+        left: 30%;
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.8);
+    }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .galaxy-close-btn {
+        width: 40px;
+        height: 40px;
+        top: 16px;
+        right: 16px;
+        font-size: 20px;
+    }
+
+    .galaxy-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* === ANIMATIONS === */
+@keyframes galaxyFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.galaxy-overlay:not(.hidden) {
+    animation: galaxyFadeIn 0.3s ease;
+}
+
+/* === GALAXY 3D VIEW CONTAINER === */
+#view-galaxy.active {
+    display: flex !important;
+    flex-direction: column;
+    padding: 0;
+    max-width: none;
+    height: 100vh;
+    background: #030308;
+}
+
+#view-galaxy #galaxy-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(180deg, rgba(10,10,20,0.98), rgba(15,15,25,0.95));
+    border-bottom: 1px solid rgba(100,130,255,0.2);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    z-index: 10;
+}
+
+#view-galaxy .galaxy-toolbar-title {
+    font-size: 15px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-right: 8px;
+    white-space: nowrap;
+}
+
+#view-galaxy .galaxy-toolbar-sep {
+    width: 1px;
+    height: 24px;
+    background: rgba(100,130,255,0.3);
+    margin: 0 4px;
+}
+
+#view-galaxy .galaxy-ctrl-btn {
+    background: rgba(30,30,50,0.8);
+    border: 1px solid rgba(100,130,255,0.25);
+    color: #c4c9e0;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+#view-galaxy .galaxy-ctrl-btn:hover {
+    background: rgba(60,60,100,0.8);
+    border-color: rgba(100,130,255,0.5);
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(100,130,255,0.3);
+}
+#view-galaxy .galaxy-ctrl-btn.active {
+    background: rgba(59,130,246,0.3);
+    border-color: #60a5fa;
+    color: #ffffff;
+}
+#view-galaxy .galaxy-ctrl-btn.galaxy-ctrl-primary {
+    background: linear-gradient(135deg, rgba(59,130,246,0.4), rgba(96,165,250,0.4));
+    border-color: #60a5fa;
+    color: #ffffff;
+    font-weight: 600;
+}
+#view-galaxy .galaxy-ctrl-btn.galaxy-ctrl-ai {
+    background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(139,92,246,0.4));
+    border-color: #a855f7;
+    color: #e9d5ff;
+    font-weight: 600;
+}
+#view-galaxy .galaxy-ctrl-btn.galaxy-ctrl-ai:hover {
+    box-shadow: 0 0 15px rgba(168,85,247,0.5);
+}
+#view-galaxy .galaxy-ctrl-btn.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    animation: aiPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes aiPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+#view-galaxy #galaxy-status {
+    color: #a78bfa;
+    font-size: 12px;
+    margin-left: auto;
+    opacity: 0.9;
+}
+
+/* === 3D CONTAINER === */
+#galaxy-3d-container {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    background: #030308;
+}
+
+#galaxy-3d-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* === 3D TOOLTIP (glassmorphism) === */
+.galaxy-tooltip {
+    display: none;
+    position: absolute;
+    z-index: 100;
+    padding: 12px 16px;
+    background: rgba(15, 15, 30, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(100, 130, 255, 0.3);
+    border-radius: 12px;
+    color: #e0e0f0;
+    font-size: 13px;
+    pointer-events: none;
+    max-width: 280px;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(100, 130, 255, 0.1);
+    animation: tooltipFadeIn 0.15s ease;
+}
+
+@keyframes tooltipFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.galaxy-tooltip .gt-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: #ffffff;
+    margin-bottom: 4px;
+}
+
+.galaxy-tooltip .gt-type {
+    font-size: 11px;
+    color: #a78bfa;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.galaxy-tooltip .gt-priority {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+.galaxy-tooltip .gt-priority-urgent { background: rgba(255,34,34,0.3); color: #ff6666; }
+.galaxy-tooltip .gt-priority-high { background: rgba(255,102,0,0.3); color: #ff9944; }
+.galaxy-tooltip .gt-priority-medium { background: rgba(255,170,0,0.3); color: #ffcc44; }
+.galaxy-tooltip .gt-priority-low { background: rgba(68,136,255,0.3); color: #88bbff; }
+.galaxy-tooltip .gt-priority-done { background: rgba(34,204,102,0.3); color: #66ee99; }
+
+.galaxy-tooltip .gt-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+.galaxy-tooltip .gt-tag {
+    background: rgba(100,130,255,0.2);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    color: #aabbff;
+}
+.galaxy-tooltip .gt-meta {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* === TOOLBAR LATÉRALE MIRO === */
+/* Ajouté le 2026-02-12 - Fix interactivité Galaxy View */
+.miro-toolbar {
+    position: absolute;
+    top: 60px;
+    left: 16px;
+    bottom: 16px;
+    width: 52px;
+    background: rgba(20, 20, 28, 0.95);
+    backdrop-filter: blur(12px);
+    border-radius: 8px;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 6px;
+    gap: 8px;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.miro-tool-btn {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.miro-tool-btn:hover {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.3);
+    color: #60a5fa;
+}
+
+.miro-tool-btn.active {
+    background: rgba(96, 165, 250, 0.2);
+    border-color: rgba(96, 165, 250, 0.5);
+    color: #60a5fa;
+}
+
+.miro-toolbar-sep {
+    width: 32px;
+    height: 1px;
+    background: rgba(96, 165, 250, 0.2);
+    margin: 4px 0;
+}
+
+.miro-color-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.miro-color-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.miro-color-btn:hover {
+    transform: scale(1.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.miro-color-btn.active {
+    border-color: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}

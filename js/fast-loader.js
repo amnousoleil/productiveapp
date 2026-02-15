@@ -38,6 +38,17 @@ const FastLoader = {
         // Dashboard (first view)
         'js/modules/dashboard/dashboard.js',
 
+        // Mahayawen Ultra Agent (load BEFORE chatbot)
+        'css/mahayawen-voice.css',
+        'js/modules/ai/mahayawen-action-registry.js',
+        'js/modules/ai/mahayawen-context.js',
+        'js/modules/ai/mahayawen-intent-parser.js',
+        'js/modules/ai/mahayawen-agent.js',
+        'js/modules/ai/mahayawen-voice.js',
+
+        // Chatbot (uses Mahayawen Agent)
+        'js/modules/ai/chatbot.js',
+
         // External libs (loaded early for modules that need them)
         'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
 
@@ -99,16 +110,12 @@ const FastLoader = {
             'css/modules/canvas.css'
         ],
         'galaxy': [
-            // Lightweight 2D galaxy view type Miro (90KB total)
-            'assets/vendor/rough.min.js',  // Style hand-drawn Excalidraw
+            // Galaxy Cosmic v3.0 - "L'Univers Vivant" (44KB total, ultra-optimisé)
+            'css/galaxy-cosmic.css',  // Interface fantôme avec glassmorphism
+            'js/galaxy-cosmic.js',  // Moteur cosmique avec particules et nébuleuses
+            'js/galaxy-cosmic-ui.js',  // Toolbar flottante + radial menu
             'js/modules/services/api-galaxy.js',  // Backend PostgreSQL
-            'css/galaxy.css',  // Styles premium
-            'css/galaxy-properties-panel.css',  // Panneau de propriétés type Figma
-            'js/galaxy.js',  // Engine principal
-            'js/modules/galaxy/galaxy-properties-panel.js',  // Panneau de propriétés
-            'js/galaxy-constellation.js',
-            'js/modules/canvases/galaxie-view.js',
-            'js/modules/canvases/galaxie-styles.js'
+            'js/modules/canvases/galaxie-view.js'  // Orchestrateur (lance galaxy-cosmic)
         ],
         'galaxy3d': [
             // Heavy 3D engine - only load if user explicitly switches to 3D mode
@@ -290,6 +297,12 @@ const FastLoader = {
 
             // Phase 2: Immediate (load after critical)
             await this.loadPhase('immediate');
+
+            // Initialize Chatbot (including Mahayawen Agent)
+            if (typeof Chatbot !== 'undefined' && Chatbot.initEvents) {
+                console.log('🤖 Initializing Chatbot + Mahayawen...');
+                Chatbot.initEvents();
+            }
 
             // Phase 3: Lazy modules loaded on demand via router
             this.setupLazyLoading();

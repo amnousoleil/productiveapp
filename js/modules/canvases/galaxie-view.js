@@ -1,6 +1,6 @@
 /**
- * GALAXIE VIEW - Integration module for Excalidraw
- * Uses embedded iframe in #view-galaxy via ViewRouter
+ * GALAXIE VIEW - Integration module for Galaxy Cosmic v3.0
+ * Initializes cosmic canvas on #view-galaxy
  */
 const GalaxieView = (function() {
     'use strict';
@@ -39,12 +39,26 @@ const GalaxieView = (function() {
     }
 
     function open() {
-        console.log('🌌 GalaxieView.open() -> opening canvas galaxy view');
-        // Use canvas-based galaxy.js instead of iframe
-        if (typeof window.openGalaxyView === 'function') {
-            window.openGalaxyView();
+        console.log('🌌 GalaxieView.open() -> opening Galaxy Cosmic v3.0');
+
+        // 1. Initialiser l'UI Cosmic (toolbar, radial menu, etc.)
+        if (window.initCosmicUI && typeof window.initCosmicUI === 'function') {
+            window.initCosmicUI();
+        }
+
+        // 2. Initialiser le moteur Galaxy Cosmic (canvas-based infinite canvas)
+        if (window.GalaxyCosmic && typeof window.GalaxyCosmic.init === 'function') {
+            window.GalaxyCosmic.init();
         } else {
-            console.warn('⚠️ openGalaxyView not found, galaxy.js may not be loaded');
+            console.warn('⚠️ Galaxy Cosmic not loaded yet, waiting...');
+            // Retry after brief delay (lazy load might not be complete)
+            setTimeout(() => {
+                if (window.GalaxyCosmic && typeof window.GalaxyCosmic.init === 'function') {
+                    window.GalaxyCosmic.init();
+                } else {
+                    console.error('❌ Galaxy Cosmic failed to load');
+                }
+            }, 500);
         }
     }
 

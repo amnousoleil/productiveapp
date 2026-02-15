@@ -1,10 +1,11 @@
 // =============================================
-// MAIL INBOX - Boîte d'envoi avec cartes
+// MAIL INBOX - Boîte d'envoi GMAIL COMPACT
 // =============================================
 
 const MailInbox = {
   mails: [],
   filter: 'all', // all | sent | opened | failed
+  searchQuery: '', // Recherche
 
   async load() {
     const container = document.getElementById('mail-inbox-content');
@@ -53,10 +54,24 @@ const MailInbox = {
         </div>
       </div>
 
-      <div class="mail-cards-grid">
+      <div class="mail-search-bar">
+        <svg class="mail-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input
+          type="text"
+          class="mail-search-input"
+          placeholder="🔍 Rechercher par destinataire, sujet ou contenu..."
+          value="${this.escapeHtml(this.searchQuery)}"
+        />
+        ${this.searchQuery ? '<button class="mail-search-clear">✕</button>' : ''}
+      </div>
+
+      <div class="mail-list-compact">
         ${filtered.length === 0
           ? '<div class="mail-empty"><p>Aucun email trouvé</p></div>'
-          : filtered.map(mail => this.renderMailCard(mail)).join('')
+          : filtered.map(mail => this.renderMailRow(mail)).join('')
         }
       </div>
     `;
@@ -65,82 +80,98 @@ const MailInbox = {
   },
 
   filterMails() {
+    let filtered = this.mails;
+
+    // Filtre par status
     switch (this.filter) {
       case 'sent':
-        return this.mails.filter(m => m.status === 'sent' && !m.opened_at);
+        filtered = filtered.filter(m => m.status === 'sent' && !m.opened_at);
+        break;
       case 'opened':
-        return this.mails.filter(m => m.opened_at);
+        filtered = filtered.filter(m => m.opened_at);
+        break;
       case 'failed':
-        return this.mails.filter(m => m.status === 'failed');
-      default:
-        return this.mails;
+        filtered = filtered.filter(m => m.status === 'failed');
+        break;
     }
+
+    // Filtre par recherche
+    if (this.searchQuery) {
+      const query = this.searchQuery.toLowerCase();
+      filtered = filtered.filter(mail => {
+        // Recherche dans destinataires
+        const recipients = (mail.to_addresses || []).join(' ').toLowerCase();
+        // Recherche dans sujet
+        const subject = (mail.subject || '').toLowerCase();
+        // Recherche dans body (limité pour performances)
+        const body = (mail.body || '').substring(0, 500).toLowerCase();
+
+        return recipients.includes(query) || subject.includes(query) || body.includes(query);
+      });
+    }
+
+    return filtered;
   },
 
-  renderMailCard(mail) {
+  renderMailRow(mail) {
     // Nettoyage ULTRA STRICT du HTML pour preview propre
     let preview = '';
     if (mail.is_html) {
       preview = mail.body
-        .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '') // Supprimer head complet
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '') // Supprimer styles
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Supprimer scripts
-        .replace(/<!--[\s\S]*?-->/g, '') // Supprimer commentaires HTML
-        .replace(/<[^>]*>/g, '') // Supprimer TOUS les tags HTML
-        .replace(/&nbsp;/g, ' ') // Remplacer &nbsp;
-        .replace(/&[a-z0-9]+;/gi, '') // Supprimer TOUTES entités HTML
-        .replace(/\s+/g, ' ') // Normaliser espaces multiples
-        .replace(/[^\w\s\u00C0-\u024F.,!?-]/g, '') // Garder seulement lettres, chiffres, ponctuation
+        .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, '')
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<!--[\s\S]*?-->/g, '')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&[a-z0-9]+;/gi, '')
+        .replace(/\s+/g, ' ')
+        .replace(/[^\w\s\u00C0-\u024F.,!?-]/g, '')
         .trim()
-        .substring(0, 60); // LIMITÉ à 60 caractères max
+        .substring(0, 80); // 80 caractères pour preview inline
     } else {
       preview = mail.body
         .replace(/\s+/g, ' ')
         .trim()
-        .substring(0, 60); // LIMITÉ à 60 caractères max
+        .substring(0, 80);
     }
 
-    // Formater les destinataires (limite 3, puis "et X autres")
+    // Formater les destinataires (max 2 emails)
     const recipients = mail.to_addresses || [];
-    const recipientText = recipients.length <= 2
-      ? recipients.join(', ')
-      : `${recipients.slice(0, 2).join(', ')} et ${recipients.length - 2} autre${recipients.length - 2 > 1 ? 's' : ''}`;
+    const recipientText = recipients.length === 1
+      ? recipients[0]
+      : recipients.length === 2
+        ? recipients.join(', ')
+        : `${recipients[0]} +${recipients.length - 1}`;
 
-    // Status avec icônes et labels clairs
-    let statusClass = 'sent';
+    // Status avec icônes
     let statusIcon = '✉️';
-    let statusLabel = 'Envoyé';
+    let statusClass = 'sent';
+    let statusTooltip = 'Envoyé';
 
     if (mail.opened_at) {
-      statusClass = 'opened';
       statusIcon = '👁️';
-      statusLabel = 'Lu';
+      statusClass = 'opened';
+      statusTooltip = 'Lu le ' + this.formatDate(mail.opened_at);
     } else if (mail.status === 'failed') {
-      statusClass = 'failed';
       statusIcon = '❌';
-      statusLabel = 'Échec';
+      statusClass = 'failed';
+      statusTooltip = 'Échec d\'envoi';
     }
 
-    // Date formatée avec jour/heure si récent
-    const sentDate = this.formatDateDetailed(mail.sent_at);
-    const openedDate = mail.opened_at ? this.formatDateDetailed(mail.opened_at) : null;
+    // Date courte
+    const sentDate = this.formatDateShort(mail.sent_at);
 
     return `
-      <div class="mail-card" data-mail-id="${mail.id}">
-        <div class="mail-card-header">
-          <div class="mail-card-to">
-            <strong>📧 À :</strong> ${this.escapeHtml(recipientText)}
-          </div>
-          <span class="mail-card-status ${statusClass}">${statusIcon} ${statusLabel}</span>
+      <div class="mail-row" data-mail-id="${mail.id}">
+        <input type="checkbox" class="mail-row-checkbox" data-mail-id="${mail.id}">
+        <span class="mail-row-status ${statusClass}" title="${statusTooltip}">${statusIcon}</span>
+        <div class="mail-row-recipient">${this.escapeHtml(recipientText)}</div>
+        <div class="mail-row-content">
+          <span class="mail-row-subject">${this.escapeHtml(mail.subject || '(sans objet)')}</span>
+          <span class="mail-row-preview"> - ${preview ? this.escapeHtml(preview) : 'Email vide'}</span>
         </div>
-
-        <div class="mail-card-subject">${this.escapeHtml(mail.subject || '(sans objet)')}</div>
-        <div class="mail-card-preview">${preview ? this.escapeHtml(preview) + '...' : '<em>Email vide</em>'}</div>
-
-        <div class="mail-card-footer">
-          <span class="mail-card-date">📅 ${sentDate}</span>
-          ${openedDate ? `<span class="mail-card-opened" style="color: #3b82f6;">✓ Lu ${openedDate}</span>` : '<span style="opacity: 0.5; font-size: 0.7rem;">Non lu</span>'}
-        </div>
+        <div class="mail-row-date">${sentDate}</div>
       </div>
     `;
   },
@@ -154,11 +185,41 @@ const MailInbox = {
       });
     });
 
-    // Mail cards click
-    document.querySelectorAll('.mail-card').forEach(card => {
-      card.addEventListener('click', async (e) => {
+    // Search input
+    const searchInput = document.querySelector('.mail-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value;
+        this.render();
+      });
+    }
+
+    // Search clear button
+    const clearBtn = document.querySelector('.mail-search-clear');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        this.searchQuery = '';
+        this.render();
+      });
+    }
+
+    // Mail rows click (éviter checkbox)
+    document.querySelectorAll('.mail-row').forEach(row => {
+      row.addEventListener('click', async (e) => {
+        // Ne pas ouvrir si click sur checkbox
+        if (e.target.classList.contains('mail-row-checkbox')) {
+          return;
+        }
         const mailId = e.currentTarget.dataset.mailId;
         await this.openDetail(mailId);
+      });
+    });
+
+    // Checkboxes (fonctionnalité future - sélection multiple)
+    document.querySelectorAll('.mail-row-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('click', (e) => {
+        e.stopPropagation(); // Empêcher ouverture du mail
+        // TODO: Gérer sélection multiple (suppression, archivage batch)
       });
     });
   },
@@ -278,6 +339,37 @@ const MailInbox = {
       hour: '2-digit',
       minute: '2-digit'
     });
+  },
+
+  formatDateShort(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+
+    // Aujourd'hui : heure seulement
+    if (hours < 24) {
+      return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Hier
+    if (hours < 48) {
+      return 'Hier';
+    }
+
+    // Moins de 7 jours : jour de la semaine court (Lun, Mar, etc.)
+    if (hours < 168) {
+      const days = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+      return days[date.getDay()];
+    }
+
+    // Cette année : jour + mois court (12 fév)
+    if (date.getFullYear() === now.getFullYear()) {
+      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    }
+
+    // Année passée : jour + mois + année (12 fév 2025)
+    return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 };
 

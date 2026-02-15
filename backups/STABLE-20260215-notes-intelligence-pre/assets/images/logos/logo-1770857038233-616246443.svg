@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e07840;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Circle background -->
+  <circle cx="50" cy="50" r="48" fill="url(#goldGradient)"/>
+
+  <!-- Crown icon -->
+  <g transform="translate(50,50)" fill="white">
+    <!-- Crown shape -->
+    <path d="M -15,-8 L -15,12 L 15,12 L 15,-8 L 10,-3 L 5,-12 L 0,-5 L -5,-12 L -10,-3 Z"
+          stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- Gems -->
+    <circle cx="-10" cy="-5" r="1.5" fill="#ffd700"/>
+    <circle cx="0" cy="-7" r="1.5" fill="#ffd700"/>
+    <circle cx="10" cy="-5" r="1.5" fill="#ffd700"/>
+  </g>
+</svg>
