@@ -426,8 +426,6 @@ class CosmicToolbar {
 
         // --- Close on outside click ---
         document.addEventListener('click', (e) => {
-            // Skip if floating picker was just opened (guard window)
-            if (self._cpFloatingGuard) return;
             if (!e.target.closest('.cosmic-color-wrapper') && !e.target.closest('.cosmic-color-popup') && !e.target.closest('.cosmic-color-adv-panel')) {
                 popup.classList.remove('open');
                 advPanel.classList.remove('open');
@@ -448,7 +446,6 @@ class CosmicToolbar {
         this._cpPopup = popup;
         this._cpAdvPanel = advPanel;
         this._cpOnColorChange = null;
-        this._cpFloatingGuard = false;
     }
 
     /**
@@ -469,22 +466,15 @@ class CosmicToolbar {
         // Set callback
         this._cpOnColorChange = onPick;
 
-        // Guard: ignore all document clicks for a short window
-        // so the popup isn't closed by stale/bubbling events
-        this._cpFloatingGuard = true;
-        setTimeout(() => {
-            popup.classList.add('floating');
-            popup.style.left = x + 'px';
-            popup.style.top = y + 'px';
-            advPanel.classList.add('floating');
-            advPanel.style.left = x + 'px';
-            advPanel.style.top = (y - 280) + 'px';
+        // Position in floating mode
+        popup.classList.add('floating');
+        popup.style.left = x + 'px';
+        popup.style.top = y + 'px';
+        advPanel.classList.add('floating');
+        advPanel.style.left = x + 'px';
+        advPanel.style.top = (y - 280) + 'px';
 
-            popup.classList.add('open');
-
-            // Drop the guard after all pending events have flushed
-            requestAnimationFrame(() => { this._cpFloatingGuard = false; });
-        }, 10);
+        popup.classList.add('open');
     }
 
     closeFloatingColorPicker() {
@@ -733,13 +723,19 @@ class RadialMenu {
         const node = this.targetNode;
         if (!node || !window.CosmicToolbar) return;
 
+        const x = this.lastX;
+        const y = this.lastY;
+
+        // Hide radial menu first, then open color picker after
+        // all click events from the radial menu have fully settled
         this.hide();
-        const toolbar = window.CosmicToolbar;
-        toolbar.openColorPickerAt(this.lastX, this.lastY - 60, (color) => {
-            node.color = color;
-            if (window.CosmicHistory) window.CosmicHistory.save();
-            if (typeof debouncedSave === 'function') debouncedSave();
-        });
+        setTimeout(() => {
+            window.CosmicToolbar.openColorPickerAt(x, y - 60, (color) => {
+                node.color = color;
+                if (window.CosmicHistory) window.CosmicHistory.save();
+                if (typeof debouncedSave === 'function') debouncedSave();
+            });
+        }, 200);
     }
 
     duplicateTarget() {
