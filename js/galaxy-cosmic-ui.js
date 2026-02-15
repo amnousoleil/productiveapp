@@ -41,7 +41,27 @@ class CosmicToolbar {
                 </svg>
             </button>
 
-            <input type="color" id="cosmic-color-picker" class="cosmic-color-input" value="#60a5fa" title="Couleur des formes">
+            <div class="cosmic-color-wrapper">
+                <button id="cosmic-color-btn" class="cosmic-color-swatch" style="background:#60a5fa" title="Couleur des formes"></button>
+                <div id="cosmic-color-popup" class="cosmic-color-popup">
+                    <div class="cosmic-color-presets">
+                        <button class="cosmic-color-dot" data-color="#1e1e1e" style="background:#1e1e1e" title="Noir"></button>
+                        <button class="cosmic-color-dot" data-color="#ffffff" style="background:#ffffff" title="Blanc"></button>
+                        <button class="cosmic-color-dot" data-color="#e03131" style="background:#e03131" title="Rouge"></button>
+                        <button class="cosmic-color-dot" data-color="#1971c2" style="background:#1971c2" title="Bleu"></button>
+                        <button class="cosmic-color-dot" data-color="#2f9e44" style="background:#2f9e44" title="Vert"></button>
+                        <button class="cosmic-color-dot" data-color="#fbbf24" style="background:#fbbf24" title="Jaune"></button>
+                        <button class="cosmic-color-dot" data-color="#f08c00" style="background:#f08c00" title="Orange"></button>
+                    </div>
+                    <button id="cosmic-color-advanced" class="cosmic-color-advanced-btn" title="Couleur personnalisée">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 21.5l7.5-2L21 8a2.83 2.83 0 0 0-4-4L5.5 15.5 2 21.5z"/>
+                            <path d="M15 5l4 4"/>
+                        </svg>
+                    </button>
+                    <input type="color" id="cosmic-color-native" value="#60a5fa" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0">
+                </div>
+            </div>
 
             <div class="cosmic-separator"></div>
 
@@ -158,13 +178,58 @@ class CosmicToolbar {
             });
         });
 
-        // Color picker
-        const colorInput = toolbar.querySelector('#cosmic-color-picker');
-        if (colorInput) {
-            colorInput.addEventListener('input', (e) => {
-                CosmicState.currentColor = e.target.value;
+        // Color picker popup
+        this.initColorPicker(toolbar);
+    }
+
+    initColorPicker(toolbar) {
+        const btn = toolbar.querySelector('#cosmic-color-btn');
+        const popup = toolbar.querySelector('#cosmic-color-popup');
+        const nativeInput = toolbar.querySelector('#cosmic-color-native');
+        const advancedBtn = toolbar.querySelector('#cosmic-color-advanced');
+        if (!btn || !popup) return;
+
+        const setColor = (color) => {
+            CosmicState.currentColor = color;
+            btn.style.background = color;
+            nativeInput.value = color;
+        };
+
+        // Toggle popup
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            popup.classList.toggle('open');
+        });
+
+        // Preset colors
+        popup.querySelectorAll('.cosmic-color-dot').forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setColor(dot.dataset.color);
+                popup.classList.remove('open');
             });
-        }
+        });
+
+        // Advanced picker button → trigger hidden native input
+        advancedBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nativeInput.click();
+        });
+
+        nativeInput.addEventListener('input', (e) => {
+            setColor(e.target.value);
+        });
+
+        nativeInput.addEventListener('change', () => {
+            popup.classList.remove('open');
+        });
+
+        // Close popup when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.cosmic-color-wrapper')) {
+                popup.classList.remove('open');
+            }
+        });
     }
 
     setupAutoHide() {
