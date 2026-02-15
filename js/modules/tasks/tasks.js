@@ -35,7 +35,7 @@ const Tasks = {
         // Use: 1) explicit option, 2) dropdown value, 3) current project filter, 4) 'general'
         const currentFilterProject = AppState.filters?.project !== 'all' ? AppState.filters.project : null;
         const projectId = options.project || Utils.$('project-select')?.value || currentFilterProject || 'general';
-        const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 2;
+        const priorityLevel = options.priority || parseInt(Utils.$('priority-select')?.value) || 3;
         let assignTo = options.userId || Utils.$('assign-select')?.value || AppState.currentUser?.id;
 
         // Validate UUID format - if not valid or empty, set to null
@@ -181,7 +181,7 @@ const Tasks = {
                     const assignSelect = Utils.$('assign-select');
                     if (taskInput) taskInput.value = '';
                     if (projectSelect) projectSelect.value = '';
-                    if (prioritySelect) prioritySelect.value = '2';
+                    if (prioritySelect) prioritySelect.value = '';
                     if (assignSelect) assignSelect.value = '';
                 }
 

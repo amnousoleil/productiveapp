@@ -135,7 +135,7 @@
     padding: 8px 14px;
     background: var(--bg-card);
     border-radius: 25px;
-    margin-bottom: 16px;
+    margin: 0 0 16px auto;
     width: fit-content;
     border: 1px solid var(--border);
     box-shadow: 0 2px 12px var(--accent-glow, transparent);

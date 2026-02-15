@@ -72,7 +72,7 @@
     <link rel="stylesheet" href="css/mail-premium-v7.css?v=8100">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
-    <link rel="stylesheet" href="css/style-overrides.css?v=2819">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2821">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -364,7 +364,7 @@
 
         <!-- BARRE DE FILTRES UNIFIÉE -->
         <div class="user-filter-bar">
-            <label>Voir :</label>
+            <label>Filtre :</label>
             <div class="custom-user-select" id="user-filter-dropdown">
                 <button class="custom-select-btn" id="user-filter-btn">
                     <span class="select-avatar">👥</span>
@@ -412,9 +412,10 @@
                 <option value="">Projet...</option>
             </select>
             <select id="priority-select">
-                <option value="3">Normal</option>
-                <option value="2">⚡ Important</option>
+                <option value="" disabled selected hidden>Priorité</option>
                 <option value="1">🔥 Urgent</option>
+                <option value="2">⚡ Important</option>
+                <option value="3">📌 Normal</option>
                 <option value="4">💤 Zen</option>
             </select>
             <select id="assign-select" title="Assigner à">
@@ -429,7 +430,7 @@
         <main class="tasks-view columns-view" id="columns-view">
             <div class="task-column" data-status="todo">
                 <div class="column-header">
-                    <h2>⏳ À faire</h2>
+                    <h2>📋 À faire</h2>
                     <span class="column-count" id="todo-count">0</span>
                 </div>
                 <div class="task-list" id="todo-list"></div>
@@ -437,7 +438,7 @@
             
             <div class="task-column" data-status="inprogress">
                 <div class="column-header">
-                    <h2>🔄 En cours</h2>
+                    <h2>⏳ En cours</h2>
                     <span class="column-count" id="inprogress-count">0</span>
                 </div>
                 <div class="task-list" id="inprogress-list"></div>
@@ -1136,7 +1137,7 @@
     <script src="js/modules/auth/auth.js?v=1700"></script>
     <script src="js/modules/themes.js?v=2001"></script>
     <script src="js/modules/confirm-modal.js?v=1700"></script>
-    <script src="js/modules/tasks/tasks.js?v=1700"></script>
+    <script src="js/modules/tasks/tasks.js?v=1701"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
     <script src="js/modules/projects/projects.js?v=5102"></script>
     <script src="js/modules/notes/journal.js?v=1700"></script>
