@@ -155,16 +155,16 @@ class CosmicBackground {
         // Pale/light golds for far, warm/amber for close
         // 9 threads: interleave far/mid/close, assign uniform Y slots
         const defs = [
-            // [thick, opacity*0.6, blur, drift, amp, color]  — opacity reduced 40%
-            { thick: [25, 40], op: [0.06, 0.10], blur: [3, 4.5], drift: [0.04, 0.08], amp: [25, 55], col: [184, 140, 60] },
-            { thick: [3, 5],   op: [0.036, 0.06], blur: [1, 2], drift: [0.15, 0.25], amp: [10, 25], col: [230, 215, 160] },
-            { thick: [10, 16], op: [0.054, 0.084], blur: [2, 3], drift: [0.08, 0.15], amp: [20, 40], col: [212, 175, 55] },
-            { thick: [3, 5],   op: [0.036, 0.06], blur: [1, 2], drift: [0.15, 0.25], amp: [10, 25], col: [220, 205, 150] },
-            { thick: [25, 40], op: [0.06, 0.10], blur: [3, 4.5], drift: [0.04, 0.08], amp: [25, 55], col: [175, 130, 50] },
-            { thick: [10, 16], op: [0.054, 0.084], blur: [2, 3], drift: [0.08, 0.15], amp: [20, 40], col: [200, 168, 76] },
-            { thick: [3, 5],   op: [0.036, 0.06], blur: [1, 2], drift: [0.15, 0.25], amp: [10, 25], col: [235, 220, 170] },
-            { thick: [10, 16], op: [0.054, 0.084], blur: [2, 3], drift: [0.08, 0.15], amp: [20, 40], col: [192, 164, 80] },
-            { thick: [25, 40], op: [0.06, 0.10], blur: [3, 4.5], drift: [0.04, 0.08], amp: [25, 55], col: [190, 150, 70] },
+            // [thick, opacity, blur, drift, amp, color]  — blur ×2.5 for vaporous haze
+            { thick: [25, 40], op: [0.06, 0.10], blur: [8, 12], drift: [0.04, 0.08], amp: [25, 55], col: [184, 140, 60] },
+            { thick: [3, 5],   op: [0.036, 0.06], blur: [3, 5], drift: [0.15, 0.25], amp: [10, 25], col: [230, 215, 160] },
+            { thick: [10, 16], op: [0.054, 0.084], blur: [5, 8], drift: [0.08, 0.15], amp: [20, 40], col: [212, 175, 55] },
+            { thick: [3, 5],   op: [0.036, 0.06], blur: [3, 5], drift: [0.15, 0.25], amp: [10, 25], col: [220, 205, 150] },
+            { thick: [25, 40], op: [0.06, 0.10], blur: [8, 12], drift: [0.04, 0.08], amp: [25, 55], col: [175, 130, 50] },
+            { thick: [10, 16], op: [0.054, 0.084], blur: [5, 8], drift: [0.08, 0.15], amp: [20, 40], col: [200, 168, 76] },
+            { thick: [3, 5],   op: [0.036, 0.06], blur: [3, 5], drift: [0.15, 0.25], amp: [10, 25], col: [235, 220, 170] },
+            { thick: [10, 16], op: [0.054, 0.084], blur: [5, 8], drift: [0.08, 0.15], amp: [20, 40], col: [192, 164, 80] },
+            { thick: [25, 40], op: [0.06, 0.10], blur: [8, 12], drift: [0.04, 0.08], amp: [25, 55], col: [190, 150, 70] },
         ];
         defs.forEach((d, i) => {
             const partial = Math.random() > 0.5;
@@ -287,16 +287,20 @@ class CosmicBackground {
                     else path.lineTo(x, y);
                 }
 
-                // Multi-pass soft edges: thick faint outer + thin bright core
+                // Multi-pass vaporous haze: blur controls spread width
+                const b = t.blur;
                 ctx.strokeStyle = grad;
-                ctx.globalAlpha = 0.3;
-                ctx.lineWidth = t.thickness * 2.5;
+                ctx.globalAlpha = 0.08;
+                ctx.lineWidth = t.thickness + b * 10;
                 ctx.stroke(path);
-                ctx.globalAlpha = 0.5;
-                ctx.lineWidth = t.thickness * 1.4;
+                ctx.globalAlpha = 0.14;
+                ctx.lineWidth = t.thickness + b * 5;
                 ctx.stroke(path);
-                ctx.globalAlpha = 1;
-                ctx.lineWidth = t.thickness;
+                ctx.globalAlpha = 0.25;
+                ctx.lineWidth = t.thickness + b * 2;
+                ctx.stroke(path);
+                ctx.globalAlpha = 0.45;
+                ctx.lineWidth = t.thickness * 0.5;
                 ctx.stroke(path);
             });
         }
