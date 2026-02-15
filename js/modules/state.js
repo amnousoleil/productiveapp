@@ -235,8 +235,8 @@ const AppState = {
 
         // Filtre par priorité
         if (this.filters.priority !== 'off') {
-            const targetPriority = { urgent: 1, normal: 2, zen: 3 }[this.filters.priority];
-            filtered = filtered.filter(t => (t.priority?.level || 2) === targetPriority);
+            const targetPriority = { urgent: 1, important: 2, normal: 3, zen: 4 }[this.filters.priority];
+            if (targetPriority) filtered = filtered.filter(t => (t.priority?.level || 3) === targetPriority);
         }
 
         return filtered;

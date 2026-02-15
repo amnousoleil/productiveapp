@@ -40,50 +40,87 @@ const Projects = {
             counts[p.id] = AppState.tasks.filter(t => t.project === p.id && t.status !== 'done').length;
         });
         const totalCount = AppState.tasks.filter(t => t.status !== 'done').length;
+        const current = AppState.filters.project;
 
-        Utils.$('count-all').textContent = totalCount;
+        // Mettre à jour le compteur global et le label du bouton
+        const countEl = Utils.$('count-all');
+        if (countEl) countEl.textContent = totalCount;
         window.projects = AppState.projects;
 
-        Utils.$('projects-filter-list').innerHTML = AppState.projects.map(p => `
-            <button class="project-chip ${AppState.filters.project === p.id ? 'active' : ''}" data-project="${p.id}">
-                <span class="chip-icon">${p.icon}</span>
-                <span class="chip-name">${p.name}</span>
-                <span class="chip-count">${counts[p.id] || 0}</span>
-                <span class="chip-delete" data-delete="${p.id}" title="Supprimer ce projet">×</span>
-            </button>
-        `).join('');
+        this._updateFilterButton(current, counts, totalCount);
 
-        // Event listeners pour filtrage
-        document.querySelectorAll('.project-chip').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                if (e.target.classList.contains('chip-delete')) return;
+        // Construire la liste dropdown
+        const list = Utils.$('project-filter-list');
+        if (!list) return;
 
-                document.querySelectorAll('.project-chip').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                AppState.setFilter('project', btn.dataset.project);
+        const check = '<span class="pf-option-check"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5l3 3 5-6.5"/></svg></span>';
 
-                // Sync the project dropdown with the selected filter
-                const select = Utils.$('project-select');
-                if (select) {
-                    select.value = btn.dataset.project;
-                }
+        const allOption = `<div class="pf-option ${current === 'all' ? 'active' : ''}" data-project="all">${check}<span class="pf-option-icon">📊</span><span class="pf-option-name">Tous les projets</span><span class="pf-option-count">${totalCount}</span></div>`;
 
-                Tasks.render();
+        const sep = '<div class="pf-option-separator"></div>';
+
+        const projectOptions = AppState.projects.map(p =>
+            `<div class="pf-option ${current === p.id ? 'active' : ''}" data-project="${p.id}">${check}<span class="pf-option-icon">${p.icon}</span><span class="pf-option-name">${p.name}</span><span class="pf-option-count">${counts[p.id] || 0}</span><button class="pf-option-delete" data-delete="${p.id}" title="Supprimer">&times;</button></div>`
+        ).join('');
+
+        list.innerHTML = allOption + (AppState.projects.length ? sep : '') + projectOptions;
+
+        // Event listeners
+        list.querySelectorAll('.pf-option').forEach(opt => {
+            opt.addEventListener('click', (e) => {
+                if (e.target.closest('.pf-option-delete')) return;
+                this._selectProject(opt.dataset.project);
             });
         });
 
-        // Event listeners pour suppression
-        document.querySelectorAll('.chip-delete').forEach(btn => {
+        list.querySelectorAll('.pf-option-delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.delete(btn.dataset.delete);
             });
         });
+    },
 
-        // Réinitialiser drag & drop
-        if (typeof initProjectDragAndDrop === 'function') {
-            initProjectDragAndDrop();
+    /**
+     * Met à jour le texte du bouton dropdown
+     */
+    _updateFilterButton(projectId, counts, totalCount) {
+        const nameEl = Utils.$('project-filter-name');
+        const countEl = Utils.$('count-all');
+        const iconBtn = document.querySelector('.project-dropdown-btn .pf-icon');
+        if (!nameEl) return;
+
+        if (projectId === 'all') {
+            nameEl.textContent = 'Tous les projets';
+            if (iconBtn) iconBtn.textContent = '📁';
+            if (countEl) countEl.textContent = totalCount;
+        } else {
+            const p = AppState.findProject(projectId);
+            if (p) {
+                nameEl.textContent = p.name;
+                if (iconBtn) iconBtn.textContent = p.icon;
+                if (countEl) countEl.textContent = counts[projectId] || 0;
+            }
         }
+    },
+
+    /**
+     * Sélectionne un projet depuis le dropdown
+     */
+    _selectProject(projectId) {
+        AppState.setFilter('project', projectId);
+
+        // Sync le select de création de tâche
+        const select = Utils.$('project-select');
+        if (select) select.value = projectId === 'all' ? '' : projectId;
+
+        // Fermer le dropdown
+        const dd = Utils.$('project-filter-dropdown');
+        if (dd) dd.classList.remove('open');
+
+        // Re-render
+        this.renderFilter();
+        Tasks.render();
     },
 
     /**
@@ -304,6 +341,8 @@ const Projects = {
         const modal = Utils.$('project-modal');
         const userFilterBtn = Utils.$('user-filter-btn');
         const userFilterDropdown = Utils.$('user-filter-dropdown');
+        const projectFilterBtn = Utils.$('project-filter-btn');
+        const projectFilterDropdown = Utils.$('project-filter-dropdown');
 
         if (addBtn) {
             addBtn.addEventListener('click', () => this.openModal());
@@ -323,17 +362,32 @@ const Projects = {
             });
         }
 
+        // Toggle dropdown projet
+        if (projectFilterBtn) {
+            projectFilterBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                projectFilterDropdown.classList.toggle('open');
+                // Fermer l'autre dropdown
+                if (userFilterDropdown) userFilterDropdown.classList.remove('open');
+            });
+        }
+
         if (userFilterBtn) {
             userFilterBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 userFilterDropdown.classList.toggle('open');
+                // Fermer l'autre dropdown
+                if (projectFilterDropdown) projectFilterDropdown.classList.remove('open');
             });
         }
 
-        // Fermer dropdown au clic extérieur
+        // Fermer dropdowns au clic extérieur
         document.addEventListener('click', (e) => {
             if (userFilterDropdown && !userFilterDropdown.contains(e.target)) {
                 userFilterDropdown.classList.remove('open');
+            }
+            if (projectFilterDropdown && !projectFilterDropdown.contains(e.target)) {
+                projectFilterDropdown.classList.remove('open');
             }
         });
     }

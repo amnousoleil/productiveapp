@@ -21,7 +21,7 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/style-base.css?v=2501">
+    <link rel="stylesheet" href="css/style-base.css?v=2504">
     <link rel="stylesheet" href="css/style-components.css?v=2202">
     <link rel="stylesheet" href="css/style-themes.css?v=1901">
     <link rel="stylesheet" href="css/style-dragdrop.css?v=1700">
@@ -62,7 +62,7 @@
     <link rel="stylesheet" href="css/giri-vision.css?v=3600">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
     <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
-    <link rel="stylesheet" href="css/responsive.css?v=2300">
+    <link rel="stylesheet" href="css/responsive.css?v=2302">
     <!-- Power Features CSS -->
     <link rel="stylesheet" href="css/keyboard-shortcuts.css?v=2000">
     <link rel="stylesheet" href="css/command-palette.css?v=2000">
@@ -72,7 +72,7 @@
     <link rel="stylesheet" href="css/mail-premium-v7.css?v=8100">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
-    <link rel="stylesheet" href="css/style-overrides.css?v=2809">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2819">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -362,18 +362,7 @@
             </div>
         </header>
 
-        <!-- FILTRES PROJETS -->
-        <nav class="projects-nav">
-            <button class="project-chip active" data-project="all">
-                <span class="chip-icon">📊</span>
-                <span class="chip-name">Tout</span>
-                <span class="chip-count" id="count-all">0</span>
-            </button>
-            <div class="projects-scroll" id="projects-filter-list"></div>
-            <button id="add-project-btn" class="add-chip-btn" title="Nouveau projet">+</button>
-        </nav>
-
-        <!-- FILTRE UTILISATEUR - Discret -->
+        <!-- BARRE DE FILTRES UNIFIÉE -->
         <div class="user-filter-bar">
             <label>Voir :</label>
             <div class="custom-user-select" id="user-filter-dropdown">
@@ -384,11 +373,26 @@
                 </button>
                 <div class="custom-select-options" id="user-filter-options"></div>
             </div>
-            <button id="urgent-filter-btn" class="urgent-filter-btn" title="Organiser par priorité - Urgents en premier">
-                <img src="/assets/images/icons/gyrophare-off.png" alt="Urgent" class="gyrophare-icon">
-                <div class="urgent-particles"></div>
+            <span class="filter-sep"></span>
+            <div class="project-dropdown" id="project-filter-dropdown">
+                <button class="custom-select-btn project-dropdown-btn" id="project-filter-btn">
+                    <span class="select-avatar pf-icon">📁</span>
+                    <span class="select-text pf-name" id="project-filter-name">Tous les projets</span>
+                    <span class="pf-count" id="count-all">0</span>
+                    <span class="select-arrow pf-arrow">▼</span>
+                </button>
+                <div class="project-dropdown-list" id="project-filter-list"></div>
+            </div>
+            <button id="add-project-btn" class="add-project-btn" title="Nouveau projet">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M7 1v12M1 7h12"/></svg>
             </button>
-            <!-- RECHERCHE TÂCHES -->
+            <button id="urgent-filter-btn" class="urgent-filter-btn gyro-off" title="Filtrer par priorité">
+                <img src="/assets/images/icons/gyrophare-off.png" alt="" class="gyrophare-icon">
+                <div class="urgent-particles"></div>
+                <span class="gyro-slash"></span>
+                <span class="gyro-dot" id="gyro-dot"></span>
+                <span class="gyro-label" id="gyro-label"></span>
+            </button>
             <div class="search-container" id="search-container">
                 <button id="search-toggle-btn" class="search-toggle-btn" title="Rechercher une tâche">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -1103,7 +1107,7 @@
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
     <script src="js/modules/config.js?v=6301"></script>
-    <script src="js/modules/state.js?v=1700"></script>
+    <script src="js/modules/state.js?v=1701"></script>
     <script src="js/modules/utils.js?v=1700"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
@@ -1134,11 +1138,11 @@
     <script src="js/modules/confirm-modal.js?v=1700"></script>
     <script src="js/modules/tasks/tasks.js?v=1700"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
-    <script src="js/modules/projects/projects.js?v=5100"></script>
+    <script src="js/modules/projects/projects.js?v=5102"></script>
     <script src="js/modules/notes/journal.js?v=1700"></script>
     <script src="js/modules/ai/chat-actions.js?v=1700"></script>
     <script src="js/modules/ai/chatbot.js?v=1700"></script>
-    <script src="js/modules/effects.js?v=6300"></script>
+    <script src="js/modules/effects.js?v=6302"></script>
     <script src="js/modules/reports/report.js?v=2200"></script>
     <script src="js/modules/services/backup.js?v=1700"></script>
     <script src="js/modules/sidebar/sidebar-core.js?v=3700"></script>
@@ -1161,7 +1165,7 @@
     <script src="js/modules/notes/notes-graph-3d.js?v=100"></script>
     <script src="js/modules/notes/notes-graph-view.js?v=100"></script>
     <script src="js/modules/notes/notes-init.js?v=1700"></script>
-    <script src="js/modules/projects/projects-view.js?v=5100"></script>
+    <script src="js/modules/projects/projects-view.js?v=5101"></script>
     <!-- Settings Module -->
     <script src="js/modules/settings/settings-state.js?v=1700"></script>
     <script src="js/modules/settings/settings-data.js?v=1700"></script>

@@ -149,24 +149,14 @@
         display: none;
     }
 
-    /* Project filter: horizontal scroll */
-    .projects-nav {
-        padding: 0 8px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        flex-wrap: nowrap;
-    }
-
-    .projects-nav::-webkit-scrollbar {
-        display: none;
-    }
-
-    .project-chip {
-        white-space: nowrap;
-        flex-shrink: 0;
-        font-size: 12px;
-        padding: 5px 10px;
+    /* Project dropdown inside filter bar */
+    .pf-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
+    .pf-count { display: none; }
+    .filter-sep { display: none; }
+    .add-project-btn { display: none; }
+    .project-dropdown-list {
+        min-width: 240px;
+        max-width: calc(100vw - 40px);
     }
 
     /* User filter bar: compact */
@@ -377,14 +367,8 @@
         display: none;
     }
 
-    .project-chip {
-        font-size: 11px;
-        padding: 4px 8px;
-    }
-
-    .chip-count {
-        display: none;
-    }
+    .project-dropdown { display: none; }
+    .add-project-btn { display: none; }
 
     .task-item {
         padding: 10px;
@@ -462,7 +446,7 @@
 /* ===== TOUCH IMPROVEMENTS ===== */
 @media (hover: none) and (pointer: coarse) {
     /* Larger touch targets */
-    .btn, button, .project-chip, .menu-item {
+    .btn, button, .project-dropdown-btn, .menu-item {
         min-height: 44px;
     }
 
@@ -484,7 +468,7 @@
     /* Disable text selection on interactive elements */
     .mobile-nav-item,
     .sidebar-item,
-    .project-chip {
+    .project-dropdown-btn {
         -webkit-user-select: none;
         user-select: none;
     }

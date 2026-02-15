@@ -169,10 +169,11 @@ const ProjectsView = (function() {
             // Navigate to tasks view
             ViewRouter.navigate('tasks');
 
-            // Click on the project chip if exists
+            // Select project in filter dropdown
             setTimeout(() => {
-                const chip = document.querySelector(`.project-chip[data-project="${projectName}"]`);
-                if (chip) chip.click();
+                if (typeof Projects !== 'undefined' && Projects._selectProject) {
+                    Projects._selectProject(projectName);
+                }
             }, 100);
         }
     }

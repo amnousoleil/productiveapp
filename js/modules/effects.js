@@ -260,19 +260,36 @@ const Effects = {
      */
     initGyrophare() {
         const btn = Utils.$('urgent-filter-btn');
+        const label = Utils.$('gyro-label');
         if (!btn) return;
+
+        let hideTimer = null;
+        const labels = { off: '', urgent: 'Urgent', important: 'Important', normal: 'Normal', zen: 'Zen' };
 
         btn.addEventListener('click', () => {
             const modes = ['off', 'urgent', 'important', 'normal', 'zen'];
             const currentIndex = modes.indexOf(AppState.filters.priority);
-            AppState.setFilter('priority', modes[(currentIndex + 1) % modes.length]);
+            const next = modes[(currentIndex + 1) % modes.length];
+            AppState.setFilter('priority', next);
 
-            btn.classList.remove('active', 'mode-urgent', 'mode-important', 'mode-normal', 'mode-zen');
-            if (AppState.filters.priority !== 'off') {
-                btn.classList.add('active', 'mode-' + AppState.filters.priority);
+            btn.classList.remove('active', 'gyro-off', 'mode-urgent', 'mode-important', 'mode-normal', 'mode-zen');
+            if (next === 'off') {
+                btn.classList.add('gyro-off');
+            } else {
+                btn.classList.add('active', 'mode-' + next);
             }
 
-            btn.querySelector('.gyrophare-icon').src = AppConfig.GYRO_IMAGES[AppState.filters.priority];
+            btn.querySelector('.gyrophare-icon').src = AppConfig.GYRO_IMAGES[next];
+
+            // Tooltip: show then auto-hide after 1.5s
+            if (label && labels[next]) {
+                if (hideTimer) clearTimeout(hideTimer);
+                label.textContent = labels[next];
+                label.className = 'gyro-label gyro-label-' + next + ' show';
+                hideTimer = setTimeout(() => label.classList.remove('show'), 1500);
+            } else if (label) {
+                label.classList.remove('show');
+            }
 
             Tasks.render();
         });

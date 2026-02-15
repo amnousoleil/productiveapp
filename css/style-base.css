@@ -589,82 +589,174 @@ body.logged-in .main-content {
    PROJECTS NAV
    ============================================= */
 
-.projects-nav {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-bottom: var(--space-md);
-}
+/* --- Project Filter Dropdown (inside .user-filter-bar) --- */
+.project-dropdown { position: relative; }
 
-.projects-nav::-webkit-scrollbar {
-    display: none;
-}
-
-.projects-scroll {
-    display: flex;
-    gap: var(--space-sm);
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-
-.project-chip {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-sm) var(--space-md);
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-xl);
-    color: var(--text);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: var(--transition-normal);
-    white-space: nowrap;
-}
-
-.project-chip:hover {
+.project-dropdown.open .project-dropdown-btn {
     border-color: var(--accent);
-    background: var(--accent-muted);
+}
+.project-dropdown.open .pf-arrow {
+    transform: rotate(180deg);
 }
 
-.project-chip.active {
-    background: var(--accent);
-    color: var(--bg-primary);
-    border-color: var(--accent);
-    font-weight: 600;
-}
-
-.chip-count {
-    background: rgba(255, 255, 255, 0.2);
+.pf-count {
+    background: var(--accent-muted, rgba(224, 120, 64, 0.2));
+    color: var(--accent, #e07840);
     padding: 2px 8px;
     border-radius: 10px;
-    font-size: 0.75rem;
-}
-
-.project-chip.active .chip-count {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.add-chip-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 2px dashed var(--border);
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: var(--transition-normal);
+    font-size: 0.7rem;
+    font-weight: 700;
     flex-shrink: 0;
 }
 
-.add-chip-btn:hover {
+.filter-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--border, rgba(255,255,255,0.1));
+    flex-shrink: 0;
+}
+
+.add-project-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px dashed var(--border, rgba(255,255,255,0.12));
+    background: transparent;
+    color: var(--text-muted, rgba(255,255,255,0.35));
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.add-project-btn:hover {
     border-color: var(--accent);
     color: var(--accent);
-    background: var(--bg-card);
+}
+
+/* --- Dropdown Panel (overlay) --- */
+.project-dropdown-list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 300px;
+    max-width: 400px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: var(--bg-secondary, #1a1a1f);
+    border: 2px solid var(--accent-muted, rgba(224, 120, 64, 0.3));
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    padding: 6px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.22s ease, transform 0.22s cubic-bezier(.4,0,.2,1), visibility 0.22s;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-muted, rgba(255,255,255,0.1)) transparent;
+}
+.project-dropdown.open .project-dropdown-list {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.project-dropdown-list::-webkit-scrollbar { width: 4px; }
+.project-dropdown-list::-webkit-scrollbar-track { background: transparent; }
+.project-dropdown-list::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 4px;
+}
+
+/* --- Dropdown Items --- */
+.pf-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    color: var(--text-primary, #ffffff);
+    font-size: 0.87rem;
+    font-weight: 500;
+    margin-bottom: 2px;
+    position: relative;
+}
+.pf-option:last-child { margin-bottom: 0; }
+
+.pf-option:hover {
+    background: var(--accent-muted, rgba(224, 120, 64, 0.2));
+}
+
+.pf-option.active {
+    background: var(--accent-muted, rgba(224, 120, 64, 0.3));
+}
+
+/* Checkmark for active item */
+.pf-option-check {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0;
+    color: var(--accent);
+}
+.pf-option.active .pf-option-check {
+    opacity: 1;
+}
+
+.pf-option-icon { font-size: 1.05rem; flex-shrink: 0; }
+
+.pf-option-name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pf-option-count {
+    padding: 2px 8px;
+    border-radius: 9px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.06);
+    color: var(--text-muted, rgba(255,255,255,0.45));
+}
+.pf-option.active .pf-option-count {
+    background: var(--accent);
+    color: var(--bg-primary, #0a0a0a);
+}
+
+.pf-option-delete {
+    display: none;
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444;
+    font-size: 0.85rem;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+}
+.pf-option:hover .pf-option-delete { display: inline-flex; }
+.pf-option-delete:hover { background: #ef4444; color: white; }
+
+/* Separator after "Tous les projets" */
+.pf-option-separator {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 4px 8px;
 }
 
 /* =============================================
