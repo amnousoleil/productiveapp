@@ -217,7 +217,7 @@ const ViewRouter = (function() {
                 break;
             case 'galaxy':
                 if (typeof GalaxieView !== 'undefined') {
-                    GalaxieView.refresh();
+                    GalaxieView.open();
                 }
                 break;
             case 'accounting':

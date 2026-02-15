@@ -118,6 +118,19 @@ class CosmicToolbar {
                     <path d="M12 6v6l4 2"/>
                 </svg>
             </button>
+
+            <div class="cosmic-separator"></div>
+
+            <button class="cosmic-btn cosmic-skin-toggle" data-action="skin-toggle" title="Skin Nuit / Désert">
+                <svg width="20" height="20" viewBox="0 0 24 24">
+                    <clipPath id="skin-left"><rect x="0" y="0" width="12" height="24"/></clipPath>
+                    <clipPath id="skin-right"><rect x="12" y="0" width="12" height="24"/></clipPath>
+                    <circle cx="12" cy="12" r="9" fill="#1a1a2e" clip-path="url(#skin-left)"/>
+                    <circle cx="12" cy="12" r="9" fill="#f5f0e8" clip-path="url(#skin-right)"/>
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                    <line x1="12" y1="3" x2="12" y2="21" stroke="currentColor" stroke-width="1"/>
+                </svg>
+            </button>
         `;
 
         // Ajouter la toolbar DANS #view-galaxy, pas dans body
@@ -213,6 +226,11 @@ class CosmicToolbar {
                 break;
             case 'zen':
                 document.body.classList.toggle('zen-mode');
+                break;
+            case 'skin-toggle':
+                if (window.GalaxyCosmic && window.GalaxyCosmic.toggleSkin) {
+                    window.GalaxyCosmic.toggleSkin();
+                }
                 break;
         }
     }

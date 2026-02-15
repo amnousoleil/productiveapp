@@ -1959,6 +1959,43 @@ body .bubble.done .bubble-text {
    SIDEBAR INTEGRATION - ProductiveApp v4.4
    ================================================ */
 
+/* Main content: position relative pour les vues absolues */
+.main-content {
+    position: relative;
+}
+
+/* Galaxy View: couvrir 100% du viewport, opaque par-dessus tout */
+#view-galaxy.active {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: #030308 !important;
+    z-index: 100 !important;
+    overflow: hidden;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    border-radius: 0 !important;
+    transition: background-color 0.6s ease;
+}
+
+/* Galaxy View: skin désert — fond sable clair opaque */
+#view-galaxy.active[data-galaxy-skin="desert"] {
+    background: #f5f0e8 !important;
+}
+
+/* Galaxy toolbar: toujours visible et fixée en bas */
+#view-galaxy.active .cosmic-toolbar {
+    position: fixed !important;
+    bottom: 40px !important;
+    left: 50% !important;
+    z-index: 200 !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+}
+
 /* Masquer l'ancien header quand sidebar est active */
 body.logged-in .header-left .user-badge {
     display: none;

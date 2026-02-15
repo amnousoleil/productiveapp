@@ -41,6 +41,13 @@ const GalaxieView = (function() {
     function open() {
         console.log('🌌 GalaxieView.open() -> opening Galaxy Cosmic v3.0');
 
+        // 0. Naviguer vers la vue Galaxy via le router (sauf si déjà dessus)
+        if (window.ViewRouter && typeof window.ViewRouter.navigate === 'function') {
+            if (window.ViewRouter.getCurrentView() !== 'galaxy') {
+                window.ViewRouter.navigate('galaxy');
+            }
+        }
+
         // 1. Initialiser l'UI Cosmic (toolbar, radial menu, etc.)
         if (window.initCosmicUI && typeof window.initCosmicUI === 'function') {
             window.initCosmicUI();
@@ -51,7 +58,6 @@ const GalaxieView = (function() {
             window.GalaxyCosmic.init();
         } else {
             console.warn('⚠️ Galaxy Cosmic not loaded yet, waiting...');
-            // Retry after brief delay (lazy load might not be complete)
             setTimeout(() => {
                 if (window.GalaxyCosmic && typeof window.GalaxyCosmic.init === 'function') {
                     window.GalaxyCosmic.init();

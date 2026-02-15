@@ -74,18 +74,62 @@ const CosmicState = {
 // PRINCIPE #1 : FOND COSMIQUE VIVANT
 // ═══════════════════════════════════════════════════════════════════
 
+// Presets de skins pour le fond cosmique
+const COSMIC_SKINS = {
+    night: {
+        bg: '#0a0a0f',
+        particle: [200, 210, 255],
+        starColors: ['#a8c0ff', '#ffffff'],
+        nebulae: [
+            ['#1a0a3a', '#4a1a7a', '#2a0a5a'],
+            ['#0a1a3a', '#1a4a7a', '#0a2a5a'],
+            ['#3a0a1a', '#7a1a4a', '#5a0a2a']
+        ]
+    },
+    desert: {
+        bg: '#f5f0e8',
+        particle: [210, 185, 120],
+        starColors: ['#d4af37', '#c9a84c'],
+        nebulae: [
+            ['#e8d4a0', '#d4b878', '#c9a84c'],
+            ['#dcc898', '#c8a86c', '#b89860'],
+            ['#f0deb0', '#e0c890', '#d0b878'],
+            ['#e4d0a8', '#d0b480', '#c0a468'],
+            ['#ecdcc0', '#d8c098', '#c8b080']
+        ]
+    }
+};
+
 class CosmicBackground {
     constructor() {
         this.particles = [];
         this.nebulae = [];
         this.stars = [];
+        this.skin = localStorage.getItem('galaxy-skin') || 'night';
         this.initParticles();
         this.initNebulae();
         this.initStars();
     }
 
+    get colors() { return COSMIC_SKINS[this.skin]; }
+
+    setSkin(name) {
+        if (!COSMIC_SKINS[name]) return;
+        this.skin = name;
+        localStorage.setItem('galaxy-skin', name);
+        const view = document.getElementById('view-galaxy');
+        if (view) view.dataset.galaxySkin = name;
+        // Re-assign nebula colors to match skin
+        const cols = this.colors.nebulae;
+        this.nebulae.forEach((n, i) => { n.colors = cols[i % cols.length]; });
+    }
+
+    toggleSkin() {
+        this.setSkin(this.skin === 'night' ? 'desert' : 'night');
+    }
+
     initParticles() {
-        const density = 0.0005; // particules par pixel²
+        const density = 0.0005;
         const area = window.innerWidth * window.innerHeight;
         const count = Math.floor(area * density * CosmicState.prefs.particleDensity);
 
@@ -93,7 +137,7 @@ class CosmicBackground {
             this.particles.push({
                 x: Math.random() * window.innerWidth * 2 - window.innerWidth / 2,
                 y: Math.random() * window.innerHeight * 2 - window.innerHeight / 2,
-                z: Math.random() * 1000, // Profondeur 3D
+                z: Math.random() * 1000,
                 size: Math.random() * 2 + 0.5,
                 vx: (Math.random() - 0.5) * 0.1,
                 vy: (Math.random() - 0.5) * 0.1,
@@ -101,33 +145,68 @@ class CosmicBackground {
                 twinkleSpeed: Math.random() * 0.02 + 0.01
             });
         }
+
+        // Desert sand ribbons — 3 depth layers across full screen height
+        this.silkThreads = [];
+        const w = window.innerWidth, h = window.innerHeight;
+        // Pale/light golds for far, warm/amber for close
+        // 9 threads: interleave far/mid/close, assign uniform Y slots
+        const defs = [
+            // [thick, opacity*0.6, blur, drift, amp, color]  — opacity reduced 40%
+            { thick: [25, 40], op: [0.06, 0.10], blur: [3, 4.5], drift: [0.04, 0.08], amp: [25, 55], col: [184, 140, 60] },
+            { thick: [3, 5],   op: [0.036, 0.06], blur: [1, 2], drift: [0.15, 0.25], amp: [10, 25], col: [230, 215, 160] },
+            { thick: [10, 16], op: [0.054, 0.084], blur: [2, 3], drift: [0.08, 0.15], amp: [20, 40], col: [212, 175, 55] },
+            { thick: [3, 5],   op: [0.036, 0.06], blur: [1, 2], drift: [0.15, 0.25], amp: [10, 25], col: [220, 205, 150] },
+            { thick: [25, 40], op: [0.06, 0.10], blur: [3, 4.5], drift: [0.04, 0.08], amp: [25, 55], col: [175, 130, 50] },
+            { thick: [10, 16], op: [0.054, 0.084], blur: [2, 3], drift: [0.08, 0.15], amp: [20, 40], col: [200, 168, 76] },
+            { thick: [3, 5],   op: [0.036, 0.06], blur: [1, 2], drift: [0.15, 0.25], amp: [10, 25], col: [235, 220, 170] },
+            { thick: [10, 16], op: [0.054, 0.084], blur: [2, 3], drift: [0.08, 0.15], amp: [20, 40], col: [192, 164, 80] },
+            { thick: [25, 40], op: [0.06, 0.10], blur: [3, 4.5], drift: [0.04, 0.08], amp: [25, 55], col: [190, 150, 70] },
+        ];
+        defs.forEach((d, i) => {
+            const partial = Math.random() > 0.5;
+            const startX = partial ? Math.random() * w * 0.3 : -100;
+            const endX = partial ? startX + w * (0.5 + Math.random() * 0.3) : w + 100;
+            // Uniform Y: divide screen into 9 equal slots
+            const baseY = h * ((i + 0.5) / 9);
+            this.silkThreads.push({
+                startX, endX, baseY, color: d.col,
+                thickness: d.thick[0] + Math.random() * (d.thick[1] - d.thick[0]),
+                opacity: d.op[0] + Math.random() * (d.op[1] - d.op[0]),
+                blur: d.blur[0] + Math.random() * (d.blur[1] - d.blur[0]),
+                waveAmp: d.amp[0] + Math.random() * (d.amp[1] - d.amp[0]),
+                waveFreq: 0.002 + Math.random() * 0.003,
+                wavePhase: Math.random() * Math.PI * 2,
+                waveSpeed: 0.003 + Math.random() * 0.005,
+                driftSpeed: d.drift[0] + Math.random() * (d.drift[1] - d.drift[0]),
+                driftOffset: 0,
+                breathPhase: Math.random() * Math.PI * 2,
+                breathSpeed: 0.0008 + Math.random() * 0.001,
+                breathAmp: 5 + Math.random() * 15,
+            });
+        });
     }
 
     initNebulae() {
-        // Nébuleuses génératives avec gradients radiaux
-        const colors = [
-            ['#1a0a3a', '#4a1a7a', '#2a0a5a'], // Violet profond
-            ['#0a1a3a', '#1a4a7a', '#0a2a5a'], // Bleu profond
-            ['#3a0a1a', '#7a1a4a', '#5a0a2a'], // Rouge profond
-        ];
-
-        for (let i = 0; i < 5; i++) {
-            const colorSet = colors[Math.floor(Math.random() * colors.length)];
+        const cols = this.colors.nebulae;
+        const isDesert = this.skin === 'desert';
+        const count = isDesert ? 8 : 5;
+        for (let i = 0; i < count; i++) {
+            const colorSet = cols[i % cols.length];
             this.nebulae.push({
                 x: Math.random() * window.innerWidth * 2 - window.innerWidth / 2,
                 y: Math.random() * window.innerHeight * 2 - window.innerHeight / 2,
-                radius: Math.random() * 300 + 200,
+                radius: isDesert ? (Math.random() * 400 + 300) : (Math.random() * 300 + 200),
                 colors: colorSet,
                 rotation: Math.random() * Math.PI * 2,
-                rotationSpeed: (Math.random() - 0.5) * 0.001,
+                rotationSpeed: (Math.random() - 0.5) * (isDesert ? 0.0003 : 0.001),
                 pulsePhase: Math.random() * Math.PI * 2,
-                pulseSpeed: Math.random() * 0.005 + 0.002
+                pulseSpeed: isDesert ? (Math.random() * 0.001 + 0.0005) : (Math.random() * 0.005 + 0.002)
             });
         }
     }
 
     initStars() {
-        // Étoiles brillantes (moins nombreuses que particules)
         for (let i = 0; i < 100; i++) {
             this.stars.push({
                 x: Math.random() * window.innerWidth * 2 - window.innerWidth / 2,
@@ -136,62 +215,97 @@ class CosmicBackground {
                 brightness: Math.random(),
                 twinklePhase: Math.random() * Math.PI * 2,
                 twinkleSpeed: Math.random() * 0.03 + 0.01,
-                color: Math.random() > 0.7 ? '#a8c0ff' : '#ffffff'
+                colorIndex: Math.random() > 0.7 ? 0 : 1
             });
         }
     }
 
     render(ctx, camera, deltaTime) {
         const { x: camX, y: camY, zoom } = camera;
+        const c = this.colors;
+        const [pr, pg, pb] = c.particle;
 
-        // Fond noir profond
-        ctx.fillStyle = '#0a0a0f';
+        // Fond
+        const isDesert = this.skin === 'desert';
+        ctx.fillStyle = c.bg;
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-        // Nébuleuses (effet de profondeur avec parallaxe)
-        if (CosmicState.prefs.showNebulae) {
+        // Nébuleuses (night only — desert uses silk threads only)
+        if (CosmicState.prefs.showNebulae && !isDesert) {
             this.nebulae.forEach(nebula => {
                 nebula.rotation += nebula.rotationSpeed;
                 nebula.pulsePhase += nebula.pulseSpeed;
                 const pulse = Math.sin(nebula.pulsePhase) * 0.2 + 1;
-
                 const screenX = (nebula.x - camX) * zoom * 0.3 + ctx.canvas.width / 2;
                 const screenY = (nebula.y - camY) * zoom * 0.3 + ctx.canvas.height / 2;
                 const screenRadius = nebula.radius * zoom * 0.3 * pulse;
-
                 const gradient = ctx.createRadialGradient(
-                    screenX, screenY, 0,
-                    screenX, screenY, screenRadius
+                    screenX, screenY, 0, screenX, screenY, screenRadius
                 );
-
-                gradient.addColorStop(0, nebula.colors[0] + '40');
-                gradient.addColorStop(0.5, nebula.colors[1] + '20');
-                gradient.addColorStop(1, nebula.colors[2] + '00');
-
+                const nAlpha = isDesert ? ['25', '12', '00'] : ['40', '20', '00'];
+                gradient.addColorStop(0, nebula.colors[0] + nAlpha[0]);
+                gradient.addColorStop(0.5, nebula.colors[1] + nAlpha[1]);
+                gradient.addColorStop(1, nebula.colors[2] + nAlpha[2]);
                 ctx.fillStyle = gradient;
                 ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             });
         }
 
-        // Particules cosmiques (parallaxe 3D)
-        if (CosmicState.prefs.showParticles) {
+        // Desert silk threads — fine golden sinusoidal curves
+        if (isDesert && CosmicState.prefs.showParticles && this.silkThreads) {
+            const cw = ctx.canvas.width;
+            this.silkThreads.forEach(t => {
+                t.wavePhase += t.waveSpeed;
+                t.breathPhase += t.breathSpeed;
+                t.driftOffset += t.driftSpeed;
+
+                const [cr, cg, cb] = t.color;
+                const breathY = Math.sin(t.breathPhase) * t.breathAmp;
+                const step = 6;  // px per segment — smooth enough
+
+                ctx.save();
+                // Blur proportional to thickness — misty dissolving edges
+                ctx.filter = `blur(${Math.round(t.blur + t.thickness * 0.3)}px)`;
+
+                const grad = ctx.createLinearGradient(t.startX, 0, t.endX, 0);
+                grad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, 0)`);
+                grad.addColorStop(0.12, `rgba(${cr}, ${cg}, ${cb}, ${t.opacity})`);
+                grad.addColorStop(0.5, `rgba(${cr}, ${cg}, ${cb}, ${t.opacity})`);
+                grad.addColorStop(0.88, `rgba(${cr}, ${cg}, ${cb}, ${t.opacity})`);
+                grad.addColorStop(1, `rgba(${cr}, ${cg}, ${cb}, 0)`);
+
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = t.thickness;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.beginPath();
+
+                for (let x = t.startX; x <= t.endX; x += step) {
+                    const xShifted = x - t.driftOffset;
+                    const wave = Math.sin(xShifted * t.waveFreq + t.wavePhase) * t.waveAmp;
+                    const y = t.baseY + wave + breathY;
+                    if (x === t.startX) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+                ctx.restore();
+            });
+        }
+
+        // Night particles (stars/dust)
+        if (!isDesert && CosmicState.prefs.showParticles) {
             this.particles.forEach(p => {
-                // Mouvement brownien
                 p.x += p.vx;
                 p.y += p.vy;
-
-                // Scintillement
                 p.opacity = 0.3 + Math.sin(Date.now() * p.twinkleSpeed) * 0.3;
-
-                // Projection 3D simple
                 const depth = 1 - p.z / 1000;
                 const screenX = (p.x - camX) * zoom * depth + ctx.canvas.width / 2;
                 const screenY = (p.y - camY) * zoom * depth + ctx.canvas.height / 2;
                 const screenSize = p.size * zoom * depth;
-
                 if (screenX > -10 && screenX < ctx.canvas.width + 10 &&
                     screenY > -10 && screenY < ctx.canvas.height + 10) {
-                    ctx.fillStyle = `rgba(200, 210, 255, ${p.opacity * depth})`;
+                    const alpha = p.opacity * depth;
+                    ctx.fillStyle = `rgba(${pr}, ${pg}, ${pb}, ${alpha})`;
                     ctx.beginPath();
                     ctx.arc(screenX, screenY, screenSize, 0, Math.PI * 2);
                     ctx.fill();
@@ -199,32 +313,31 @@ class CosmicBackground {
             });
         }
 
-        // Étoiles brillantes
-        this.stars.forEach(star => {
-            star.twinklePhase += star.twinkleSpeed;
-            const brightness = 0.5 + Math.sin(star.twinklePhase) * 0.5;
-
-            const screenX = (star.x - camX) * zoom + ctx.canvas.width / 2;
-            const screenY = (star.y - camY) * zoom + ctx.canvas.height / 2;
-
-            if (screenX > -10 && screenX < ctx.canvas.width + 10 &&
-                screenY > -10 && screenY < ctx.canvas.height + 10) {
-                ctx.fillStyle = star.color;
-                ctx.globalAlpha = brightness;
-                ctx.beginPath();
-                ctx.arc(screenX, screenY, star.size * zoom, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Glow
-                ctx.shadowBlur = 10 * zoom;
-                ctx.shadowColor = star.color;
-                ctx.beginPath();
-                ctx.arc(screenX, screenY, star.size * zoom * 0.5, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
-                ctx.globalAlpha = 1;
-            }
-        });
+        // Étoiles (night skin only)
+        if (!isDesert) {
+            this.stars.forEach(star => {
+                star.twinklePhase += star.twinkleSpeed;
+                const brightness = 0.5 + Math.sin(star.twinklePhase) * 0.5;
+                const screenX = (star.x - camX) * zoom + ctx.canvas.width / 2;
+                const screenY = (star.y - camY) * zoom + ctx.canvas.height / 2;
+                if (screenX > -10 && screenX < ctx.canvas.width + 10 &&
+                    screenY > -10 && screenY < ctx.canvas.height + 10) {
+                    const sColor = c.starColors[star.colorIndex];
+                    ctx.fillStyle = sColor;
+                    ctx.globalAlpha = brightness;
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, star.size * zoom, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 10 * zoom;
+                    ctx.shadowColor = sColor;
+                    ctx.beginPath();
+                    ctx.arc(screenX, screenY, star.size * zoom * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    ctx.globalAlpha = 1;
+                }
+            });
+        }
     }
 }
 
@@ -635,6 +748,12 @@ function initGalaxyCosmic() {
     const renderer = new CosmicRenderer();
     renderer.render();
 
+    // Appliquer le skin sauvegardé
+    renderer.background.setSkin(renderer.background.skin);
+
+    // Exposer le renderer pour le skin toggle
+    window.GalaxyCosmic._renderer = renderer;
+
     // Système d'intentions
     window.IntentionSystem = new IntentionSystem();
 
@@ -726,7 +845,12 @@ function smoothZoom() {
 // Export global
 window.GalaxyCosmic = {
     state: CosmicState,
-    init: initGalaxyCosmic
+    init: initGalaxyCosmic,
+    toggleSkin() {
+        if (this._renderer && this._renderer.background) {
+            this._renderer.background.toggleSkin();
+        }
+    }
 };
 
 console.log('📦 galaxy-cosmic.js chargé - Prêt pour l\'éveil cosmique');

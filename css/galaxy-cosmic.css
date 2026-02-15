@@ -21,6 +21,31 @@
     --cosmic-blur: 20px;
 }
 
+/* Skin Désert — variables scopées à la Galaxy View uniquement */
+#view-galaxy[data-galaxy-skin="desert"] {
+    --cosmic-bg: rgba(245, 240, 232, 0.95);
+    --cosmic-surface: rgba(240, 235, 225, 0.85);
+    --cosmic-overlay: rgba(245, 240, 232, 0.6);
+    --cosmic-text: #3d3428;
+    --cosmic-text-dim: #8c7e6a;
+    --cosmic-primary: #b8956a;
+    --cosmic-secondary: #a0845c;
+}
+
+#view-galaxy[data-galaxy-skin="desert"] .cosmic-toolbar {
+    border-color: rgba(180, 160, 130, 0.3);
+    box-shadow: 0 10px 40px rgba(140, 120, 80, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+#view-galaxy[data-galaxy-skin="desert"] .cosmic-separator {
+    background: linear-gradient(to bottom, transparent, rgba(160, 140, 110, 0.3), transparent);
+}
+
+#view-galaxy[data-galaxy-skin="desert"] .cosmic-btn.active {
+    background: rgba(184, 149, 106, 0.15);
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    CANVAS PRINCIPAL
    ═══════════════════════════════════════════════════════════════════ */
