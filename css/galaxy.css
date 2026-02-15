@@ -557,8 +557,9 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-right: 8px;
+    margin: 0 8px 0 0;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 #view-galaxy .galaxy-toolbar-sep {

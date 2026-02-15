@@ -90,6 +90,8 @@ class ShapeInteraction {
         this.groupDragStart = null;
         // Freehand pen
         this._penStroke = null;
+        // Alt+drag duplication
+        this._altCloned = false;
     }
 
     onMouseDown(e) {
@@ -161,8 +163,31 @@ class ShapeInteraction {
                 this.isDraggingGroup = true;
                 this.groupDragStart = { x: wX, y: wY };
             } else if (!node.locked) {
-                this.isDraggingNode = true;
-                this.dragNode = node;
+                // Alt+drag: duplicate the node and drag the copy
+                if (e.altKey) {
+                    const clone = {
+                        id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                        type: node.type || 'shape',
+                        shape: node.shape,
+                        x: node.x, y: node.y,
+                        radius: node.radius,
+                        color: node.color,
+                        text: node.text || '',
+                        fontSize: node.fontSize,
+                        textColor: node.textColor,
+                        createdAt: Date.now()
+                    };
+                    CosmicState.nodes.push(clone);
+                    CosmicState.selectedNodes.clear();
+                    CosmicState.selectedNodes.add(clone);
+                    this.isDraggingNode = true;
+                    this.dragNode = clone;
+                    this._altCloned = true;
+                } else {
+                    this.isDraggingNode = true;
+                    this.dragNode = node;
+                    this._altCloned = false;
+                }
                 this.dragOffX = wX - node.x;
                 this.dragOffY = wY - node.y;
             }
@@ -281,6 +306,10 @@ class ShapeInteraction {
         }
         if (this.isDraggingNode) {
             if (window.CosmicHistory) window.CosmicHistory.save();
+            if (this._altCloned) {
+                if (typeof debouncedSave === 'function') debouncedSave();
+                this._altCloned = false;
+            }
             this.isDraggingNode = false;
             this.dragNode = null;
             return true;

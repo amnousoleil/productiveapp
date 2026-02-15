@@ -533,6 +533,13 @@ class CosmicToolbar {
         advPanel.style.left = '';
         advPanel.style.top = '';
         this._cpOnColorChange = null;
+
+        // Restore popup to original parent (toolbar) after floating
+        if (this._cpFloatRestore) {
+            this._cpFloatRestore.appendChild(popup);
+            this._cpFloatRestore.appendChild(advPanel);
+            this._cpFloatRestore = null;
+        }
     }
 
     setupAutoHide() {
@@ -705,12 +712,6 @@ class RadialMenu {
             const wy = (my - canvas.height / 2) / zoom + camY;
             this.targetNode = typeof window.getNodeAtWorld === 'function' ? window.getNodeAtWorld(wx, wy) : null;
 
-            // Right-click on text → show text-specific menu
-            const textNode = typeof window.getTextNodeAtWorld === 'function' ? window.getTextNodeAtWorld(wx, wy) : null;
-            if (textNode) {
-                this.showTextMenu(e.clientX, e.clientY, textNode);
-                return;
-            }
             this.show(e.clientX, e.clientY);
         });
 
@@ -725,7 +726,6 @@ class RadialMenu {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 if (this.active) this.hide();
-                if (this._textMenu && this._textMenu.classList.contains('active')) this.hideTextMenu();
             }
         });
     }
@@ -967,78 +967,151 @@ class RadialMenu {
         console.log('🗑️ Forme supprimée:', node.id);
     }
 
-    // ─── Text-specific mini menu ───
+}
 
-    createTextMenu() {
-        const menu = document.createElement('div');
-        menu.className = 'cosmic-text-menu';
-        menu.innerHTML = `
-            <button class="text-menu-item" data-action="text-color" title="Couleur du texte">🎨</button>
-            <button class="text-menu-item text-size-btn" data-action="size-minus" title="Réduire la police">A−</button>
-            <span class="text-size-value">14</span>
-            <button class="text-menu-item text-size-btn" data-action="size-plus" title="Agrandir la police">A+</button>
+// ═══════════════════════════════════════════════════════════════════
+// TEXT TOOLBAR FLOTTANTE (au-dessus de la forme sélectionnée)
+// ═══════════════════════════════════════════════════════════════════
+
+class TextToolbar {
+    constructor() {
+        this.element = null;
+        this._node = null;
+        this.create();
+    }
+
+    create() {
+        const bar = document.createElement('div');
+        bar.className = 'cosmic-text-toolbar';
+        bar.innerHTML = `
+            <button class="ttb-btn ttb-size" data-action="size-down" title="Réduire le texte">A−</button>
+            <button class="ttb-btn ttb-size" data-action="size-up" title="Agrandir le texte">A+</button>
+            <button class="ttb-btn ttb-color" data-action="color" title="Couleur du texte">
+                <span class="ttb-color-swatch"></span>
+            </button>
+            <button class="ttb-btn ttb-del" data-action="delete-text" title="Supprimer le texte">🗑</button>
         `;
-        document.body.appendChild(menu);
-        this._textMenu = menu;
-        this._textMenuNode = null;
 
-        menu.querySelector('[data-action="text-color"]').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.openTextColorPicker();
-        });
-        menu.querySelector('[data-action="size-minus"]').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.changeTextSize(-2);
-        });
-        menu.querySelector('[data-action="size-plus"]').addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.changeTextSize(2);
+        // Prevent canvas interaction
+        bar.addEventListener('mousedown', e => e.stopPropagation());
+        bar.addEventListener('click', e => e.stopPropagation());
+        bar.addEventListener('dblclick', e => e.stopPropagation());
+        bar.addEventListener('contextmenu', e => { e.preventDefault(); e.stopPropagation(); });
+
+        // A−/A+ with hold-to-accelerate
+        this._setupHold(bar.querySelector('[data-action="size-down"]'), -2);
+        this._setupHold(bar.querySelector('[data-action="size-up"]'), 2);
+
+        bar.querySelector('[data-action="color"]').addEventListener('click', () => this.pickColor());
+        bar.querySelector('[data-action="delete-text"]').addEventListener('click', () => this.deleteText());
+
+        document.body.appendChild(bar);
+        this.element = bar;
+    }
+
+    // Hold-to-accelerate: after 300ms hold, repeats with decreasing interval
+    _setupHold(btn, delta) {
+        let holdTimeout = null;
+        let repeatTimeout = null;
+        let interval = 150;
+        let held = false;
+
+        const tick = () => {
+            this.changeSize(delta);
+            interval = Math.max(40, interval - 15);
+            repeatTimeout = setTimeout(tick, interval);
+        };
+
+        btn.addEventListener('mousedown', () => {
+            held = false;
+            interval = 150;
+            holdTimeout = setTimeout(() => { held = true; tick(); }, 300);
         });
 
-        document.addEventListener('click', (e) => {
-            if (this._textMenu && !this._textMenu.contains(e.target) && this._textMenu.classList.contains('active')) {
-                this.hideTextMenu();
-            }
+        const stop = () => {
+            clearTimeout(holdTimeout);
+            clearTimeout(repeatTimeout);
+            if (held) this._saveState();
+        };
+
+        btn.addEventListener('mouseup', stop);
+        btn.addEventListener('mouseleave', () => { stop(); held = false; });
+
+        btn.addEventListener('click', () => {
+            if (!held) { this.changeSize(delta); this._saveState(); }
+            held = false;
         });
     }
 
-    showTextMenu(x, y, node) {
-        if (!this._textMenu) this.createTextMenu();
-        this._textMenuNode = node;
-        this._textMenu.style.left = x + 'px';
-        this._textMenu.style.top = y + 'px';
-        this._textMenu.querySelector('.text-size-value').textContent = node.fontSize || 14;
-        this._textMenu.classList.add('active');
-        // Hide regular radial if open
-        this.hide();
+    update() {
+        const sel = CosmicState.selectedNodes;
+        if (sel.size !== 1) { this.hide(); return; }
+        const node = sel.values().next().value;
+        if (!node.text) { this.hide(); return; }
+
+        this._node = node;
+        const canvas = CosmicState.canvas;
+        if (!canvas) { this.hide(); return; }
+
+        const { x: camX, y: camY, zoom } = CosmicState.camera;
+        const sx = (node.x - camX) * zoom + canvas.width / 2;
+        const sy = (node.y - camY) * zoom + canvas.height / 2;
+        const rect = canvas.getBoundingClientRect();
+        // Scale canvas pixels → CSS viewport pixels
+        const rx = rect.width / canvas.width;
+        const ry = rect.height / canvas.height;
+
+        this.element.style.left = (rect.left + sx * rx) + 'px';
+        this.element.style.top = (rect.top + sy * ry - node.radius * zoom * ry - 15) + 'px';
+        this.element.classList.add('visible');
+
+        const swatch = this.element.querySelector('.ttb-color-swatch');
+        if (swatch) swatch.style.background = node.textColor || '#ffffff';
     }
 
-    hideTextMenu() {
-        if (this._textMenu) {
-            this._textMenu.classList.remove('active');
-            this._textMenuNode = null;
-        }
+    hide() {
+        if (this.element) this.element.classList.remove('visible');
+        this._node = null;
     }
 
-    changeTextSize(delta) {
-        const node = this._textMenuNode;
-        if (!node) return;
-        node.fontSize = Math.max(6, Math.min(120, (node.fontSize || 14) + delta));
-        this._textMenu.querySelector('.text-size-value').textContent = node.fontSize;
+    changeSize(delta) {
+        if (!this._node) return;
+        this._node.fontSize = Math.max(6, Math.min(120, (this._node.fontSize || 14) + delta));
+    }
+
+    _saveState() {
         if (window.CosmicHistory) window.CosmicHistory.save();
         if (typeof debouncedSave === 'function') debouncedSave();
     }
 
-    openTextColorPicker() {
-        const node = this._textMenuNode;
-        if (!node || !window.CosmicToolbar) return;
-        const menu = this._textMenu;
-        const rect = menu.getBoundingClientRect();
-        window.CosmicToolbar.openColorPickerAt(rect.left, rect.top - 10, (color) => {
+    pickColor() {
+        if (!this._node || !window.CosmicToolbar) return;
+        const tb = window.CosmicToolbar;
+        const popup = tb._cpPopup;
+        const advPanel = tb._cpAdvPanel;
+        if (!popup || !advPanel) return;
+
+        const node = this._node;
+        const rect = this.element.getBoundingClientRect();
+
+        // Move popup to body so it escapes toolbar's opacity:0 when auto-hidden
+        tb._cpFloatRestore = popup.parentNode;
+        document.body.appendChild(popup);
+        document.body.appendChild(advPanel);
+
+        tb.openColorPickerAt(rect.left + rect.width / 2, rect.top - 10, (color) => {
             node.textColor = color;
             if (window.CosmicHistory) window.CosmicHistory.save();
             if (typeof debouncedSave === 'function') debouncedSave();
         });
+    }
+
+    deleteText() {
+        if (!this._node) return;
+        this._node.text = '';
+        this.hide();
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof debouncedSave === 'function') debouncedSave();
     }
 }
 
@@ -1208,6 +1281,7 @@ function initCosmicUI() {
     window.CosmicToolbar = new CosmicToolbar();
     window.RadialMenu = new RadialMenu();
     window.CosmicColorPicker = new CosmicColorPicker();
+    window.TextToolbar = new TextToolbar();
 
     // Montrer la toolbar au démarrage + sélectionner cercle par défaut
     setTimeout(() => {
