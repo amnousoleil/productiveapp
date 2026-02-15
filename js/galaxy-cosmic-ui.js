@@ -55,11 +55,30 @@ class CosmicToolbar {
                     </div>
                     <button id="cosmic-color-advanced" class="cosmic-color-advanced-btn" title="Couleur personnalisée">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 21.5l7.5-2L21 8a2.83 2.83 0 0 0-4-4L5.5 15.5 2 21.5z"/>
-                            <path d="M15 5l4 4"/>
+                            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
                         </svg>
                     </button>
-                    <input type="color" id="cosmic-color-native" value="#60a5fa" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0">
+                </div>
+                <div id="cosmic-color-advanced-panel" class="cosmic-color-adv-panel">
+                    <div class="ccp-sat-area">
+                        <canvas id="ccp-sat-canvas" width="220" height="160"></canvas>
+                        <div id="ccp-sat-cursor" class="ccp-cursor"></div>
+                    </div>
+                    <div class="ccp-hue-row">
+                        <div class="ccp-slider-track ccp-hue-track">
+                            <input type="range" id="ccp-hue" min="0" max="360" value="217" class="ccp-range ccp-range-hue">
+                        </div>
+                    </div>
+                    <div class="ccp-alpha-row">
+                        <div class="ccp-slider-track ccp-alpha-track">
+                            <input type="range" id="ccp-alpha" min="0" max="100" value="100" class="ccp-range ccp-range-alpha">
+                        </div>
+                    </div>
+                    <div class="ccp-footer">
+                        <div id="ccp-preview" class="ccp-preview" style="background:#60a5fa"></div>
+                        <span class="ccp-hex-label">#</span>
+                        <input type="text" id="ccp-hex" class="ccp-hex-input" value="60a5fa" maxlength="8" spellcheck="false">
+                    </div>
                 </div>
             </div>
 
@@ -185,51 +204,233 @@ class CosmicToolbar {
     initColorPicker(toolbar) {
         const btn = toolbar.querySelector('#cosmic-color-btn');
         const popup = toolbar.querySelector('#cosmic-color-popup');
-        const nativeInput = toolbar.querySelector('#cosmic-color-native');
+        const advPanel = toolbar.querySelector('#cosmic-color-advanced-panel');
         const advancedBtn = toolbar.querySelector('#cosmic-color-advanced');
-        if (!btn || !popup) return;
+        if (!btn || !popup || !advPanel) return;
 
-        const setColor = (color) => {
-            CosmicState.currentColor = color;
-            btn.style.background = color;
-            nativeInput.value = color;
+        // HSL state
+        const cp = { h: 217, s: 92, l: 68, a: 1 };
+
+        // --- Helpers ---
+        const hslToHex = (h, s, l) => {
+            s /= 100; l /= 100;
+            const a2 = s * Math.min(l, 1 - l);
+            const f = n => {
+                const k = (n + h / 30) % 12;
+                const c = l - a2 * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                return Math.round(255 * c).toString(16).padStart(2, '0');
+            };
+            return `#${f(0)}${f(8)}${f(4)}`;
         };
 
-        // Toggle popup
+        const hexToHsl = (hex) => {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+            const r = parseInt(hex.substring(0,2),16)/255;
+            const g = parseInt(hex.substring(2,4),16)/255;
+            const b = parseInt(hex.substring(4,6),16)/255;
+            const max = Math.max(r,g,b), min = Math.min(r,g,b);
+            let h2=0, s2=0, l2 = (max+min)/2;
+            if (max !== min) {
+                const d = max - min;
+                s2 = l2 > 0.5 ? d/(2-max-min) : d/(max+min);
+                if (max === r) h2 = ((g-b)/d + (g<b?6:0));
+                else if (max === g) h2 = ((b-r)/d + 2);
+                else h2 = ((r-g)/d + 4);
+                h2 *= 60;
+            }
+            return { h: Math.round(h2), s: Math.round(s2*100), l: Math.round(l2*100) };
+        };
+
+        // --- Apply color everywhere ---
+        const applyColor = () => {
+            const hex = hslToHex(cp.h, cp.s, cp.l);
+            const color = cp.a < 1
+                ? (() => { const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${cp.a})`; })()
+                : hex;
+            CosmicState.currentColor = color;
+            btn.style.background = color;
+            const preview = advPanel.querySelector('#ccp-preview');
+            if (preview) preview.style.background = color;
+            const hexInput = advPanel.querySelector('#ccp-hex');
+            if (hexInput && document.activeElement !== hexInput) {
+                hexInput.value = cp.a < 1
+                    ? hex.slice(1) + Math.round(cp.a * 255).toString(16).padStart(2, '0')
+                    : hex.slice(1);
+            }
+        };
+
+        // --- Saturation/Lightness canvas ---
+        const satCanvas = advPanel.querySelector('#ccp-sat-canvas');
+        const satCursor = advPanel.querySelector('#ccp-sat-cursor');
+        const satCtx = satCanvas.getContext('2d');
+
+        const drawSatArea = () => {
+            const w = satCanvas.width, h = satCanvas.height;
+            // Base hue fill
+            satCtx.fillStyle = `hsl(${cp.h}, 100%, 50%)`;
+            satCtx.fillRect(0, 0, w, h);
+            // White gradient left→right
+            const gW = satCtx.createLinearGradient(0, 0, w, 0);
+            gW.addColorStop(0, '#fff'); gW.addColorStop(1, 'rgba(255,255,255,0)');
+            satCtx.fillStyle = gW; satCtx.fillRect(0, 0, w, h);
+            // Black gradient top→bottom
+            const gB = satCtx.createLinearGradient(0, 0, 0, h);
+            gB.addColorStop(0, 'rgba(0,0,0,0)'); gB.addColorStop(1, '#000');
+            satCtx.fillStyle = gB; satCtx.fillRect(0, 0, w, h);
+        };
+
+        const posFromSL = () => {
+            // Map s,l to canvas x,y (approximate)
+            const x = (cp.s / 100) * satCanvas.width;
+            const y = (1 - cp.l / 100) * satCanvas.height;
+            return { x, y };
+        };
+
+        const slFromPos = (x, y) => {
+            const w = satCanvas.width, h = satCanvas.height;
+            x = Math.max(0, Math.min(w, x));
+            y = Math.max(0, Math.min(h, y));
+            // Read pixel to get exact color
+            const px = satCtx.getImageData(x, y, 1, 1).data;
+            const r = px[0]/255, g = px[1]/255, b = px[2]/255;
+            const max = Math.max(r,g,b), min = Math.min(r,g,b);
+            let s2 = 0, l2 = (max+min)/2;
+            if (max !== min) {
+                const d = max - min;
+                s2 = l2 > 0.5 ? d/(2-max-min) : d/(max+min);
+            }
+            cp.s = Math.round(s2 * 100);
+            cp.l = Math.round(l2 * 100);
+        };
+
+        const updateSatCursor = () => {
+            const p = posFromSL();
+            satCursor.style.left = p.x + 'px';
+            satCursor.style.top = p.y + 'px';
+            satCursor.style.borderColor = cp.l > 50 ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.9)';
+        };
+
+        // Sat area interaction
+        let satDragging = false;
+        const handleSatMove = (e) => {
+            const rect = satCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = clientX - rect.left;
+            const y = clientY - rect.top;
+            slFromPos(x, y);
+            updateSatCursor();
+            applyColor();
+            updateAlphaTrack();
+        };
+
+        satCanvas.addEventListener('mousedown', (e) => { e.stopPropagation(); satDragging = true; handleSatMove(e); });
+        satCanvas.addEventListener('touchstart', (e) => { e.stopPropagation(); e.preventDefault(); satDragging = true; handleSatMove(e); }, { passive: false });
+        document.addEventListener('mousemove', (e) => { if (satDragging) handleSatMove(e); });
+        document.addEventListener('touchmove', (e) => { if (satDragging) handleSatMove(e); }, { passive: false });
+        document.addEventListener('mouseup', () => { satDragging = false; });
+        document.addEventListener('touchend', () => { satDragging = false; });
+
+        // --- Hue slider ---
+        const hueSlider = advPanel.querySelector('#ccp-hue');
+        const updateAlphaTrack = () => {
+            const hex = hslToHex(cp.h, cp.s, cp.l);
+            const alphaTrack = advPanel.querySelector('.ccp-alpha-track');
+            if (alphaTrack) alphaTrack.style.setProperty('--ccp-color', hex);
+        };
+
+        hueSlider.addEventListener('input', (e) => {
+            e.stopPropagation();
+            cp.h = parseInt(e.target.value);
+            drawSatArea();
+            updateSatCursor();
+            applyColor();
+            updateAlphaTrack();
+        });
+
+        // --- Alpha slider ---
+        const alphaSlider = advPanel.querySelector('#ccp-alpha');
+        alphaSlider.addEventListener('input', (e) => {
+            e.stopPropagation();
+            cp.a = parseInt(e.target.value) / 100;
+            applyColor();
+        });
+
+        // --- Hex input ---
+        const hexInput = advPanel.querySelector('#ccp-hex');
+        hexInput.addEventListener('input', (e) => {
+            e.stopPropagation();
+            let val = e.target.value.replace(/[^0-9a-fA-F]/g, '');
+            if (val.length >= 6) {
+                const hsl = hexToHsl(val.substring(0, 6));
+                cp.h = hsl.h; cp.s = hsl.s; cp.l = hsl.l;
+                if (val.length >= 8) cp.a = parseInt(val.substring(6, 8), 16) / 255;
+                hueSlider.value = cp.h;
+                alphaSlider.value = Math.round(cp.a * 100);
+                drawSatArea();
+                updateSatCursor();
+                applyColor();
+                updateAlphaTrack();
+            }
+        });
+
+        // --- Preset color dots ---
+        const setFromHex = (hex) => {
+            const hsl = hexToHsl(hex);
+            cp.h = hsl.h; cp.s = hsl.s; cp.l = hsl.l; cp.a = 1;
+            hueSlider.value = cp.h;
+            alphaSlider.value = 100;
+            drawSatArea();
+            updateSatCursor();
+            applyColor();
+            updateAlphaTrack();
+        };
+
+        // --- Toggle popup (presets) ---
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
+            advPanel.classList.remove('open');
             popup.classList.toggle('open');
         });
 
-        // Preset colors
         popup.querySelectorAll('.cosmic-color-dot').forEach(dot => {
             dot.addEventListener('click', (e) => {
                 e.stopPropagation();
-                setColor(dot.dataset.color);
+                setFromHex(dot.dataset.color);
                 popup.classList.remove('open');
             });
         });
 
-        // Advanced picker button → trigger hidden native input
+        // --- Toggle advanced panel ---
         advancedBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            nativeInput.click();
-        });
-
-        nativeInput.addEventListener('input', (e) => {
-            setColor(e.target.value);
-        });
-
-        nativeInput.addEventListener('change', () => {
             popup.classList.remove('open');
+            const opening = !advPanel.classList.contains('open');
+            advPanel.classList.toggle('open');
+            if (opening) {
+                drawSatArea();
+                updateSatCursor();
+                updateAlphaTrack();
+            }
         });
 
-        // Close popup when clicking outside
+        // --- Close on outside click ---
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.cosmic-color-wrapper')) {
                 popup.classList.remove('open');
+                advPanel.classList.remove('open');
             }
         });
+
+        // Prevent toolbar hide when interacting with panels
+        advPanel.addEventListener('mouseenter', () => { clearTimeout(this.hideTimer); });
+        advPanel.addEventListener('click', (e) => { e.stopPropagation(); });
+
+        // Initial draw
+        drawSatArea();
+        updateSatCursor();
+        updateAlphaTrack();
     }
 
     setupAutoHide() {
