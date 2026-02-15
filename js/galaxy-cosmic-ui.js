@@ -26,6 +26,13 @@ class CosmicToolbar {
         const toolbar = document.createElement('div');
         toolbar.className = 'cosmic-ui cosmic-toolbar';
         toolbar.innerHTML = `
+            <button class="cosmic-btn" data-tool="marquee" title="Sélection de groupe (M)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="4 2"/>
+                    <path d="M8 2l2.5 6 1-2.9 2.9-1L8 2z" fill="currentColor" stroke="none"/>
+                </svg>
+            </button>
+
             <button class="cosmic-btn active" data-tool="select" title="Sélectionner (V)">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
@@ -557,7 +564,8 @@ class CosmicToolbar {
             const shapes = ['circle', 'rect', 'diamond', 'hexagon', 'star'];
             cv.className = shapes.includes(tool) ? 'tool-shape'
                 : tool === 'hand' ? 'tool-hand'
-                : tool === 'connector' ? 'tool-shape' : '';
+                : tool === 'connector' ? 'tool-shape'
+                : tool === 'marquee' ? 'tool-shape' : '';
         }
 
         console.log('🛠️ Outil sélectionné:', tool);
@@ -697,6 +705,7 @@ class RadialMenu {
     hide() {
         this.element.classList.remove('active');
         this.active = false;
+        if (this._colorMode) this.hideColorSubmenu();
     }
 
     executeAction(action) {
@@ -712,7 +721,7 @@ class RadialMenu {
         } else if (action === 'duplicate') {
             this.duplicateTarget();
         } else if (action === 'color') {
-            this.openColorForTarget();
+            this.showColorSubmenu();
         }
     }
 
@@ -725,23 +734,81 @@ class RadialMenu {
         console.log(node.locked ? '🔒 Forme verrouillée' : '🔓 Forme déverrouillée', node.id);
     }
 
-    openColorForTarget() {
+    showColorSubmenu() {
         const node = this.targetNode;
-        if (!node || !window.CosmicToolbar) return;
+        if (!node) return;
 
-        const x = this.lastX;
-        const y = this.lastY;
+        const colors = ['#1e1e1e', '#ffffff', '#e03131', '#1971c2', '#2f9e44', '#fbbf24', '#f08c00'];
 
-        // Hide radial menu first, then open color picker after
-        // all click events from the radial menu have fully settled
-        this.hide();
-        setTimeout(() => {
-            window.CosmicToolbar.openColorPickerAt(x, y - 60, (color) => {
+        // Hide regular items
+        this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = 'none');
+
+        // Change center to back arrow
+        const center = this.element.querySelector('.radial-center');
+        this._centerOriginal = center.textContent;
+        center.textContent = '←';
+        center.style.cursor = 'pointer';
+
+        // Center click → go back to main menu
+        this._centerBackHandler = (e) => {
+            e.stopPropagation();
+            this.hideColorSubmenu();
+        };
+        center.addEventListener('click', this._centerBackHandler);
+
+        // Create color dots in a circle
+        const radius = 90;
+        colors.forEach((color, i) => {
+            const angle = (2 * Math.PI / colors.length) * i - Math.PI / 2;
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+
+            const dot = document.createElement('button');
+            dot.className = 'radial-color-dot';
+            dot.style.background = color;
+            dot.style.left = `calc(50% + ${x}px)`;
+            dot.style.top = `calc(50% + ${y}px)`;
+            dot.title = color;
+            dot.dataset.color = color;
+
+            // White dot needs a visible border
+            if (color === '#ffffff') {
+                dot.style.borderColor = 'rgba(0, 0, 0, 0.3)';
+            }
+
+            dot.addEventListener('click', (e) => {
+                e.stopPropagation();
                 node.color = color;
                 if (window.CosmicHistory) window.CosmicHistory.save();
                 if (typeof debouncedSave === 'function') debouncedSave();
+                this.hide();
             });
-        }, 200);
+
+            this.element.appendChild(dot);
+        });
+
+        this._colorMode = true;
+        this.element.classList.add('color-mode');
+    }
+
+    hideColorSubmenu() {
+        // Remove color dots
+        this.element.querySelectorAll('.radial-color-dot').forEach(el => el.remove());
+
+        // Show regular items
+        this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = '');
+
+        // Restore center
+        const center = this.element.querySelector('.radial-center');
+        center.textContent = this._centerOriginal || '✨';
+        center.style.cursor = '';
+        if (this._centerBackHandler) {
+            center.removeEventListener('click', this._centerBackHandler);
+            this._centerBackHandler = null;
+        }
+
+        this._colorMode = false;
+        this.element.classList.remove('color-mode');
     }
 
     duplicateTarget() {
