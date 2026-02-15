@@ -426,6 +426,7 @@ class CosmicToolbar {
 
         // --- Close on outside click ---
         document.addEventListener('click', (e) => {
+            if (self._cpJustOpened) return;
             if (!e.target.closest('.cosmic-color-wrapper') && !e.target.closest('.cosmic-color-popup') && !e.target.closest('.cosmic-color-adv-panel')) {
                 popup.classList.remove('open');
                 advPanel.classList.remove('open');
@@ -446,6 +447,7 @@ class CosmicToolbar {
         this._cpPopup = popup;
         this._cpAdvPanel = advPanel;
         this._cpOnColorChange = null;
+        this._cpJustOpened = false;
     }
 
     /**
@@ -465,6 +467,10 @@ class CosmicToolbar {
 
         // Set callback
         this._cpOnColorChange = onPick;
+
+        // Protect from immediate closure by stale click events
+        this._cpJustOpened = true;
+        setTimeout(() => { this._cpJustOpened = false; }, 300);
 
         // Position in floating mode
         popup.classList.add('floating');
