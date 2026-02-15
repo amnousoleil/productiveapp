@@ -738,7 +738,10 @@ class RadialMenu {
         const node = this.targetNode;
         if (!node) return;
 
-        const colors = ['#1e1e1e', '#ffffff', '#e03131', '#1971c2', '#2f9e44', '#fbbf24', '#f08c00'];
+        // Outer ring: primary colors
+        const outerColors = ['#1e1e1e', '#ffffff', '#e03131', '#1971c2', '#2f9e44', '#fbbf24', '#f08c00'];
+        // Inner ring: pastels, variants & missing hues
+        const innerColors = ['#f8a4c8', '#93c5fd', '#86efac', '#fde68a', '#a78bfa', '#5eead4', '#a1887f', '#9ca3af'];
 
         // Hide regular items
         this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = 'none');
@@ -756,24 +759,20 @@ class RadialMenu {
         };
         center.addEventListener('click', this._centerBackHandler);
 
-        // Create color dots in a circle
-        const radius = 90;
-        colors.forEach((color, i) => {
-            const angle = (2 * Math.PI / colors.length) * i - Math.PI / 2;
-            const x = Math.cos(angle) * radius;
-            const y = Math.sin(angle) * radius;
-
+        const self = this;
+        function createDot(color, x, y, cls) {
             const dot = document.createElement('button');
-            dot.className = 'radial-color-dot';
+            dot.className = cls;
             dot.style.background = color;
             dot.style.left = `calc(50% + ${x}px)`;
             dot.style.top = `calc(50% + ${y}px)`;
             dot.title = color;
             dot.dataset.color = color;
 
-            // White dot needs a visible border
-            if (color === '#ffffff') {
-                dot.style.borderColor = 'rgba(0, 0, 0, 0.3)';
+            // Light colors need a visible border
+            const lightColors = ['#ffffff', '#fde68a', '#86efac', '#93c5fd', '#f8a4c8', '#5eead4'];
+            if (lightColors.includes(color)) {
+                dot.style.borderColor = 'rgba(0, 0, 0, 0.25)';
             }
 
             dot.addEventListener('click', (e) => {
@@ -781,10 +780,24 @@ class RadialMenu {
                 node.color = color;
                 if (window.CosmicHistory) window.CosmicHistory.save();
                 if (typeof debouncedSave === 'function') debouncedSave();
-                this.hide();
+                self.hide();
             });
 
-            this.element.appendChild(dot);
+            self.element.appendChild(dot);
+        }
+
+        // Outer ring (large dots)
+        const outerR = 100;
+        outerColors.forEach((color, i) => {
+            const angle = (2 * Math.PI / outerColors.length) * i - Math.PI / 2;
+            createDot(color, Math.cos(angle) * outerR, Math.sin(angle) * outerR, 'radial-color-dot');
+        });
+
+        // Inner ring (small dots)
+        const innerR = 52;
+        innerColors.forEach((color, i) => {
+            const angle = (2 * Math.PI / innerColors.length) * i - Math.PI / 2;
+            createDot(color, Math.cos(angle) * innerR, Math.sin(angle) * innerR, 'radial-color-dot radial-color-dot-sm');
         });
 
         this._colorMode = true;
