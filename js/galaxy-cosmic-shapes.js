@@ -350,6 +350,25 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Clear button: erase all shapes, connections, strokes
+(function initClearButton() {
+    const btn = document.getElementById('galaxy-clear-btn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        if (!CosmicState || !CosmicState.canvas) return;
+        const total = CosmicState.nodes.length + CosmicState.connections.length + (CosmicState.strokes ? CosmicState.strokes.length : 0);
+        if (total === 0) return;
+        if (!confirm('🗑️ Effacer tout le contenu du canvas ?')) return;
+        CosmicState.nodes = [];
+        CosmicState.connections = [];
+        CosmicState.strokes = [];
+        CosmicState.selectedNodes.clear();
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof debouncedSave === 'function') debouncedSave();
+        console.log('🗑️ Canvas effacé');
+    });
+})();
+
 // Render the marquee selection rectangle
 function renderMarqueeRect(ctx, camera) {
     const si = window.CosmicShapeInteraction;
