@@ -299,6 +299,22 @@
     transform: translateX(-50%) scale(1);
 }
 
+/* Floating mode: fixed position for radial menu context */
+.cosmic-color-popup.floating {
+    position: fixed;
+    bottom: auto;
+    left: auto;
+    transform: scale(0.9);
+}
+
+.cosmic-color-popup.floating.open {
+    transform: scale(1);
+}
+
+.cosmic-color-popup.floating::after {
+    display: none;
+}
+
 .cosmic-color-popup::after {
     content: '';
     position: absolute;
@@ -380,6 +396,17 @@
     opacity: 1;
     pointer-events: auto;
     transform: translateX(-50%) translateY(0);
+}
+
+.cosmic-color-adv-panel.floating {
+    position: fixed;
+    bottom: auto;
+    left: auto;
+    transform: translateY(4px);
+}
+
+.cosmic-color-adv-panel.floating.open {
+    transform: translateY(0);
 }
 
 /* Saturation / Lightness area */
@@ -663,32 +690,6 @@
 .radial-item:nth-child(6) { transform: translate(-78px, 78px); }   /* Bas-gauche */
 .radial-item:nth-child(7) { transform: translate(-110px, 0); }     /* Gauche */
 .radial-item:nth-child(8) { transform: translate(-78px, -78px); }  /* Haut-gauche */
-
-/* Labels des items */
-.radial-item-label {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, 70px);
-
-    padding: 4px 10px;
-    background: var(--cosmic-overlay);
-    backdrop-filter: blur(10px);
-    border-radius: 12px;
-
-    color: var(--cosmic-text);
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-}
-
-.radial-item:hover .radial-item-label {
-    opacity: 1;
-}
 
 /* ═══════════════════════════════════════════════════════════════════
    COLOR PICKER HSL INFINI

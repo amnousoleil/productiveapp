@@ -243,6 +243,7 @@ class CosmicToolbar {
         };
 
         // --- Apply color everywhere ---
+        const self = this;
         const applyColor = () => {
             const hex = hslToHex(cp.h, cp.s, cp.l);
             const color = cp.a < 1
@@ -258,6 +259,7 @@ class CosmicToolbar {
                     ? hex.slice(1) + Math.round(cp.a * 255).toString(16).padStart(2, '0')
                     : hex.slice(1);
             }
+            if (self._cpOnColorChange) self._cpOnColorChange(color);
         };
 
         // --- Saturation/Lightness canvas ---
@@ -399,6 +401,7 @@ class CosmicToolbar {
                 e.stopPropagation();
                 setFromHex(dot.dataset.color);
                 popup.classList.remove('open');
+                if (popup.classList.contains('floating')) self.closeFloatingColorPicker();
             });
         });
 
@@ -408,6 +411,12 @@ class CosmicToolbar {
             popup.classList.remove('open');
             const opening = !advPanel.classList.contains('open');
             advPanel.classList.toggle('open');
+            // Copy floating position from popup to advPanel
+            if (opening && popup.classList.contains('floating')) {
+                advPanel.classList.add('floating');
+                advPanel.style.left = popup.style.left;
+                advPanel.style.top = popup.style.top;
+            }
             if (opening) {
                 drawSatArea();
                 updateSatCursor();
@@ -417,9 +426,10 @@ class CosmicToolbar {
 
         // --- Close on outside click ---
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.cosmic-color-wrapper')) {
+            if (!e.target.closest('.cosmic-color-wrapper') && !e.target.closest('.cosmic-color-popup') && !e.target.closest('.cosmic-color-adv-panel')) {
                 popup.classList.remove('open');
                 advPanel.classList.remove('open');
+                if (popup.classList.contains('floating')) self.closeFloatingColorPicker();
             }
         });
 
@@ -431,6 +441,55 @@ class CosmicToolbar {
         drawSatArea();
         updateSatCursor();
         updateAlphaTrack();
+
+        // --- Expose API for radial menu reuse ---
+        this._cpPopup = popup;
+        this._cpAdvPanel = advPanel;
+        this._cpOnColorChange = null;
+    }
+
+    /**
+     * Open color picker at fixed position (for radial menu).
+     * @param {number} x - screen X
+     * @param {number} y - screen Y
+     * @param {Function} onPick - callback(color) when color is chosen
+     */
+    openColorPickerAt(x, y, onPick) {
+        const popup = this._cpPopup;
+        const advPanel = this._cpAdvPanel;
+        if (!popup || !advPanel) return;
+
+        // Close any open state first
+        popup.classList.remove('open');
+        advPanel.classList.remove('open');
+
+        // Set callback
+        this._cpOnColorChange = onPick;
+
+        // Switch to fixed positioning
+        popup.classList.add('floating');
+        popup.style.left = x + 'px';
+        popup.style.top = y + 'px';
+        advPanel.classList.add('floating');
+        advPanel.style.left = x + 'px';
+        advPanel.style.top = (y - 280) + 'px';
+
+        // Open presets popup
+        popup.classList.add('open');
+    }
+
+    closeFloatingColorPicker() {
+        const popup = this._cpPopup;
+        const advPanel = this._cpAdvPanel;
+        if (!popup || !advPanel) return;
+
+        popup.classList.remove('open', 'floating');
+        advPanel.classList.remove('open', 'floating');
+        popup.style.left = '';
+        popup.style.top = '';
+        advPanel.style.left = '';
+        advPanel.style.top = '';
+        this._cpOnColorChange = null;
     }
 
     setupAutoHide() {
@@ -529,6 +588,7 @@ class RadialMenu {
     constructor() {
         this.element = null;
         this.active = false;
+        this.targetNode = null;
         this.items = [
             { id: 'duplicate', icon: '📋', label: 'Dupliquer', shortcut: 'Ctrl+D' },
             { id: 'delete', icon: '🗑️', label: 'Supprimer', shortcut: 'Del' },
@@ -564,14 +624,11 @@ class RadialMenu {
             btn.dataset.action = item.id;
             btn.textContent = item.icon;
 
-            const label = document.createElement('div');
-            label.className = 'radial-item-label';
-            label.textContent = item.label;
-            btn.appendChild(label);
+            btn.title = `${item.label} (${item.shortcut})`;
 
             btn.addEventListener('click', () => {
                 this.executeAction(item.id);
-                this.hide();
+                if (item.id !== 'color') this.hide();
             });
 
             menu.appendChild(btn);
@@ -588,6 +645,14 @@ class RadialMenu {
 
         canvas.addEventListener('contextmenu', (e) => {
             e.preventDefault();
+            // Convert screen to world coords to find node under cursor
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const { x: camX, y: camY, zoom } = CosmicState.camera;
+            const wx = (mx - canvas.width / 2) / zoom + camX;
+            const wy = (my - canvas.height / 2) / zoom + camY;
+            this.targetNode = typeof getNodeAtWorld === 'function' ? getNodeAtWorld(wx, wy) : null;
             this.show(e.clientX, e.clientY);
         });
 
@@ -607,6 +672,8 @@ class RadialMenu {
     }
 
     show(x, y) {
+        this.lastX = x;
+        this.lastY = y;
         this.element.style.left = x + 'px';
         this.element.style.top = y + 'px';
         this.element.classList.add('active');
@@ -619,8 +686,49 @@ class RadialMenu {
     }
 
     executeAction(action) {
-        console.log('📍 Radial action:', action);
-        // TODO: Implémenter les actions
+        if (action === 'delete') {
+            this.deleteTarget();
+        } else if (action === 'color') {
+            this.openColorForTarget();
+        }
+    }
+
+    openColorForTarget() {
+        const node = this.targetNode;
+        if (!node || !window.CosmicToolbar) return;
+
+        this.hide();
+        const toolbar = window.CosmicToolbar;
+        toolbar.openColorPickerAt(this.lastX, this.lastY - 60, (color) => {
+            node.color = color;
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            if (typeof debouncedSave === 'function') debouncedSave();
+        });
+    }
+
+    deleteTarget() {
+        const node = this.targetNode;
+        if (!node) return;
+
+        // Remove connections linked to this node
+        CosmicState.connections = CosmicState.connections.filter(
+            c => c.fromId !== node.id && c.toId !== node.id
+        );
+
+        // Remove the node itself
+        CosmicState.nodes = CosmicState.nodes.filter(n => n.id !== node.id);
+
+        // Remove from selection if selected
+        CosmicState.selectedNodes.delete(node);
+
+        // Save history for undo/redo
+        if (window.CosmicHistory) window.CosmicHistory.save();
+
+        // Trigger backend save if available
+        if (typeof debouncedSave === 'function') debouncedSave();
+
+        this.targetNode = null;
+        console.log('🗑️ Forme supprimée:', node.id);
     }
 }
 
