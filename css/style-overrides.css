@@ -3237,6 +3237,19 @@ select:focus {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
+/* === Galaxy View: boule dorée sans cercle derrière === */
+body.galaxy-active .chatbot-fab {
+    box-shadow: none !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+}
+
+body.galaxy-active .chatbot-fab:hover {
+    box-shadow: none !important;
+    transform: scale(1.1) !important;
+}
+
 /* === Scrollbars - Theme Accent === */
 ::-webkit-scrollbar {
     width: 8px;
