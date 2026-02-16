@@ -45,12 +45,30 @@ const ApiFetch = (function() {
             AppState.currentUser = null;
             AppState.isAuthenticated = false;
         }
+
+        // Protect against infinite redirect loops using sessionStorage
+        // (persists across reloads within the same tab)
+        const REDIRECT_KEY = '_auth_redirect_ts';
+        const now = Date.now();
+        const lastRedirect = parseInt(sessionStorage.getItem(REDIRECT_KEY) || '0');
+
+        if (now - lastRedirect < 5000) {
+            // Already redirected within 5 seconds — loop detected, don't reload again.
+            // Tokens are cleared; let the auth UI handle it without a reload.
+            console.warn('[ApiFetch] Redirect loop detected — skipping reload');
+            sessionStorage.removeItem(REDIRECT_KEY);
+            return;
+        }
+
+        sessionStorage.setItem(REDIRECT_KEY, now.toString());
         window.location.reload();
     }
 
     async function refreshAccessToken() {
         const refreshToken = ApiTokens.getRefreshToken();
         if (!refreshToken) {
+            // No refresh token — clean up stale access token too
+            ApiTokens.clearTokens();
             return false;
         }
 
@@ -62,6 +80,8 @@ const ApiFetch = (function() {
             });
 
             if (!response.ok) {
+                // Refresh rejected by server — tokens are stale, clear them
+                ApiTokens.clearTokens();
                 return false;
             }
 
@@ -71,9 +91,11 @@ const ApiFetch = (function() {
                 return true;
             }
 
+            ApiTokens.clearTokens();
             return false;
         } catch (error) {
             console.error('Token refresh failed:', error);
+            ApiTokens.clearTokens();
             return false;
         }
     }
@@ -82,7 +104,7 @@ const ApiFetch = (function() {
         if (isRefreshing) {
             return new Promise((resolve, reject) => {
                 refreshQueue.push({ resolve, reject });
-            }).then(() => fetchWithAuth(originalRequest.url, originalRequest.options));
+            }).then(() => fetchWithAuth(originalRequest.url, { ...originalRequest.options, _retryAfterRefresh: true }));
         }
 
         isRefreshing = true;
@@ -94,7 +116,8 @@ const ApiFetch = (function() {
             if (refreshed) {
                 refreshQueue.forEach(p => p.resolve());
                 refreshQueue = [];
-                return fetchWithAuth(originalRequest.url, originalRequest.options);
+                // Mark retry so a second 401 won't loop back into handleUnauthorized
+                return fetchWithAuth(originalRequest.url, { ...originalRequest.options, _retryAfterRefresh: true });
             } else {
                 refreshQueue.forEach(p => p.reject(new Error('Session expired')));
                 refreshQueue = [];
@@ -133,11 +156,23 @@ const ApiFetch = (function() {
 
         // Remove custom props from fetch options
         delete config.includeAuth;
+        const isRetry = !!config._retryAfterRefresh;
+        delete config._retryAfterRefresh;
 
         try {
             let response = await fetch(url, config);
 
             if (response.status === 401 && options.includeAuth !== false) {
+                if (isRetry) {
+                    // Already retried after a token refresh — don't loop, just fail cleanly
+                    console.warn('[ApiFetch] 401 after token refresh retry — session invalid');
+                    ApiTokens.clearTokens();
+                    if (typeof AppState !== 'undefined') {
+                        AppState.currentUser = null;
+                        AppState.isAuthenticated = false;
+                    }
+                    throw new Error('Session expired');
+                }
                 return handleUnauthorized({ url: endpoint, options });
             }
 

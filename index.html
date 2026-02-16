@@ -1318,21 +1318,36 @@
 
     <!-- Animation Force Init & Debug -->
     <script>
-    // === FORCE ANIMATIONS INIT v2.0 - ULTRA AGGRESSIVE ===
+    // === FORCE ANIMATIONS INIT v2.1 - WITH LOOP PROTECTION ===
     (function() {
-        console.log('%c🎨 Animation System Boot v2.0', 'background: #6366f1; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
+        console.log('%c🎨 Animation System Boot v2.1', 'background: #6366f1; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
 
         let initAttempts = 0;
-        const MAX_ATTEMPTS = 5; // Increased from 3 to 5
+        const MAX_ATTEMPTS = 5;
         let initSuccess = false;
+        let initGaveUp = false;   // Hard stop — no more automatic retries
+        let retryTimer = null;    // Track pending retry to avoid duplicates
+
+        function stopRetrying(reason) {
+            initGaveUp = true;
+            if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
+            observer.disconnect();
+            console.error(`%c❌ Animations: ${reason}`, 'color: #ef4444; font-weight: bold');
+            console.log('Debug: Try manually in console: forceAnimationInit()');
+        }
 
         function attemptInit() {
-            if (initSuccess) {
-                console.log('✅ Already initialized, skipping');
-                return true;
-            }
+            if (initSuccess) return true;
+            if (initGaveUp) return false;
 
             initAttempts++;
+
+            // Hard cap — stop permanently after MAX_ATTEMPTS
+            if (initAttempts > MAX_ATTEMPTS) {
+                stopRetrying('FAILED after ' + MAX_ATTEMPTS + ' attempts — stopped');
+                return false;
+            }
+
             const canvas = document.getElementById('matrix-bg');
             const hasInit = typeof initAnimation === 'function';
             const hasControls = typeof AnimationControls !== 'undefined';
@@ -1343,45 +1358,41 @@
                 canvasVisible: canvas ? getComputedStyle(canvas).display !== 'none' : false,
                 initAnimation: hasInit,
                 AnimationControls: hasControls,
-                loggedIn: isLoggedIn,
-                bodyClass: document.body.className
+                loggedIn: isLoggedIn
             });
 
             if (canvas && hasInit && hasControls) {
                 try {
-                    // ULTRA AGGRESSIVE: Force canvas visibility
                     canvas.style.display = 'block';
                     canvas.style.opacity = '0.95';
                     canvas.style.visibility = 'visible';
                     canvas.style.pointerEvents = 'none';
 
-                    // Initialize engine with error handling
                     console.log('%c✅ Calling initAnimation()...', 'color: #22c55e; font-weight: bold');
                     initAnimation();
 
-                    // Verify canvas has context
                     const ctx = canvas.getContext('2d');
                     if (!ctx) {
                         throw new Error('Canvas context not available');
                     }
 
-                    // Initialize controls
+                    // Success — stop observer, init controls
+                    initSuccess = true;
+                    observer.disconnect();
+
                     setTimeout(() => {
                         console.log('%c✅ Calling AnimationControls.init()...', 'color: #22c55e; font-weight: bold');
                         AnimationControls.init();
 
-                        // Force cinematic mode (100%)
                         setTimeout(() => {
                             if (AnimationControls.setPreset) {
                                 AnimationControls.setPreset('cinematic');
                                 console.log('%c🎬 CINEMATIC mode activated (100%)', 'color: #a855f7; font-weight: bold; font-size: 14px');
                             }
 
-                            // Final verification
                             setTimeout(() => {
                                 const finalOpacity = getComputedStyle(canvas).opacity;
                                 console.log(`%c✨ Animations READY | Opacity: ${finalOpacity}`, 'background: #22c55e; color: #fff; padding: 4px 8px; border-radius: 4px; font-weight: bold');
-                                initSuccess = true;
                             }, 500);
                         }, 300);
                     }, 200);
@@ -1392,49 +1403,58 @@
                 }
             }
 
-            // Retry with exponential backoff
+            // Schedule retry with exponential backoff
             if (initAttempts < MAX_ATTEMPTS) {
-                const delay = 300 * initAttempts; // 300, 600, 900, 1200, 1500
+                const delay = 300 * initAttempts;
                 console.log(`⏳ Retrying in ${delay}ms...`);
-                setTimeout(attemptInit, delay);
+                retryTimer = setTimeout(attemptInit, delay);
             } else {
-                console.error(`%c❌ FAILED after ${MAX_ATTEMPTS} attempts`, 'color: #ef4444; font-weight: bold');
-                console.log('Debug: Try manually in console: initAnimation()');
+                stopRetrying('FAILED after ' + MAX_ATTEMPTS + ' attempts — stopped');
             }
 
             return false;
         }
 
-        // Watch for logged-in class with immediate trigger
+        // Watch for logged-in class — only triggers the REAL init cycle
         const observer = new MutationObserver(() => {
-            if (document.body.classList.contains('logged-in') && !initSuccess) {
+            if (document.body.classList.contains('logged-in') && !initSuccess && !initGaveUp) {
                 console.log('%c🔓 User logged in - starting animations...', 'color: #3b82f6; font-weight: bold');
+                // Reset counter — pre-login attempts don't count
+                initAttempts = 0;
+                if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
                 setTimeout(attemptInit, 200);
-                // Keep observing in case it fails the first time
             }
         });
         observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 
-        // Multiple trigger points
-        if (document.readyState !== 'loading') {
-            setTimeout(attemptInit, 300);
-        } else {
-            document.addEventListener('DOMContentLoaded', () => setTimeout(attemptInit, 300));
+        // Single early trigger — only if already logged in (e.g. page refresh with session)
+        function earlyTrigger() {
+            if (initSuccess || initGaveUp) return;
+            if (document.body.classList.contains('logged-in')) {
+                attemptInit();
+            }
+            // If not logged in, don't waste attempts — wait for the observer
         }
 
-        // Additional trigger after full page load
+        if (document.readyState !== 'loading') {
+            setTimeout(earlyTrigger, 300);
+        } else {
+            document.addEventListener('DOMContentLoaded', () => setTimeout(earlyTrigger, 300));
+        }
+
         window.addEventListener('load', () => {
-            if (!initSuccess) {
-                console.log('🔄 Window loaded, final attempt...');
-                setTimeout(attemptInit, 500);
+            if (!initSuccess && !initGaveUp) {
+                earlyTrigger();
             }
         });
 
-        // Emergency manual trigger (callable from console)
+        // Manual trigger (callable from console) — resets everything
         window.forceAnimationInit = function() {
             console.log('🚨 MANUAL INIT TRIGGERED');
             initSuccess = false;
+            initGaveUp = false;
             initAttempts = 0;
+            if (retryTimer) { clearTimeout(retryTimer); retryTimer = null; }
             attemptInit();
         };
     })();
