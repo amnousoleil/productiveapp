@@ -1,0 +1,136 @@
+/**
+ * ================================================
+ * PERFORMANCE BOOST - Ultra Fluidité
+ * Force GPU acceleration + optimisations critiques
+ * ================================================
+ */
+
+/* GPU Acceleration Globale */
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force GPU sur tous les éléments animés */
+.sidebar,
+.main-content,
+.view-container,
+.modal,
+.modal-overlay,
+.card,
+.task-item,
+.note-item,
+.project-card,
+[class*="btn"],
+[class*="button"],
+[class*="tooltip"],
+[class*="dropdown"],
+[class*="menu"],
+.auth-login-overlay {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* Optimisation Scrolling */
+.sidebar,
+.main-content,
+.view-container,
+[class*="scrollable"] {
+    -webkit-overflow-scrolling: touch;
+    overflow: auto;
+}
+
+/* Disable animations sur éléments cachés (performance) */
+.hidden,
+[hidden],
+.view-container:not(.active) {
+    will-change: auto !important;
+    transform: none !important;
+}
+
+/* Transitions ultra-rapides mais fluides */
+* {
+    transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+/* Réduire repaints - containment */
+.card,
+.modal,
+.sidebar,
+.view-container {
+    contain: layout style paint;
+}
+
+/* Optimisation Images */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Optimisation Fonts - pas de FOIT */
+@font-face {
+    font-display: swap;
+}
+
+/* Débounce hover effects sur mobile */
+@media (hover: none) {
+    *:hover {
+        transition-duration: 0ms !important;
+    }
+}
+
+/* Performance - désactiver animations si prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Cursor: pointer cache pour éviter repaints */
+[class*="btn"],
+[class*="button"],
+a,
+button,
+[onclick],
+[role="button"] {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Optimisation Canvas Animations */
+canvas {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Layout Shift Prevention */
+.sidebar {
+    width: 260px; /* Fixed width */
+}
+
+.main-content {
+    margin-left: 260px; /* Match sidebar */
+}
+
+/* Defer non-critical animations */
+.fire-bubble,
+.particle,
+[class*="sparkle"],
+[class*="glow"] {
+    will-change: auto;
+}
+
+/* Performance: Composite layers pour overlays */
+.modal-overlay,
+.auth-login-overlay,
+.chatbot-panel {
+    isolation: isolate;
+    transform: translateZ(0);
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Reset ProductiveApp</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .box {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 { margin: 0 0 20px 0; font-size: 32px; }
+        .status { margin: 20px 0; font-size: 18px; }
+        .log { margin: 5px 0; font-size: 14px; opacity: 0.9; }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>🔥 Reset ProductiveApp</h1>
+        <div id="status" class="status">Prêt à nettoyer...</div>
+        <div id="logs"></div>
+        <button id="btn" onclick="start()">🚀 DÉMARRER LE NETTOYAGE</button>
+    </div>
+
+    <script>
+    const status = document.getElementById('status');
+    const logs = document.getElementById('logs');
+    const btn = document.getElementById('btn');
+
+    function log(msg, type = 'log') {
+        const div = document.createElement('div');
+        div.className = 'log ' + type;
+        div.textContent = msg;
+        logs.appendChild(div);
+        console.log(msg);
+    }
+
+    async function start() {
+        btn.disabled = true;
+        btn.textContent = '⏳ En cours...';
+        status.textContent = 'Nettoyage en cours...';
+        logs.innerHTML = '';
+
+        try {
+            // 1. Service Workers
+            if ('serviceWorker' in navigator) {
+                log('🔍 Recherche des Service Workers...', 'log');
+                const regs = await navigator.serviceWorker.getRegistrations();
+
+                if (regs.length === 0) {
+                    log('✅ Aucun Service Worker trouvé', 'success');
+                } else {
+                    log(`⚠️ ${regs.length} Service Worker(s) trouvé(s)`, 'log');
+                    for (const reg of regs) {
+                        await reg.unregister();
+                        log('🗑️ SW désenregistré: ' + reg.scope, 'success');
+                    }
+                }
+            }
+
+            // 2. Caches
+            log('🔍 Recherche des caches...', 'log');
+            const cacheNames = await caches.keys();
+
+            if (cacheNames.length === 0) {
+                log('✅ Aucun cache trouvé', 'success');
+            } else {
+                log(`⚠️ ${cacheNames.length} cache(s) trouvé(s)`, 'log');
+                for (const name of cacheNames) {
+                    await caches.delete(name);
+                    log('🗑️ Cache supprimé: ' + name, 'success');
+                }
+            }
+
+            // 3. Storage
+            try {
+                localStorage.clear();
+                log('🗑️ localStorage vidé', 'success');
+            } catch (e) {
+                log('⚠️ localStorage: ' + e.message, 'error');
+            }
+
+            try {
+                sessionStorage.clear();
+                log('🗑️ sessionStorage vidé', 'success');
+            } catch (e) {
+                log('⚠️ sessionStorage: ' + e.message, 'error');
+            }
+
+            // 4. IndexedDB
+            try {
+                if (window.indexedDB) {
+                    const dbs = await indexedDB.databases();
+                    for (const db of dbs) {
+                        indexedDB.deleteDatabase(db.name);
+                        log('🗑️ IndexedDB supprimé: ' + db.name, 'success');
+                    }
+                }
+            } catch (e) {
+                log('⚠️ IndexedDB: ' + e.message, 'error');
+            }
+
+            // SUCCESS
+            status.textContent = '✅ NETTOYAGE TERMINÉ !';
+            btn.textContent = '✅ TERMINÉ';
+
+            log('', 'log');
+            log('🎉 Tout a été nettoyé avec succès !', 'success');
+            log('🔄 Redirection dans 3 secondes...', 'log');
+
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+
+        } catch (error) {
+            status.textContent = '❌ ERREUR';
+            log('❌ Erreur: ' + error.message, 'error');
+            btn.disabled = false;
+            btn.textContent = '🔄 RÉESSAYER';
+        }
+    }
+
+    // Auto-start if ?auto=1
+    if (window.location.search.includes('auto=1')) {
+        setTimeout(start, 500);
+    }
+    </script>
+</body>
+</html>

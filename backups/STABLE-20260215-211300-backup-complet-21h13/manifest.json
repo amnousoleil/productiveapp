@@ -1,0 +1,43 @@
+{
+  "name": "ProductiveApp",
+  "short_name": "Productive",
+  "description": "Gestion de tâches Kanban avec IA intégrée",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#d4af37",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/images/logos/golden-ball.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/logos/golden-ball.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "business"],
+  "lang": "fr",
+  "dir": "ltr",
+  "shortcuts": [
+    {
+      "name": "Nouvelle tâche",
+      "short_name": "Tâche",
+      "description": "Créer une nouvelle tâche",
+      "url": "/?action=new-task",
+      "icons": [{ "src": "/assets/images/logos/golden-ball.png?v=2", "sizes": "96x96" }]
+    },
+    {
+      "name": "Chat IA",
+      "short_name": "Chat",
+      "description": "Ouvrir l'assistant IA",
+      "url": "/?view=messaging",
+      "icons": [{ "src": "/assets/images/logos/golden-ball.png?v=2", "sizes": "96x96" }]
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>ProductiveApp - Safe Mode</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            margin: 0;
+        }
+        .container {
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #d4af37, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 1.2rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37, #f59e0b);
+            color: white;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+        }
+        .warning {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            color: #ef4444;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            color: #10b981;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛟 Safe Mode Access</h1>
+        <p>Tu as des sessions Claude en parallèle qui travaillent.<br>
+        Cette page te donne accès SANS toucher au travail des autres.</p>
+        
+        <div class="btn-group">
+            <a href="/index-backup.html" class="btn btn-primary">
+                📦 Version Backup<br>
+                <small style="opacity:0.8">(14 fév - garantie stable)</small>
+            </a>
+            
+            <button onclick="purgeAndReload()" class="btn btn-secondary">
+                🗑️ Purge Cache<br>
+                <small style="opacity:0.8">(puis reload auto)</small>
+            </button>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>NE PAS</strong> recharger index.html principal tant que les 12 sessions travaillent !
+        </div>
+
+        <div class="success" id="success">
+            ✅ Cache purgé ! Redirection dans 2s...
+        </div>
+    </div>
+
+    <script>
+        function purgeAndReload() {
+            // Clear everything
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    regs.forEach(r => r.unregister());
+                });
+            }
+            
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(n => caches.delete(n));
+                });
+            }
+            
+            document.getElementById('success').style.display = 'block';
+            
+            setTimeout(() => {
+                window.location.href = '/index-backup.html';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

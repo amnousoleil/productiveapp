@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html><head><title>Clear Cache</title></head><body>
+<h1>Forcer mise à jour ProductiveApp</h1>
+<script>
+// Unregister all service workers
+navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
+    console.log('Service Workers cleared');
+});
+
+// Clear all caches
+caches.keys().then(keys => {
+    keys.forEach(key => caches.delete(key));
+    console.log('Caches cleared');
+    
+    // Redirect after 2s
+    setTimeout(() => {
+        window.location.href = 'https://giri-app.com';
+    }, 2000);
+});
+</script>
+<p>Nettoyage en cours... redirection dans 2s</p>
+</body></html>

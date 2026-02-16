@@ -1,0 +1,38 @@
+/* ACTIVITY TIMELINE */
+.activity-container { padding: 20px; max-width: 800px; margin: 0 auto; }
+.activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+.activity-header h2 { font-size: 20px; color: var(--text); margin: 0; }
+.activity-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.activity-filter-chip {
+    padding: 5px 14px; border: 1px solid var(--border); border-radius: 20px;
+    background: var(--bg-card); color: var(--text-muted); font-size: 12px;
+    font-weight: 500; cursor: pointer; transition: all 0.2s;
+}
+.activity-filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+.activity-filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.activity-date-separator {
+    font-size: 12px; font-weight: 600; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 12px 0 8px; border-bottom: 1px solid var(--border); margin-bottom: 4px;
+}
+.activity-list { display: flex; flex-direction: column; }
+.activity-item {
+    display: flex; align-items: flex-start; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid rgba(var(--border-rgb, 128,128,128), 0.2);
+    transition: background 0.15s;
+}
+.activity-item:hover { background: rgba(var(--accent-rgb, 99,102,241), 0.04); border-radius: 8px; padding-left: 8px; }
+.activity-icon { flex-shrink: 0; margin-top: 2px; opacity: 0.85; }
+.activity-content { flex: 1; min-width: 0; }
+.activity-message { font-size: 13px; color: var(--text); line-height: 1.4; }
+.activity-time { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.activity-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.activity-empty p { margin-top: 12px; font-size: 14px; }
+/* Dashboard widget */
+.activity-widget { padding: 16px; }
+.activity-widget h3 { font-size: 14px; font-weight: 600; color: var(--text); margin: 0 0 12px; }
+.activity-widget-list { display: flex; flex-direction: column; gap: 8px; }
+.activity-widget-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.activity-widget-icon { flex-shrink: 0; }
+.activity-widget-text { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.activity-widget-time { color: var(--text-muted); font-size: 11px; flex-shrink: 0; }
