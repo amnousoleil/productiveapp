@@ -85,13 +85,16 @@ const CosmicProjectsUI = (function () {
             });
         }
 
-        // Projects button (filter-projects)
+        // Projects button (filter-projects) — capture mode to fire before legacy handlers
         var projBtn = document.getElementById('filter-projects');
         if (projBtn) {
-            projBtn.addEventListener('click', function (e) {
+            projBtn.addEventListener('click', function(e) {
+                e.preventDefault();
                 e.stopPropagation();
-                toggle();
-            });
+                e.stopImmediatePropagation();
+                setTimeout(function() { CosmicProjectsUI.toggle(); }, 50);
+                return false;
+            }, true);
         }
 
         // Escape to close

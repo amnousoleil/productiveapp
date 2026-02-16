@@ -66,6 +66,38 @@ function getNodeAtWorld(wx, wy) {
     return null;
 }
 
+// ── Resize Handles ──────────────────────────────────────────────────
+// Returns 4 corner handle descriptors in screen coordinates for a given node
+function getResizeHandles(node, camera, canvasW, canvasH) {
+    const { x: camX, y: camY, zoom } = camera;
+    const cx = (node.x - camX) * zoom + canvasW / 2;
+    const cy = (node.y - camY) * zoom + canvasH / 2;
+    const r = node.radius * zoom;
+    // Bounding box half-sizes (shape-aware)
+    let hw, hh;
+    if (node.shape === 'rect') {
+        hw = r * 0.8; hh = r * 0.6;
+    } else {
+        hw = r; hh = r;
+    }
+    return [
+        { id: 'nw', sx: cx - hw, sy: cy - hh, cursor: 'nwse-resize' },
+        { id: 'ne', sx: cx + hw, sy: cy - hh, cursor: 'nesw-resize' },
+        { id: 'se', sx: cx + hw, sy: cy + hh, cursor: 'nwse-resize' },
+        { id: 'sw', sx: cx - hw, sy: cy + hh, cursor: 'nesw-resize' }
+    ];
+}
+
+// Hit-test a screen point against handles (returns handle or null)
+function hitTestHandle(node, screenX, screenY, camera, canvasW, canvasH) {
+    const handles = getResizeHandles(node, camera, canvasW, canvasH);
+    const HIT = 7; // half-size of handle hit area (px)
+    for (const h of handles) {
+        if (Math.abs(screenX - h.sx) <= HIT && Math.abs(screenY - h.sy) <= HIT) return h;
+    }
+    return null;
+}
+
 const SHAPE_TOOLS = ['circle', 'rect', 'diamond', 'hexagon', 'star'];
 const COSMIC_COLORS = ['#60a5fa', '#a78bfa', '#f472b6', '#34d399', '#fbbf24', '#f87171'];
 
@@ -92,6 +124,15 @@ class ShapeInteraction {
         this._penStroke = null;
         // Alt+drag duplication
         this._altCloned = false;
+        // Resize handles
+        this.isResizing = false;
+        this.resizeNode = null;
+        this.resizeHandle = null;
+        this.resizeStartRadius = 0;
+        this.resizeStartWorldX = 0;
+        this.resizeStartWorldY = 0;
+        this.resizeStartFontSize = 14;
+        this.resizeShiftKey = false;
     }
 
     // Clone all selected nodes (and their inter-connections) for Alt+drag group duplication
@@ -167,6 +208,7 @@ class ShapeInteraction {
             }
             // Start marquee rectangle
             CosmicState.selectedNodes.clear();
+            CosmicState._selectedConnId = null;
             this.isMarquee = true;
             this.marqueeOrigin = { x: wX, y: wY };
             this.marqueeCurrent = { x: wX, y: wY };
@@ -189,9 +231,31 @@ class ShapeInteraction {
             return true;
         }
 
+        // Resize handle: if exactly 1 node selected, check handles first
+        if (CosmicState.selectedNodes.size === 1) {
+            const selNode = CosmicState.selectedNodes.values().next().value;
+            if (!selNode.locked) {
+                const canvas = CosmicState.canvas;
+                const h = hitTestHandle(selNode, CosmicState.mouse.x, CosmicState.mouse.y,
+                    CosmicState.camera, canvas.width, canvas.height);
+                if (h) {
+                    this.isResizing = true;
+                    this.resizeNode = selNode;
+                    this.resizeHandle = h.id;
+                    this.resizeStartRadius = selNode.radius;
+                    this.resizeStartFontSize = selNode.fontSize || 14;
+                    this.resizeShiftKey = e.shiftKey;
+                    this.resizeStartWorldX = wX;
+                    this.resizeStartWorldY = wY;
+                    return true;
+                }
+            }
+        }
+
         // Any tool: click on node → select/drag
         const node = getNodeAtWorld(wX, wY);
         if (node) {
+            CosmicState._selectedConnId = null;
             if (!CosmicState.selectedNodes.has(node)) {
                 CosmicState.selectedNodes.clear();
                 CosmicState.selectedNodes.add(node);
@@ -233,8 +297,19 @@ class ShapeInteraction {
             return true;
         }
 
+        // Click on connection → select it
+        if (CosmicState._hoveredConnIdx != null && CosmicState._hoveredConnIdx >= 0) {
+            const conn = CosmicState.connections[CosmicState._hoveredConnIdx];
+            if (conn) {
+                CosmicState.selectedNodes.clear();
+                CosmicState._selectedConnId = conn.id;
+                return true;
+            }
+        }
+
         // Empty space with shape tool → draw new shape
         CosmicState.selectedNodes.clear();
+        CosmicState._selectedConnId = null;
         if (SHAPE_TOOLS.includes(tool)) {
             this.isDrawing = true;
             this.drawOrigin = { x: wX, y: wY };
@@ -257,6 +332,25 @@ class ShapeInteraction {
         }
         if (this.isMarquee && this.marqueeOrigin) {
             this.marqueeCurrent = { x: CosmicState.mouse.worldX, y: CosmicState.mouse.worldY };
+            return true;
+        }
+        if (this.isResizing && this.resizeNode) {
+            const dx = CosmicState.mouse.worldX - this.resizeStartWorldX;
+            const dy = CosmicState.mouse.worldY - this.resizeStartWorldY;
+            let delta = 0;
+            const hid = this.resizeHandle;
+            if (hid === 'se') delta = (dx + dy) / 2;
+            else if (hid === 'nw') delta = (-dx - dy) / 2;
+            else if (hid === 'ne') delta = (dx - dy) / 2;
+            else if (hid === 'sw') delta = (-dx + dy) / 2;
+            const newRadius = Math.max(15, this.resizeStartRadius + delta);
+            this.resizeNode.radius = newRadius;
+            // Proportional (no Shift): scale fontSize with form
+            // Free (Shift): keep fontSize, text reflows via word-wrap
+            if (!this.resizeShiftKey) {
+                const ratio = newRadius / this.resizeStartRadius;
+                this.resizeNode.fontSize = Math.max(6, this.resizeStartFontSize * ratio);
+            }
             return true;
         }
         if (this.isDraggingGroup && this.groupDragStart) {
@@ -314,6 +408,14 @@ class ShapeInteraction {
             this.isMarquee = false;
             this.marqueeOrigin = null;
             this.marqueeCurrent = null;
+            return true;
+        }
+        if (this.isResizing) {
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+            this.isResizing = false;
+            this.resizeNode = null;
+            this.resizeHandle = null;
             return true;
         }
         if (this.isDraggingGroup) {
@@ -402,6 +504,18 @@ document.addEventListener('keydown', (e) => {
     const tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
+    // Delete selected connection
+    if (CosmicState._selectedConnId) {
+        e.preventDefault();
+        CosmicState.connections = CosmicState.connections.filter(
+            c => c.id !== CosmicState._selectedConnId
+        );
+        CosmicState._selectedConnId = null;
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+        return;
+    }
+
     const selected = Array.from(CosmicState.selectedNodes);
     if (selected.length === 0) return;
 
@@ -465,5 +579,7 @@ window.CosmicShapeInteraction = new ShapeInteraction();
 window.renderShapePreview = renderShapePreview;
 window.renderMarqueeRect = renderMarqueeRect;
 window.getNodeAtWorld = getNodeAtWorld;
+window.getResizeHandles = getResizeHandles;
+window.hitTestHandle = hitTestHandle;
 
 console.log('📦 galaxy-cosmic-shapes.js loaded');

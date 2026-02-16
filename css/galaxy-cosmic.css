@@ -1333,3 +1333,79 @@ body.zen-mode #galaxy-canvas {
 #view-galaxy[data-galaxy-skin="desert"] .ttb-btn:hover {
     background: rgba(184, 149, 106, 0.2);
 }
+
+/* ── Opacity submenu (radial menu) ── */
+.radial-opacity-wrap {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgba(30, 30, 30, 0.9);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    white-space: nowrap;
+    z-index: 10;
+}
+.radial-opa-label {
+    color: #e2e8f0;
+    font: 600 13px "Segoe UI", sans-serif;
+    min-width: 36px;
+    text-align: right;
+}
+.radial-opa-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 120px;
+    height: 5px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+}
+.radial-opa-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: #ffffff;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.3);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    cursor: grab;
+}
+.radial-opa-slider::-moz-range-thumb {
+    width: 16px; height: 16px;
+    background: #ffffff;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.3);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    cursor: grab;
+}
+
+/* ── Inline text edit (WYSIWYG inside shapes) ──
+   High specificity to beat style-overrides.css input[type="text"] !important rules */
+input[type="text"].cosmic-inline-text-edit,
+input[type="text"].cosmic-inline-text-edit:focus,
+input[type="text"].cosmic-inline-text-edit:active,
+input[type="text"].cosmic-inline-text-edit:focus-visible,
+input[type="text"].cosmic-inline-text-edit:focus-within {
+    background: transparent !important;
+    border: none !important;
+    border-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    outline-color: transparent !important;
+    padding: 0 !important;
+    text-align: center !important;
+    resize: none !important;
+    animation: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+input[type="text"].cosmic-inline-text-edit::placeholder {
+    color: inherit !important;
+    opacity: 0.4 !important;
+}

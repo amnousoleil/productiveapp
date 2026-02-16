@@ -617,7 +617,7 @@ class CosmicRenderer {
 
         // Freeze background completely during shape drawing (perf)
         const isDrawing = window.CosmicShapeInteraction &&
-            (window.CosmicShapeInteraction.isDrawing || window.CosmicShapeInteraction.isDraggingNode);
+            (window.CosmicShapeInteraction.isDrawing || window.CosmicShapeInteraction.isDraggingNode || window.CosmicShapeInteraction.isResizing);
         if (!isDrawing && this._bgFrame % 4 === 0) {
             this.background.render(this._bgCacheCtx, camera, deltaTime);
         }
@@ -628,7 +628,9 @@ class CosmicRenderer {
         ctx.drawImage(this._bgCache, 0, 0);
 
         // Skip grid + connections during active drawing (perf)
-        if (!isDrawing) {
+        // But keep connections during resize so they follow in real-time
+        const isResizingOnly = window.CosmicShapeInteraction && window.CosmicShapeInteraction.isResizing;
+        if (!isDrawing || isResizingOnly) {
             this.renderGrid(ctx, camera);
             this.renderConnections(ctx, camera, now);
         }
@@ -638,6 +640,9 @@ class CosmicRenderer {
 
         // Nœuds (pensées cristallisées)
         this.renderNodes(ctx, camera, now);
+
+        // Resize handles (Miro-style)
+        this.renderResizeHandles(ctx, camera);
 
         // Preview forme en cours de dessin
         if (window.renderShapePreview) {
@@ -721,6 +726,26 @@ class CosmicRenderer {
     }
 
     // Edge anchor: compute point on node border closest to target (tx,ty) in world coords
+    // Ray from origin at angle → intersection with polygon boundary
+    _polyEdge(angle, verts) {
+        const cx = Math.cos(angle), cy = Math.sin(angle);
+        const n = verts.length;
+        let bestT = Infinity, bx = cx, by = cy;
+        for (let i = 0; i < n; i++) {
+            const v1 = verts[i], v2 = verts[(i + 1) % n];
+            const edx = v2.x - v1.x, edy = v2.y - v1.y;
+            const denom = edx * cy - edy * cx;
+            if (Math.abs(denom) < 1e-10) continue;
+            const s = (v1.y * cx - v1.x * cy) / denom;
+            if (s < -1e-6 || s > 1 + 1e-6) continue;
+            const t = Math.abs(cx) > 1e-6
+                ? (v1.x + s * edx) / cx
+                : (v1.y + s * edy) / cy;
+            if (t > 1e-6 && t < bestT) { bestT = t; bx = v1.x + s * edx; by = v1.y + s * edy; }
+        }
+        return { x: bx, y: by };
+    }
+
     _edgeAnchor(node, tx, ty, zoom) {
         const dx = tx - node.x, dy = ty - node.y;
         const angle = Math.atan2(dy, dx);
@@ -733,13 +758,29 @@ class CosmicRenderer {
             ex = Math.cos(angle) * scale;
             ey = Math.sin(angle) * scale;
         } else if (node.shape === 'diamond') {
-            // |x/r| + |y/r| = 1 → scale along angle
             const absCos = Math.abs(Math.cos(angle)), absSin = Math.abs(Math.sin(angle));
             const scale = r / (absCos + absSin || 1);
             ex = Math.cos(angle) * scale;
             ey = Math.sin(angle) * scale;
+        } else if (node.shape === 'hexagon') {
+            const verts = [];
+            for (let i = 0; i < 6; i++) {
+                const a = (Math.PI / 3) * i - Math.PI / 2;
+                verts.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
+            }
+            const pt = this._polyEdge(angle, verts);
+            ex = pt.x; ey = pt.y;
+        } else if (node.shape === 'star') {
+            const verts = [];
+            for (let i = 0; i < 10; i++) {
+                const a = (Math.PI / 5) * i - Math.PI / 2;
+                const d = i % 2 === 0 ? r : r * 0.4;
+                verts.push({ x: Math.cos(a) * d, y: Math.sin(a) * d });
+            }
+            const pt = this._polyEdge(angle, verts);
+            ex = pt.x; ey = pt.y;
         } else {
-            // circle, hexagon, star — approximate as circle
+            // circle
             ex = Math.cos(angle) * r;
             ey = Math.sin(angle) * r;
         }
@@ -817,9 +858,10 @@ class CosmicRenderer {
             if (!conn._draw) return;
             const { x1, y1, x2, y2, cpx1, cpy1, cpx2, cpy2 } = conn._draw;
             const hovered = idx === hoveredIdx;
+            const selected = CosmicState._selectedConnId === conn.id;
 
-            ctx.strokeStyle = hovered ? hoverColor : lineColor;
-            ctx.lineWidth = hovered ? 2.5 : 1.5;
+            ctx.strokeStyle = selected ? '#4A90D9' : hovered ? hoverColor : lineColor;
+            ctx.lineWidth = selected ? 3 : hovered ? 2.5 : 1.5;
 
             // Curve
             ctx.beginPath();
@@ -832,7 +874,7 @@ class CosmicRenderer {
             const tLen = Math.hypot(tx, ty) || 1;
             const ux = tx / tLen, uy = ty / tLen;
             const px = -uy, py = ux;
-            ctx.fillStyle = hovered ? hoverColor : lineColor;
+            ctx.fillStyle = selected ? '#4A90D9' : hovered ? hoverColor : lineColor;
             ctx.beginPath();
             ctx.moveTo(x2, y2);
             ctx.lineTo(x2 - ux * ARROW + px * ARROW * 0.4, y2 - uy * ARROW + py * ARROW * 0.4);
@@ -883,8 +925,10 @@ class CosmicRenderer {
             ctx.save();
             ctx.translate(screenX, screenY);
 
-            // Dessiner la forme — flat fill + simple stroke, no effects
+            // Dessiner la forme — flat fill + simple stroke, with node opacity
             const radius = node.radius * zoom;
+            const nodeOpacity = node.opacity != null ? node.opacity : 1;
+            ctx.globalAlpha = nodeOpacity;
 
             const pathFn = window.CosmicShapes && window.CosmicShapes[node.shape];
             if (pathFn) {
@@ -894,7 +938,9 @@ class CosmicRenderer {
                 ctx.strokeStyle = 'rgba(255,255,255,0.3)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
+                // Selection highlight at full opacity
                 if (CosmicState.selectedNodes.has(node)) {
+                    ctx.globalAlpha = 1;
                     ctx.strokeStyle = '#fbbf24';
                     ctx.lineWidth = 2;
                     ctx.setLineDash([6, 3]);
@@ -911,14 +957,40 @@ class CosmicRenderer {
                 ctx.stroke();
             }
 
-            // Texte
+            // Reset opacity for text (always fully visible)
+            ctx.globalAlpha = 1;
+
+            // Texte (word-wrap + vertical clamp)
             if (node.text) {
-                const fs = (node.fontSize || 14) * zoom;
+                const fs = Math.max(4, (node.fontSize || 14) * zoom);
                 ctx.fillStyle = node.textColor || '#ffffff';
                 ctx.font = `${fs}px "Segoe UI", sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(node.text, 0, 0);
+                const maxW = radius * 1.4;
+                const words = node.text.split(' ');
+                const lines = [];
+                let line = '';
+                for (const word of words) {
+                    const test = line ? line + ' ' + word : word;
+                    if (ctx.measureText(test).width > maxW && line) {
+                        lines.push(line);
+                        line = word;
+                    } else {
+                        line = test;
+                    }
+                }
+                if (line) lines.push(line);
+                const lh = fs * 1.25;
+                // Vertical clamp: limit lines to fit inside shape
+                const maxH = (node.shape === 'rect') ? radius * zoom * 1.0 : radius * zoom * 1.6;
+                const maxLines = Math.max(1, Math.floor(maxH / lh));
+                if (lines.length > maxLines) {
+                    lines.length = maxLines;
+                    lines[maxLines - 1] = lines[maxLines - 1].replace(/\s*$/, '') + '…';
+                }
+                const startY = -(lines.length - 1) * lh / 2;
+                lines.forEach((l, i) => ctx.fillText(l, 0, startY + i * lh));
             }
 
             // Padlock icon on locked nodes
@@ -937,6 +1009,29 @@ class CosmicRenderer {
 
             ctx.restore();
         });
+    }
+
+    renderResizeHandles(ctx, camera) {
+        if (CosmicState.selectedNodes.size !== 1) return;
+        const node = CosmicState.selectedNodes.values().next().value;
+        if (node.locked) return;
+        if (!window.getResizeHandles) return;
+
+        const handles = window.getResizeHandles(node, camera, ctx.canvas.width, ctx.canvas.height);
+        const si = window.CosmicShapeInteraction;
+        const activeId = (si && si.isResizing) ? si.resizeHandle : null;
+        const isDark = !(this.background && this.background.skin === 'desert');
+
+        ctx.save();
+        handles.forEach(h => {
+            const sz = 5; // half-size
+            ctx.fillStyle = (h.id === activeId) ? '#fbbf24' : '#ffffff';
+            ctx.fillRect(h.sx - sz, h.sy - sz, sz * 2, sz * 2);
+            ctx.strokeStyle = isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.8)';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(h.sx - sz, h.sy - sz, sz * 2, sz * 2);
+        });
+        ctx.restore();
     }
 
     renderSelection(ctx) {
@@ -1011,6 +1106,14 @@ function setupEventListeners() {
         const { x: camX, y: camY, zoom } = CosmicState.camera;
         CosmicState.mouse.worldX = (CosmicState.mouse.x - canvas.width / 2) / zoom + camX;
         CosmicState.mouse.worldY = (CosmicState.mouse.y - canvas.height / 2) / zoom + camY;
+
+        // Resize handle cursor (only when not dragging)
+        if (!CosmicState.mouse.down && CosmicState.selectedNodes.size === 1 && window.hitTestHandle) {
+            const selNode = CosmicState.selectedNodes.values().next().value;
+            const h = window.hitTestHandle(selNode, CosmicState.mouse.x, CosmicState.mouse.y,
+                CosmicState.camera, canvas.width, canvas.height);
+            canvas.style.cursor = h ? h.cursor : '';
+        }
 
         if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseMove(e)) return;
         if (window.IntentionSystem) {

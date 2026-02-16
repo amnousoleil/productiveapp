@@ -650,10 +650,12 @@ class RadialMenu {
         this.items = [
             { id: 'lock', icon: '🔒', label: 'Verrouiller', shortcut: 'Ctrl+L' },
             { id: 'color', icon: '🎨', label: 'Couleur', shortcut: 'Alt+C' },
+            { id: 'opacity', icon: '<span style="font-size:22px;line-height:1">◐</span>', label: 'Opacité', shortcut: '', isSvg: true },
             { id: 'duplicate', icon: '📋', label: 'Dupliquer', shortcut: 'Ctrl+D' },
             { id: 'delete', icon: '🗑️', label: 'Supprimer', shortcut: 'Del' },
             { id: 'text', icon: 'T', label: 'Texte', shortcut: 'T' },
         ];
+        this._opacityMode = false;
         this.init();
     }
 
@@ -687,7 +689,7 @@ class RadialMenu {
 
             btn.addEventListener('click', () => {
                 this.executeAction(item.id);
-                if (item.id !== 'color' && item.id !== 'text') this.hide();
+                if (item.id !== 'color' && item.id !== 'opacity' && item.id !== 'text') this.hide();
             });
 
             menu.appendChild(btn);
@@ -743,9 +745,9 @@ class RadialMenu {
         // Menu center is now on cursor — arc opens downward-right (away from typical mouse approach)
         const arcCenter = Math.PI / 4; // 45° = down-right
 
-        // Position items on a 120° arc, radius 100px (gap ~8px between 44px buttons)
+        // Position items on a 140° arc, radius 100px (6 items, gap ~6px between 44px buttons)
         const RADIUS = 100;
-        const ARC = 120 * Math.PI / 180; // 120° in radians
+        const ARC = 140 * Math.PI / 180; // 140° in radians
         const count = this.items.length;
         const btns = this.element.querySelectorAll('.radial-item');
 
@@ -820,6 +822,7 @@ class RadialMenu {
         this.element.classList.remove('active');
         this.active = false;
         if (this._colorMode) this.hideColorSubmenu();
+        if (this._opacityMode) this.hideOpacitySubmenu();
     }
 
     executeAction(action) {
@@ -836,6 +839,8 @@ class RadialMenu {
             this.duplicateTarget();
         } else if (action === 'color') {
             this.showColorSubmenu();
+        } else if (action === 'opacity') {
+            this.showOpacitySubmenu();
         } else if (action === 'text') {
             this.hide();
             this.editText();
@@ -943,45 +948,130 @@ class RadialMenu {
         this.element.classList.remove('color-mode');
     }
 
+    showOpacitySubmenu() {
+        const node = this.targetNode;
+        if (!node) return;
+
+        // Hide regular items
+        this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = 'none');
+
+        // Show center as back arrow
+        const center = this.element.querySelector('.radial-center');
+        center.style.display = '';
+        center.textContent = '←';
+        center.style.cursor = 'pointer';
+        this._opaCenterHandler = (e) => { e.stopPropagation(); this.hideOpacitySubmenu(); };
+        center.addEventListener('click', this._opaCenterHandler);
+
+        // Container
+        const wrap = document.createElement('div');
+        wrap.className = 'radial-opacity-wrap';
+        const currentOpa = node.opacity != null ? Math.round(node.opacity * 100) : 100;
+
+        wrap.innerHTML = `
+            <label class="radial-opa-label">${currentOpa}%</label>
+            <input type="range" class="radial-opa-slider" min="10" max="100" value="${currentOpa}">
+        `;
+
+        // Prevent menu close on interaction
+        wrap.addEventListener('mousedown', e => e.stopPropagation());
+        wrap.addEventListener('click', e => e.stopPropagation());
+
+        const slider = wrap.querySelector('.radial-opa-slider');
+        const label = wrap.querySelector('.radial-opa-label');
+
+        slider.addEventListener('input', () => {
+            const v = parseInt(slider.value);
+            label.textContent = v + '%';
+            node.opacity = v / 100;
+        });
+        slider.addEventListener('change', () => {
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+        });
+
+        this.element.appendChild(wrap);
+        this._opacityMode = true;
+    }
+
+    hideOpacitySubmenu() {
+        this.element.querySelectorAll('.radial-opacity-wrap').forEach(el => el.remove());
+        this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = '');
+
+        const center = this.element.querySelector('.radial-center');
+        center.style.display = 'none';
+        center.textContent = '';
+        center.style.cursor = '';
+        if (this._opaCenterHandler) {
+            center.removeEventListener('click', this._opaCenterHandler);
+            this._opaCenterHandler = null;
+        }
+
+        this._opacityMode = false;
+    }
+
     editText() {
         const node = this.targetNode;
         if (!node) return;
         const canvas = document.getElementById('galaxy-canvas');
         if (!canvas) return;
 
-        // Compute screen position of node center
+        // Compute screen position & size of node
         const { x: camX, y: camY, zoom } = CosmicState.camera;
         const sx = (node.x - camX) * zoom + canvas.width / 2;
         const sy = (node.y - camY) * zoom + canvas.height / 2;
         const rect = canvas.getBoundingClientRect();
+        const rx = rect.width / canvas.width;
+        const ry = rect.height / canvas.height;
+        const r = node.radius * zoom;
+
+        // Input width = shape width in CSS pixels
+        const inputW = (node.shape === 'rect' ? r * 1.6 : r * 2) * rx;
+        const fontSize = Math.max(10, (node.fontSize || 14) * zoom * ry);
+
+        // Contrast: light text on dark forms, dark text on light forms
+        const c = node.color || '#60a5fa';
+        const rgb = parseInt(c.slice(1), 16);
+        const lum = ((rgb >> 16) & 0xff) * 0.299 + ((rgb >> 8) & 0xff) * 0.587 + (rgb & 0xff) * 0.114;
+        const textCol = lum > 140 ? '#1a1a2e' : '#ffffff';
 
         const input = document.createElement('input');
         input.type = 'text';
+        input.className = 'cosmic-inline-text-edit';
         input.value = node.text || '';
         input.placeholder = 'Texte…';
         input.style.cssText = `
             position:fixed; z-index:3000;
-            left:${rect.left + sx}px; top:${rect.top + sy}px;
+            left:${rect.left + sx * rx}px; top:${rect.top + sy * ry}px;
             transform:translate(-50%,-50%);
-            background:rgba(15,15,25,0.9); color:#e2e8f0;
-            border:1px solid rgba(96,165,250,0.5); border-radius:6px;
-            padding:6px 12px; font:${Math.max(13, 14 * zoom)}px "Segoe UI",sans-serif;
-            text-align:center; outline:none; min-width:60px; max-width:200px;
+            color:${textCol};
+            font:${fontSize}px "Segoe UI",sans-serif;
+            width:${inputW}px; max-width:${inputW}px;
+            caret-color:${textCol};
         `;
         document.body.appendChild(input);
         input.focus();
         input.select();
 
+        // Live preview: update node text as user types
+        const onInput = () => { node.text = input.value; };
+        input.addEventListener('input', onInput);
+
+        let committed = false;
         const commit = () => {
+            if (committed) return;
+            committed = true;
             node.text = input.value.trim();
+            input.removeEventListener('input', onInput);
             input.remove();
             if (window.CosmicHistory) window.CosmicHistory.save();
             if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         };
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); commit(); }
-            if (e.key === 'Escape') { input.remove(); }
+            if (e.key === 'Escape') { node.text = input.dataset.original; input.removeEventListener('input', onInput); input.remove(); }
         });
+        input.dataset.original = node.text || '';
         input.addEventListener('blur', commit);
     }
 
@@ -1376,3 +1466,20 @@ function initCosmicUI() {
 window.initCosmicUI = initCosmicUI;
 
 console.log('📦 galaxy-cosmic-ui.js chargé - UI en attente (init manuel)');
+
+// ── Branchement Cosmic Projects ──
+setTimeout(function() {
+    try {
+        if (typeof CosmicProjectsUI !== 'undefined' && document.getElementById('galaxy-save-btn')) {
+            CosmicProjectsUI.init();
+            console.log('🔌 Cosmic Projects UI initialized from cosmic-ui.js');
+        }
+        if (typeof CosmicPersistence !== 'undefined' && !CosmicPersistence.currentProjectId) {
+            CosmicPersistence.init().then(function(r) {
+                console.log('🚀 Cosmic Projects:', r.action, r.name || '');
+            });
+        }
+    } catch(e) {
+        console.error('❌ Cosmic Projects init error:', e);
+    }
+}, 2000);

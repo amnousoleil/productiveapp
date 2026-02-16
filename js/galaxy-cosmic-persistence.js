@@ -286,37 +286,67 @@ const CosmicPersistence = (function () {
 
         try {
             var response = await Api.get('/canvases/' + canvasId);
+            console.log('CosmicPersistence.load() raw response:', JSON.stringify(response).substring(0, 500));
 
-            if (response.success && response.data && response.data.canvas) {
-                var canvas = response.data.canvas;
-                var elements = canvas.elements || {};
-                var appState = canvas.app_state || {};
-
-                var data = {
-                    nodes: elements.nodes || [],
-                    connections: elements.connections || [],
-                    strokes: elements.strokes || [],
-                    camera: appState.camera || {},
-                    prefs: appState.prefs || {}
-                };
-
-                deserializeState(data);
-
-                currentProjectId = canvas.id;
-                currentProjectName = canvas.name || 'Sans nom';
-                isDirty = false;
-
-                try { localStorage.setItem(LAST_PROJECT_KEY, currentProjectId); } catch (_) {}
-
-                _emitStatus('loaded');
-                console.log('CosmicPersistence: loaded "' + currentProjectName + '" -',
-                    CosmicState.nodes.length, 'nodes');
-                return true;
+            if (!response.success || !response.data) {
+                console.error('CosmicPersistence.load(): no data in response');
+                _emitStatus('error');
+                return false;
             }
 
-            console.error('CosmicPersistence.load(): canvas not found');
-            _emitStatus('error');
-            return false;
+            // Handle both response shapes: { data: { canvas: {...} } } and { data: {...} }
+            var canvas = response.data.canvas || response.data;
+            if (!canvas || !canvas.id) {
+                console.error('CosmicPersistence.load(): no canvas object found');
+                _emitStatus('error');
+                return false;
+            }
+
+            var elements = canvas.elements || {};
+            if (typeof elements === 'string') {
+                try {
+                    elements = JSON.parse(elements);
+                } catch (e) {
+                    console.error('❌ Failed to parse elements JSON:', e);
+                    elements = {};
+                }
+            }
+
+            var appState = canvas.app_state || canvas.appState || {};
+            if (typeof appState === 'string') {
+                try {
+                    appState = JSON.parse(appState);
+                } catch (e) {
+                    console.error('❌ Failed to parse app_state JSON:', e);
+                    appState = {};
+                }
+            }
+
+            console.log('CosmicPersistence.load() elements keys:', Object.keys(elements),
+                'nodes:', (elements.nodes || []).length,
+                'connections:', (elements.connections || []).length,
+                'strokes:', (elements.strokes || []).length);
+
+            var data = {
+                nodes: elements.nodes || [],
+                connections: elements.connections || [],
+                strokes: elements.strokes || [],
+                camera: appState.camera || {},
+                prefs: appState.prefs || {}
+            };
+
+            deserializeState(data);
+
+            currentProjectId = canvas.id;
+            currentProjectName = canvas.name || 'Sans nom';
+            isDirty = false;
+
+            try { localStorage.setItem(LAST_PROJECT_KEY, currentProjectId); } catch (_) {}
+
+            _emitStatus('loaded');
+            console.log('CosmicPersistence: loaded "' + currentProjectName + '" -',
+                CosmicState.nodes.length, 'nodes');
+            return true;
         } catch (e) {
             console.error('CosmicPersistence.load(): exception', e);
             _emitStatus('error');
