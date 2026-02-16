@@ -56,7 +56,8 @@
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/style-views.css?v=2400">
     <link rel="stylesheet" href="css/galaxy.css?v=1701">
-    <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3566">
+    <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3570">
+    <link rel="stylesheet" href="css/galaxy-cosmic-projects.css?v=2">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
     <link rel="stylesheet" href="css/projects.css?v=5300">
     <link rel="stylesheet" href="css/giri-vision.css?v=3600">
@@ -1208,10 +1209,36 @@
     <script src="js/modules/canvases/galaxie-view.js?v=3502"></script>
 
     <!-- GALAXY COSMIC v3.1 PHASE 2 - L'Univers Vivant - TOUT FONCTIONNEL -->
-    <script src="js/galaxy-cosmic.js?v=3557"></script>
+    <script src="js/galaxy-cosmic.js?v=3560"></script>
+    <script src="js/galaxy-cosmic-persistence.js?v=2"></script>
+    <script src="js/galaxy-cosmic-projects-ui.js?v=2"></script>
     <script src="js/galaxy-cosmic-history.js?v=3555"></script>
     <script src="js/galaxy-cosmic-shapes.js?v=3562"></script>
-    <script src="js/galaxy-cosmic-ui.js?v=3557"></script>
+    <script src="js/galaxy-cosmic-ui.js?v=3568"></script>
+    <script>
+    // Auto-init Cosmic Projects
+    (function() {
+        var initDone = false;
+        function tryInit() {
+            if (initDone) return;
+            var btn = document.getElementById('galaxy-save-btn');
+            if (!btn || typeof CosmicPersistence === 'undefined' || typeof CosmicProjectsUI === 'undefined') return;
+            initDone = true;
+            console.log('🔌 Cosmic Projects: auto-init triggered');
+            CosmicProjectsUI.init();
+            if (!CosmicPersistence.currentProjectId) {
+                CosmicPersistence.init().then(function(result) {
+                    console.log('🚀 Cosmic Projects:', result.action, result.name || '');
+                });
+            }
+        }
+        // Polling permanent toutes les 500ms - ne s'arrête que quand init réussit
+        setInterval(function() { tryInit(); }, 500);
+        // Aussi sur hashchange et load
+        window.addEventListener('load', tryInit);
+        window.addEventListener('hashchange', function() { setTimeout(tryInit, 300); });
+    })();
+    </script>
 
     <!-- FinScan Accounting Module v3.0 -->
     <script src="js/modules/accounting/acc-state.js?v=1900"></script>

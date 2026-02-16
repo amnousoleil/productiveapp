@@ -648,14 +648,11 @@ class RadialMenu {
         this.active = false;
         this.targetNode = null;
         this.items = [
+            { id: 'lock', icon: '🔒', label: 'Verrouiller', shortcut: 'Ctrl+L' },
+            { id: 'color', icon: '🎨', label: 'Couleur', shortcut: 'Alt+C' },
             { id: 'duplicate', icon: '📋', label: 'Dupliquer', shortcut: 'Ctrl+D' },
             { id: 'delete', icon: '🗑️', label: 'Supprimer', shortcut: 'Del' },
-            { id: 'copy', icon: '📄', label: 'Copier', shortcut: 'Ctrl+C' },
             { id: 'text', icon: 'T', label: 'Texte', shortcut: 'T' },
-            { id: 'link', icon: '🔗', label: 'Lier', shortcut: 'L' },
-            { id: 'color', icon: '🎨', label: 'Couleur', shortcut: 'Alt+C' },
-            { id: 'lock', icon: '🔒', label: 'Verrouiller', shortcut: 'Ctrl+L' },
-            { id: 'group', icon: '📦', label: 'Grouper', shortcut: 'Ctrl+G' },
         ];
         this.init();
     }
@@ -669,10 +666,10 @@ class RadialMenu {
         const menu = document.createElement('div');
         menu.className = 'cosmic-radial-menu';
 
-        // Centre
+        // Centre (hidden, kept in DOM for color submenu back-button logic)
         const center = document.createElement('div');
         center.className = 'radial-center';
-        center.textContent = '✨';
+        center.style.display = 'none';
         menu.appendChild(center);
 
         // Items
@@ -680,7 +677,11 @@ class RadialMenu {
             const btn = document.createElement('button');
             btn.className = 'radial-item';
             btn.dataset.action = item.id;
-            btn.textContent = item.icon;
+            if (item.isSvg) {
+                btn.innerHTML = item.icon;
+            } else {
+                btn.textContent = item.icon;
+            }
 
             btn.title = `${item.label} (${item.shortcut})`;
 
@@ -733,9 +734,66 @@ class RadialMenu {
     show(x, y) {
         this.lastX = x;
         this.lastY = y;
-        this.element.style.left = x + 'px';
-        this.element.style.top = y + 'px';
+        const mw = this.element.offsetWidth || 220;
+        const mh = this.element.offsetHeight || 220;
+        this.element.style.left = (x - mw / 2) + 'px';
+        this.element.style.top = (y - mh / 2) + 'px';
         this.updateLockButton();
+
+        // Menu center is now on cursor — arc opens downward-right (away from typical mouse approach)
+        const arcCenter = Math.PI / 4; // 45° = down-right
+
+        // Position items on a 120° arc, radius 100px (gap ~8px between 44px buttons)
+        const RADIUS = 100;
+        const ARC = 120 * Math.PI / 180; // 120° in radians
+        const count = this.items.length;
+        const btns = this.element.querySelectorAll('.radial-item');
+
+        btns.forEach((btn, i) => {
+            // Spread from -75° to +75° around arcCenter
+            const angle = arcCenter + (i / (count - 1) - 0.5) * ARC;
+            const tx = Math.cos(angle) * RADIUS;
+            const ty = Math.sin(angle) * RADIUS;
+
+            // Reset to center first (for re-opening in new direction)
+            btn.style.transform = 'translate(0, 0) scale(0)';
+            btn.style.opacity = '0';
+            btn.style.transition = 'none';
+            // Store target position for hover
+            btn.dataset.tx = Math.round(tx);
+            btn.dataset.ty = Math.round(ty);
+
+            // Trigger reflow then animate to position with stagger
+            requestAnimationFrame(() => {
+                const delay = i * 40;
+                btn.style.transition = `transform 0.2s cubic-bezier(0.2, 1, 0.3, 1) ${delay}ms, opacity 0.2s ease ${delay}ms`;
+                btn.style.transform = `translate(${Math.round(tx)}px, ${Math.round(ty)}px) scale(1)`;
+                btn.style.opacity = '1';
+            });
+        });
+
+        // Hover scale handlers
+        this._hoverIn = this._hoverIn || ((e) => {
+            const btn = e.currentTarget;
+            const tx = btn.dataset.tx, ty = btn.dataset.ty;
+            btn.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+            btn.style.transform = `translate(${tx}px, ${ty}px) scale(1.15)`;
+            btn.style.boxShadow = '0 6px 20px rgba(0,0,0,0.45)';
+        });
+        this._hoverOut = this._hoverOut || ((e) => {
+            const btn = e.currentTarget;
+            const tx = btn.dataset.tx, ty = btn.dataset.ty;
+            btn.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+            btn.style.transform = `translate(${tx}px, ${ty}px) scale(1)`;
+            btn.style.boxShadow = '';
+        });
+        btns.forEach(btn => {
+            btn.removeEventListener('mouseenter', this._hoverIn);
+            btn.removeEventListener('mouseleave', this._hoverOut);
+            btn.addEventListener('mouseenter', this._hoverIn);
+            btn.addEventListener('mouseleave', this._hoverOut);
+        });
+
         this.element.classList.add('active');
         this.active = true;
     }
@@ -749,6 +807,16 @@ class RadialMenu {
     }
 
     hide() {
+        // Reverse stagger close: last item disappears first
+        const btns = this.element.querySelectorAll('.radial-item');
+        const count = btns.length;
+        btns.forEach((btn, i) => {
+            const delay = (count - 1 - i) * 40;
+            btn.style.transition = `transform 0.15s ease-in ${delay}ms, opacity 0.15s ease-in ${delay}ms`;
+            btn.style.transform = 'translate(0, 0) scale(0.8)';
+            btn.style.opacity = '0';
+        });
+
         this.element.classList.remove('active');
         this.active = false;
         if (this._colorMode) this.hideColorSubmenu();
@@ -779,7 +847,7 @@ class RadialMenu {
         if (!node) return;
         node.locked = !node.locked;
         if (window.CosmicHistory) window.CosmicHistory.save();
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         console.log(node.locked ? '🔒 Forme verrouillée' : '🔓 Forme déverrouillée', node.id);
     }
 
@@ -795,8 +863,9 @@ class RadialMenu {
         // Hide regular items
         this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = 'none');
 
-        // Change center to back arrow
+        // Show center as back arrow for color submenu
         const center = this.element.querySelector('.radial-center');
+        center.style.display = '';
         this._centerOriginal = center.textContent;
         center.textContent = '←';
         center.style.cursor = 'pointer';
@@ -828,7 +897,7 @@ class RadialMenu {
                 e.stopPropagation();
                 node.color = color;
                 if (window.CosmicHistory) window.CosmicHistory.save();
-                if (typeof debouncedSave === 'function') debouncedSave();
+                if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
                 self.hide();
             });
 
@@ -860,9 +929,10 @@ class RadialMenu {
         // Show regular items
         this.element.querySelectorAll('.radial-item').forEach(el => el.style.display = '');
 
-        // Restore center
+        // Hide center again
         const center = this.element.querySelector('.radial-center');
-        center.textContent = this._centerOriginal || '✨';
+        center.style.display = 'none';
+        center.textContent = '';
         center.style.cursor = '';
         if (this._centerBackHandler) {
             center.removeEventListener('click', this._centerBackHandler);
@@ -906,7 +976,7 @@ class RadialMenu {
             node.text = input.value.trim();
             input.remove();
             if (window.CosmicHistory) window.CosmicHistory.save();
-            if (typeof debouncedSave === 'function') debouncedSave();
+            if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         };
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); commit(); }
@@ -938,7 +1008,7 @@ class RadialMenu {
         CosmicState.selectedNodes.add(clone);
 
         if (window.CosmicHistory) window.CosmicHistory.save();
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         console.log('📋 Forme dupliquée:', clone.id);
     }
 
@@ -961,7 +1031,7 @@ class RadialMenu {
         if (window.CosmicHistory) window.CosmicHistory.save();
 
         // Trigger backend save if available
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
 
         this.targetNode = null;
         console.log('🗑️ Forme supprimée:', node.id);
@@ -1081,7 +1151,7 @@ class TextToolbar {
 
     _saveState() {
         if (window.CosmicHistory) window.CosmicHistory.save();
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
     }
 
     pickColor() {
@@ -1102,7 +1172,7 @@ class TextToolbar {
         tb.openColorPickerAt(rect.left + rect.width / 2, rect.top - 10, (color) => {
             node.textColor = color;
             if (window.CosmicHistory) window.CosmicHistory.save();
-            if (typeof debouncedSave === 'function') debouncedSave();
+            if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         });
     }
 
@@ -1111,7 +1181,7 @@ class TextToolbar {
         this._node.text = '';
         this.hide();
         if (window.CosmicHistory) window.CosmicHistory.save();
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
     }
 }
 

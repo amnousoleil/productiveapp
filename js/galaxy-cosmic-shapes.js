@@ -319,7 +319,7 @@ class ShapeInteraction {
         if (this.isDraggingGroup) {
             if (window.CosmicHistory) window.CosmicHistory.save();
             if (this._altCloned) {
-                if (typeof debouncedSave === 'function') debouncedSave();
+                if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
                 this._altCloned = false;
             }
             this.isDraggingGroup = false;
@@ -350,7 +350,7 @@ class ShapeInteraction {
         if (this.isDraggingNode) {
             if (window.CosmicHistory) window.CosmicHistory.save();
             if (this._altCloned) {
-                if (typeof debouncedSave === 'function') debouncedSave();
+                if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
                 this._altCloned = false;
             }
             this.isDraggingNode = false;
@@ -418,7 +418,7 @@ document.addEventListener('keydown', (e) => {
     }
     if (deleted > 0) {
         if (window.CosmicHistory) window.CosmicHistory.save();
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
     }
 });
 
@@ -436,7 +436,7 @@ document.addEventListener('keydown', (e) => {
         CosmicState.strokes = [];
         CosmicState.selectedNodes.clear();
         if (window.CosmicHistory) window.CosmicHistory.save();
-        if (typeof debouncedSave === 'function') debouncedSave();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         console.log('🗑️ Canvas effacé');
     });
 })();

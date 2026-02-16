@@ -720,65 +720,147 @@ class CosmicRenderer {
         });
     }
 
+    // Edge anchor: compute point on node border closest to target (tx,ty) in world coords
+    _edgeAnchor(node, tx, ty, zoom) {
+        const dx = tx - node.x, dy = ty - node.y;
+        const angle = Math.atan2(dy, dx);
+        const r = node.radius;
+        let ex, ey;
+        if (node.shape === 'rect') {
+            const hw = r * 0.8, hh = r * 0.6;
+            const absCos = Math.abs(Math.cos(angle)), absSin = Math.abs(Math.sin(angle));
+            const scale = Math.min(hw / (absCos || 1e-6), hh / (absSin || 1e-6));
+            ex = Math.cos(angle) * scale;
+            ey = Math.sin(angle) * scale;
+        } else if (node.shape === 'diamond') {
+            // |x/r| + |y/r| = 1 → scale along angle
+            const absCos = Math.abs(Math.cos(angle)), absSin = Math.abs(Math.sin(angle));
+            const scale = r / (absCos + absSin || 1);
+            ex = Math.cos(angle) * scale;
+            ey = Math.sin(angle) * scale;
+        } else {
+            // circle, hexagon, star — approximate as circle
+            ex = Math.cos(angle) * r;
+            ey = Math.sin(angle) * r;
+        }
+        return { x: ex, y: ey };
+    }
+
     renderConnections(ctx, camera, time) {
         const { x: camX, y: camY, zoom } = camera;
+        const hw = ctx.canvas.width / 2, hh = ctx.canvas.height / 2;
         const desert = this.background.skin === 'desert';
-        const prevCol = desert ? 'rgba(120,70,20,0.6)' : 'rgba(96,165,250,0.5)';
-        // Metallic white tubes (both skins), fully opaque
-        const hi = '#ffffff', mid = '#b0b8c4', lo = '#5a6270';
-        const dHi = '#ffffff', dLo = '#7a8494';
+        const lineColor = desert ? '#000000' : '#ffffff';
+        const hoverColor = desert ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)';
+        const prevCol = desert ? 'rgba(0,0,0,0.4)' : 'rgba(255,255,255,0.4)';
         const nodeMap = {};
         CosmicState.nodes.forEach(n => { nodeMap[n.id] = n; });
 
-        CosmicState.connections.forEach(conn => {
+        // Anti-aliasing (enabled by default on canvas, ensure not disabled)
+        ctx.imageSmoothingEnabled = true;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        const ARROW = 8;
+        const mouseX = CosmicState.mouse.x, mouseY = CosmicState.mouse.y;
+
+        // Detect hovered connection (10px tolerance)
+        let hoveredIdx = -1;
+        const HOVER_DIST = 10;
+
+        CosmicState.connections.forEach((conn, idx) => {
             const from = nodeMap[conn.fromId], to = nodeMap[conn.toId];
             if (!from || !to) return;
-            const x1 = (from.x - camX) * zoom + ctx.canvas.width / 2;
-            const y1 = (from.y - camY) * zoom + ctx.canvas.height / 2;
-            const x2 = (to.x - camX) * zoom + ctx.canvas.width / 2;
-            const y2 = (to.y - camY) * zoom + ctx.canvas.height / 2;
-            const w1 = Math.max(1, Math.min(10, from.radius * zoom * 0.08));
-            const w2 = Math.max(1, Math.min(10, to.radius * zoom * 0.08));
+
+            // Edge anchors (world coords offset from node center)
+            const ea1 = this._edgeAnchor(from, to.x, to.y, zoom);
+            const ea2 = this._edgeAnchor(to, from.x, from.y, zoom);
+            const x1 = (from.x + ea1.x - camX) * zoom + hw;
+            const y1 = (from.y + ea1.y - camY) * zoom + hh;
+            const x2 = (to.x + ea2.x - camX) * zoom + hw;
+            const y2 = (to.y + ea2.y - camY) * zoom + hh;
+
+            // Bézier control points — curvature scales with distance, flat when close
             const dx = x2 - x1, dy = y2 - y1;
-            const len = Math.hypot(dx, dy) || 1;
-            const nx = -dy / len, ny = dx / len;
-            // Trapezoid path
+            const dist = Math.hypot(dx, dy) || 1;
+            const curve = Math.min(dist * 0.12, 60); // cap curvature
+            const absDx = Math.abs(dx), absDy = Math.abs(dy);
+            let cpx1, cpy1, cpx2, cpy2;
+            if (absDx >= absDy) {
+                cpx1 = x1 + dx * 0.33; cpy1 = y1 - curve;
+                cpx2 = x1 + dx * 0.66; cpy2 = y2 - curve;
+            } else {
+                cpx1 = x1 + curve; cpy1 = y1 + dy * 0.33;
+                cpx2 = x2 + curve; cpy2 = y1 + dy * 0.66;
+            }
+
+            // Hover detection: sample 10 points on bezier, check min distance to mouse
+            if (hoveredIdx < 0) {
+                for (let t = 0; t <= 1; t += 0.1) {
+                    const it = 1 - t;
+                    const bx = it*it*it*x1 + 3*it*it*t*cpx1 + 3*it*t*t*cpx2 + t*t*t*x2;
+                    const by = it*it*it*y1 + 3*it*it*t*cpy1 + 3*it*t*t*cpy2 + t*t*t*y2;
+                    if (Math.hypot(bx - mouseX, by - mouseY) < HOVER_DIST) {
+                        hoveredIdx = idx; break;
+                    }
+                }
+            }
+
+            // Store computed data for drawing pass
+            conn._draw = { x1, y1, x2, y2, cpx1, cpy1, cpx2, cpy2 };
+        });
+
+        // Store for external use (cursor change etc.)
+        CosmicState._hoveredConnIdx = hoveredIdx;
+
+        // Draw pass
+        CosmicState.connections.forEach((conn, idx) => {
+            if (!conn._draw) return;
+            const { x1, y1, x2, y2, cpx1, cpy1, cpx2, cpy2 } = conn._draw;
+            const hovered = idx === hoveredIdx;
+
+            ctx.strokeStyle = hovered ? hoverColor : lineColor;
+            ctx.lineWidth = hovered ? 2.5 : 1.5;
+
+            // Curve
             ctx.beginPath();
-            ctx.moveTo(x1 + nx * w1, y1 + ny * w1);
-            ctx.lineTo(x2 + nx * w2, y2 + ny * w2);
-            ctx.lineTo(x2 - nx * w2, y2 - ny * w2);
-            ctx.lineTo(x1 - nx * w1, y1 - ny * w1);
+            ctx.moveTo(x1, y1);
+            ctx.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, x2, y2);
+            ctx.stroke();
+
+            // Arrow at destination, following tangent at t=1: 3*(P3-P2)
+            const tx = 3 * (x2 - cpx2), ty = 3 * (y2 - cpy2);
+            const tLen = Math.hypot(tx, ty) || 1;
+            const ux = tx / tLen, uy = ty / tLen;
+            const px = -uy, py = ux;
+            ctx.fillStyle = hovered ? hoverColor : lineColor;
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 - ux * ARROW + px * ARROW * 0.4, y2 - uy * ARROW + py * ARROW * 0.4);
+            ctx.lineTo(x2 - ux * ARROW - px * ARROW * 0.4, y2 - uy * ARROW - py * ARROW * 0.4);
             ctx.closePath();
-            // Metallic gradient perpendicular to tube, light from top
-            const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-            const gw = Math.max(w1, w2);
-            const s = ny <= 0 ? 1 : -1; // +normal faces up when ny<=0
-            const grad = ctx.createLinearGradient(
-                mx + nx * gw * s, my + ny * gw * s,
-                mx - nx * gw * s, my - ny * gw * s
-            );
-            grad.addColorStop(0, hi); grad.addColorStop(0.4, mid);
-            grad.addColorStop(0.7, mid); grad.addColorStop(1, lo);
-            ctx.fillStyle = grad; ctx.fill();
-            // Metallic rivet dots (radial gradient)
-            [[ x1, y1, w1 ], [ x2, y2, w2 ]].forEach(([cx, cy, w]) => {
-                const r = w + 1;
-                const dg = ctx.createRadialGradient(cx - r * 0.3, cy - r * 0.3, 0, cx, cy, r);
-                dg.addColorStop(0, dHi); dg.addColorStop(1, dLo);
-                ctx.fillStyle = dg;
-                ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill();
-            });
+            ctx.fill();
+
+            conn._draw = null; // free
         });
 
         // Preview line from pending connector to mouse
         const si = window.CosmicShapeInteraction;
         if (si && si.pendingConnFrom && CosmicState.currentTool === 'connector') {
             const from = si.pendingConnFrom;
-            const fx = (from.x - camX) * zoom + ctx.canvas.width / 2;
-            const fy = (from.y - camY) * zoom + ctx.canvas.height / 2;
+            const ea = this._edgeAnchor(from, (mouseX - hw) / zoom + camX, (mouseY - hh) / zoom + camY, zoom);
+            const fx = (from.x + ea.x - camX) * zoom + hw;
+            const fy = (from.y + ea.y - camY) * zoom + hh;
+            const mx = mouseX, my = mouseY;
+            const pdx = mx - fx, pdy = my - fy;
+            const pDist = Math.hypot(pdx, pdy) || 1;
+            const pCurve = Math.min(pDist * 0.12, 60);
             ctx.beginPath(); ctx.moveTo(fx, fy);
-            ctx.lineTo(CosmicState.mouse.x, CosmicState.mouse.y);
-            ctx.strokeStyle = prevCol; ctx.lineWidth = 2;
+            if (Math.abs(pdx) >= Math.abs(pdy)) {
+                ctx.bezierCurveTo(fx + pdx * 0.33, fy - pCurve, fx + pdx * 0.66, my - pCurve, mx, my);
+            } else {
+                ctx.bezierCurveTo(fx + pCurve, fy + pdy * 0.33, mx + pCurve, fy + pdy * 0.66, mx, my);
+            }
+            ctx.strokeStyle = prevCol; ctx.lineWidth = 1.5;
             ctx.setLineDash([6, 4]); ctx.stroke(); ctx.setLineDash([]);
         }
     }
@@ -909,6 +991,8 @@ function initGalaxyCosmic() {
     _cosmicInitialized = true;
     if (window.CosmicHistory) window.CosmicHistory.save(); // initial snapshot
     console.log('✨ Galaxy Cosmic initialisée');
+
+    // Projets Cosmic: init géré par auto-init dans galaxy-cosmic-projects-ui.js
 }
 
 function setupEventListeners() {
