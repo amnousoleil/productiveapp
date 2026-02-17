@@ -144,13 +144,6 @@ class CosmicToolbar {
                 </svg>
             </button>
 
-            <button class="cosmic-btn" data-tool="sticky" title="Post-it (S)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8l-5-5z"/>
-                    <polyline points="16 3 16 8 21 8"/>
-                </svg>
-            </button>
-
             <div class="cosmic-separator"></div>
 
             <button class="cosmic-btn" data-action="undo" title="Annuler (Ctrl+Z)">
@@ -1466,6 +1459,116 @@ function initCosmicUI() {
 window.initCosmicUI = initCosmicUI;
 
 console.log('📦 galaxy-cosmic-ui.js chargé - UI en attente (init manuel)');
+
+// ── Export PNG haute résolution (bouton top toolbar) ──
+(function() {
+    var EXPORT_SCALE = 3; // 3x resolution for crisp export
+
+    function buildFilename() {
+        var name = 'galaxy-view';
+        if (typeof CosmicPersistence !== 'undefined' && CosmicPersistence.currentProjectName) {
+            name = 'galaxy-view-' + CosmicPersistence.currentProjectName
+                .replace(/[^a-zA-Z0-9àâéèêëïîôùûüÿçæœ _-]/g, '')
+                .replace(/\s+/g, '-')
+                .substring(0, 60);
+        }
+        return name + '.png';
+    }
+
+    function downloadBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function exportHiResPNG() {
+        var srcCanvas = CosmicState && CosmicState.canvas;
+        var renderer = window.GalaxyCosmic && window.GalaxyCosmic._renderer;
+        if (!srcCanvas || !renderer) {
+            console.warn('❌ PNG: no canvas or renderer');
+            return;
+        }
+
+        var origW = srcCanvas.width;
+        var origH = srcCanvas.height;
+        var camera = CosmicState.camera;
+        var origZoom = camera.zoom;
+        var origCtx = CosmicState.ctx;
+        var scale = EXPORT_SCALE;
+
+        try {
+            // 1. Create hi-res offscreen canvas
+            var offscreen = document.createElement('canvas');
+            offscreen.width = origW * scale;
+            offscreen.height = origH * scale;
+            var offCtx = offscreen.getContext('2d');
+
+            // 2. Temporarily swap state to offscreen
+            CosmicState.canvas = offscreen;
+            CosmicState.ctx = offCtx;
+            camera.zoom = origZoom * scale;
+
+            // 3. Render background (re-render at hi-res)
+            var bgCache = renderer._bgCache;
+            var origBgW = bgCache.width;
+            var origBgH = bgCache.height;
+            bgCache.width = offscreen.width;
+            bgCache.height = offscreen.height;
+            renderer._bgCacheCtx = bgCache.getContext('2d');
+            renderer.background.render(renderer._bgCacheCtx, camera, 16);
+            offCtx.drawImage(bgCache, 0, 0);
+
+            // 4. Render content layers at hi-res
+            var now = Date.now();
+            renderer.renderGrid(offCtx, camera);
+            renderer.renderConnections(offCtx, camera, now);
+            renderer.renderStrokes(offCtx, camera);
+            renderer.renderNodes(offCtx, camera, now);
+            // Skip resize handles, marquee, UI overlays for clean export
+
+            // 5. Restore original state BEFORE async toBlob
+            CosmicState.canvas = srcCanvas;
+            CosmicState.ctx = origCtx;
+            camera.zoom = origZoom;
+            bgCache.width = origBgW;
+            bgCache.height = origBgH;
+            renderer._bgCacheCtx = bgCache.getContext('2d');
+            renderer._bgFrame = 0; // force bg cache refresh next frame
+
+            // 6. Export offscreen canvas to PNG
+            var filename = buildFilename();
+            offscreen.toBlob(function(blob) {
+                if (!blob) { console.error('❌ PNG: toBlob null'); return; }
+                downloadBlob(blob, filename);
+                console.log('📸 PNG HD exporté:', filename,
+                    '(' + offscreen.width + '×' + offscreen.height + ', ' + scale + 'x)');
+            }, 'image/png');
+
+        } catch (e) {
+            // Restore on error
+            CosmicState.canvas = srcCanvas;
+            CosmicState.ctx = origCtx;
+            camera.zoom = origZoom;
+            console.error('❌ PNG export error:', e);
+        }
+    }
+
+    function wireExportPNG() {
+        var btn = document.getElementById('galaxy-export-png-btn');
+        if (!btn) return;
+        btn.addEventListener('click', exportHiResPNG);
+        console.log('📸 Export PNG HD (' + EXPORT_SCALE + 'x) button wired');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', wireExportPNG);
+    } else {
+        wireExportPNG();
+    }
+})();
 
 // ── Branchement Cosmic Projects ──
 setTimeout(function() {

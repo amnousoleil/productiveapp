@@ -286,8 +286,8 @@ const CosmicProjectsUI = (function () {
         if (!name || !name.trim()) return;
         name = name.trim();
 
-        // Save current if dirty
-        if (CosmicPersistence.isDirty && CosmicPersistence.currentProjectId) {
+        // Always save current project before creating a new one
+        if (CosmicPersistence.currentProjectId) {
             await CosmicPersistence.save();
         }
 
@@ -354,7 +354,8 @@ const CosmicProjectsUI = (function () {
         init: init,
         open: open,
         close: close,
-        toggle: toggle
+        toggle: toggle,
+        createProject: _handleCreate
     };
 
 })();

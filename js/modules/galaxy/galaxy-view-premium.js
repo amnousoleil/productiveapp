@@ -8,7 +8,7 @@ const GalaxyViewPremium = (function() {
 
     // === STATE ===
     let initialized = false;
-    let currentTool = 'select'; // select, pen, shapes, text, connector, sticky
+    let currentTool = 'select'; // select, pen, shapes, text, connector
     let currentPanel = null; // Panneau latéral actif
     let selectedElements = [];
     let canvas, ctx;
@@ -75,17 +75,6 @@ const GalaxyViewPremium = (function() {
                 <line x1="15.7" y1="6.7" x2="8.3" y2="10.3"/>
             </svg>`,
             shortcut: 'L',
-            hasPanel: true
-        },
-        sticky: {
-            id: 'sticky',
-            name: 'Post-it',
-            icon: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                <polyline points="16 3 21 3 21 8"/>
-                <line x1="21" y1="3" x2="10" y2="14"/>
-            </svg>`,
-            shortcut: 'N',
             hasPanel: true
         },
         hand: {
@@ -353,7 +342,6 @@ const GalaxyViewPremium = (function() {
                 break;
             case 'shapes':
             case 'text':
-            case 'sticky':
                 canvas.style.cursor = 'crosshair';
                 break;
             case 'connector':
@@ -390,9 +378,6 @@ const GalaxyViewPremium = (function() {
                 break;
             case 'connector':
                 content = renderConnectorPanel();
-                break;
-            case 'sticky':
-                content = renderStickyPanel();
                 break;
             case 'layers':
                 content = renderLayersPanel();
@@ -699,46 +684,6 @@ const GalaxyViewPremium = (function() {
                         <button class="galaxy-prop-btn secondary">Solide</button>
                         <button class="galaxy-prop-btn secondary">Pointillé</button>
                     </div>
-                </div>
-            </div>
-        `;
-    }
-
-    function renderStickyPanel() {
-        return `
-            <div class="galaxy-panel-header">
-                <h3 class="galaxy-panel-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 3 21 3 21 8"/>
-                    </svg>
-                    Post-it
-                </h3>
-                <p class="galaxy-panel-subtitle">Notes adhésives</p>
-                <button class="galaxy-panel-close">✕</button>
-            </div>
-            <div class="galaxy-panel-content">
-                <div class="galaxy-prop-section">
-                    <label class="galaxy-prop-label">Couleur du post-it</label>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-                        <button class="galaxy-color-swatch active" style="background: #fef3c7"></button>
-                        <button class="galaxy-color-swatch" style="background: #dbeafe"></button>
-                        <button class="galaxy-color-swatch" style="background: #fecaca"></button>
-                        <button class="galaxy-color-swatch" style="background: #d9f99d"></button>
-                        <button class="galaxy-color-swatch" style="background: #fed7aa"></button>
-                        <button class="galaxy-color-swatch" style="background: #e9d5ff"></button>
-                        <button class="galaxy-color-swatch" style="background: #fce7f3"></button>
-                        <button class="galaxy-color-swatch" style="background: #ccfbf1"></button>
-                    </div>
-                </div>
-
-                <div class="galaxy-prop-section">
-                    <label class="galaxy-prop-label">Taille de police</label>
-                    <input type="range" class="galaxy-prop-slider" min="10" max="24" value="14">
-                </div>
-
-                <div class="galaxy-prop-section">
-                    <button class="galaxy-prop-btn">Créer post-it</button>
                 </div>
             </div>
         `;

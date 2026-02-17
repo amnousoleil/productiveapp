@@ -318,6 +318,11 @@ const PromptForgeUI = (function() {
             PromptForgeDialogue.attachEvents(render, showPFToast);
         }
 
+    // Examples events
+    if (PromptForgeExamples && currentView === 'examples') {
+        PromptForgeExamples.attachEvents(render);
+    }
+
         // Library selection
         document.querySelectorAll('.pf-select-all').forEach(cb => {
             cb.addEventListener('change', () => {

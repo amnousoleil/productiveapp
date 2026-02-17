@@ -129,6 +129,8 @@ const ViewRouter = (function() {
 
         // Toggle galaxy-active class on body (hides Pomodoro etc.)
         document.body.classList.toggle('galaxy-active', viewId === 'galaxy');
+        // Also on <html> so CSS can override the html scrollbar in Galaxy View
+        document.documentElement.classList.toggle('galaxy-active', viewId === 'galaxy');
 
         // Pause/resume matrix background animation for Galaxy View
         if (window.AnimEngine) {
