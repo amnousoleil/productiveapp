@@ -1,0 +1,496 @@
+/**
+ * RESPONSIVE CSS - ProductiveApp v5.0
+ * Complete mobile-first responsive design
+ * Breakpoints: 768px (tablet), 480px (mobile)
+ */
+
+/* ===== MOBILE BOTTOM NAV ===== */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--surface, #1e1e2e);
+    border-top: 1px solid var(--border, #333);
+    z-index: 9999;
+    padding: 0 4px env(safe-area-inset-bottom, 0);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.mobile-nav-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 12px;
+    background: none;
+    border: none;
+    color: var(--text-secondary, #888);
+    font-size: 10px;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 56px;
+}
+
+.mobile-nav-item svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.8;
+    transition: all 0.2s;
+}
+
+.mobile-nav-item.active {
+    color: var(--accent, #8b5cf6);
+}
+
+.mobile-nav-item.active svg {
+    stroke-width: 2.2;
+}
+
+.mobile-nav-item:active {
+    transform: scale(0.9);
+}
+
+.mobile-nav-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent, #8b5cf6);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.mobile-nav-item.active .mobile-nav-dot {
+    opacity: 1;
+}
+
+/* ===== TABLET (< 1024px) ===== */
+@media (max-width: 1024px) {
+    .tasks-view.columns-view {
+        gap: 12px;
+    }
+
+    .task-column {
+        min-width: 260px;
+    }
+
+    .skeleton-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ===== TABLET PORTRAIT (< 768px) ===== */
+@media (max-width: 768px) {
+    /* Sidebar: hidden by default, overlay on toggle */
+    #app-sidebar {
+        transform: translateX(-100%);
+        position: fixed !important;
+        z-index: 10000;
+        width: 280px !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #app-sidebar.mobile-open {
+        transform: translateX(0);
+    }
+
+    .sidebar-mobile-overlay.active {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+    }
+
+    .sidebar-mobile-toggle {
+        display: flex !important;
+    }
+
+    /* Main content: full width */
+    .main-content {
+        margin-left: 0 !important;
+        padding-bottom: 72px; /* Space for bottom nav */
+        width: 100% !important;
+    }
+
+    /* Show mobile bottom nav */
+    .mobile-bottom-nav {
+        display: block;
+    }
+
+    /* App header: compact */
+    .app-header {
+        padding: 8px 12px;
+        flex-wrap: nowrap;
+    }
+
+    .app-title {
+        font-size: 16px;
+    }
+
+    .user-badge .user-name {
+        display: none;
+    }
+
+    /* Project dropdown inside filter bar */
+    .pf-name { max-width: 100px; overflow: hidden; text-overflow: ellipsis; }
+    .pf-count { display: none; }
+    .filter-sep { display: none; }
+    .add-project-btn { display: none; }
+    .project-dropdown-list {
+        min-width: 240px;
+        max-width: calc(100vw - 40px);
+    }
+
+    /* User filter bar: compact */
+    .user-filter-bar {
+        padding: 4px 8px;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .user-filter-bar label {
+        display: none;
+    }
+
+    /* Task input: stack vertically */
+    .task-input-section {
+        flex-direction: column;
+        gap: 8px;
+        padding: 8px 12px;
+    }
+
+    .task-input-section input[type="text"] {
+        width: 100%;
+    }
+
+    .task-input-section select {
+        width: 100%;
+    }
+
+    .task-input-section .btn-primary {
+        width: 100%;
+        padding: 12px;
+    }
+
+    /* Tasks: single column */
+    .tasks-view.columns-view {
+        flex-direction: column;
+        gap: 16px;
+        padding: 0 8px;
+    }
+
+    .task-column {
+        min-width: 100%;
+    }
+
+    /* Journal section: compact */
+    .journal-input-row {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .journal-input-row input,
+    .journal-input-row select,
+    .journal-input-row button {
+        width: 100%;
+    }
+
+    /* Notes: full width */
+    .notes-container {
+        flex-direction: column;
+    }
+
+    .notes-sidebar {
+        width: 100% !important;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .notes-editor {
+        width: 100% !important;
+    }
+
+    /* Accounting: responsive */
+    .acc-wrapper {
+        padding: 8px;
+    }
+
+    .acc-dashboard-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .acc-contacts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Galaxy: hide toolbar extras */
+    .galaxy-toolbar-sep,
+    #galaxy-toggle-orbits,
+    #galaxy-toggle-autorotate {
+        display: none;
+    }
+
+    /* Reports: single column */
+    .reports-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Settings: full width sections */
+    .settings-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Messaging: full width */
+    .messaging-container {
+        flex-direction: column;
+    }
+
+    .messaging-sidebar {
+        width: 100% !important;
+        max-height: 250px;
+    }
+
+    .messaging-main {
+        width: 100% !important;
+    }
+
+    /* Breadcrumb: smaller */
+    .breadcrumb-bar {
+        padding: 4px 12px 0;
+    }
+
+    .breadcrumb {
+        font-size: 11px;
+    }
+
+    /* Quick Add: full width */
+    .quick-add-modal {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        bottom: 72px !important; /* Above bottom nav */
+    }
+
+    /* Command Palette: full width */
+    .command-palette-modal,
+    .global-search-modal {
+        width: 95vw !important;
+        max-width: 95vw !important;
+        margin-top: 20px !important;
+    }
+
+    /* Pomodoro: smaller */
+    .pomodoro-widget {
+        bottom: 76px !important; /* Above bottom nav */
+    }
+
+    /* Psycho-audit: responsive */
+    .questionnaire,
+    .results {
+        padding: 12px;
+    }
+
+    .axis-group {
+        margin-bottom: 16px;
+    }
+
+    /* Analytics: single column */
+    .analytics-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Calendar: compact */
+    .calendar-grid {
+        font-size: 12px;
+    }
+
+    .calendar-day {
+        min-height: 60px;
+        padding: 2px;
+    }
+
+    /* Gamification: responsive */
+    .gamification-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Theme modal: full screen */
+    .theme-modal {
+        width: 95vw !important;
+        max-height: 85vh !important;
+    }
+
+    /* Toast: full width */
+    .toast-container {
+        right: 8px !important;
+        left: 8px !important;
+        top: 8px !important;
+    }
+
+    .toast {
+        width: 100% !important;
+    }
+}
+
+/* ===== MOBILE SMALL (< 480px) ===== */
+@media (max-width: 480px) {
+    .app-header {
+        padding: 6px 8px;
+    }
+
+    .app-title {
+        font-size: 14px;
+    }
+
+    .header-right .menu-container {
+        margin-left: 4px;
+    }
+
+    .galaxy-icon-container {
+        display: none;
+    }
+
+    .project-dropdown { display: none; }
+    .add-project-btn { display: none; }
+
+    .task-item {
+        padding: 10px;
+    }
+
+    .task-item .task-title {
+        font-size: 13px;
+    }
+
+    .empty-state-title {
+        font-size: 16px;
+    }
+
+    .empty-state-subtitle {
+        font-size: 12px;
+    }
+
+    /* Score badge in psycho-audit */
+    .score-badge {
+        width: 100px;
+        height: 100px;
+    }
+
+    .score-value {
+        font-size: 32px;
+    }
+
+    /* Compact cards */
+    .dashboard-card,
+    .analytics-card,
+    .report-card {
+        padding: 12px;
+    }
+
+    /* Breadcrumb: hide on very small */
+    .breadcrumb-bar {
+        display: none;
+    }
+}
+
+/* ===== LANDSCAPE PHONE ===== */
+@media (max-height: 500px) and (orientation: landscape) {
+    .mobile-bottom-nav {
+        height: 48px;
+    }
+
+    .mobile-nav-item {
+        font-size: 9px;
+    }
+
+    .mobile-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .main-content {
+        padding-bottom: 56px;
+    }
+}
+
+/* ===== SAFE AREA (notched phones) ===== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .mobile-bottom-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+        height: calc(64px + env(safe-area-inset-bottom));
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            padding-bottom: calc(72px + env(safe-area-inset-bottom));
+        }
+    }
+}
+
+/* ===== TOUCH IMPROVEMENTS ===== */
+@media (hover: none) and (pointer: coarse) {
+    /* Larger touch targets */
+    .btn, button, .project-dropdown-btn, .menu-item {
+        min-height: 44px;
+    }
+
+    /* Remove hover effects on touch */
+    .task-item:hover,
+    .note-item:hover,
+    .project-card:hover {
+        transform: none;
+    }
+
+    /* Smooth scrolling */
+    .view-container,
+    .task-list,
+    .notes-list {
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+
+    /* Disable text selection on interactive elements */
+    .mobile-nav-item,
+    .sidebar-item,
+    .project-dropdown-btn {
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+/* ===== PRINT ===== */
+@media print {
+    #app-sidebar,
+    .mobile-bottom-nav,
+    .sidebar-mobile-toggle,
+    .animation-fab,
+    .pomodoro-widget,
+    .toast-container,
+    .chatbot-toggle {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0 !important;
+    }
+
+    .view-container {
+        break-inside: avoid;
+    }
+}

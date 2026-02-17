@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="css/animations.css?v=1700">
     <link rel="stylesheet" href="css/animation-controls.css?v=2207">
     <link rel="stylesheet" href="css/accounting.css?v=200">
-    <link rel="stylesheet" href="css/admin.css?v=200">
     <link rel="stylesheet" href="css/dashboard.css?v=2300">
     <link rel="stylesheet" href="css/dash-ai-widget.css?v=2200">
     <link rel="stylesheet" href="css/notes-editor.css?v=9999">
@@ -60,7 +59,7 @@
     <link rel="stylesheet" href="css/galaxy-cosmic-projects.css?v=2">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
     <link rel="stylesheet" href="css/projects.css?v=5300">
-    <link rel="stylesheet" href="css/giri-vision.css?v=3600">
+    <link rel="stylesheet" href="css/giri-vision.css?v=4100">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
     <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
     <link rel="stylesheet" href="css/responsive.css?v=2302">
@@ -70,7 +69,7 @@
     <link rel="stylesheet" href="css/quick-add.css?v=2001">
     <link rel="stylesheet" href="css/productivity-tools.css?v=2000">
     <link rel="stylesheet" href="css/kanban.css?v=2000">
-    <link rel="stylesheet" href="css/mail-premium-v7.css?v=8100">
+    <link rel="stylesheet" href="css/mail-zen.css?v=8200">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
     <link rel="stylesheet" href="css/style-overrides.css?v=2830">
@@ -92,7 +91,7 @@
     <script src="js/lib/three/LuminosityHighPassShader.js"></script>
     <script src="js/lib/three/CopyShader.js"></script>
     <script src="js/lib/three/UnrealBloomPass.js"></script>
-    <link rel="stylesheet" href="css/admin.css?v=1000">
+    <link rel="stylesheet" href="css/admin.css?v=3000">
 </head>
 <body>
 
@@ -1114,14 +1113,27 @@
     <script src="js/modules/dashboard/dash-charts.js?v=1700"></script>
     <script src="js/modules/dashboard/dash-ai-widget.js?v=2200"></script>
     <script src="js/modules/dashboard/dashboard.js?v=1800"></script>
+    <!-- Notes Module - Complete Obsidian-style system -->
     <script src="js/modules/notes/notes-core.js?v=9999"></script>
+    <script src="js/modules/notes/notes-markdown.js?v=6000"></script>
+    <script src="js/modules/notes/notes-search.js?v=6000"></script>
+    <script src="js/modules/notes/notes-sidebar.js?v=6000"></script>
+    <script src="js/modules/notes/notes-layout-v6.js?v=6000"></script>
     <script src="js/modules/notes/notes-render.js?v=9999"></script>
     <script src="js/modules/notes/notes-toolbar.js?v=9999"></script>
     <script src="js/modules/notes/notes-slash.js?v=9999"></script>
     <script src="js/modules/notes/notes-editor.js?v=9999"></script>
+    <script src="js/modules/notes/notes-wiki-links.js?v=6000"></script>
+    <script src="js/modules/notes/notes-backlinks-panel.js?v=6000"></script>
+    <script src="js/modules/notes/notes-tags-view.js?v=6000"></script>
+    <script src="js/modules/notes/notes-daily-view.js?v=6000"></script>
+    <script src="js/modules/notes/notes-command-palette.js?v=6000"></script>
     <script src="js/modules/notes/notes-ai.js?v=9999"></script>
-    <script src="js/modules/notes/notes-graph-3d.js?v=9999"></script>
-    <script src="js/modules/notes/notes-graph-view.js?v=9999"></script>
+    <script src="js/modules/notes/notes-ai-classifier.js?v=6000"></script>
+    <script src="js/modules/notes/notes-ai-cluster.js?v=9999"></script>
+    <script src="js/modules/notes/notes-ai-bridge.js?v=6000"></script>
+    <script src="js/modules/notes/notes-graph-2d.js?v=6000"></script>
+    <script src="js/modules/notes/notes-graph-view.js?v=6000"></script>
     <script src="js/modules/notes/notes-init.js?v=9999"></script>
     <script src="js/modules/projects/projects-view.js?v=5101"></script>
     <!-- Settings Module -->
@@ -1163,15 +1175,19 @@
     <script src="js/modules/messaging/messaging-events.js?v=1700"></script>
     <script src="js/modules/messaging/messaging.js?v=1700"></script>
 
-    <!-- Mail Module v2.0 - Professional Emailing (includes campaigns) -->
+    <!-- Mail Module v8.0 - ZEN REFONTE (design compact épuré) -->
     <script src="js/modules/mail/mail-api.js?v=2700"></script>
+    <script src="js/modules/mail/mail-utils.js?v=100"></script>
+    <script src="js/modules/mail/mail-header.js?v=100"></script>
+    <script src="js/modules/mail/mail-tabs.js?v=100"></script>
+    <script src="js/modules/mail/mail-detail.js?v=100"></script>
+    <script src="js/modules/mail/mail-sent-list.js?v=100"></script>
     <script src="js/modules/mail/mail-composer-v7.js?v=3800"></script>
-    <script src="js/modules/mail/mail-inbox.js?v=3900"></script>
     <script src="js/modules/mail/mail-templates.js?v=2700"></script>
-    <script src="js/modules/mail/mail-stats.js?v=2700"></script>
     <script src="js/modules/mail/mail-campaigns.js?v=3900"></script>
     <script src="js/modules/mail/mail-contacts.js?v=2700"></script>
-    <script src="js/modules/mail/mail-view.js?v=2700"></script>
+    <script src="js/modules/mail/mail-stats.js?v=2700"></script>
+    <script src="js/modules/mail/mail-main.js?v=100"></script>
 
     <!-- Chat IA View -->
     <!-- Gamification View Modules -->
@@ -1295,11 +1311,12 @@
 
     <!-- Giri Vision - Video Consultation -->
     <script src="js/modules/giri-vision/giri-api.js?v=4000"></script>
-    <script src="js/modules/giri-vision/giri-vision-view.js?v=4000"></script>
+    <script src="js/modules/giri-vision/giri-vision-view.js?v=4100"></script>
 
     <!-- Admin Module - Dashboard système (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/admin/admin-api.js?v=2600"></script>
-    <script src="js/modules/admin/admin-view.js?v=2600"></script>
+    <script src="js/modules/admin/admin-sentinel.js?v=100"></script>
+    <script src="js/modules/admin/admin-view.js?v=3000"></script>
 
     <!-- NEW: Auth Login Module -->
     <script src="js/modules/auth/login.js?v=1900"></script>

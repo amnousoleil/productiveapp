@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Débloquer ProductiveApp - Instructions</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        .method {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .method h2 {
+            color: #333;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+        .steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+        .steps li {
+            counter-increment: step-counter;
+            margin-bottom: 12px;
+            padding-left: 35px;
+            position: relative;
+        }
+        .steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #667eea;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Débloquer ProductiveApp</h1>
+        <p class="subtitle">Écran noir ? Voici 3 méthodes pour résoudre le problème</p>
+
+        <!-- Méthode 1: Auto -->
+        <div class="method success">
+            <h2>✨ Méthode 1 : Nettoyage Automatique (Recommandée)</h2>
+            <ol class="steps">
+                <li>Cliquez sur le bouton ci-dessous</li>
+                <li>Attendez que le nettoyage se termine (3-5 secondes)</li>
+                <li>Vous serez redirigé vers l'application</li>
+            </ol>
+            <a href="/clean-sw.html?auto=1" class="button">🚀 Nettoyer Automatiquement</a>
+        </div>
+
+        <!-- Méthode 2: DevTools -->
+        <div class="method">
+            <h2>🛠️ Méthode 2 : Via les Outils Développeur</h2>
+            <ol class="steps">
+                <li>Appuyez sur <code>F12</code> pour ouvrir les DevTools</li>
+                <li>Allez dans l'onglet <strong>Application</strong> (ou <strong>Storage</strong>)</li>
+                <li>Dans le menu de gauche, cliquez sur <strong>Service Workers</strong></li>
+                <li>Cliquez sur <strong>Unregister</strong> pour chaque Service Worker listé</li>
+                <li>Cliquez sur <strong>Clear storage</strong> puis <strong>Clear site data</strong></li>
+                <li>Fermez les DevTools et appuyez sur <code>Ctrl+Shift+R</code> (hard refresh)</li>
+            </ol>
+        </div>
+
+        <!-- Méthode 3: Mode Navigation Privée -->
+        <div class="method warning">
+            <h2>🕵️ Méthode 3 : Mode Navigation Privée</h2>
+            <ol class="steps">
+                <li>Fermez TOUS les onglets de ProductiveApp</li>
+                <li>Ouvrez une fenêtre de navigation privée (<code>Ctrl+Shift+N</code> sur Chrome/Edge)</li>
+                <li>Allez sur <code>https://giri-app.com</code></li>
+                <li>L'application devrait fonctionner sans cache</li>
+                <li>Une fois que ça marche, retournez en mode normal</li>
+            </ol>
+            <p style="margin-top: 15px; font-size: 14px;">
+                <strong>Note :</strong> Si le mode privé ne fonctionne pas, utilisez la Méthode 1 ou 2.
+            </p>
+        </div>
+
+        <!-- Lien direct -->
+        <div style="text-align: center; margin-top: 30px; padding-top: 30px; border-top: 2px solid #e9ecef;">
+            <p style="color: #666; margin-bottom: 15px;">Une fois le nettoyage terminé :</p>
+            <a href="/" class="button">🏠 Aller à l'Application</a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-redirect after cleanup if coming from clean-sw.html
+        if (window.location.search.includes('success=1')) {
+            const msg = document.createElement('div');
+            msg.style.cssText = 'position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #28a745; color: white; padding: 20px 40px; border-radius: 10px; font-size: 18px; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.3);';
+            msg.textContent = '✅ Nettoyage terminé ! Redirection dans 3 secondes...';
+            document.body.appendChild(msg);
+
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

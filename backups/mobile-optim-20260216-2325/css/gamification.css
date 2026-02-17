@@ -1,0 +1,401 @@
+/* =============================================
+   GAMIFICATION - ProductiveApp v4.0
+   Dark mode with purple accent (#8b5cf6)
+============================================= */
+
+:root {
+    --gam-bg: #12121a;
+    --gam-card: #1e1e28;
+    --gam-card-hover: #252532;
+    --gam-accent: #8b5cf6;
+    --gam-accent-glow: rgba(139, 92, 246, 0.3);
+    --gam-accent-muted: rgba(139, 92, 246, 0.2);
+    --gam-text: #f5f5f5;
+    --gam-text-muted: #71717a;
+    --gam-border: rgba(139, 92, 246, 0.2);
+    --gam-success: #22c55e;
+    --gam-gold: #fbbf24;
+    --gam-silver: #94a3b8;
+    --gam-bronze: #d97706;
+}
+
+/* === GAMIFICATION VIEW === */
+.gamification-view {
+    padding: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.gamification-header {
+    margin-bottom: 32px;
+}
+
+.gamification-header h1 {
+    font-size: 1.8rem;
+    color: var(--gam-text);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.gamification-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 900px) {
+    .gamification-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === PROFILE CARD === */
+.gam-profile-card {
+    background: var(--gam-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--gam-border);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.gam-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--gam-accent);
+    box-shadow: 0 0 20px var(--gam-accent-glow);
+    object-fit: cover;
+}
+
+.gam-profile-info {
+    flex: 1;
+}
+
+.gam-profile-name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--gam-text);
+    margin-bottom: 4px;
+}
+
+.gam-profile-level {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.gam-level-badge {
+    background: linear-gradient(135deg, var(--gam-accent) 0%, #a78bfa 100%);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.gam-xp-total {
+    color: var(--gam-text-muted);
+    font-size: 0.85rem;
+}
+
+/* XP Progress Bar */
+.gam-xp-bar-container {
+    width: 100%;
+}
+
+.gam-xp-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--gam-text-muted);
+    margin-bottom: 6px;
+}
+
+.gam-xp-bar {
+    height: 8px;
+    background: rgba(139, 92, 246, 0.15);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.gam-xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gam-accent) 0%, #a78bfa 100%);
+    border-radius: 4px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.gam-xp-bar-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+    animation: xpShine 2s ease-in-out infinite;
+}
+
+@keyframes xpShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* === ACHIEVEMENTS GRID === */
+.gam-achievements {
+    background: var(--gam-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--gam-border);
+}
+
+.gam-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gam-text);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.gam-achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.gam-achievement {
+    background: var(--gam-bg);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid transparent;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.gam-achievement:hover {
+    transform: translateY(-2px);
+    border-color: var(--gam-border);
+}
+
+.gam-achievement.unlocked {
+    border-color: var(--gam-accent);
+    box-shadow: 0 4px 20px var(--gam-accent-glow);
+}
+
+.gam-achievement.locked {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.gam-achievement-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.gam-achievement-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gam-text);
+    margin-bottom: 4px;
+}
+
+.gam-achievement-desc {
+    font-size: 0.7rem;
+    color: var(--gam-text-muted);
+    line-height: 1.3;
+}
+
+.gam-achievement-date {
+    font-size: 0.65rem;
+    color: var(--gam-accent);
+    margin-top: 8px;
+}
+
+/* === STREAK CALENDAR === */
+.gam-streak {
+    background: var(--gam-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--gam-border);
+}
+
+.gam-streak-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.gam-streak-count {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gam-accent);
+}
+
+.gam-streak-count span {
+    font-size: 0.85rem;
+    color: var(--gam-text-muted);
+    font-weight: 400;
+}
+
+.gam-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.gam-calendar-day {
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--gam-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--gam-text-muted);
+    transition: all 0.2s ease;
+}
+
+.gam-calendar-day.active {
+    background: var(--gam-accent);
+    color: #fff;
+    font-weight: 600;
+}
+
+.gam-calendar-day.today {
+    border: 2px solid var(--gam-accent);
+    box-shadow: 0 0 10px var(--gam-accent-glow);
+}
+
+.gam-calendar-day.future {
+    opacity: 0.3;
+}
+
+/* === LEADERBOARD === */
+.gam-leaderboard {
+    background: var(--gam-card);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--gam-border);
+}
+
+.gam-leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.gam-leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--gam-bg);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.gam-leaderboard-item:hover {
+    background: var(--gam-card-hover);
+}
+
+.gam-leaderboard-item.current-user {
+    border: 1px solid var(--gam-accent);
+    background: var(--gam-accent-muted);
+}
+
+.gam-rank {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.gam-rank.gold { background: var(--gam-gold); color: #000; }
+.gam-rank.silver { background: var(--gam-silver); color: #000; }
+.gam-rank.bronze { background: var(--gam-bronze); color: #fff; }
+.gam-rank.default { background: var(--gam-bg); color: var(--gam-text-muted); }
+
+.gam-lb-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gam-lb-info {
+    flex: 1;
+}
+
+.gam-lb-name {
+    font-weight: 600;
+    color: var(--gam-text);
+    font-size: 0.9rem;
+}
+
+.gam-lb-level {
+    font-size: 0.75rem;
+    color: var(--gam-text-muted);
+}
+
+.gam-lb-xp {
+    font-weight: 600;
+    color: var(--gam-accent);
+    font-size: 0.9rem;
+}
+
+/* === XP GAIN ANIMATION === */
+.gam-xp-gain {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--gam-accent);
+    text-shadow: 0 0 10px var(--gam-accent-glow);
+    animation: xpGainFloat 1.5s ease-out forwards;
+    z-index: 9999;
+}
+
+@keyframes xpGainFloat {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+}
+
+/* === LOADING STATE === */
+.gam-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--gam-text-muted);
+}
+
+.gam-loading::after {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--gam-accent-muted);
+    border-top-color: var(--gam-accent);
+    border-radius: 50%;
+    margin-left: 12px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}

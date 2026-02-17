@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Animations</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #0a0a0a; color: #fff; font-family: sans-serif; }
+        #matrix-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; }
+        .status { background: #1a1a1a; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .ok { color: #4ade80; }
+        .error { color: #f87171; }
+    </style>
+</head>
+<body>
+    <h1>Test Système d'Animations</h1>
+    <div id="status" class="status">Chargement...</div>
+    <canvas id="matrix-bg"></canvas>
+
+    <script src="http://localhost:8080/js/animations.js?v=1700"></script>
+    <script src="http://localhost:8080/js/modules/animation-controls.js?v=2101"></script>
+    <script>
+        const status = document.getElementById('status');
+        let html = '<h3>Diagnostic:</h3><ul>';
+
+        // 1. Canvas présent ?
+        const canvas = document.getElementById('matrix-bg');
+        html += `<li class="${canvas ? 'ok' : 'error'}">Canvas: ${canvas ? '✓ Trouvé' : '✗ Absent'}</li>`;
+
+        // 2. initAnimation disponible ?
+        html += `<li class="${typeof initAnimation === 'function' ? 'ok' : 'error'}">initAnimation: ${typeof initAnimation === 'function' ? '✓ Disponible' : '✗ Absent'}</li>`;
+
+        // 3. AnimEngine disponible ?
+        html += `<li class="${typeof AnimEngine !== 'undefined' ? 'ok' : 'error'}">AnimEngine: ${typeof AnimEngine !== 'undefined' ? '✓ Disponible' : '✗ Absent'}</li>`;
+
+        // 4. AnimationControls disponible ?
+        html += `<li class="${typeof AnimationControls !== 'undefined' ? 'ok' : 'error'}">AnimationControls: ${typeof AnimationControls !== 'undefined' ? '✓ Disponible' : '✗ Absent'}</li>`;
+
+        // 5. Initialiser
+        setTimeout(() => {
+            try {
+                if (typeof initAnimation === 'function') {
+                    initAnimation();
+                    html += '<li class="ok">initAnimation(): ✓ Exécutée</li>';
+                } else {
+                    html += '<li class="error">initAnimation(): ✗ Non appelée</li>';
+                }
+
+                if (typeof AnimationControls !== 'undefined' && AnimationControls.init) {
+                    AnimationControls.init();
+                    html += '<li class="ok">AnimationControls.init(): ✓ Exécutée</li>';
+                } else {
+                    html += '<li class="error">AnimationControls.init(): ✗ Non appelée</li>';
+                }
+
+                // 6. Canvas a un contexte ?
+                const ctx = canvas.getContext('2d');
+                html += `<li class="${ctx ? 'ok' : 'error'}">Canvas context: ${ctx ? '✓ OK' : '✗ Échec'}</li>`;
+
+                // 7. FAB visible ?
+                setTimeout(() => {
+                    const fab = document.querySelector('.anim-ctrl-fab');
+                    html += `<li class="${fab ? 'ok' : 'error'}">FAB visible: ${fab ? '✓ Oui' : '✗ Non'}</li>`;
+
+                    html += '</ul>';
+                    status.innerHTML = html;
+                }, 500);
+
+            } catch (e) {
+                html += `<li class="error">Erreur: ${e.message}</li></ul>`;
+                status.innerHTML = html;
+            }
+        }, 300);
+    </script>
+</body>
+</html>

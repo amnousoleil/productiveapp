@@ -1,0 +1,138 @@
+/**
+ * OVERLAYS POINTER FIX v1.0
+ * Désactive pointer-events sur TOUS les overlays cachés
+ * pour qu'ils ne bloquent pas le scroll molette
+ * Date: 2026-02-14
+ */
+
+/* ============================================================
+   RÈGLE GLOBALE : Overlays cachés = pointer-events: none
+   ============================================================ */
+
+/* Task Templates Overlay (z-index: 100000) - LE COUPABLE PRINCIPAL */
+.task-templates-overlay {
+    pointer-events: auto !important; /* Active seulement quand visible */
+}
+
+.task-templates-overlay:not(.visible),
+.task-templates-overlay[style*="display: none"],
+.task-templates-overlay[style*="display:none"] {
+    pointer-events: none !important; /* Désactive quand caché */
+}
+
+/* Onboarding Revolution (z-index: 20000) */
+#onboarding-revolution {
+    pointer-events: none !important; /* Désactivé par défaut */
+}
+
+#onboarding-revolution.visible {
+    pointer-events: auto !important; /* Active seulement quand visible */
+}
+
+/* Modals génériques avec z-index élevé */
+[class*="-overlay"],
+[class*="-modal"],
+[id*="-overlay"],
+[id*="-modal"] {
+    pointer-events: auto; /* Par défaut actif */
+}
+
+/* Mais désactive si caché */
+[class*="-overlay"]:not(.visible):not(.active):not(.open),
+[class*="-modal"]:not(.visible):not(.active):not(.open) {
+    pointer-events: none !important;
+}
+
+[class*="-overlay"][style*="display: none"],
+[class*="-modal"][style*="display: none"],
+[class*="-overlay"][style*="display:none"],
+[class*="-modal"][style*="display:none"] {
+    pointer-events: none !important;
+}
+
+/* PWA Toasts (z-index: 10000) - OK car petits */
+.xp-toast,
+.achievement-toast {
+    pointer-events: auto !important; /* Toujours actifs (ne bloquent pas tout) */
+}
+
+/* Mobile Nav (z-index: 9999) - OK car en bas */
+.mobile-bottom-nav {
+    pointer-events: auto !important; /* Toujours active */
+}
+
+/* Command Palette, Modals, etc. */
+.command-palette,
+.modal-overlay,
+.dialog-overlay,
+.popup-overlay {
+    pointer-events: none !important; /* Désactivé par défaut */
+}
+
+.command-palette.active,
+.command-palette.visible,
+.modal-overlay.active,
+.modal-overlay.visible,
+.dialog-overlay.active,
+.dialog-overlay.visible,
+.popup-overlay.active,
+.popup-overlay.visible {
+    pointer-events: auto !important; /* Active seulement quand visible */
+}
+
+/* Canvas d'animation - ne doit JAMAIS bloquer */
+#matrix-bg,
+canvas {
+    pointer-events: none !important;
+}
+
+/* ============================================================
+   FIX SPÉCIAL : Éléments avec z-index > 1000 cachés
+   ============================================================ */
+
+/* Si un élément a un z-index très élevé mais est opacity: 0, désactive pointer-events */
+[style*="opacity: 0"],
+[style*="opacity:0"],
+.hidden,
+[hidden] {
+    pointer-events: none !important;
+}
+
+/* Exceptions : éléments qui doivent rester interactifs même avec opacity: 0 (animations) */
+[class*="fade-in"],
+[class*="fade-out"],
+[class*="transition"] {
+    /* Laisse pointer-events selon le style inline ou la classe */
+}
+
+/* ============================================================
+   DEBUG : Visualiser les overlays bloquants (temporaire)
+   ============================================================ */
+
+/* Décommenter pour voir tous les overlays avec z-index élevé */
+/*
+[class*="-overlay"],
+[id*="-overlay"] {
+    outline: 3px solid red !important;
+}
+*/
+
+/* ============================================================
+   DOCUMENTATION
+   ============================================================ */
+
+/**
+ * PROBLÈME RÉSOLU :
+ * Des overlays position: fixed avec z-index massifs (100000, 20000, 10000)
+ * bloquaient les événements wheel même quand cachés (display: none).
+ *
+ * SOLUTION :
+ * pointer-events: none par défaut sur overlays cachés
+ * pointer-events: auto seulement quand .visible, .active, ou .open
+ *
+ * OVERLAYS FIXÉS :
+ * - .task-templates-overlay (z-index: 100000) ← COUPABLE PRINCIPAL
+ * - #onboarding-revolution (z-index: 20000)
+ * - Tous les modals/overlays génériques
+ * - Canvas #matrix-bg (ne doit jamais bloquer)
+ */

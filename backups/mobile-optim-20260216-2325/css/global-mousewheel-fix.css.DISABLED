@@ -1,0 +1,259 @@
+/**
+ * GLOBAL MOUSEWHEEL SCROLL FIX v3.0 - UNIVERSEL
+ * Permet scroll molette partout SANS casser les layouts
+ * FIX 2026-02-13: Version complète qui remplace scroll-fix.css
+ * APPROCHE: Scroll naturel via body, pas de !important agressifs
+ */
+
+/* =============================================
+   PARTIE 1: FONDATIONS HTML/BODY
+   ============================================= */
+
+/* HTML et Body: scroll naturel activé */
+html {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  min-height: 100vh;
+  /* height: auto est déjà le défaut, pas besoin de forcer */
+}
+
+/* =============================================
+   PARTIE 2: CONTENEURS PRINCIPAUX
+   ============================================= */
+
+/* Main content: laisse le CSS de base gérer le layout */
+.main-content {
+  /* overflow géré par le parent (body) */
+  /* Pas de overflow: hidden qui bloquerait le scroll */
+}
+
+/* View containers: doivent pouvoir scroller si contenu dépasse */
+.view-container {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* min-height du CSS original préservé */
+}
+
+/* App container: ne doit jamais bloquer le scroll */
+#app-container,
+.app-container {
+  overflow: visible;
+  /* Laisse le contenu déborder naturellement pour activer scroll du parent */
+}
+
+/* =============================================
+   PARTIE 3: VUES SPÉCIFIQUES
+   ============================================= */
+
+/* Toutes les vues principales peuvent scroller */
+#view-dashboard,
+#view-tasks,
+#view-notes,
+#view-projects,
+#view-reports,
+#view-analytics,
+#view-settings,
+#view-galaxy,
+#view-accounting,
+#view-psycho-audit,
+#view-team-messaging,
+#view-campaigns,
+#view-gamification,
+#view-behavioral,
+#view-team-vision,
+#view-giri-vision,
+#view-calendar,
+#view-mail,
+#view-admin,
+#view-config-dev {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =============================================
+   PARTIE 4: WRAPPERS INTERNES
+   ============================================= */
+
+/* Wrappers internes: peuvent scroller MAIS pas de height: 100% forcée */
+.dashboard-wrapper,
+.tasks-wrapper,
+.notes-wrapper,
+.projects-wrapper,
+.reports-wrapper,
+.analytics-wrapper,
+.settings-wrapper,
+.accounting-wrapper,
+.audit-wrapper,
+.messaging-wrapper,
+.campaigns-wrapper,
+.gamification-wrapper,
+.calendar-wrapper,
+.mail-wrapper,
+.admin-wrapper {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* PAS de height: 100% car ça empêche le contenu de dépasser */
+}
+
+/* Sélecteur générique pour tous les wrappers */
+[id^="view-"],
+[class*="view-container"],
+[class*="-wrapper"]:not(.modal-wrapper):not(.toast-wrapper) {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =============================================
+   PARTIE 5: ÉLÉMENTS SCROLLABLES SPÉCIFIQUES
+   ============================================= */
+
+/* Listes et contenus scrollables */
+.activity-list,
+.tasks-list,
+.notes-grid,
+.task-list,
+.note-list,
+.project-list,
+[class*="-list"]:not(.dropdown-list) {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  /* max-height géré par le CSS spécifique de chaque composant */
+}
+
+/* Tables scrollables horizontalement */
+table,
+.table-wrapper,
+[class*="table-"]:not(.table-cell) {
+  overflow-x: auto;
+  scroll-behavior: smooth;
+}
+
+/* =============================================
+   PARTIE 6: MODALS ET OVERLAYS
+   ============================================= */
+
+/* Modals: doivent scroller si contenu long */
+.modal-content {
+  overflow-y: auto;
+  max-height: 90vh;
+  scroll-behavior: smooth;
+}
+
+/* =============================================
+   PARTIE 7: SIDEBAR
+   ============================================= */
+
+/* Sidebar: scroll vertical activé, garde height 100vh (OK car position fixed) */
+.sidebar,
+.sidebar-nav {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =============================================
+   PARTIE 8: CANVAS ET ÉLÉMENTS FIXES
+   ============================================= */
+
+/* Canvas d'animation: ne doit JAMAIS interférer avec le scroll */
+#matrix-bg {
+  pointer-events: none;
+  overflow: hidden;
+  position: fixed;
+  /* Autres styles gérés par animations.css */
+}
+
+/* =============================================
+   PARTIE 9: SCROLLBAR STYLING
+   ============================================= */
+
+/* Style des scrollbars pour une meilleure intégration visuelle */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* =============================================
+   PARTIE 10: FIXES SPÉCIFIQUES
+   ============================================= */
+
+/* Fix pour les vues avec header fixe */
+.view-container.has-fixed-header {
+  padding-top: 60px;
+}
+
+/* Fix pour mobile */
+@media (max-width: 768px) {
+  .view-container,
+  .main-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Sur mobile, s'assurer que le body peut scroller */
+  body {
+    overflow-y: auto;
+  }
+}
+
+/* Fix pour les vues actives seulement */
+body.logged-in .view-container.active {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+/* =============================================
+   RÈGLES IMPORTANTES À NE PAS VIOLER
+   ============================================= */
+
+/**
+ * CETTE VERSION v3.0:
+ * ✅ Permet scroll naturel via html/body
+ * ✅ N'utilise PAS de !important agressifs partout
+ * ✅ Ne force PAS height: 100% sur les wrappers (cause problèmes)
+ * ✅ Laisse les CSS spécifiques gérer leurs layouts
+ * ✅ Assure que tous les conteneurs principaux peuvent scroller
+ * ✅ Compatible avec les animations et le canvas
+ * ✅ Responsive et mobile-friendly
+ *
+ * REMPLACE: scroll-fix.css (trop agressif, conflits)
+ *
+ * PRINCIPES:
+ * - Scroll naturel via body (méthode standard)
+ * - overflow-y: auto sur les conteneurs qui peuvent déborder
+ * - Pas de height: 100% forcée (empêche expansion du contenu)
+ * - !important UNIQUEMENT quand absolument nécessaire
+ */

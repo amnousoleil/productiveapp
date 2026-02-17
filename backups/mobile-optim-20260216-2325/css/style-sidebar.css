@@ -1,0 +1,615 @@
+/* ================================================
+   SIDEBAR v5.0 - ProductiveApp
+   Classic toggle sidebar
+
+   COMPORTEMENT:
+   - Par défaut: OUVERTE (260px)
+   - Clic chevron: replie/déplie
+   - État sauvegardé en localStorage
+   ================================================ */
+
+:root {
+    --sb-width-open: 260px;
+    --sb-width-closed: 64px;
+    --sb-bg: var(--bg-secondary, #0a0a0f);
+    --sb-border: var(--border, rgba(255, 255, 255, 0.06));
+    --sb-text: var(--text-muted, #71717a);
+    --sb-text-hover: var(--text, #a1a1aa);
+    --sb-text-active: var(--text, #fafafa);
+    --sb-accent: var(--accent, #6366f1);
+    --sb-hover: var(--bg-card, rgba(255, 255, 255, 0.06));
+    --sb-active: var(--bg-card, rgba(99, 102, 241, 0.15));
+    --sb-transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ==========================================
+   CONTAINER
+   ========================================== */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sb-width-open);
+    height: 100vh;
+    background: var(--sb-bg);
+    border-right: 1px solid var(--sb-border);
+    display: none;
+    flex-direction: column;
+    z-index: 100;
+    transition: width var(--sb-transition);
+    overflow: hidden;
+}
+
+/* Visible après login */
+body.logged-in .sidebar {
+    display: flex;
+}
+
+/* État replié */
+.sidebar.collapsed {
+    width: var(--sb-width-closed);
+}
+
+/* ==========================================
+   BOUTON CHEVRON (replier/déplier)
+   ========================================== */
+.sidebar-collapse-btn {
+    position: absolute;
+    top: 18px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    background: rgba(99, 102, 241, 0.15);
+    border: 2px solid var(--sb-accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--sb-accent);
+    z-index: 50;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+.sidebar-collapse-btn:hover {
+    background: var(--sb-accent);
+    color: #fff;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.sidebar-collapse-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+    transition: transform var(--sb-transition);
+}
+
+/* Chevron tourne quand replié */
+.sidebar.collapsed .sidebar-collapse-btn svg {
+    transform: rotate(180deg);
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    min-height: 64px;
+    border-bottom: 1px solid var(--sb-border);
+}
+
+.sidebar-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.sidebar-logo:hover {
+    transform: scale(1.05);
+}
+
+.sidebar-brand {
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity var(--sb-transition);
+}
+
+.sidebar.collapsed .sidebar-brand {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--sb-text-active);
+}
+
+.sidebar-brand-version {
+    font-size: 10px;
+    color: var(--sb-text);
+    margin-top: 2px;
+}
+
+/* ==========================================
+   PROFILE
+   ========================================== */
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--sb-border);
+}
+
+.sidebar-avatar {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.sidebar-avatar img,
+.sidebar-avatar-emoji {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.sidebar-avatar-emoji {
+    background: rgba(99, 102, 241, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.sidebar-status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--sb-bg);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.sidebar-status-dot:hover {
+    transform: scale(1.2);
+}
+
+.sidebar-status-dot.online { background: #22c55e; }
+.sidebar-status-dot.busy { background: #ef4444; }
+.sidebar-status-dot.away { background: #f59e0b; }
+.sidebar-status-dot.offline { background: #52525b; }
+
+.sidebar-profile-info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    transition: opacity var(--sb-transition);
+}
+
+.sidebar.collapsed .sidebar-profile-info {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-profile-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--sb-text-active);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-profile-status {
+    font-size: 11px;
+    color: var(--sb-text);
+    margin-top: 2px;
+}
+
+/* Status Dropdown */
+.sidebar-status-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 14px;
+    background: #18181b;
+    border: 1px solid var(--sb-border);
+    border-radius: 10px;
+    padding: 6px;
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: all 0.15s ease;
+    z-index: 200;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-status-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.sidebar-status-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--sb-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sidebar-status-option:hover {
+    background: var(--sb-hover);
+    color: var(--sb-text-active);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-dot.online { background: #22c55e; }
+.status-dot.busy { background: #ef4444; }
+.status-dot.away { background: #f59e0b; }
+.status-dot.offline { background: #52525b; }
+
+/* ==========================================
+   NAVIGATION
+   ========================================== */
+.sidebar-nav {
+    flex: 1;
+    padding: 12px 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+/* ==========================================
+   NAV ITEMS
+   ========================================== */
+.sidebar-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0 14px;
+    height: 44px;
+    border-radius: 10px;
+    color: var(--sb-text);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    margin-bottom: 4px;
+}
+
+.sidebar-item:hover {
+    background: var(--sb-hover);
+    color: var(--sb-text-hover);
+}
+
+.sidebar-item.active {
+    background: var(--sb-active);
+    color: var(--sb-text-active);
+}
+
+/* Barre active à gauche */
+.sidebar-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--sb-accent);
+    border-radius: 0 3px 3px 0;
+}
+
+/* Icon */
+.sidebar-item-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sidebar-item-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    fill: none;
+}
+
+/* Label */
+.sidebar-label {
+    font-size: 14px;
+    font-weight: 450;
+    white-space: nowrap;
+    transition: opacity var(--sb-transition);
+}
+
+.sidebar.collapsed .sidebar-label {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Badge (notifications) */
+.sidebar-badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* Badge quand replié = petit point */
+.sidebar.collapsed .sidebar-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    min-width: 8px;
+    height: 8px;
+    padding: 0;
+    font-size: 0;
+}
+
+/* Tag (NEW, SOON) */
+.sidebar-tag {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 5px;
+    margin-left: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    transition: opacity var(--sb-transition);
+}
+
+.sidebar.collapsed .sidebar-tag {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-tag.new {
+    background: rgba(34, 197, 94, 0.15);
+    color: #4ade80;
+}
+
+.sidebar-tag.soon {
+    background: rgba(113, 113, 122, 0.15);
+    color: #a1a1aa;
+}
+
+/* ==========================================
+   DIVIDER
+   ========================================== */
+.sidebar-divider {
+    height: 1px;
+    background: var(--sb-border);
+    margin: 10px 14px;
+}
+
+/* ==========================================
+   FOOTER
+   ========================================== */
+.sidebar-footer {
+    border-top: 1px solid var(--sb-border);
+    padding: 10px;
+}
+
+.sidebar-footer .sidebar-item {
+    height: 40px;
+}
+
+/* ==========================================
+   TOOLTIP (quand replié)
+   ========================================== */
+.sidebar-tooltip {
+    position: fixed;
+    left: calc(var(--sb-width-closed) + 12px);
+    padding: 8px 12px;
+    background: #1f1f28;
+    color: var(--sb-text-active);
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.15s, visibility 0.15s;
+}
+
+.sidebar-tooltip::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 6px solid transparent;
+    border-right-color: #1f1f28;
+}
+
+.sidebar-tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Cacher tooltip quand sidebar ouverte */
+.sidebar:not(.collapsed) ~ .sidebar-tooltip {
+    display: none !important;
+}
+
+/* ==========================================
+   CONTENT MARGIN (pour le contenu principal)
+   ========================================== */
+@media (min-width: 769px) {
+    body.logged-in .main-content {
+        margin-left: var(--sb-width-open);
+        transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body.logged-in.sidebar-collapsed .main-content {
+        margin-left: var(--sb-width-closed);
+    }
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 0 !important;
+        transform: translateX(-100%);
+    }
+
+    .sidebar.mobile-open {
+        width: var(--sb-width-open) !important;
+        transform: translateX(0);
+    }
+
+    .sidebar-collapse-btn {
+        display: none;
+    }
+
+    body.logged-in .main-content {
+        margin-left: 0 !important;
+    }
+
+    .sidebar-tooltip {
+        display: none !important;
+    }
+}
+
+/* Mobile toggle button */
+.sidebar-mobile-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 98;
+    width: 44px;
+    height: 44px;
+    background: var(--sb-bg);
+    border: 1px solid var(--sb-border);
+    border-radius: 12px;
+    align-items: center;
+    justify-content: center;
+    color: var(--sb-text);
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    body.logged-in .sidebar-mobile-toggle {
+        display: flex;
+    }
+}
+
+.sidebar-mobile-toggle svg {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+}
+
+/* Overlay mobile */
+.sidebar-overlay {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .sidebar-overlay {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 99;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* ==========================================
+   THEMES
+   ========================================== */
+[data-theme="minimal"] .sidebar,
+[data-theme="academie"] .sidebar {
+    --sb-bg: #fafafa;
+    --sb-border: rgba(0, 0, 0, 0.08);
+    --sb-text: #6b7280;
+    --sb-text-hover: #374151;
+    --sb-text-active: #111827;
+    --sb-hover: rgba(0, 0, 0, 0.04);
+    --sb-active: rgba(99, 102, 241, 0.12);
+}
+
+/* Accent par thème */
+[data-theme="executive"] { --sb-accent: #d4af37; }
+[data-theme="corporate"] { --sb-accent: #3b82f6; }
+[data-theme="sunset"] { --sb-accent: #f97316; }
+[data-theme="ocean"] { --sb-accent: #06b6d4; }
+[data-theme="forest"] { --sb-accent: #22c55e; }
+[data-theme="bubblegum"] { --sb-accent: #ec4899; }
+[data-theme="aurora"] { --sb-accent: #a78bfa; }
+[data-theme="matrix"] { --sb-accent: #22c55e; }
+[data-theme="cyberpunk"] { --sb-accent: #f0abfc; }
+[data-theme="terminal"] { --sb-accent: #22c55e; }
+[data-theme="midnight"] { --sb-accent: #818cf8; }
+
+/* ==========================================
+   CLEANUP - Cacher anciens boutons
+   ========================================== */
+.sidebar-toggle,
+.sidebar-close,
+.sidebar-pin {
+    display: none !important;
+}

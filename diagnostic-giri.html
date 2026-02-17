@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Diagnostic Giri-App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 24px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section {
+            background: #f7fafc;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #2d3748;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .value {
+            font-family: monospace;
+            color: #2d3748;
+            word-break: break-all;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status.ok {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .test-section {
+            margin-top: 12px;
+        }
+
+        .test-result {
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .test-icon {
+            font-size: 24px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnostic Giri-App</h1>
+
+        <div class="section">
+            <h2>📍 Informations de connexion</h2>
+            <div class="info-row">
+                <span class="label">URL actuelle:</span>
+                <span class="value" id="current-url"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Protocole:</span>
+                <span class="value" id="protocol"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Domaine:</span>
+                <span class="value" id="hostname"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Port:</span>
+                <span class="value" id="port"></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Navigateur:</span>
+                <span class="value" id="browser"></span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔌 Tests de connectivité</h2>
+            <div class="test-section" id="connectivity-tests">
+                <p style="color: #718096;">Tests en cours...</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>✅ Recommandations</h2>
+            <div id="recommendations"></div>
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn">🏠 Aller à l'application principale</a>
+            <button onclick="window.location.reload()" class="btn">🔄 Recharger cette page</button>
+            <button onclick="clearCache()" class="btn">🗑️ Vider le cache</button>
+        </div>
+    </div>
+
+    <script>
+        // Afficher les informations de base
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('protocol').textContent = window.location.protocol;
+        document.getElementById('hostname').textContent = window.location.hostname;
+        document.getElementById('port').textContent = window.location.port || '(défaut)';
+        document.getElementById('browser').textContent = navigator.userAgent;
+
+        // Tests de connectivité
+        async function runTests() {
+            const testsContainer = document.getElementById('connectivity-tests');
+            const recommendationsContainer = document.getElementById('recommendations');
+            testsContainer.innerHTML = '';
+
+            const tests = [
+                {
+                    name: 'Application principale (index.html)',
+                    url: '/',
+                    critical: true
+                },
+                {
+                    name: 'CSS principal (style-base.css)',
+                    url: '/css/style-base.css',
+                    critical: true
+                },
+                {
+                    name: 'JavaScript principal (config.js)',
+                    url: '/js/config.js',
+                    critical: true
+                },
+                {
+                    name: 'API Backend (health)',
+                    url: '/api/health',
+                    critical: true
+                },
+                {
+                    name: 'Page Giri Vision (meet.html)',
+                    url: '/meet.html',
+                    critical: false
+                },
+                {
+                    name: 'CSS Giri Vision',
+                    url: '/css/giri-vision.css',
+                    critical: false
+                }
+            ];
+
+            let allOk = true;
+            let recommendations = [];
+
+            for (const test of tests) {
+                const result = document.createElement('div');
+                result.className = 'test-result';
+
+                try {
+                    const response = await fetch(test.url, { method: 'HEAD' });
+                    const success = response.ok;
+
+                    result.innerHTML = `
+                        <span class="test-icon">${success ? '✅' : '❌'}</span>
+                        <div style="flex: 1;">
+                            <strong>${test.name}</strong><br>
+                            <small style="color: #718096;">${test.url}</small>
+                        </div>
+                        <span class="status ${success ? 'ok' : 'error'}">${response.status} ${response.statusText}</span>
+                    `;
+
+                    if (!success && test.critical) {
+                        allOk = false;
+                        recommendations.push({
+                            icon: '⚠️',
+                            title: `Fichier critique manquant: ${test.name}`,
+                            message: `Le fichier ${test.url} retourne une erreur ${response.status}. Ce fichier est nécessaire au fonctionnement de l'application.`
+                        });
+                    }
+                } catch (err) {
+                    result.innerHTML = `
+                        <span class="test-icon">❌</span>
+                        <div style="flex: 1;">
+                            <strong>${test.name}</strong><br>
+                            <small style="color: #718096;">${test.url}</small>
+                        </div>
+                        <span class="status error">ERREUR RÉSEAU</span>
+                    `;
+
+                    if (test.critical) {
+                        allOk = false;
+                        recommendations.push({
+                            icon: '🚫',
+                            title: `Impossible de contacter: ${test.name}`,
+                            message: `Erreur réseau lors du test de ${test.url}. Vérifiez que le serveur Nginx fonctionne.`
+                        });
+                    }
+                }
+
+                testsContainer.appendChild(result);
+            }
+
+            // Analyser les problèmes courants
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            const port = window.location.port;
+
+            // Check if accessed via file://
+            if (protocol === 'file:') {
+                recommendations.unshift({
+                    icon: '🚫',
+                    title: 'ERREUR CRITIQUE: Accès en mode fichier local',
+                    message: `Vous accédez à cette page via le protocole file:// (double-clic sur le fichier HTML). L'application DOIT être accédée via un serveur web.<br><br>
+                    <strong>Solutions:</strong><br>
+                    • Accédez via <code>http://localhost:8080</code><br>
+                    • Accédez via <code>http://giri-app.com</code><br>
+                    • Accédez via l'IP du serveur avec le port 8080`
+                });
+            }
+
+            // Check correct access URLs
+            const correctUrls = ['localhost', 'giri-app.com', 'srv1053121.hstgr.cloud'];
+            if (protocol === 'http:' && !correctUrls.some(url => hostname.includes(url))) {
+                recommendations.push({
+                    icon: '⚠️',
+                    title: 'URL d\'accès inhabituelle',
+                    message: `Vous accédez via ${hostname}. Les URLs recommandées sont:<br>
+                    • <code>http://localhost:8080</code> (développement local)<br>
+                    • <code>https://giri-app.com</code> (production)`
+                });
+            }
+
+            // Check port
+            if (protocol === 'http:' && hostname === 'localhost' && port !== '8080') {
+                recommendations.push({
+                    icon: '⚠️',
+                    title: 'Port incorrect',
+                    message: `Vous utilisez le port ${port || '80'}. L'application fonctionne sur le port 8080.<br>
+                    Accédez via <code>http://localhost:8080</code>`
+                });
+            }
+
+            // Afficher recommandations
+            if (allOk && recommendations.length === 0) {
+                recommendationsContainer.innerHTML = `
+                    <div class="test-result">
+                        <span class="test-icon">🎉</span>
+                        <div>
+                            <strong>Tout fonctionne parfaitement !</strong><br>
+                            <small style="color: #718096;">Tous les tests sont passés avec succès. Vous pouvez utiliser l'application normalement.</small>
+                        </div>
+                    </div>
+                `;
+            } else {
+                recommendations.forEach(rec => {
+                    recommendationsContainer.innerHTML += `
+                        <div class="test-result" style="background: #fff5f5; border-left: 4px solid #fc8181;">
+                            <span class="test-icon">${rec.icon}</span>
+                            <div style="flex: 1;">
+                                <strong>${rec.title}</strong><br>
+                                <small style="color: #4a5568;">${rec.message}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function clearCache() {
+            if (confirm('Voulez-vous vraiment vider le cache du navigateur ?\n\nCela supprimera les données mises en cache pour ce site.')) {
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => caches.delete(name));
+                    });
+                }
+                localStorage.clear();
+                sessionStorage.clear();
+                alert('Cache vidé ! La page va se recharger.');
+                window.location.reload(true);
+            }
+        }
+
+        // Lancer les tests au chargement
+        runTests();
+    </script>
+</body>
+</html>

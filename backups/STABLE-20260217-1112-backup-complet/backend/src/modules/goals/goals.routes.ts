@@ -1,0 +1,11 @@
+import { Router } from 'express';
+import * as ctrl from './goals.controller.js';
+const router = Router({ mergeParams: true });
+router.get('/dashboard', ctrl.dashboard);
+router.get('/', ctrl.list);
+router.post('/', ctrl.create);
+router.get('/:id', ctrl.get);
+router.put('/:id', ctrl.update);
+router.delete('/:id', ctrl.remove);
+router.post('/:id/refresh', ctrl.refresh);
+export default router;

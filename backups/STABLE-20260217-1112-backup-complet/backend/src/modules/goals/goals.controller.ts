@@ -1,0 +1,11 @@
+import { Request, Response } from 'express';
+import * as svc from './goals.service.js';
+type Req = Request<{ workspaceId: string; id?: string }>;
+
+export const list = async (req: Req, res: Response): Promise<void> => { try { res.json(await svc.listGoals(req.params.workspaceId, { type: req.query.type as string, status: req.query.status as string })); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
+export const get = async (req: Req, res: Response): Promise<void> => { try { const r = await svc.getGoal(req.params.workspaceId, req.params.id!); if (!r) { res.status(404).json({ error: 'Objectif non trouve' }); return; } res.json(r); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
+export const create = async (req: Req, res: Response): Promise<void> => { try { if (!req.body.title || !req.body.type || !req.body.target_amount) { res.status(400).json({ error: 'title, type et target_amount requis' }); return; } res.status(201).json(await svc.createGoal(req.params.workspaceId, req.body.member_id || '', req.body)); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
+export const update = async (req: Req, res: Response): Promise<void> => { try { const r = await svc.updateGoal(req.params.workspaceId, req.params.id!, req.body); if (!r) { res.status(404).json({ error: 'Objectif non trouve' }); return; } res.json(r); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
+export const remove = async (req: Req, res: Response): Promise<void> => { try { const ok = await svc.deleteGoal(req.params.workspaceId, req.params.id!); if (!ok) { res.status(404).json({ error: 'Objectif non trouve' }); return; } res.status(204).send(); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
+export const refresh = async (req: Req, res: Response): Promise<void> => { try { const r = await svc.refreshGoalProgress(req.params.workspaceId, req.params.id!); if (!r) { res.status(404).json({ error: 'Objectif non trouve' }); return; } res.json(r); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
+export const dashboard = async (req: Req, res: Response): Promise<void> => { try { res.json(await svc.getDashboard(req.params.workspaceId)); } catch (e) { res.status(500).json({ error: 'Erreur' }); } };
