@@ -1,0 +1,875 @@
+/* ============================================================================
+   NOTES MODULE - Premium Divine Style (TeamTalk inspired)
+   ProductiveApp v5.0 - Phase 2
+   ============================================================================ */
+
+/* ========== CSS VARIABLES ========== */
+:root {
+    --notes-gold: #d4a574;
+    --notes-gold-light: #e8c9a1;
+    --notes-gold-dark: #b8936a;
+    --notes-gold-glow: rgba(212, 165, 116, 0.25);
+    --notes-glass: rgba(25, 22, 30, 0.6);
+    --notes-glass-border: rgba(212, 165, 116, 0.12);
+    --notes-divine-shadow: 0 8px 40px rgba(0, 0, 0, 0.4),
+                           0 0 80px rgba(212, 165, 116, 0.08);
+}
+
+/* ========== LAYOUT ========== */
+
+#view-notes {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(135deg,
+        rgba(15, 12, 20, 1) 0%,
+        rgba(20, 18, 26, 1) 50%,
+        rgba(18, 15, 24, 1) 100%);
+    position: relative;
+}
+
+#view-notes::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 20% 30%, rgba(212, 165, 116, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 70%, rgba(124, 159, 255, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.notes-sidebar {
+    background: linear-gradient(135deg,
+        rgba(20, 18, 24, 0.95) 0%,
+        rgba(30, 25, 35, 0.95) 100%);
+    border-right: 1px solid var(--notes-glass-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: var(--notes-divine-shadow);
+    backdrop-filter: blur(20px);
+    position: relative;
+    z-index: 10;
+}
+
+.notes-sidebar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom,
+        transparent,
+        var(--notes-gold-glow) 50%,
+        transparent);
+    opacity: 0.5;
+}
+
+.notes-sidebar-tree {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px 12px;
+}
+
+.notes-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.notes-editor {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========== SIDEBAR HEADER - Divine Premium ========== */
+
+.sidebar-toolbar {
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--notes-glass-border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: linear-gradient(180deg,
+        rgba(212, 165, 116, 0.04) 0%,
+        transparent 100%);
+}
+
+.notes-sidebar-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--notes-gold-light);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    letter-spacing: -0.3px;
+}
+
+.notes-sidebar-title span {
+    background: linear-gradient(135deg, var(--notes-gold-light), var(--notes-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 30px var(--notes-gold-glow);
+}
+
+.sidebar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--notes-glass);
+    border: 1px solid var(--notes-glass-border);
+    border-radius: 12px;
+    color: var(--notes-gold-light);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgba(212, 165, 116, 0.15) 0%,
+        transparent 50%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.sidebar-btn:hover {
+    background: rgba(212, 165, 116, 0.12);
+    border-color: var(--notes-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(212, 165, 116, 0.2);
+}
+
+.sidebar-btn:hover::before {
+    opacity: 1;
+}
+
+.sidebar-btn-primary {
+    background: linear-gradient(135deg, var(--notes-gold), var(--notes-gold-dark));
+    border-color: transparent;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.sidebar-btn-primary::before {
+    background: linear-gradient(135deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        transparent 50%);
+}
+
+.sidebar-btn-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 32px var(--notes-gold-glow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2.5;
+}
+
+/* ========== SIDEBAR SEARCH - Premium Glass ========== */
+
+.sidebar-search {
+    padding: 0 16px 16px;
+    position: relative;
+}
+
+.sidebar-search-icon {
+    position: absolute;
+    left: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--notes-gold);
+    pointer-events: none;
+    width: 18px;
+    height: 18px;
+    opacity: 0.7;
+}
+
+.sidebar-search-input {
+    width: 100%;
+    padding: 13px 16px 13px 46px;
+    background: var(--notes-glass);
+    border: 1px solid var(--notes-glass-border);
+    border-radius: 14px;
+    color: #fff;
+    font-size: 14px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+    box-sizing: border-box;
+}
+
+.sidebar-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.sidebar-search-input:focus {
+    outline: none;
+    border-color: var(--notes-gold);
+    background: rgba(212, 165, 116, 0.06);
+    box-shadow: 0 0 0 4px rgba(212, 165, 116, 0.08),
+                0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ========== SIDEBAR FOLDERS - Divine Tree ========== */
+
+.sidebar-folders {
+    flex: 1;
+}
+
+.sidebar-folder-item {
+    margin-bottom: 2px;
+    user-select: none;
+}
+
+.sidebar-folder-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 1px solid transparent;
+    background: var(--notes-glass);
+}
+
+.sidebar-folder-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg,
+        rgba(212, 165, 116, 0.1) 0%,
+        transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-folder-header:hover {
+    background: rgba(212, 165, 116, 0.08);
+    border-color: rgba(212, 165, 116, 0.15);
+    transform: translateX(4px);
+}
+
+.sidebar-folder-header:hover::before {
+    opacity: 1;
+}
+
+.sidebar-folder-item.drag-over > .sidebar-folder-header {
+    background: rgba(212, 165, 116, 0.15);
+    border: 1px dashed var(--notes-gold);
+    box-shadow: 0 4px 16px rgba(212, 165, 116, 0.2);
+}
+
+.sidebar-folder-chevron {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted, #888);
+    transition: transform 0.2s;
+}
+
+.sidebar-folder-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-folder-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-folder-count {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--notes-gold-light);
+    background: rgba(212, 165, 116, 0.12);
+    padding: 3px 8px;
+    border-radius: 10px;
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.notes-count {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--notes-gold);
+    background: rgba(212, 165, 116, 0.15);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.sidebar-folder-menu {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-muted, #888);
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.sidebar-folder-header:hover .sidebar-folder-menu {
+    opacity: 1;
+}
+
+.sidebar-folder-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text, #fff);
+}
+
+.sidebar-folder-children {
+    padding-left: 16px;
+    margin-top: 2px;
+}
+
+/* ========== SIDEBAR NOTES - Premium Cards ========== */
+
+.sidebar-note-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    margin-bottom: 3px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    border: 1px solid transparent;
+    background: var(--notes-glass);
+    position: relative;
+}
+
+.sidebar-note-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--notes-gold), var(--notes-gold-dark));
+    border-radius: 12px 0 0 12px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.sidebar-note-item:hover {
+    background: rgba(212, 165, 116, 0.08);
+    border-color: rgba(212, 165, 116, 0.15);
+    transform: translateX(4px);
+}
+
+.sidebar-note-item:hover::before {
+    opacity: 0.3;
+}
+
+.sidebar-note-item.active {
+    background: linear-gradient(135deg,
+        rgba(212, 165, 116, 0.15) 0%,
+        rgba(212, 165, 116, 0.08) 100%);
+    border-color: rgba(212, 165, 116, 0.3);
+    box-shadow: 0 4px 20px rgba(212, 165, 116, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateX(6px);
+}
+
+.sidebar-note-item.active::before {
+    opacity: 1;
+}
+
+.sidebar-note-item.dragging {
+    opacity: 0.4;
+    transform: scale(0.95);
+}
+
+.sidebar-note-icon {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    color: var(--text-muted, #888);
+}
+
+.sidebar-note-title {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text, #fff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ========== SIDEBAR SECTIONS ========== */
+
+.sidebar-section {
+    margin-top: 16px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--text-muted, #888);
+}
+
+/* ========== SIDEBAR EMPTY STATE ========== */
+
+.sidebar-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.sidebar-empty p {
+    color: var(--text-muted, #888);
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+/* ========== CONTEXT MENU ========== */
+
+.sidebar-context-menu {
+    position: fixed;
+    background: var(--surface, #1e1e2e);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 6px;
+    min-width: 200px;
+    z-index: 10000;
+    backdrop-filter: blur(12px);
+}
+
+.context-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text, #fff);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.context-menu-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.context-menu-danger {
+    color: #ef4444;
+}
+
+.context-menu-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.context-menu-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin: 6px 0;
+}
+
+/* ========== CLUSTER BADGES ========== */
+
+.note-cluster-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    border: 1px solid;
+    margin-left: 6px;
+}
+
+.note-connections-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--text-muted, #888);
+    margin-left: 6px;
+}
+
+.note-connections-indicator svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ========== CLUSTER CONTROL PANEL ========== */
+
+.cluster-control-panel {
+    padding: 16px;
+    background: var(--surface, rgba(255, 255, 255, 0.03));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cluster-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+}
+
+.cluster-count,
+.cluster-connections {
+    color: var(--text, #fff);
+    font-weight: 500;
+}
+
+.cluster-cache {
+    font-size: 12px;
+    color: var(--text-muted, #888);
+}
+
+.cluster-cache.expired {
+    color: #f59e0b;
+}
+
+.cluster-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.cluster-btn {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text, #fff);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cluster-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cluster-btn-primary {
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    border-color: transparent;
+}
+
+.cluster-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* ========== EDITOR WRAPPER - Divine Premium ========== */
+
+.notes-editor-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg,
+        rgba(20, 18, 24, 0.6) 0%,
+        rgba(25, 22, 30, 0.6) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    margin: 16px;
+    overflow: hidden;
+    box-shadow: var(--notes-divine-shadow);
+    border: 1px solid var(--notes-glass-border);
+}
+
+.notes-editor-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 28px;
+    background: linear-gradient(180deg,
+        rgba(212, 165, 116, 0.06) 0%,
+        transparent 100%);
+    border-bottom: 1px solid var(--notes-glass-border);
+}
+
+.note-title-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.note-title-input {
+    width: 100%;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--notes-gold-light);
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-family: var(--font-heading, 'Inter', sans-serif);
+    transition: all 0.3s ease;
+}
+
+.note-title-input::placeholder {
+    background: linear-gradient(135deg, var(--notes-gold-light), var(--notes-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0.4;
+}
+
+.note-title-input:focus {
+    outline: none;
+    text-shadow: 0 0 40px var(--notes-gold-glow);
+}
+
+.note-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.note-action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--notes-glass);
+    border: 1px solid var(--notes-glass-border);
+    color: var(--notes-gold-light);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(12px);
+    position: relative;
+    overflow: hidden;
+}
+
+.note-action-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+        rgba(212, 165, 116, 0.2) 0%,
+        transparent 50%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.note-action-btn:hover {
+    background: rgba(212, 165, 116, 0.12);
+    border-color: var(--notes-gold);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(212, 165, 116, 0.2);
+}
+
+.note-action-btn:hover::before {
+    opacity: 1;
+}
+
+.note-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.note-delete-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.notes-editor-content {
+    flex: 1;
+    overflow: hidden;
+    padding: 0;
+}
+
+.note-textarea {
+    width: 100%;
+    height: 100%;
+    padding: 28px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    line-height: 1.8;
+    font-family: 'Inter', -apple-system, sans-serif;
+    resize: none;
+    overflow-y: auto;
+}
+
+.note-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+    font-style: italic;
+}
+
+.note-textarea:focus {
+    outline: none;
+}
+
+.notes-editor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: var(--notes-glass);
+    border-top: 1px solid var(--notes-glass-border);
+    backdrop-filter: blur(12px);
+}
+
+.save-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.save-indicator.saved {
+    color: var(--notes-gold);
+}
+
+.save-indicator.saving {
+    color: #60a5fa;
+}
+
+.save-indicator.unsaved {
+    color: #fbbf24;
+}
+
+.word-count {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 768px) {
+    #view-notes {
+        grid-template-columns: 1fr;
+    }
+
+    .notes-sidebar {
+        display: none;
+    }
+
+    .notes-sidebar.mobile-visible {
+        display: flex;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1000;
+    }
+
+    .notes-editor-wrapper {
+        margin: 12px;
+        border-radius: 16px;
+    }
+
+    .note-title-input {
+        font-size: 1.5rem;
+    }
+
+    .note-textarea {
+        padding: 20px;
+        font-size: 15px;
+    }
+}
+
+/* ========== SCROLLBAR STYLING ========== */
+
+.notes-sidebar-tree::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notes-sidebar-tree::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.notes-sidebar-tree::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.notes-sidebar-tree::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========== ANIMATIONS ========== */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.sidebar-folder-item,
+.sidebar-note-item {
+    animation: slideIn 0.2s ease-out;
+}
+
+/* ========== REDUCED MOTION ========== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}

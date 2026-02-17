@@ -1,0 +1,10 @@
+import { Router } from 'express';
+import * as ctrl from './urssaf.controller.js';
+const router = Router({ mergeParams: true });
+router.post('/simulate', ctrl.simulate);
+router.get('/declarations', ctrl.listDeclarations);
+router.post('/declarations', ctrl.createDeclaration);
+router.put('/declarations/:id', ctrl.updateDeclaration);
+router.get('/annual', ctrl.annualSummary);
+router.post('/auto-calculate', ctrl.autoCalc);
+export default router;

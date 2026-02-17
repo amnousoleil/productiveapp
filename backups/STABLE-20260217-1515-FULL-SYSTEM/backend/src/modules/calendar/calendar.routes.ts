@@ -1,0 +1,12 @@
+import { Router } from 'express';
+import * as ctrl from './calendar.controller.js';
+const router = Router({ mergeParams: true });
+router.get('/events', ctrl.list);
+router.get('/events/upcoming', ctrl.upcoming);
+router.post('/events', ctrl.create);
+router.get('/events/:id', ctrl.get);
+router.put('/events/:id', ctrl.update);
+router.delete('/events/:id', ctrl.remove);
+router.post('/sync/tasks', ctrl.syncTasks);
+router.post('/sync/invoices', ctrl.syncInvoices);
+export default router;

@@ -48,6 +48,8 @@ class CosmicToolbar {
                 </svg>
             </button>
 
+            <div class="cosmic-separator"></div>
+
             <div class="cosmic-color-wrapper">
                 <button id="cosmic-color-btn" class="cosmic-color-swatch" style="background:#60a5fa" title="Couleur des formes"></button>
                 <div id="cosmic-color-popup" class="cosmic-color-popup">
@@ -157,13 +159,6 @@ class CosmicToolbar {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 7v6h-6"/>
                     <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/>
-                </svg>
-            </button>
-
-            <button class="cosmic-btn" data-action="zen" title="Mode Zen (Z)">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 6v6l4 2"/>
                 </svg>
             </button>
 
@@ -599,6 +594,7 @@ class CosmicToolbar {
                 : tool === 'hand' ? 'tool-hand'
                 : tool === 'connector' ? 'tool-shape'
                 : tool === 'pen' ? 'tool-pen'
+                : tool === 'text' ? 'tool-text'
                 : tool === 'marquee' ? 'tool-shape' : '';
         }
 
@@ -618,9 +614,6 @@ class CosmicToolbar {
                 break;
             case 'redo':
                 if (window.CosmicHistory) window.CosmicHistory.redo();
-                break;
-            case 'zen':
-                document.body.classList.toggle('zen-mode');
                 break;
             case 'skin-toggle':
                 if (window.GalaxyCosmic && window.GalaxyCosmic.toggleSkin) {
@@ -1003,11 +996,12 @@ class RadialMenu {
         this._opacityMode = false;
     }
 
-    editText() {
+    editText(options) {
         const node = this.targetNode;
         if (!node) return;
         const canvas = document.getElementById('galaxy-canvas');
         if (!canvas) return;
+        const onDone = options && options.onDone;
 
         // Compute screen position & size of node
         const { x: camX, y: camY, zoom } = CosmicState.camera;
@@ -1018,15 +1012,23 @@ class RadialMenu {
         const ry = rect.height / canvas.height;
         const r = node.radius * zoom;
 
-        // Input width = shape width in CSS pixels
-        const inputW = (node.shape === 'rect' ? r * 1.6 : r * 2) * rx;
+        // Input width = shape width in CSS pixels (use textBox dimensions for text nodes)
+        const inputW = (node.isTextNode && node.textBoxWidth)
+            ? node.textBoxWidth * zoom * rx
+            : node.isTextNode ? r * 3 * rx
+            : (node.shape === 'rect' ? r * 1.6 : r * 2) * rx;
         const fontSize = Math.max(10, (node.fontSize || 14) * zoom * ry);
 
-        // Contrast: light text on dark forms, dark text on light forms
-        const c = node.color || '#60a5fa';
-        const rgb = parseInt(c.slice(1), 16);
-        const lum = ((rgb >> 16) & 0xff) * 0.299 + ((rgb >> 8) & 0xff) * 0.587 + (rgb & 0xff) * 0.114;
-        const textCol = lum > 140 ? '#1a1a2e' : '#ffffff';
+        // Contrast: use textColor for text nodes, auto-detect for shapes
+        let textCol;
+        if (node.isTextNode) {
+            textCol = node.textColor || '#ffffff';
+        } else {
+            const c = node.color || '#60a5fa';
+            const rgb = parseInt(c.slice(1), 16);
+            const lum = ((rgb >> 16) & 0xff) * 0.299 + ((rgb >> 8) & 0xff) * 0.587 + (rgb & 0xff) * 0.114;
+            textCol = lum > 140 ? '#1a1a2e' : '#ffffff';
+        }
 
         const input = document.createElement('input');
         input.type = 'text';
@@ -1046,23 +1048,39 @@ class RadialMenu {
         input.focus();
         input.select();
 
+        // Hide canvas text rendering while editing (prevents double text)
+        node._editing = true;
+
         // Live preview: update node text as user types
         const onInput = () => { node.text = input.value; };
         input.addEventListener('input', onInput);
 
         let committed = false;
+        const cleanup = () => {
+            delete node._editing;
+            input.removeEventListener('input', onInput);
+            input.remove();
+        };
         const commit = () => {
             if (committed) return;
             committed = true;
             node.text = input.value.trim();
-            input.removeEventListener('input', onInput);
-            input.remove();
-            if (window.CosmicHistory) window.CosmicHistory.save();
-            if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+            cleanup();
+            if (onDone) {
+                onDone(node.text);
+            } else {
+                if (window.CosmicHistory) window.CosmicHistory.save();
+                if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+            }
         };
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') { e.preventDefault(); commit(); }
-            if (e.key === 'Escape') { node.text = input.dataset.original; input.removeEventListener('input', onInput); input.remove(); }
+            if (e.key === 'Escape') {
+                node.text = input.dataset.original;
+                cleanup();
+                committed = true;
+                if (onDone) onDone(input.dataset.original);
+            }
         });
         input.dataset.original = node.text || '';
         input.addEventListener('blur', commit);
@@ -1083,6 +1101,9 @@ class RadialMenu {
             text: node.text || '',
             fontSize: node.fontSize,
             textColor: node.textColor,
+            isTextNode: node.isTextNode || false,
+            textBoxWidth: node.textBoxWidth || 0,
+            textBoxHeight: node.textBoxHeight || 0,
             createdAt: Date.now()
         };
 
@@ -1214,8 +1235,11 @@ class TextToolbar {
         const rx = rect.width / canvas.width;
         const ry = rect.height / canvas.height;
 
+        const halfH = (node.isTextNode && node.textBoxHeight)
+            ? node.textBoxHeight / 2 * zoom * ry
+            : node.radius * zoom * ry;
         this.element.style.left = (rect.left + sx * rx) + 'px';
-        this.element.style.top = (rect.top + sy * ry - node.radius * zoom * ry - 15) + 'px';
+        this.element.style.top = (rect.top + sy * ry - halfH - 15) + 'px';
         this.element.classList.add('visible');
 
         const swatch = this.element.querySelector('.ttb-color-swatch');
@@ -1586,3 +1610,358 @@ setTimeout(function() {
         console.error('❌ Cosmic Projects init error:', e);
     }
 }, 2000);
+
+// ═══════════════════════════════════════════════════════════════════
+// GALAXY HELP BUBBLE — "Besoin d'aide ?" speech bubble from golden ball
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+    var _shown = false;       // flag: already shown this Galaxy session
+    var _timer = null;
+    var _bubble = null;
+
+    function _createBubble() {
+        if (_bubble) return _bubble;
+        var el = document.createElement('div');
+        el.id = 'galaxy-help-bubble';
+        el.textContent = 'Besoin d\u2019aide ?';
+        el.style.cssText =
+            'position:fixed;bottom:92px;right:18px;z-index:101;' +
+            'background:#faf8f0;color:#333;font-size:13px;font-weight:500;' +
+            'padding:8px 14px;border-radius:12px;' +
+            'box-shadow:0 2px 12px rgba(0,0,0,0.18);' +
+            'opacity:0;transition:opacity 0.5s ease;pointer-events:none;' +
+            'white-space:nowrap;';
+        document.body.appendChild(el);
+
+        // Speech bubble arrow pointing down-right toward the golden ball
+        var arrow = document.createElement('div');
+        arrow.style.cssText =
+            'position:absolute;bottom:-7px;right:22px;' +
+            'width:0;height:0;' +
+            'border-left:7px solid transparent;border-right:7px solid transparent;' +
+            'border-top:7px solid #faf8f0;';
+        el.appendChild(arrow);
+
+        _bubble = el;
+        return el;
+    }
+
+    function _showBubble() {
+        if (_shown) return;
+        _shown = true;
+        var b = _createBubble();
+        // Fade in
+        requestAnimationFrame(function() {
+            b.style.opacity = '1';
+        });
+        // Fade out after 4s
+        setTimeout(function() {
+            b.style.opacity = '0';
+            // Remove from DOM after transition
+            setTimeout(function() {
+                if (b.parentNode) b.parentNode.removeChild(b);
+                _bubble = null;
+            }, 600);
+        }, 4000);
+    }
+
+    function _scheduleShow() {
+        _cancelShow();
+        _shown = false;
+        _timer = setTimeout(_showBubble, 5000);
+    }
+
+    function _cancelShow() {
+        if (_timer) { clearTimeout(_timer); _timer = null; }
+        // Remove bubble if visible
+        if (_bubble && _bubble.parentNode) {
+            _bubble.parentNode.removeChild(_bubble);
+            _bubble = null;
+        }
+    }
+
+    // Detect Galaxy View enter/leave via body class observer
+    var _wasActive = false;
+    var obs = new MutationObserver(function() {
+        var isActive = document.body.classList.contains('galaxy-active');
+        if (isActive && !_wasActive) {
+            // Entered Galaxy View
+            _scheduleShow();
+        } else if (!isActive && _wasActive) {
+            // Left Galaxy View — reset so it shows again on re-entry
+            _cancelShow();
+            _shown = false;
+        }
+        _wasActive = isActive;
+    });
+    obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    // Reset on new project load
+    if (typeof CosmicPersistence !== 'undefined') {
+        CosmicPersistence.onStatusChange(function(status) {
+            if (status === 'loaded' && document.body.classList.contains('galaxy-active')) {
+                _cancelShow();
+                _scheduleShow();
+            }
+        });
+    }
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// TOGGLE CONNEXIONS (bouton Orbites)
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+    function _updateIcon(visible) {
+        var btn = document.getElementById('galaxy-toggle-orbits');
+        if (!btn) return;
+        btn.style.opacity = visible ? '1' : '0.4';
+        btn.title = visible ? 'Connexions visibles' : 'Connexions masquées';
+    }
+
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('#galaxy-toggle-orbits');
+        if (!btn) return;
+        CosmicState.showConnections = !CosmicState.showConnections;
+        _updateIcon(CosmicState.showConnections);
+    });
+
+    // Reset on project load: connections always visible
+    if (typeof CosmicPersistence !== 'undefined') {
+        CosmicPersistence.onStatusChange(function(status) {
+            if (status === 'loaded') {
+                CosmicState.showConnections = true;
+                _updateIcon(true);
+            }
+        });
+    }
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// TOGGLE 2D ↔ 3D
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+    'use strict';
+
+    var is3D = false;
+    var backBtn = null;
+    var fitBtn = null;
+
+    // --- Adapter: CosmicState → Galaxy3D data ---
+    function cosmicToGalaxy3D() {
+        var nodes3D = [];
+        var conns3D = [];
+        var SCALE = 30; // pixels → 3D units
+
+        CosmicState.nodes.forEach(function(n) {
+            if (n.isTextNode && (!n.text || n.text.trim() === '')) return; // skip empty text nodes
+            var sizeRatio = (n.radius || 40) / 40; // normalize around 40px default
+
+            // Compute width/height ratio for rects
+            var widthRatio = 2.2, heightRatio = 1.4;
+            if (n.shape === 'rect' && n.width && n.height) {
+                var avg = (n.width + n.height) / 2;
+                widthRatio = (n.width / avg) * 2;
+                heightRatio = (n.height / avg) * 2;
+            }
+
+            nodes3D.push({
+                id: n.id,
+                type: 'shape',
+                sourceId: n.id,
+                label: n.text || '',  // only real user text, no shape name
+                hexColor: n.color || '#60a5fa',
+                size: Math.max(0.5, Math.min(2.5, sizeRatio)),
+                position: {
+                    x: (n.x || 0) / SCALE,
+                    y: -(n.y || 0) / SCALE, // flip Y (2D y-down → 3D y-up)
+                    z: (Math.random() - 0.5) * 30
+                },
+                tags: [],
+                metadata: {
+                    shape: n.shape || 'circle',
+                    isTextNode: !!n.isTextNode,
+                    widthRatio: widthRatio,
+                    heightRatio: heightRatio,
+                    fontSize: n.fontSize || 16
+                }
+            });
+        });
+
+        CosmicState.connections.forEach(function(c) {
+            conns3D.push({
+                id: c.id,
+                from: c.fromId,
+                to: c.toId,
+                strength: 0.7,
+                color: '#ffffff'
+            });
+        });
+
+        return { nodes: nodes3D, connections: conns3D };
+    }
+
+    // --- Create "Retour 2D" floating button ---
+    function createBackButton() {
+        if (backBtn) return backBtn;
+        backBtn = document.createElement('button');
+        backBtn.id = 'galaxy-back-2d';
+        backBtn.textContent = '← Retour 2D';
+        backBtn.style.cssText = 'position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;' +
+            'padding:10px 24px;border:1px solid rgba(255,255,255,0.2);border-radius:12px;' +
+            'background:rgba(10,10,30,0.85);color:#fff;font-size:14px;font-weight:600;cursor:pointer;' +
+            'backdrop-filter:blur(8px);transition:all 0.2s;';
+        backBtn.addEventListener('mouseenter', function() { backBtn.style.background = 'rgba(80,80,200,0.6)'; });
+        backBtn.addEventListener('mouseleave', function() { backBtn.style.background = 'rgba(10,10,30,0.85)'; });
+        backBtn.addEventListener('click', function() { toggle3D(); });
+        return backBtn;
+    }
+
+    // --- Create "Fit to view" button ---
+    function createFitButton() {
+        if (fitBtn) return fitBtn;
+        fitBtn = document.createElement('button');
+        fitBtn.id = 'galaxy-fit-view';
+        fitBtn.title = 'Cadrer toute la galaxie';
+        fitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>';
+        fitBtn.style.cssText = 'position:absolute;top:16px;right:16px;z-index:200;' +
+            'width:40px;height:40px;display:flex;align-items:center;justify-content:center;' +
+            'border:1px solid rgba(255,255,255,0.2);border-radius:10px;' +
+            'background:rgba(10,10,30,0.85);color:#fff;cursor:pointer;' +
+            'backdrop-filter:blur(8px);transition:all 0.2s;';
+        fitBtn.addEventListener('mouseenter', function() { fitBtn.style.background = 'rgba(80,80,200,0.6)'; });
+        fitBtn.addEventListener('mouseleave', function() { fitBtn.style.background = 'rgba(10,10,30,0.85)'; });
+        fitBtn.addEventListener('click', function() {
+            if (typeof Galaxy3D !== 'undefined' && Galaxy3D.isInitialized) {
+                Galaxy3D.fitToView();
+            }
+        });
+        return fitBtn;
+    }
+
+    // --- Toggle ---
+    function toggle3D() {
+        var canvas2D = document.getElementById('galaxy-canvas');
+        var canvas3D = document.getElementById('galaxy-3d-canvas');
+        var container = document.getElementById('galaxy-3d-container');
+        var toolbar = document.querySelector('.cosmic-toolbar');
+        var toggleBtn = document.getElementById('galaxy-toggle-3d');
+
+        if (!canvas2D || !canvas3D || !container) {
+            console.error('[3D Toggle] Missing DOM elements: canvas2D=', !!canvas2D, 'canvas3D=', !!canvas3D, 'container=', !!container);
+            return;
+        }
+
+        if (!is3D) {
+            // === ENTER 3D ===
+            console.log('[3D Toggle] Entering 3D mode...');
+
+            // Hide 2D canvas and toolbar
+            canvas2D.style.display = 'none';
+            if (toolbar) toolbar.style.display = 'none';
+
+            // Show and size the 3D canvas BEFORE init
+            canvas3D.style.display = 'block';
+            canvas3D.style.width = '100%';
+            canvas3D.style.height = '100%';
+
+            // Force reflow to get accurate container dimensions
+            void container.offsetHeight;
+            var w = container.clientWidth;
+            var h = container.clientHeight;
+            console.log('[3D Toggle] Container size:', w, 'x', h);
+
+            if (w < 10 || h < 10) {
+                console.warn('[3D Toggle] Container too small! Trying parent...');
+                var parent = container.parentElement;
+                if (parent) {
+                    w = parent.clientWidth || window.innerWidth;
+                    h = parent.clientHeight || (window.innerHeight - 60);
+                    console.log('[3D Toggle] Using parent size:', w, 'x', h);
+                }
+            }
+
+            // Init Galaxy3D
+            if (typeof Galaxy3D !== 'undefined') {
+                if (!Galaxy3D.isInitialized) {
+                    console.log('[3D Toggle] Initializing Galaxy3D...');
+                    Galaxy3D.init(container);
+                } else {
+                    Galaxy3D.onResize();
+                }
+
+                // Convert and load data
+                var data = cosmicToGalaxy3D();
+                console.log('[3D Toggle] Converted', data.nodes.length, 'nodes,', data.connections.length, 'connections');
+                Galaxy3D.loadData(data.nodes, data.connections);
+            } else {
+                console.error('[3D Toggle] Galaxy3D not loaded!');
+            }
+
+            // Add overlay buttons
+            container.appendChild(createBackButton());
+            container.appendChild(createFitButton());
+
+            // Update toggle button
+            if (toggleBtn) {
+                toggleBtn.innerHTML = '&#9998; 2D';
+                toggleBtn.title = 'Retour vue 2D';
+            }
+
+            is3D = true;
+        } else {
+            // === EXIT 3D → back to 2D ===
+            console.log('[3D Toggle] Returning to 2D...');
+
+            if (typeof Galaxy3D !== 'undefined' && Galaxy3D.isInitialized) {
+                Galaxy3D.dispose();
+            }
+
+            canvas3D.style.display = 'none';
+            canvas2D.style.display = 'block';
+            if (toolbar) toolbar.style.display = '';
+
+            // Remove overlay buttons
+            if (backBtn && backBtn.parentNode) backBtn.parentNode.removeChild(backBtn);
+            if (fitBtn && fitBtn.parentNode) fitBtn.parentNode.removeChild(fitBtn);
+
+            // Restore toggle button
+            if (toggleBtn) {
+                toggleBtn.innerHTML = '&#127760; 3D';
+                toggleBtn.title = 'Vue 3D';
+            }
+
+            // Force Cosmic 2D canvas to recalculate size and redraw
+            requestAnimationFrame(function() {
+                if (CosmicState.canvas) {
+                    var parent = CosmicState.canvas.parentElement;
+                    if (parent) {
+                        CosmicState.canvas.width = parent.clientWidth;
+                        CosmicState.canvas.height = parent.clientHeight;
+                        console.log('[3D Toggle] Restored 2D canvas:', parent.clientWidth, 'x', parent.clientHeight);
+                    }
+                }
+            });
+
+            is3D = false;
+        }
+    }
+
+    // --- Wire up button ---
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('#galaxy-toggle-3d');
+        if (!btn) return;
+        toggle3D();
+    });
+
+    // --- Reset to 2D when leaving Galaxy View ---
+    var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(m) {
+            if (m.attributeName === 'class') {
+                if (!document.body.classList.contains('galaxy-active') && is3D) {
+                    toggle3D(); // force back to 2D
+                }
+            }
+        });
+    });
+    observer.observe(document.body, { attributes: true });
+})();

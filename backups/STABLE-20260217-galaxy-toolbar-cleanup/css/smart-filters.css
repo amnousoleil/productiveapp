@@ -1,0 +1,52 @@
+/* SMART FILTERS */
+.smart-filters-bar {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+}
+.smart-filters-scroll {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+.smart-filters-scroll::-webkit-scrollbar { display: none; }
+.sf-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+.sf-chip:hover {
+    border-color: var(--sf-color, var(--accent));
+    color: var(--sf-color, var(--accent));
+    background: rgba(var(--accent-rgb, 99,102,241), 0.08);
+}
+.sf-chip.active {
+    background: var(--sf-color, var(--accent));
+    color: #fff;
+    border-color: var(--sf-color, var(--accent));
+}
+.sf-chip svg { flex-shrink: 0; }
+.sf-count {
+    background: rgba(255,255,255,0.2);
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+}
+.sf-chip:not(.active) .sf-count {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+}

@@ -1,0 +1,194 @@
+/* ================================================
+   KEYBOARD SHORTCUTS OVERLAY
+   ProductiveApp v4.0
+   ================================================ */
+
+/* === OVERLAY === */
+.kb-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    padding: 20px;
+}
+
+.kb-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* === CARD === */
+.kb-card {
+    background: var(--bg-secondary, #1a1a24);
+    border: 1px solid var(--border, rgba(255,255,255,0.1));
+    border-top: 3px solid var(--accent, #e07840);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 80vh;
+    overflow: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transition: transform 0.2s ease;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+}
+
+.kb-overlay.active .kb-card {
+    transform: translateY(0) scale(1);
+}
+
+/* === HEADER === */
+.kb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+
+.kb-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text, #f5f5f5);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kb-title svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--accent, #e07840);
+    stroke-width: 2;
+    fill: none;
+}
+
+.kb-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-muted, #888);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.kb-close:hover {
+    background: var(--bg-tertiary, #2a2a34);
+    color: var(--text, #f5f5f5);
+}
+
+/* === CONTENT === */
+.kb-content {
+    padding: 16px 24px 24px;
+    overflow-y: auto;
+    max-height: calc(80vh - 80px);
+}
+
+/* === SECTION === */
+.kb-section {
+    margin-bottom: 20px;
+}
+
+.kb-section:last-child {
+    margin-bottom: 0;
+}
+
+.kb-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent, #e07840);
+    margin-bottom: 10px;
+    padding-left: 4px;
+}
+
+/* === SHORTCUT ROWS === */
+.kb-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: background 0.1s ease;
+}
+
+.kb-row:hover {
+    background: var(--bg-card, rgba(255,255,255,0.03));
+}
+
+.kb-label {
+    font-size: 13px;
+    color: var(--text, #f5f5f5);
+    font-weight: 500;
+}
+
+.kb-keys {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.kb-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 8px;
+    background: var(--bg-tertiary, #2a2a34);
+    border: 1px solid var(--border, rgba(255,255,255,0.12));
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted, #aaa);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    white-space: nowrap;
+}
+
+.kb-plus {
+    font-size: 10px;
+    color: var(--text-muted, #666);
+    margin: 0 2px;
+}
+
+/* === FOOTER === */
+.kb-footer {
+    padding: 12px 24px;
+    border-top: 1px solid var(--border, rgba(255,255,255,0.08));
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted, #666);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 640px) {
+    .kb-card {
+        max-width: 100%;
+        max-height: 90vh;
+    }
+
+    .kb-content {
+        max-height: calc(90vh - 80px);
+    }
+
+    .kb-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        padding: 10px 12px;
+    }
+}

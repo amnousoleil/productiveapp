@@ -58,7 +58,7 @@ const CosmicPersistence = (function () {
 
     function serializeState() {
         const nodes = CosmicState.nodes.map(function (n) {
-            return {
+            var obj = {
                 id: n.id,
                 x: n.x,
                 y: n.y,
@@ -73,6 +73,16 @@ const CosmicPersistence = (function () {
                 locked: !!n.locked,
                 metadata: n.metadata || {}
             };
+            // Text node properties
+            if (n.textColor) obj.textColor = n.textColor;
+            if (n.opacity != null && n.opacity !== 1) obj.opacity = n.opacity;
+            if (n.isTextNode) {
+                obj.isTextNode = true;
+                obj.textBoxWidth = n.textBoxWidth || 0;
+                obj.textBoxHeight = n.textBoxHeight || 0;
+            }
+            if (n.type && n.type !== 'shape') obj.type = n.type;
+            return obj;
         });
 
         const connections = CosmicState.connections.map(function (c) {
@@ -113,7 +123,7 @@ const CosmicPersistence = (function () {
         if (!data) return;
 
         CosmicState.nodes = (data.nodes || []).map(function (n) {
-            return {
+            var node = {
                 id: n.id,
                 type: n.type || 'shape',
                 shape: n.shape || 'circle',
@@ -132,6 +142,15 @@ const CosmicPersistence = (function () {
                 breathing: true,
                 glowIntensity: 0
             };
+            // Restore text node properties
+            if (n.textColor) node.textColor = n.textColor;
+            if (n.opacity != null) node.opacity = n.opacity;
+            if (n.isTextNode) {
+                node.isTextNode = true;
+                node.textBoxWidth = n.textBoxWidth || 0;
+                node.textBoxHeight = n.textBoxHeight || 0;
+            }
+            return node;
         });
 
         CosmicState.connections = (data.connections || []).map(function (c) {

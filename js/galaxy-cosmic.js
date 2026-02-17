@@ -62,6 +62,9 @@ const CosmicState = {
         patterns: []
     },
 
+    // Visibilité connexions (toggle Orbites)
+    showConnections: true,
+
     // Préférences
     prefs: {
         showParticles: true,
@@ -632,7 +635,7 @@ class CosmicRenderer {
         const isResizingOnly = window.CosmicShapeInteraction && window.CosmicShapeInteraction.isResizing;
         if (!isDrawing || isResizingOnly) {
             this.renderGrid(ctx, camera);
-            this.renderConnections(ctx, camera, now);
+            if (CosmicState.showConnections) this.renderConnections(ctx, camera, now);
         }
 
         // Traits de feutre (dessin libre)
@@ -647,6 +650,11 @@ class CosmicRenderer {
         // Preview forme en cours de dessin
         if (window.renderShapePreview) {
             window.renderShapePreview(ctx, camera);
+        }
+
+        // Preview text zone during drag
+        if (window.renderTextPreview) {
+            window.renderTextPreview(ctx, camera);
         }
 
         // Marquee selection rectangle
@@ -930,14 +938,26 @@ class CosmicRenderer {
             const nodeOpacity = node.opacity != null ? node.opacity : 1;
             ctx.globalAlpha = nodeOpacity;
 
+            // Text nodes with custom dimensions: draw custom rect path
+            const isTextBox = node.isTextNode && node.textBoxWidth;
             const pathFn = window.CosmicShapes && window.CosmicShapes[node.shape];
-            if (pathFn) {
+            if (isTextBox) {
+                const tw = node.textBoxWidth * zoom;
+                const th = node.textBoxHeight * zoom;
+                ctx.beginPath();
+                ctx.rect(-tw / 2, -th / 2, tw, th);
+            } else if (pathFn) {
                 pathFn(ctx, radius);
-                ctx.fillStyle = node.color;
-                ctx.fill();
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+            }
+            if (isTextBox || pathFn) {
+                // Text nodes: skip fill/stroke (invisible shape)
+                if (!node.isTextNode) {
+                    ctx.fillStyle = node.color;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
                 // Selection highlight at full opacity
                 if (CosmicState.selectedNodes.has(node)) {
                     ctx.globalAlpha = 1;
@@ -960,14 +980,16 @@ class CosmicRenderer {
             // Reset opacity for text (always fully visible)
             ctx.globalAlpha = 1;
 
-            // Texte (word-wrap + vertical clamp)
-            if (node.text) {
+            // Texte (word-wrap + vertical clamp) — skip during inline editing
+            if (node.text && !node._editing) {
                 const fs = Math.max(4, (node.fontSize || 14) * zoom);
                 ctx.fillStyle = node.textColor || '#ffffff';
                 ctx.font = `${fs}px "Segoe UI", sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                const maxW = radius * 1.4;
+                const maxW = (node.isTextNode && node.textBoxWidth) ? node.textBoxWidth * zoom * 0.95
+                           : node.isTextNode ? radius * 2.5
+                           : radius * 1.4;
                 const words = node.text.split(' ');
                 const lines = [];
                 let line = '';
@@ -983,7 +1005,9 @@ class CosmicRenderer {
                 if (line) lines.push(line);
                 const lh = fs * 1.25;
                 // Vertical clamp: limit lines to fit inside shape
-                const maxH = (node.shape === 'rect') ? radius * zoom * 1.0 : radius * zoom * 1.6;
+                const maxH = (node.isTextNode && node.textBoxHeight) ? node.textBoxHeight * zoom * 0.95
+                           : (node.shape === 'rect') ? radius * zoom * 1.0
+                           : radius * zoom * 1.6;
                 const maxLines = Math.max(1, Math.floor(maxH / lh));
                 if (lines.length > maxLines) {
                     lines.length = maxLines;

@@ -1,0 +1,590 @@
+/**
+ * Psycho-Audit View Module
+ * ProductiveApp v5.0 - Analyse comportementale et bien-etre au travail
+ */
+
+const PsychoAuditView = (function() {
+    'use strict';
+
+    const STORAGE_KEY = 'psycho_audits';
+
+    // Questions du questionnaire
+    const QUESTIONS = [
+        { id: 'energy', label: 'Comment evaluez-vous votre niveau d\'energie aujourd\'hui ?', icon: '⚡' },
+        { id: 'workload', label: 'Votre charge de travail est-elle gerable ?', icon: '📋' },
+        { id: 'motivation', label: 'Vous sentez-vous motive(e) par vos taches actuelles ?', icon: '🎯' },
+        { id: 'focus', label: 'Arrivez-vous a vous concentrer facilement ?', icon: '🧠' },
+        { id: 'balance', label: 'Votre equilibre vie pro/perso est-il satisfaisant ?', icon: '⚖️' }
+    ];
+
+    // Recommandations basees sur les scores faibles
+    const RECOMMENDATIONS = {
+        energy: [
+            'Prenez des pauses regulieres de 5 minutes toutes les heures',
+            'Ameliorez votre sommeil en vous couchant 30 min plus tot',
+            'Integrez une courte marche de 10 min dans votre journee'
+        ],
+        workload: [
+            'Priorisez vos taches avec la matrice Eisenhower',
+            'Apprenez a deleguer ou a dire non aux demandes non essentielles',
+            'Decoupez les gros projets en sous-taches de 25 minutes'
+        ],
+        motivation: [
+            'Identifiez ce qui vous passionne dans votre travail',
+            'Fixez-vous des objectifs clairs et mesurables',
+            'Celebrez vos petites victoires quotidiennes'
+        ],
+        focus: [
+            'Utilisez la technique Pomodoro (25 min focus, 5 min pause)',
+            'Desactivez les notifications pendant les periodes de travail',
+            'Creez un environnement de travail sans distractions'
+        ],
+        balance: [
+            'Definissez des horaires de travail fixes et respectez-les',
+            'Planifiez des activites personnelles comme des rendez-vous',
+            'Deconnectez-vous completement pendant vos temps de repos'
+        ]
+    };
+
+    let state = {
+        answers: {},
+        showResults: false,
+        currentAudit: null
+    };
+
+    // Guards contre les appels multiples
+    let hasInitialized = false;
+    let renderScheduled = false;
+
+    // ==========================================
+    // STORAGE FUNCTIONS
+    // ==========================================
+
+    function loadAudits() {
+        try {
+            var data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [];
+        } catch (e) {
+            console.warn('PsychoAudit: Failed to load audits', e);
+            return [];
+        }
+    }
+
+    function saveAudit(audit) {
+        try {
+            var audits = loadAudits();
+            audits.unshift(audit);
+            // Garder seulement les 30 derniers audits
+            if (audits.length > 30) {
+                audits = audits.slice(0, 30);
+            }
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(audits));
+        } catch (e) {
+            console.warn('PsychoAudit: Failed to save audit', e);
+        }
+    }
+
+    // ==========================================
+    // CALCULATION FUNCTIONS
+    // ==========================================
+
+    function calculateScore() {
+        var total = 0;
+        var count = 0;
+        QUESTIONS.forEach(function(q) {
+            if (state.answers[q.id]) {
+                total += state.answers[q.id];
+                count++;
+            }
+        });
+        if (count === 0) return 0;
+        // Convertir en score sur 100 (5 questions * 5 max = 25, donc score/25 * 100)
+        return Math.round((total / 25) * 100);
+    }
+
+    function getScoreColor(score) {
+        if (score >= 75) return '#22c55e'; // vert
+        if (score >= 50) return '#f59e0b'; // orange
+        return '#ef4444'; // rouge
+    }
+
+    function getScoreLabel(score) {
+        if (score >= 75) return 'Excellent';
+        if (score >= 50) return 'Correct';
+        return 'A ameliorer';
+    }
+
+    function getRecommendations() {
+        var recs = [];
+        var weakAreas = [];
+
+        QUESTIONS.forEach(function(q) {
+            var score = state.answers[q.id] || 0;
+            if (score <= 3) {
+                weakAreas.push({ id: q.id, score: score, label: q.label });
+            }
+        });
+
+        // Trier par score croissant (les plus faibles en premier)
+        weakAreas.sort(function(a, b) { return a.score - b.score; });
+
+        // Prendre les 3 pires et donner une recommandation pour chaque
+        weakAreas.slice(0, 3).forEach(function(area) {
+            var areaRecs = RECOMMENDATIONS[area.id];
+            if (areaRecs && areaRecs.length > 0) {
+                var randomRec = areaRecs[Math.floor(Math.random() * areaRecs.length)];
+                recs.push({
+                    area: area.id,
+                    label: area.label.replace('?', ''),
+                    recommendation: randomRec
+                });
+            }
+        });
+
+        // Si moins de 3 recommandations, ajouter des conseils generaux
+        while (recs.length < 3) {
+            var generalTips = [
+                { area: 'general', label: 'Bien-etre general', recommendation: 'Maintenez une routine quotidienne equilibree' },
+                { area: 'general', label: 'Productivite', recommendation: 'Revoyez vos objectifs chaque semaine' },
+                { area: 'general', label: 'Sante mentale', recommendation: 'Pratiquez 5 minutes de meditation quotidienne' }
+            ];
+            recs.push(generalTips[recs.length]);
+        }
+
+        return recs;
+    }
+
+    // ==========================================
+    // RADAR CHART (Pure CSS/SVG)
+    // ==========================================
+
+    function generateRadarChart(answers) {
+        var size = 250;
+        var cx = size / 2;
+        var cy = size / 2;
+        var r = size / 2 - 45;
+        var angleStep = (2 * Math.PI) / 5;
+
+        // Niveaux de fond (cercles concentriques en pentagone)
+        var levels = '';
+        [0.2, 0.4, 0.6, 0.8, 1].forEach(function(level) {
+            var points = QUESTIONS.map(function(_, i) {
+                var angle = -Math.PI / 2 + i * angleStep;
+                return (cx + r * level * Math.cos(angle)) + ',' + (cy + r * level * Math.sin(angle));
+            }).join(' ');
+            levels += '<polygon points="' + points + '" fill="none" stroke="var(--border, rgba(139,92,246,0.2))" stroke-width="1"/>';
+        });
+
+        // Axes
+        var axes = '';
+        QUESTIONS.forEach(function(_, i) {
+            var angle = -Math.PI / 2 + i * angleStep;
+            axes += '<line x1="' + cx + '" y1="' + cy + '" x2="' + (cx + r * Math.cos(angle)) + '" y2="' + (cy + r * Math.sin(angle)) + '" stroke="var(--border, rgba(139,92,246,0.3))" stroke-width="1"/>';
+        });
+
+        // Polygone des donnees
+        var dataPoints = QUESTIONS.map(function(q, i) {
+            var val = (answers[q.id] || 0) / 5; // Normaliser sur 0-1
+            var angle = -Math.PI / 2 + i * angleStep;
+            return (cx + r * val * Math.cos(angle)) + ',' + (cy + r * val * Math.sin(angle));
+        }).join(' ');
+
+        // Labels
+        var labels = '';
+        var shortLabels = ['Energie', 'Charge', 'Motivation', 'Focus', 'Equilibre'];
+        shortLabels.forEach(function(label, i) {
+            var angle = -Math.PI / 2 + i * angleStep;
+            var lx = cx + (r + 30) * Math.cos(angle);
+            var ly = cy + (r + 30) * Math.sin(angle);
+            var score = answers[QUESTIONS[i].id] || 0;
+            labels += '<text x="' + lx + '" y="' + ly + '" text-anchor="middle" dominant-baseline="middle" fill="var(--text-secondary, #888)" font-size="11">' + label + '</text>';
+            labels += '<text x="' + lx + '" y="' + (ly + 14) + '" text-anchor="middle" fill="' + getScoreColor(score * 20) + '" font-size="12" font-weight="700">' + score + '/5</text>';
+        });
+
+        // Points sur le polygone
+        var dots = '';
+        QUESTIONS.forEach(function(q, i) {
+            var val = (answers[q.id] || 0) / 5;
+            var angle = -Math.PI / 2 + i * angleStep;
+            var dx = cx + r * val * Math.cos(angle);
+            var dy = cy + r * val * Math.sin(angle);
+            dots += '<circle cx="' + dx + '" cy="' + dy + '" r="5" fill="var(--primary, #8b5cf6)" stroke="#fff" stroke-width="2"/>';
+        });
+
+        return '<svg viewBox="0 0 ' + size + ' ' + size + '" width="' + size + '" height="' + size + '">' +
+            levels + axes +
+            '<polygon points="' + dataPoints + '" fill="rgba(139,92,246,0.3)" stroke="var(--primary, #8b5cf6)" stroke-width="2"/>' +
+            dots + labels +
+            '</svg>';
+    }
+
+    // ==========================================
+    // TRENDS CHART (7 derniers audits)
+    // ==========================================
+
+    function generateTrendsChart() {
+        var audits = loadAudits().slice(0, 7).reverse();
+        if (audits.length < 2) {
+            return '<div class="trends-empty">Pas assez de donnees. Completez au moins 2 audits pour voir les tendances.</div>';
+        }
+
+        var width = 100;
+        var height = 60;
+        var maxScore = 100;
+        var padding = 5;
+
+        var step = (width - padding * 2) / (audits.length - 1);
+
+        // Ligne de tendance
+        var pathPoints = audits.map(function(audit, i) {
+            var x = padding + i * step;
+            var y = height - padding - ((audit.score / maxScore) * (height - padding * 2));
+            return (i === 0 ? 'M' : 'L') + x + ',' + y;
+        }).join(' ');
+
+        // Points
+        var dots = audits.map(function(audit, i) {
+            var x = padding + i * step;
+            var y = height - padding - ((audit.score / maxScore) * (height - padding * 2));
+            return '<circle cx="' + x + '" cy="' + y + '" r="3" fill="' + getScoreColor(audit.score) + '"/>';
+        }).join('');
+
+        // Gradient de fond
+        var areaPoints = 'M' + padding + ',' + (height - padding);
+        audits.forEach(function(audit, i) {
+            var x = padding + i * step;
+            var y = height - padding - ((audit.score / maxScore) * (height - padding * 2));
+            areaPoints += ' L' + x + ',' + y;
+        });
+        areaPoints += ' L' + (padding + (audits.length - 1) * step) + ',' + (height - padding) + ' Z';
+
+        return '<svg viewBox="0 0 ' + width + ' ' + height + '" class="trends-svg" preserveAspectRatio="none">' +
+            '<defs><linearGradient id="trendGrad" x1="0%" y1="0%" x2="0%" y2="100%">' +
+            '<stop offset="0%" style="stop-color:var(--primary, #8b5cf6);stop-opacity:0.4"/>' +
+            '<stop offset="100%" style="stop-color:var(--primary, #8b5cf6);stop-opacity:0.05"/>' +
+            '</linearGradient></defs>' +
+            '<path d="' + areaPoints + '" fill="url(#trendGrad)"/>' +
+            '<path d="' + pathPoints + '" fill="none" stroke="var(--primary, #8b5cf6)" stroke-width="2" stroke-linecap="round"/>' +
+            dots +
+            '</svg>';
+    }
+
+    // ==========================================
+    // RENDER FUNCTIONS
+    // ==========================================
+
+    function renderStars(questionId, currentValue) {
+        var stars = '';
+        for (var i = 1; i <= 5; i++) {
+            var filled = i <= currentValue;
+            stars += '<button class="star-btn ' + (filled ? 'filled' : '') + '" data-question="' + questionId + '" data-value="' + i + '" onclick="PsychoAuditView.setAnswer(\'' + questionId + '\', ' + i + ')">' +
+                '<svg viewBox="0 0 24 24" width="28" height="28"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" ' +
+                'fill="' + (filled ? 'var(--accent, #f59e0b)' : 'transparent') + '" stroke="' + (filled ? 'var(--accent, #f59e0b)' : 'var(--text-secondary, #666)') + '" stroke-width="2"/></svg>' +
+                '</button>';
+        }
+        return '<div class="stars-container">' + stars + '</div>';
+    }
+
+    function renderQuestionnaire() {
+        var html = '<div class="questionnaire">';
+        html += '<h2>Questionnaire Rapide</h2>';
+        html += '<p class="questionnaire-intro">Evaluez chaque aspect de votre journee de 1 a 5 etoiles</p>';
+
+        QUESTIONS.forEach(function(q) {
+            var value = state.answers[q.id] || 0;
+            html += '<div class="question-item">' +
+                '<div class="question-header">' +
+                '<span class="question-icon">' + q.icon + '</span>' +
+                '<span class="question-label">' + q.label + '</span>' +
+                '</div>' +
+                renderStars(q.id, value) +
+                '</div>';
+        });
+
+        var allAnswered = QUESTIONS.every(function(q) { return state.answers[q.id] > 0; });
+
+        html += '<button class="btn-analyze" onclick="PsychoAuditView.analyze()" ' + (allAnswered ? '' : 'disabled') + '>' +
+            '<span class="btn-icon">📊</span> Analyser mon audit' +
+            '</button>';
+
+        if (!allAnswered) {
+            html += '<p class="hint">Repondez a toutes les questions pour continuer</p>';
+        }
+
+        html += '</div>';
+        return html;
+    }
+
+    function renderResults() {
+        var score = calculateScore();
+        var color = getScoreColor(score);
+        var label = getScoreLabel(score);
+        var recs = getRecommendations();
+        var audits = loadAudits();
+
+        var html = '<div class="results">';
+
+        // Score global
+        html += '<div class="score-section">' +
+            '<div class="score-badge" style="background: ' + color + '20; border-color: ' + color + '">' +
+            '<span class="score-value" style="color: ' + color + '">' + score + '</span>' +
+            '<span class="score-max">/100</span>' +
+            '</div>' +
+            '<div class="score-label" style="color: ' + color + '">' + label + '</div>' +
+            '<div class="score-date">' + new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) + '</div>' +
+            '</div>';
+
+        // Radar chart
+        html += '<div class="radar-section">' +
+            '<h3>Vos 5 dimensions</h3>' +
+            '<div class="radar-container">' + generateRadarChart(state.answers) + '</div>' +
+            '</div>';
+
+        // Recommandations
+        html += '<div class="recommendations-section">' +
+            '<h3>Recommandations personnalisees</h3>' +
+            '<div class="recommendations-list">';
+
+        recs.forEach(function(rec, i) {
+            var icons = ['💡', '🎯', '✨'];
+            html += '<div class="recommendation-item">' +
+                '<span class="rec-icon">' + icons[i] + '</span>' +
+                '<div class="rec-content">' +
+                '<div class="rec-area">' + rec.label + '</div>' +
+                '<div class="rec-text">' + rec.recommendation + '</div>' +
+                '</div>' +
+                '</div>';
+        });
+
+        html += '</div></div>';
+
+        // Tendances
+        html += '<div class="trends-section">' +
+            '<h3>Evolution sur les 7 derniers audits</h3>' +
+            '<div class="trends-chart">' + generateTrendsChart() + '</div>';
+
+        if (audits.length > 0) {
+            var lastAudit = audits[0];
+            var diff = score - lastAudit.score;
+            var diffText = diff > 0 ? '+' + diff : diff.toString();
+            var diffColor = diff >= 0 ? '#22c55e' : '#ef4444';
+            html += '<div class="trends-comparison">' +
+                '<span>Par rapport au dernier audit: </span>' +
+                '<span class="trends-diff" style="color: ' + diffColor + '">' + diffText + ' points</span>' +
+                '</div>';
+        }
+
+        html += '</div>';
+
+        // Historique
+        if (audits.length > 0) {
+            html += '<div class="history-section">' +
+                '<h3>Historique recent</h3>' +
+                '<div class="history-list">';
+
+            audits.slice(0, 5).forEach(function(audit) {
+                var date = new Date(audit.date);
+                html += '<div class="history-item">' +
+                    '<span class="history-date">' + date.toLocaleDateString('fr-FR') + '</span>' +
+                    '<div class="history-bar"><div class="history-fill" style="width: ' + audit.score + '%; background: ' + getScoreColor(audit.score) + '"></div></div>' +
+                    '<span class="history-score" style="color: ' + getScoreColor(audit.score) + '">' + audit.score + '</span>' +
+                    '</div>';
+            });
+
+            html += '</div></div>';
+        }
+
+        // Bouton nouvel audit
+        html += '<button class="btn-new-audit" onclick="PsychoAuditView.reset()">' +
+            '<span class="btn-icon">🔄</span> Nouvel audit' +
+            '</button>';
+
+        html += '</div>';
+        return html;
+    }
+
+    function render() {
+        // Debounce: fusionner les appels multiples en un seul
+        if (renderScheduled) {
+            console.log('🧠 PsychoAuditView: render() - déjà planifié, ignoré');
+            return;
+        }
+        renderScheduled = true;
+
+        requestAnimationFrame(function() {
+            renderScheduled = false;
+            doRender();
+        });
+    }
+
+    function doRender() {
+        console.log('🧠 PsychoAuditView: doRender()');
+        var container = document.getElementById('view-psycho-audit');
+        if (!container) {
+            console.warn('PsychoAuditView: Container not found');
+            return;
+        }
+
+        var html = '<div class="psycho-audit-view">' +
+            '<header class="audit-header">' +
+            '<h1>Audit Psycho-Productivite</h1>' +
+            '<p class="subtitle">Evaluez votre bien-etre au travail et recevez des recommandations personnalisees</p>' +
+            '</header>';
+
+        if (state.showResults) {
+            html += renderResults();
+        } else {
+            html += renderQuestionnaire();
+        }
+
+        html += '</div>';
+
+        container.innerHTML = html;
+        injectStyles();
+    }
+
+    // ==========================================
+    // ACTIONS
+    // ==========================================
+
+    function setAnswer(questionId, value) {
+        state.answers[questionId] = value;
+        render();
+    }
+
+    function analyze() {
+        var score = calculateScore();
+        var audit = {
+            date: new Date().toISOString(),
+            score: score,
+            answers: Object.assign({}, state.answers)
+        };
+        saveAudit(audit);
+        state.currentAudit = audit;
+        state.showResults = true;
+        render();
+    }
+
+    function reset() {
+        state.answers = {};
+        state.showResults = false;
+        state.currentAudit = null;
+        render();
+    }
+
+    function refresh() {
+        render();
+    }
+
+    function init() {
+        if (hasInitialized) {
+            console.log('🧠 PsychoAuditView: init() - déjà initialisé, ignoré');
+            return;
+        }
+        hasInitialized = true;
+        console.log('🧠 PsychoAuditView: Initializing...');
+        render();
+    }
+
+    // ==========================================
+    // STYLES
+    // ==========================================
+
+    function injectStyles() {
+        if (document.getElementById('psycho-audit-styles')) return;
+        var style = document.createElement('style');
+        style.id = 'psycho-audit-styles';
+        style.textContent = '\
+            .psycho-audit-view { padding: 24px; max-width: 800px; margin: 0 auto; }\
+            .audit-header { text-align: center; margin-bottom: 32px; }\
+            .audit-header h1 { font-size: 28px; font-weight: 700; color: var(--primary, #8b5cf6); margin-bottom: 8px; }\
+            .audit-header .subtitle { color: var(--text-secondary, #888); font-size: 14px; }\
+            \
+            /* Questionnaire */\
+            .questionnaire { background: var(--surface, #1e1e2e); border-radius: 16px; padding: 24px; }\
+            .questionnaire h2 { font-size: 18px; margin-bottom: 8px; color: var(--text, #fff); }\
+            .questionnaire-intro { color: var(--text-secondary, #888); font-size: 13px; margin-bottom: 24px; }\
+            .question-item { margin-bottom: 20px; padding: 16px; background: var(--surface-hover, #2a2a3e); border-radius: 12px; }\
+            .question-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }\
+            .question-icon { font-size: 20px; }\
+            .question-label { color: var(--text, #fff); font-size: 14px; }\
+            .stars-container { display: flex; gap: 8px; justify-content: center; }\
+            .star-btn { background: none; border: none; cursor: pointer; padding: 4px; transition: transform 0.15s; }\
+            .star-btn:hover { transform: scale(1.2); }\
+            .star-btn.filled svg polygon { fill: var(--accent, #f59e0b); stroke: var(--accent, #f59e0b); }\
+            .btn-analyze { width: 100%; padding: 16px; margin-top: 24px; background: linear-gradient(135deg, var(--primary, #8b5cf6), #6366f1); color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, opacity 0.2s; }\
+            .btn-analyze:hover:not(:disabled) { transform: translateY(-2px); }\
+            .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }\
+            .hint { text-align: center; color: var(--text-secondary, #888); font-size: 12px; margin-top: 12px; }\
+            \
+            /* Results */\
+            .results { display: flex; flex-direction: column; gap: 24px; }\
+            .score-section { text-align: center; padding: 32px; background: var(--surface, #1e1e2e); border-radius: 16px; }\
+            .score-badge { display: inline-flex; align-items: baseline; padding: 16px 32px; border-radius: 16px; border: 2px solid; }\
+            .score-value { font-size: 48px; font-weight: 800; }\
+            .score-max { font-size: 24px; opacity: 0.6; margin-left: 4px; }\
+            .score-label { font-size: 18px; font-weight: 600; margin-top: 12px; }\
+            .score-date { color: var(--text-secondary, #888); font-size: 13px; margin-top: 8px; }\
+            \
+            /* Radar */\
+            .radar-section { background: var(--surface, #1e1e2e); border-radius: 16px; padding: 24px; text-align: center; }\
+            .radar-section h3 { font-size: 16px; margin-bottom: 16px; color: var(--text, #fff); }\
+            .radar-container { display: flex; justify-content: center; }\
+            \
+            /* Recommendations */\
+            .recommendations-section { background: var(--surface, #1e1e2e); border-radius: 16px; padding: 24px; }\
+            .recommendations-section h3 { font-size: 16px; margin-bottom: 16px; color: var(--text, #fff); }\
+            .recommendation-item { display: flex; gap: 12px; padding: 14px; background: var(--surface-hover, #2a2a3e); border-radius: 10px; margin-bottom: 10px; }\
+            .rec-icon { font-size: 20px; }\
+            .rec-area { font-size: 12px; color: var(--text-secondary, #888); margin-bottom: 4px; }\
+            .rec-text { color: var(--text, #fff); font-size: 14px; }\
+            \
+            /* Trends */\
+            .trends-section { background: var(--surface, #1e1e2e); border-radius: 16px; padding: 24px; }\
+            .trends-section h3 { font-size: 16px; margin-bottom: 16px; color: var(--text, #fff); }\
+            .trends-chart { height: 120px; margin-bottom: 12px; }\
+            .trends-svg { width: 100%; height: 100%; }\
+            .trends-empty { color: var(--text-secondary, #888); font-size: 13px; text-align: center; padding: 24px; }\
+            .trends-comparison { text-align: center; font-size: 14px; color: var(--text-secondary, #888); }\
+            .trends-diff { font-weight: 700; }\
+            \
+            /* History */\
+            .history-section { background: var(--surface, #1e1e2e); border-radius: 16px; padding: 24px; }\
+            .history-section h3 { font-size: 16px; margin-bottom: 16px; color: var(--text, #fff); }\
+            .history-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border, #333); }\
+            .history-item:last-child { border-bottom: none; }\
+            .history-date { font-size: 13px; color: var(--text-secondary, #888); width: 80px; }\
+            .history-bar { flex: 1; height: 8px; background: var(--surface-hover, #2a2a3e); border-radius: 4px; overflow: hidden; }\
+            .history-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }\
+            .history-score { font-size: 14px; font-weight: 700; width: 40px; text-align: right; }\
+            \
+            /* New Audit Button */\
+            .btn-new-audit { width: 100%; padding: 14px; background: var(--surface, #1e1e2e); color: var(--text, #fff); border: 2px solid var(--border, #333); border-radius: 12px; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }\
+            .btn-new-audit:hover { border-color: var(--primary, #8b5cf6); background: var(--surface-hover, #2a2a3e); }\
+            \
+            @media (max-width: 600px) {\
+                .psycho-audit-view { padding: 16px; }\
+                .audit-header h1 { font-size: 22px; }\
+                .score-value { font-size: 36px; }\
+            }\
+        ';
+        document.head.appendChild(style);
+    }
+
+    // ==========================================
+    // PUBLIC API
+    // ==========================================
+
+    return {
+        init: init,
+        refresh: refresh,
+        render: render,
+        setAnswer: setAnswer,
+        analyze: analyze,
+        reset: reset
+    };
+})();
+
+if (typeof window !== 'undefined') {
+    window.PsychoAuditView = PsychoAuditView;
+}

@@ -19,7 +19,6 @@ const Galaxy3D = (function() {
 
     // === STATE ===
     let scene, camera, renderer, controls;
-    let composer, bloomPass;
     let raycaster, mouse;
     let spheres = [];        // { mesh, data, label, glowMesh }
     let connections = [];    // { line, data }
@@ -46,71 +45,128 @@ const Galaxy3D = (function() {
 
     const SPHERE_BASE_SIZE = 1.2;
     const SPACE_RANGE = 60;
-    const BLOOM_STRENGTH = 1.5;
-    const BLOOM_RADIUS = 0.4;
-    const BLOOM_THRESHOLD = 0.2;
+    // Bloom removed — direct renderer.render() only
 
     // === INITIALIZATION ===
+    var _firstFrame = true; // for one-shot render log
+
     function init(container) {
         if (initialized) {
+            console.log('[3D] Already initialized, calling onResize');
             onResize();
             return;
         }
 
+        console.log('[3D] === INIT START ===');
+
         containerEl = typeof container === 'string' ? document.getElementById(container) : container;
         if (!containerEl) {
-            console.error('Galaxy3D: container not found');
+            console.error('[3D] FAIL: container not found');
             return;
         }
 
-        canvasEl = containerEl.querySelector('#galaxy-3d-canvas') || containerEl.querySelector('canvas');
+        // Find 3D canvas — must be visible BEFORE init
+        canvasEl = document.getElementById('galaxy-3d-canvas');
+        if (!canvasEl) {
+            console.error('[3D] FAIL: #galaxy-3d-canvas not found in DOM');
+            return;
+        }
+
+        // Force canvas visible and sized
+        canvasEl.style.display = 'block';
+        canvasEl.style.width = '100%';
+        canvasEl.style.height = '100%';
+
         tooltipEl = containerEl.querySelector('#galaxy-tooltip') || createTooltipEl();
 
         if (!window.THREE) {
-            console.error('Galaxy3D: Three.js not loaded');
+            console.error('[3D] FAIL: THREE.js not loaded');
             return;
         }
+        console.log('[3D] THREE.js revision:', window.THREE.REVISION || 'unknown');
 
         const THREE = window.THREE;
         clock = new THREE.Clock();
 
-        // Scene
+        // Get container dimensions (after reflow)
+        var w = containerEl.clientWidth;
+        var h = containerEl.clientHeight;
+        console.log('[3D] Container size:', w, 'x', h);
+
+        // Fallback if container has no size
+        if (w < 10 || h < 10) {
+            w = window.innerWidth;
+            h = window.innerHeight - 60;
+            console.warn('[3D] Container too small, using window size:', w, 'x', h);
+        }
+
+        // Scene with visible dark blue background
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf8f9fa); // Fond blanc doux style Miro
-        // Pas de fog pour un fond clair
+        scene.background = new THREE.Color(0x0a0a2e);
 
-        // Camera
-        const w = containerEl.clientWidth || 800;
-        const h = containerEl.clientHeight || 600;
-        camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
-        camera.position.set(0, 15, 50);
+        // Camera — close enough to see the test cube clearly
+        camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 2000);
+        camera.position.set(0, 0, 80);
+        camera.lookAt(0, 0, 0);
+        console.log('[3D] Camera at (0,0,80), aspect:', (w/h).toFixed(2));
 
-        // Renderer
-        renderer = new THREE.WebGLRenderer({
-            canvas: canvasEl,
-            antialias: true,
-            alpha: false,
-            powerPreference: 'high-performance'
-        });
-        renderer.setSize(w, h);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
-
-        // Post-processing (bloom)
-        setupBloom(w, h);
+        // Renderer — create on the 3D canvas
+        try {
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvasEl,
+                antialias: true,
+                alpha: false
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(w, h);
+            renderer.setClearColor(0x0a0a2e, 1);
+            console.log('[3D] Renderer OK, canvas:', canvasEl.width, 'x', canvasEl.height,
+                'CSS:', canvasEl.style.width, canvasEl.style.height);
+        } catch (e) {
+            console.error('[3D] FAIL: WebGLRenderer error:', e);
+            return;
+        }
 
         // Controls
         if (THREE.OrbitControls) {
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls = new THREE.OrbitControls(camera, canvasEl);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.minDistance = 2;      // Zoom très proche
-            controls.maxDistance = 400;    // Dézoom très loin
-            controls.autoRotate = autoRotate;
-            controls.autoRotateSpeed = 0.3;
+            controls.minDistance = 2;
+            controls.maxDistance = 800;
+            controls.autoRotate = false;
+            // Mouse: left = orbit, middle = pan, scroll = zoom (standard 3D)
+            controls.enableRotate = true;
             controls.enablePan = true;
-            controls.zoomSpeed = 1.5;      // Zoom plus rapide à la molette
+            controls.enableZoom = true;
+            controls.screenSpacePanning = true;
+            controls.zoomSpeed = 1.5;
+            controls.panSpeed = 1.0;
+            controls.mouseButtons = {
+                LEFT: THREE.MOUSE.ROTATE,
+                MIDDLE: THREE.MOUSE.PAN,
+                RIGHT: THREE.MOUSE.PAN
+            };
+            console.log('[3D] OrbitControls OK');
+
+            // Trackpad: intercept wheel BEFORE OrbitControls
+            // Two-finger scroll (no ctrlKey) = pan, pinch (ctrlKey) = let OrbitControls zoom
+            canvasEl.addEventListener('wheel', function(e) {
+                if (!e.ctrlKey) {
+                    // Two-finger trackpad scroll → pan
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var dist = camera.position.distanceTo(controls.target);
+                    var panScale = dist * 0.0015;
+                    camera.position.x += e.deltaX * panScale;
+                    camera.position.y -= e.deltaY * panScale;
+                    controls.target.x += e.deltaX * panScale;
+                    controls.target.y -= e.deltaY * panScale;
+                }
+                // ctrlKey = true → pinch zoom, OrbitControls handles it
+            }, { passive: false, capture: true });
+        } else {
+            console.warn('[3D] OrbitControls NOT available');
         }
 
         // Raycaster
@@ -120,47 +176,37 @@ const Galaxy3D = (function() {
         // Lights
         setupLights();
 
-        // Grille de fond style Miro (remplace starfield)
-        createGridBackground();
+        // Starfield
+        createStarField();
 
         // Events
-        renderer.domElement.addEventListener('mousemove', onMouseMove, false);
-        renderer.domElement.addEventListener('click', onMouseClick, false);
+        canvasEl.addEventListener('mousemove', onMouseMove, false);
+        canvasEl.addEventListener('click', onMouseClick, false);
         window.addEventListener('resize', onResize, false);
 
         initialized = true;
+        _firstFrame = true;
         startAnimation();
-        console.log('Galaxy3D: initialized');
+
+        // Verify state
+        console.log('[3D] === INIT COMPLETE ===');
+        console.log('[3D] Scene children:', scene.children.length,
+            '| Canvas in DOM:', document.body.contains(canvasEl),
+            '| Canvas offset:', canvasEl.offsetWidth, 'x', canvasEl.offsetHeight,
+            '| Canvas display:', getComputedStyle(canvasEl).display,
+            '| WebGL context:', !!canvasEl.getContext('webgl2') || !!canvasEl.getContext('webgl'));
+
+        // Force one render frame
+        renderer.render(scene, camera);
+        console.log('[3D] First render done');
     }
 
-    function setupBloom(w, h) {
-        const THREE = window.THREE;
-
-        // Check if post-processing classes are available
-        if (THREE.EffectComposer && THREE.RenderPass && THREE.UnrealBloomPass) {
-            composer = new THREE.EffectComposer(renderer);
-            const renderPass = new THREE.RenderPass(scene, camera);
-            composer.addPass(renderPass);
-
-            bloomPass = new THREE.UnrealBloomPass(
-                new THREE.Vector2(w, h),
-                BLOOM_STRENGTH,
-                BLOOM_RADIUS,
-                BLOOM_THRESHOLD
-            );
-            composer.addPass(bloomPass);
-            console.log('Galaxy3D: bloom enabled');
-        } else {
-            composer = null;
-            console.log('Galaxy3D: bloom not available, falling back to standard rendering');
-        }
-    }
 
     function setupLights() {
         const THREE = window.THREE;
 
         // Ambient
-        const ambient = new THREE.AmbientLight(0x222244, 0.5);
+        const ambient = new THREE.AmbientLight(0x445577, 1.0);
         scene.add(ambient);
 
         // Point lights for atmosphere
@@ -177,144 +223,341 @@ const Galaxy3D = (function() {
         scene.add(light3);
     }
 
-    function createGridBackground() {
+    function createStarField() {
         const THREE = window.THREE;
-
-        // Grille horizontale (sol) - style Miro
-        const gridSize = 200;
-        const gridDivisions = 40;
-        const gridColorMain = 0xd0d0d0;   // Gris doux pour les lignes principales
-        const gridColorSub = 0xe8e8e8;    // Gris très clair pour les subdivisions
-
-        // Grille au sol (plan Y=0)
-        const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, gridColorMain, gridColorSub);
-        gridHelper.position.y = 0;
-        scene.add(gridHelper);
-
-        // Grille verticale XZ (fond) pour effet quadrillage complet
-        const gridGeometry = new THREE.PlaneGeometry(gridSize, gridSize, gridDivisions, gridDivisions);
-        const gridMaterial = new THREE.MeshBasicMaterial({
-            color: 0xf0f0f0,
-            wireframe: true,
+        const count = 3000;
+        const positions = new Float32Array(count * 3);
+        const colors = new Float32Array(count * 3);
+        for (var i = 0; i < count; i++) {
+            positions[i * 3]     = (Math.random() - 0.5) * 600;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 600;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 600;
+            var brightness = 0.4 + Math.random() * 0.6;
+            colors[i * 3]     = brightness;
+            colors[i * 3 + 1] = brightness;
+            colors[i * 3 + 2] = brightness + Math.random() * 0.15;
+        }
+        var geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        var material = new THREE.PointsMaterial({
+            size: 1.5,
+            vertexColors: true,
             transparent: true,
-            opacity: 0.15,
-            side: THREE.DoubleSide
+            opacity: 0.9,
+            sizeAttenuation: true,
+            depthWrite: false
         });
-
-        // Grille verticale arrière
-        const gridBack = new THREE.Mesh(gridGeometry, gridMaterial);
-        gridBack.position.z = -gridSize / 2;
-        gridBack.rotation.x = 0;
-        scene.add(gridBack);
-
-        // Grille verticale gauche
-        const gridLeft = new THREE.Mesh(gridGeometry, gridMaterial.clone());
-        gridLeft.position.x = -gridSize / 2;
-        gridLeft.rotation.y = Math.PI / 2;
-        scene.add(gridLeft);
-
-        // Grille verticale droite
-        const gridRight = new THREE.Mesh(gridGeometry, gridMaterial.clone());
-        gridRight.position.x = gridSize / 2;
-        gridRight.rotation.y = Math.PI / 2;
-        scene.add(gridRight);
-
-        console.log('Galaxy3D: Grille style Miro créée');
+        starField = new THREE.Points(geometry, material);
+        scene.add(starField);
+        console.log('Galaxy3D: starfield created (' + count + ' stars)');
     }
 
     // === SPHERE MANAGEMENT ===
+    // === GEOMETRY BUILDERS per shape type ===
+
+    function createStarGeometry(size) {
+        const THREE = window.THREE;
+        var shape = new THREE.Shape();
+        var outerR = size;
+        var innerR = size * 0.4;
+        var points = 5;
+        for (var i = 0; i < points * 2; i++) {
+            var angle = (i * Math.PI) / points - Math.PI / 2;
+            var r = i % 2 === 0 ? outerR : innerR;
+            if (i === 0) shape.moveTo(Math.cos(angle) * r, Math.sin(angle) * r);
+            else shape.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+        }
+        shape.closePath();
+        return new THREE.ExtrudeGeometry(shape, {
+            depth: size * 0.35,
+            bevelEnabled: true,
+            bevelThickness: size * 0.06,
+            bevelSize: size * 0.06,
+            bevelSegments: 2
+        });
+    }
+
+    function createRectGeometry(size, widthRatio, heightRatio) {
+        var w = size * (widthRatio || 2.2);
+        var h = size * (heightRatio || 1.4);
+        var d = size * 0.18;
+        return new window.THREE.BoxGeometry(w, h, d);
+    }
+
+    function createDiamondGeometry(size) {
+        return new window.THREE.OctahedronGeometry(size, 0);
+    }
+
+    function createHexagonGeometry(size) {
+        return new window.THREE.CylinderGeometry(size, size, size * 0.35, 6);
+    }
+
+    // === SURFACE TEXT TEXTURE (for rect & diamond) ===
+    // fontSizeHint: the node's 2D fontSize (default 16)
+    function createSurfaceTexture(text, fillColor, canvasW, canvasH, fontSizeHint) {
+        var canvas = document.createElement('canvas');
+        canvas.width = canvasW || 512;
+        canvas.height = canvasH || 256;
+        var ctx = canvas.getContext('2d');
+
+        // Fill background with node color
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Subtle inner border for depth
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
+
+        if (!text || !text.trim()) {
+            var tex = new window.THREE.CanvasTexture(canvas);
+            tex.minFilter = window.THREE.LinearFilter;
+            return tex;
+        }
+
+        // Scale initial font size from 2D fontSize
+        // 2D default is 16px → canvas font 48px. Scale proportionally.
+        var baseFontSize = Math.round(Math.max(24, Math.min(80, (fontSizeHint || 16) * 3)));
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 4;
+
+        var maxWidth = canvas.width * 0.85;
+        var maxHeight = canvas.height * 0.8;
+        var words = text.split(/\s+/);
+
+        // Find the best font size that fits (start from scaled size)
+        var fontSize = baseFontSize;
+        var lines = [];
+        while (fontSize >= 14) {
+            ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
+            lines = _wrapText(ctx, words, maxWidth);
+            var totalH = lines.length * (fontSize * 1.25);
+            if (totalH <= maxHeight && lines.length <= 5) break;
+            fontSize -= 2;
+        }
+
+        // Truncate if still too many lines
+        if (lines.length > 5) {
+            lines = lines.slice(0, 5);
+            lines[4] = lines[4].replace(/.{3}$/, '...');
+        }
+
+        // Draw lines centered
+        var lineHeight = fontSize * 1.25;
+        var startY = (canvas.height - lines.length * lineHeight) / 2 + lineHeight / 2;
+        ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
+        for (var i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], canvas.width / 2, startY + i * lineHeight);
+        }
+
+        var tex = new window.THREE.CanvasTexture(canvas);
+        tex.minFilter = window.THREE.LinearFilter;
+        return tex;
+    }
+
+    function _wrapText(ctx, words, maxWidth) {
+        var lines = [];
+        var current = '';
+        for (var i = 0; i < words.length; i++) {
+            var test = current ? current + ' ' + words[i] : words[i];
+            if (ctx.measureText(test).width > maxWidth && current) {
+                lines.push(current);
+                current = words[i];
+            } else {
+                current = test;
+            }
+        }
+        if (current) lines.push(current);
+        return lines;
+    }
+
     function addSphere(data) {
         const THREE = window.THREE;
-        const priority = data.priority || 'default';
-        const pConfig = PRIORITY_COLORS[priority] || PRIORITY_COLORS.default;
-        const size = (data.size || 1) * SPHERE_BASE_SIZE;
+        var shape = (data.metadata && data.metadata.shape) || 'circle';
+        var isTextNode = data.metadata && data.metadata.isTextNode;
+        var hasSurfaceText = (shape === 'rect' || shape === 'diamond') && data.label && data.label.trim();
 
-        // Main sphere geometry
-        const geometry = new THREE.SphereGeometry(size, 32, 32);
-        const material = new THREE.MeshStandardMaterial({
-            color: pConfig.color,
-            emissive: pConfig.emissive,
-            emissiveIntensity: pConfig.intensity,
-            metalness: 0.3,
-            roughness: 0.4
-        });
+        // Color
+        var sphereColor, emissiveColor, emissiveIntensity, pulseSpeed;
+        if (data.hexColor) {
+            sphereColor = new THREE.Color(data.hexColor);
+            emissiveColor = sphereColor.clone();
+            emissiveIntensity = 1.2;
+            pulseSpeed = 1.5;
+        } else {
+            var priority = data.priority || 'default';
+            var pConfig = PRIORITY_COLORS[priority] || PRIORITY_COLORS.default;
+            sphereColor = new THREE.Color(pConfig.color);
+            emissiveColor = new THREE.Color(pConfig.emissive);
+            emissiveIntensity = pConfig.intensity;
+            pulseSpeed = pConfig.pulseSpeed;
+        }
 
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(
-            data.position?.x ?? (Math.random() - 0.5) * SPACE_RANGE,
-            data.position?.y ?? (Math.random() - 0.5) * SPACE_RANGE,
-            data.position?.z ?? (Math.random() - 0.5) * SPACE_RANGE
-        );
+        var size = (data.size || 1) * SPHERE_BASE_SIZE;
+        var isStar = (shape === 'star');
+        var nodeFontSize = (data.metadata && data.metadata.fontSize) || 16;
+
+        // Geometry based on shape
+        var geometry;
+        if (isTextNode) {
+            geometry = null;
+        } else if (shape === 'star') {
+            geometry = createStarGeometry(size);
+        } else if (shape === 'rect') {
+            var wr = data.metadata.widthRatio || 2.2;
+            var hr = data.metadata.heightRatio || 1.4;
+            geometry = createRectGeometry(size, wr, hr);
+        } else if (shape === 'diamond') {
+            geometry = createDiamondGeometry(size);
+        } else if (shape === 'hexagon') {
+            geometry = createHexagonGeometry(size);
+        } else {
+            geometry = new THREE.SphereGeometry(size, 32, 32);
+        }
+
+        var mesh;
+        var glowMesh = null;
+
+        if (geometry) {
+            // Build material — with surface texture for rect/diamond
+            var material;
+            if (hasSurfaceText) {
+                var fillHex = '#' + sphereColor.getHexString();
+                var texW = (shape === 'rect') ? 512 : 256;
+                var texH = (shape === 'rect') ? 256 : 256;
+                var surfaceTex = createSurfaceTexture(data.label, fillHex, texW, texH, nodeFontSize);
+                material = new THREE.MeshStandardMaterial({
+                    map: surfaceTex,
+                    emissive: emissiveColor,
+                    emissiveIntensity: emissiveIntensity * 0.5,
+                    metalness: 0.2,
+                    roughness: 0.5
+                });
+            } else {
+                material = new THREE.MeshStandardMaterial({
+                    color: sphereColor,
+                    emissive: emissiveColor,
+                    emissiveIntensity: emissiveIntensity,
+                    metalness: 0.3,
+                    roughness: 0.4
+                });
+            }
+
+            mesh = new THREE.Mesh(geometry, material);
+
+            if (shape === 'star') {
+                geometry.center();
+            }
+
+            mesh.position.set(
+                data.position?.x ?? (Math.random() - 0.5) * SPACE_RANGE,
+                data.position?.y ?? (Math.random() - 0.5) * SPACE_RANGE,
+                data.position?.z ?? (Math.random() - 0.5) * SPACE_RANGE
+            );
+
+            // Glow
+            var glowRadius = (shape === 'rect') ? size * 2.0 : size * 1.6;
+            var glowGeometry = new THREE.SphereGeometry(glowRadius, 16, 16);
+            var glowMaterial = new THREE.MeshBasicMaterial({
+                color: sphereColor,
+                transparent: true,
+                opacity: 0.08,
+                side: THREE.BackSide,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+            glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+            mesh.add(glowMesh);
+        } else {
+            mesh = new THREE.Object3D();
+            mesh.position.set(
+                data.position?.x ?? (Math.random() - 0.5) * SPACE_RANGE,
+                data.position?.y ?? (Math.random() - 0.5) * SPACE_RANGE,
+                data.position?.z ?? (Math.random() - 0.5) * SPACE_RANGE
+            );
+        }
+
         mesh.userData = {
             id: data.id,
-            type: data.type,
+            type: data.type || 'shape',
             sourceId: data.sourceId,
-            label: data.label || 'Sans titre',
-            priority: priority,
+            label: data.label || '',
+            priority: data.priority || 'default',
             tags: data.tags || [],
             metadata: data.metadata || {},
-            pulseSpeed: pConfig.pulseSpeed,
-            pulsePhase: Math.random() * Math.PI * 2
+            pulseSpeed: pulseSpeed,
+            pulsePhase: Math.random() * Math.PI * 2,
+            isStar: isStar,
+            shapeType: shape
         };
 
         scene.add(mesh);
 
-        // Glow outer sphere
-        const glowGeometry = new THREE.SphereGeometry(size * 1.6, 16, 16);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: pConfig.color,
-            transparent: true,
-            opacity: 0.08,
-            side: THREE.BackSide,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false
-        });
-        const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-        mesh.add(glowMesh);
+        // Floating label: only for circle, star, hexagon, and text-only nodes
+        // rect and diamond get surface-printed text instead
+        var label = null;
+        if (data.label && data.label.trim() && !hasSurfaceText) {
+            label = createTextSprite(data.label, sphereColor, nodeFontSize, size);
+            var labelY = isTextNode ? 0 : size + 1.2;
+            label.position.set(0, labelY, 0);
+            label.visible = showLabels;
+            mesh.add(label);
+        }
 
-        // Text label (sprite)
-        const label = createTextSprite(data.label || 'Sans titre', pConfig.color);
-        label.position.set(0, size + 1.2, 0);
-        label.visible = showLabels;
-        mesh.add(label);
-
-        const sphereObj = { mesh, data, label, glowMesh, size };
+        var sphereObj = { mesh, data, label, glowMesh, size };
         spheres.push(sphereObj);
         return sphereObj;
     }
 
-    function createTextSprite(text, color) {
+    // fontSizeHint: the node's 2D fontSize (default 16)
+    // nodeSize: the 3D size of the parent shape
+    function createTextSprite(text, color, fontSizeHint, nodeSize) {
         const THREE = window.THREE;
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 512;
-        canvas.height = 64;
+        canvas.height = 80;
+
+        // Scale font from 2D fontSize: 16px → 32px canvas, proportional
+        var canvasFont = Math.round(Math.max(20, Math.min(64, (fontSizeHint || 16) * 2)));
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.font = 'bold 28px Inter, Arial, sans-serif';
+        ctx.font = 'bold ' + canvasFont + 'px Inter, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
 
         // Truncate text
-        let displayText = text;
+        var displayText = text;
         if (displayText.length > 30) displayText = displayText.substring(0, 28) + '...';
 
         // Shadow
         ctx.shadowColor = 'rgba(0,0,0,0.8)';
         ctx.shadowBlur = 6;
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(displayText, 256, 32);
+        ctx.fillText(displayText, 256, 40);
 
-        const texture = new THREE.CanvasTexture(canvas);
+        var texture = new THREE.CanvasTexture(canvas);
         texture.minFilter = THREE.LinearFilter;
-        const material = new THREE.SpriteMaterial({
+        var material = new THREE.SpriteMaterial({
             map: texture,
             transparent: true,
             depthTest: false,
             sizeAttenuation: true
         });
-        const sprite = new THREE.Sprite(material);
-        sprite.scale.set(8, 1, 1);
+        var sprite = new THREE.Sprite(material);
+
+        // Scale sprite proportional to nodeSize and fontSize
+        // Base: size 1.2 (SPHERE_BASE_SIZE) → scaleX 8. Scale up with fontSize.
+        var sizeRef = nodeSize || SPHERE_BASE_SIZE;
+        var fontScale = (fontSizeHint || 16) / 16;
+        var spriteW = Math.max(6, sizeRef * 4 * fontScale);
+        var spriteH = spriteW * (canvas.height / canvas.width);
+        sprite.scale.set(spriteW, spriteH, 1);
         return sprite;
     }
 
@@ -342,7 +585,10 @@ const Galaxy3D = (function() {
         const THREE = window.THREE;
         const fromSphere = spheres.find(s => s.data.id === data.from);
         const toSphere = spheres.find(s => s.data.id === data.to);
-        if (!fromSphere || !toSphere) return null;
+        if (!fromSphere || !toSphere) {
+            console.warn('[3D] Connection skipped: from=', data.from, !!fromSphere, 'to=', data.to, !!toSphere);
+            return null;
+        }
 
         const strength = data.strength || 0.5;
         const color = data.color ? new THREE.Color(data.color) : new THREE.Color(0x4466ff);
@@ -362,10 +608,9 @@ const Galaxy3D = (function() {
         const points = curve.getPoints(30);
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const material = new THREE.LineBasicMaterial({
-            color: color,
+            color: 0xffffff,
             transparent: true,
-            opacity: 0.3 + strength * 0.5,
-            blending: THREE.AdditiveBlending,
+            opacity: 0.5,
             depthWrite: false
         });
 
@@ -510,51 +755,66 @@ const Galaxy3D = (function() {
         }
 
         console.log('Galaxy3D: loaded', spheres.length, 'spheres,', connections.length, 'connections');
+
+        // Auto-fit camera to show all nodes
+        fitToView();
     }
 
     // === ANIMATION LOOP ===
     function animate() {
         animationId = requestAnimationFrame(animate);
 
-        const time = clock.getElapsedTime();
-
-        // Pulse spheres
-        spheres.forEach(s => {
-            const ud = s.mesh.userData;
-            const pulse = 1 + 0.15 * Math.sin(time * ud.pulseSpeed + ud.pulsePhase);
-            s.mesh.scale.setScalar(pulse);
-
-            // Glow pulse
-            if (s.glowMesh) {
-                s.glowMesh.material.opacity = 0.05 + 0.06 * Math.sin(time * ud.pulseSpeed * 0.5 + ud.pulsePhase);
+        try {
+            if (_firstFrame) {
+                console.log('[3D] First animation frame running');
+                _firstFrame = false;
             }
-        });
 
-        // Connection glow animation
-        connections.forEach(c => {
-            if (c.line.material) {
-                const baseOpacity = 0.3 + (c.data.strength || 0.5) * 0.5;
-                c.line.material.opacity = baseOpacity + 0.1 * Math.sin(time * 1.5);
+            const time = clock.getElapsedTime();
+
+            // Subtle breathing + rotate stars
+            spheres.forEach(s => {
+                if (!s.mesh || !s.mesh.userData) return;
+                const ud = s.mesh.userData;
+                const pulse = 1 + 0.02 * Math.sin(time * ud.pulseSpeed * 0.4 + ud.pulsePhase);
+                s.mesh.scale.setScalar(pulse);
+
+                // Slow rotation for stars
+                if (ud.isStar) {
+                    s.mesh.rotation.z += 0.003;
+                    s.mesh.rotation.y += 0.001;
+                }
+
+                if (s.glowMesh && s.glowMesh.material) {
+                    s.glowMesh.material.opacity = 0.06 + 0.02 * Math.sin(time * ud.pulseSpeed * 0.3 + ud.pulsePhase);
+                }
+            });
+
+            // Connection glow animation
+            connections.forEach(c => {
+                if (c.line && c.line.material) {
+                    c.line.material.opacity = 0.5 + 0.08 * Math.sin(time * 0.8);
+                }
+            });
+
+            // Rotate starfield slowly
+            if (starField) {
+                starField.rotation.y += 0.00005;
+                starField.rotation.x += 0.00002;
             }
-        });
 
-        // Rotate starfield slowly
-        if (starField) {
-            starField.rotation.y += 0.00005;
-            starField.rotation.x += 0.00002;
-        }
+            // Raycaster hover
+            updateHover();
 
-        // Raycaster hover
-        updateHover();
+            // Controls update
+            if (controls) controls.update();
 
-        // Controls update
-        if (controls) controls.update();
-
-        // Render
-        if (composer) {
-            composer.render();
-        } else {
-            renderer.render(scene, camera);
+            // Render
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        } catch (err) {
+            console.error('[3D] Animation error:', err);
         }
     }
 
@@ -710,23 +970,62 @@ const Galaxy3D = (function() {
 
     // === CONTROLS ===
     function resetCamera() {
-        if (!controls || !camera) return;
-        const THREE = window.THREE;
-        const startTarget = controls.target.clone();
-        const startPos = camera.position.clone();
-        const endTarget = new THREE.Vector3(0, 0, 0);
-        const endPos = new THREE.Vector3(0, 15, 50);
-        const duration = 800;
-        const startTime = Date.now();
+        fitToView();
+    }
 
-        function animateReset() {
-            const t = Math.min((Date.now() - startTime) / duration, 1);
-            const ease = t * (2 - t);
+    function fitToView() {
+        if (!camera || !controls) return;
+        var THREE = window.THREE;
+
+        // Compute bounding box of all nodes
+        if (spheres.length === 0) {
+            // No nodes: default view
+            _animateCamera(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 80));
+            return;
+        }
+
+        var min = new THREE.Vector3(Infinity, Infinity, Infinity);
+        var max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+        spheres.forEach(function(s) {
+            var p = s.mesh.position;
+            min.min(p);
+            max.max(p);
+        });
+
+        var center = new THREE.Vector3().addVectors(min, max).multiplyScalar(0.5);
+        var boxSize = new THREE.Vector3().subVectors(max, min);
+        var maxDim = Math.max(boxSize.x, boxSize.y, boxSize.z, 5); // minimum 5 units
+
+        // Distance to fit: use FOV to compute how far camera must be
+        var fov = camera.fov * (Math.PI / 180);
+        var dist = (maxDim * 0.5) / Math.tan(fov * 0.5);
+        dist *= 1.3; // 30% padding
+
+        var endTarget = center.clone();
+        var endPos = new THREE.Vector3(center.x, center.y, center.z + dist);
+
+        _animateCamera(endTarget, endPos);
+    }
+
+    function _animateCamera(endTarget, endPos) {
+        if (!camera || !controls) return;
+        var startTarget = controls.target.clone();
+        var startPos = camera.position.clone();
+
+        // Skip if already there
+        if (startPos.distanceTo(endPos) < 0.5 && startTarget.distanceTo(endTarget) < 0.5) return;
+
+        var duration = 900;
+        var startTime = Date.now();
+
+        function tick() {
+            var t = Math.min((Date.now() - startTime) / duration, 1);
+            var ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
             controls.target.lerpVectors(startTarget, endTarget, ease);
             camera.position.lerpVectors(startPos, endPos, ease);
-            if (t < 1) requestAnimationFrame(animateReset);
+            if (t < 1) requestAnimationFrame(tick);
         }
-        animateReset();
+        tick();
     }
 
     function toggleLabels() {
@@ -827,7 +1126,6 @@ const Galaxy3D = (function() {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
         renderer.setSize(w, h);
-        if (composer) composer.setSize(w, h);
     }
 
     // === ZOOM CONTROLS ===
@@ -852,26 +1150,33 @@ const Galaxy3D = (function() {
         stopAnimation();
         clearAllSpheres();
         clearAllConnections();
-        if (starField) {
+        if (starField && scene) {
             scene.remove(starField);
-            starField.geometry.dispose();
-            starField.material.dispose();
+            if (starField.geometry) starField.geometry.dispose();
+            if (starField.material) starField.material.dispose();
             starField = null;
         }
-        if (renderer) {
-            renderer.dispose();
+        if (renderer && renderer.domElement) {
+            renderer.domElement.removeEventListener('mousemove', onMouseMove);
+            renderer.domElement.removeEventListener('click', onMouseClick);
         }
-        if (controls) {
-            controls.dispose();
-        }
-        renderer.domElement.removeEventListener('mousemove', onMouseMove);
-        renderer.domElement.removeEventListener('click', onMouseClick);
         window.removeEventListener('resize', onResize);
-        scene = null;
+        if (controls) { controls.dispose(); controls = null; }
+        if (renderer) { renderer.dispose(); renderer = null; }
+        if (scene) {
+            // Dispose remaining scene children
+            while (scene.children.length > 0) {
+                var child = scene.children[0];
+                scene.remove(child);
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (Array.isArray(child.material)) child.material.forEach(function(m) { m.dispose(); });
+                    else child.material.dispose();
+                }
+            }
+            scene = null;
+        }
         camera = null;
-        renderer = null;
-        controls = null;
-        composer = null;
         initialized = false;
         console.log('Galaxy3D: disposed');
     }
@@ -888,6 +1193,7 @@ const Galaxy3D = (function() {
         applyForceLayout,
         updateConnectionPositions,
         resetCamera,
+        fitToView,
         zoomIn,
         zoomOut,
         toggleLabels,

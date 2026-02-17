@@ -1,0 +1,15 @@
+import { Router } from 'express';
+import * as ctrl from './contracts.controller.js';
+const router = Router({ mergeParams: true });
+router.get('/templates', ctrl.listTemplates);
+router.post('/templates', ctrl.createTemplate);
+router.put('/templates/:id', ctrl.updateTemplate);
+router.delete('/templates/:id', ctrl.deleteTemplate);
+router.get('/', ctrl.listContracts);
+router.post('/', ctrl.createContract);
+router.get('/:id', ctrl.getContract);
+router.put('/:id', ctrl.updateContract);
+router.delete('/:id', ctrl.deleteContract);
+router.post('/:id/send-signature', ctrl.sendForSignature);
+router.post('/sign/:token', ctrl.signContract);
+export default router;

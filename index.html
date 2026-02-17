@@ -56,8 +56,8 @@
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/style-views.css?v=2400">
-    <link rel="stylesheet" href="css/galaxy.css?v=1704">
-    <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3577">
+    <link rel="stylesheet" href="css/galaxy.css?v=1706">
+    <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3585">
     <link rel="stylesheet" href="css/galaxy-cosmic-projects.css?v=2">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
     <link rel="stylesheet" href="css/projects.css?v=5600">
@@ -78,7 +78,7 @@
     <link rel="stylesheet" href="css/journal.css?v=100">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
-    <link rel="stylesheet" href="css/style-overrides.css?v=2830">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2831">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -92,11 +92,13 @@
     <!-- Three.js v0.128 (local) for 3D Galaxy View -->
     <script src="js/lib/three/three.min.js"></script>
     <script src="js/lib/three/OrbitControls.js"></script>
-    <script src="js/lib/three/EffectComposer.js"></script>
-    <script src="js/lib/three/RenderPass.js"></script>
-    <script src="js/lib/three/LuminosityHighPassShader.js"></script>
-    <script src="js/lib/three/CopyShader.js"></script>
-    <script src="js/lib/three/UnrealBloomPass.js"></script>
+    <!-- Post-processing (bloom) disabled — ES6 class compat issue with Three.js r128 addons -->
+    <!-- <script src="js/lib/three/EffectComposer.js"></script> -->
+    <!-- <script src="js/lib/three/RenderPass.js"></script> -->
+    <!-- <script src="js/lib/three/LuminosityHighPassShader.js"></script> -->
+    <!-- <script src="js/lib/three/CopyShader.js"></script> -->
+    <!-- <script src="js/lib/three/ShaderPass.js"></script> -->
+    <!-- <script src="js/lib/three/UnrealBloomPass.js"></script> -->
     <link rel="stylesheet" href="css/admin.css?v=3000">
     <link rel="stylesheet" href="css/games/games-main.css?v=100">
     <link rel="stylesheet" href="css/games/games-common.css?v=100">
@@ -202,15 +204,15 @@
                 <button id="galaxy-save-btn" class="btn btn-sm galaxy-ctrl-btn">Sauvegarder</button>
                 <button id="galaxy-export-png-btn" class="btn btn-sm galaxy-ctrl-btn" title="Exporter PNG" style="padding:4px 6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg></button>
                 <div class="galaxy-toolbar-sep"></div>
-                <button id="galaxy-toggle-orbits" class="btn btn-sm galaxy-ctrl-btn active" title="Orbites">&#9737;</button>
+                <button id="galaxy-toggle-orbits" class="btn btn-sm galaxy-ctrl-btn" title="Connexions" style="padding:3px 5px;"><svg id="orbits-icon" width="24" height="24" viewBox="0 0 24 24"><circle cx="4" cy="12" r="4" fill="#fff"/><circle cx="20" cy="12" r="4" fill="#fff"/><line x1="8" y1="12" x2="16" y2="12" stroke="#fff" stroke-width="2" stroke-dasharray="3 2" stroke-linecap="round"/></svg></button>
                 <div class="galaxy-toolbar-sep"></div>
-                <button id="galaxy-ai-btn" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-ai" title="IA Constellation">&#10024; IA Constellation</button>
-                <button id="galaxy-mindmap-btn" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-ai" title="Mind Map IA">&#128161; Mind Map</button>
+                <button id="galaxy-toggle-3d" class="btn btn-sm galaxy-ctrl-btn galaxy-ctrl-ai" title="Vue 3D">&#127760; 3D</button>
                 <span id="galaxy-status"></span>
             </div>
 
             <div id="galaxy-3d-container">
                 <canvas id="galaxy-canvas"></canvas>
+                <canvas id="galaxy-3d-canvas" style="display:none;"></canvas>
                 <div id="galaxy-tooltip" class="galaxy-tooltip"></div>
             </div>
         </div>
@@ -1100,7 +1102,7 @@
     <script src="js/modules/services/api-notes.js?v=9999"></script>
     <script src="js/modules/services/api-tasks.js?v=1700"></script>
     <script src="js/modules/services/api-journal.js?v=300"></script>
-    <script src="js/modules/services/api-ai.js?v=1700"></script>
+    <script src="js/modules/services/api-ai.js?v=1701"></script>
     <script src="js/modules/services/api-galaxy.js?v=1700"></script>
     <script src="js/modules/services/api-data-loader.js?v=1700"></script>
     <script src="js/modules/services/websocket.js?v=1801"></script>
@@ -1123,7 +1125,7 @@
     <script src="js/modules/journal/journal-premium-core.js?v=200"></script>
     <script src="js/modules/journal/journal-premium-ui.js?v=200"></script>
     <script src="js/modules/ai/chat-actions.js?v=1700"></script>
-    <script src="js/modules/ai/chatbot.js?v=1700"></script>
+    <script src="js/modules/ai/chatbot.js?v=1702"></script>
     <!-- Prompt Forge - AI Prompt Generator v4.0 -->
     <script src="js/modules/prompt-forge/prompt-forge-categories.js?v=200"></script>
     <script src="js/modules/prompt-forge/prompt-forge-core.js?v=200"></script>
@@ -1271,8 +1273,8 @@
     <!-- 10. Modules externes -->
     <script src="js/dragdrop.js?v=1700"></script>
     <!-- Galaxy View 3D (Three.js engine + AI + orchestrator) -->
-    <!-- OLD Galaxy 3D - DISABLED -->
-    <!-- <script src="js/modules/canvases/galaxy-3d.js?v=1700"></script> -->
+    <!-- Galaxy 3D Engine (toggle 2D↔3D) -->
+    <script src="js/modules/canvases/galaxy-3d.js?v=3600"></script>
     <!-- <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script> -->
 
     <!-- NEW Galaxy Canvas v2 - Interactive Fix -->
@@ -1281,12 +1283,12 @@
     <script src="js/modules/canvases/galaxie-view.js?v=3502"></script>
 
     <!-- GALAXY COSMIC v3.1 PHASE 2 - L'Univers Vivant - TOUT FONCTIONNEL -->
-    <script src="js/galaxy-cosmic.js?v=3583"></script>
-    <script src="js/galaxy-cosmic-persistence.js?v=4"></script>
+    <script src="js/galaxy-cosmic.js?v=3590"></script>
+    <script src="js/galaxy-cosmic-persistence.js?v=5"></script>
     <script src="js/galaxy-cosmic-projects-ui.js?v=6"></script>
     <script src="js/galaxy-cosmic-history.js?v=3556"></script>
-    <script src="js/galaxy-cosmic-shapes.js?v=3582"></script>
-    <script src="js/galaxy-cosmic-ui.js?v=3581"></script>
+    <script src="js/galaxy-cosmic-shapes.js?v=3586"></script>
+    <script src="js/galaxy-cosmic-ui.js?v=3600"></script>
     <script>
     // Auto-init Cosmic Projects
     (function() {
