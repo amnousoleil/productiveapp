@@ -1,0 +1,963 @@
+/* =============================================
+   PRODUCTIVEAPP - REVOLUTIONARY ONBOARDING CSS
+   Experience immersive pour nouveaux utilisateurs
+   ============================================= */
+
+/* === VARIABLES === */
+:root {
+    --onb-gold: #d4af37;
+    --onb-gold-light: #f4d03f;
+    --onb-gold-glow: rgba(212, 175, 55, 0.5);
+    --onb-bg-dark: #050508;
+    --onb-bg-card: rgba(15, 15, 25, 0.95);
+    --onb-white: #ffffff;
+    --onb-white-soft: rgba(255, 255, 255, 0.9);
+    --onb-white-muted: rgba(255, 255, 255, 0.6);
+    --onb-gray: #6b7280;
+    --onb-success: #10b981;
+    --onb-purple: #8b5cf6;
+}
+
+/* === MAIN CONTAINER === */
+#onboarding-revolution {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+#onboarding-revolution.visible {
+    opacity: 1;
+}
+
+#onboarding-revolution.completing {
+    opacity: 0;
+    transform: scale(1.05);
+    transition: all 0.8s ease;
+}
+
+/* === OVERLAY === */
+.onb-overlay {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--onb-bg-dark);
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* === CANVAS FOR EFFECTS === */
+#onb-canvas {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* === BACKGROUND GRADIENT === */
+.onb-bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 30% 20%, rgba(212, 175, 55, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 60%);
+    animation: bgPulse 10s ease-in-out infinite;
+    z-index: 1;
+}
+
+@keyframes bgPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* === STARS === */
+.onb-stars {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.onb-star {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--onb-gold);
+    border-radius: 50%;
+    animation: starTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.5); }
+}
+
+/* === MAIN CARD === */
+.onb-card {
+    position: relative;
+    width: 100%;
+    max-width: 580px;
+    min-height: 500px;
+    background: var(--onb-bg-card);
+    backdrop-filter: blur(40px);
+    border-radius: 32px;
+    padding: 48px;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    box-shadow:
+        0 0 100px rgba(212, 175, 55, 0.08),
+        0 40px 80px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    z-index: 10;
+    transform: translateY(0) scale(1);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.onb-card.switching {
+    transform: translateY(-20px) scale(0.95);
+    opacity: 0.5;
+}
+
+.onb-card.entering {
+    animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardEnter {
+    from {
+        transform: translateY(20px) scale(0.95);
+        opacity: 0.5;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Card glow */
+.onb-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--onb-gold) 0%, transparent 30%, transparent 70%, var(--onb-purple) 100%);
+    border-radius: 34px;
+    z-index: -1;
+    opacity: 0.3;
+}
+
+/* === PROGRESS CONTAINER === */
+.onb-progress-container {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.onb-progress-bar {
+    width: 200px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.onb-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--onb-gold), var(--onb-gold-light));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 20px var(--onb-gold-glow);
+}
+
+.onb-progress-steps {
+    display: flex;
+    gap: 12px;
+}
+
+.onb-step-dot {
+    width: 12px;
+    height: 12px;
+    position: relative;
+    cursor: pointer;
+}
+
+.onb-step-dot .dot-inner {
+    position: absolute;
+    inset: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.onb-step-dot .dot-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.onb-step-dot.completed .dot-inner {
+    background: var(--onb-success);
+}
+
+.onb-step-dot.active .dot-inner {
+    background: var(--onb-gold);
+    box-shadow: 0 0 15px var(--onb-gold-glow);
+}
+
+.onb-step-dot.active .dot-pulse {
+    border-color: var(--onb-gold);
+    animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0; }
+}
+
+/* === SKIP BUTTON === */
+.onb-skip {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    color: var(--onb-gray);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 15;
+}
+
+.onb-skip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--onb-white);
+}
+
+.onb-skip svg {
+    transition: transform 0.3s ease;
+}
+
+.onb-skip:hover svg {
+    transform: translateX(4px);
+}
+
+/* === STEP CONTENT === */
+.onb-step-icon {
+    font-size: 64px;
+    text-align: center;
+    margin-bottom: 20px;
+    animation: iconBounce 2s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.onb-step-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--onb-white);
+    text-align: center;
+    margin: 0 0 12px;
+    background: linear-gradient(135deg, var(--onb-white) 0%, var(--onb-gold-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.onb-step-subtitle {
+    font-size: 16px;
+    color: var(--onb-white-muted);
+    text-align: center;
+    margin: 0 0 36px;
+    line-height: 1.5;
+}
+
+/* === ACTIONS === */
+.onb-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 36px;
+}
+
+.onb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.onb-btn.primary {
+    background: linear-gradient(135deg, var(--onb-gold), var(--onb-gold-light));
+    color: #000;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+}
+
+.onb-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+}
+
+.onb-btn.primary.large {
+    padding: 20px 48px;
+    font-size: 17px;
+}
+
+.onb-btn.secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--onb-white-soft);
+}
+
+.onb-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.onb-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+/* === INTRO STEP === */
+.onb-intro-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    margin: 20px 0;
+}
+
+.onb-logo-showcase {
+    position: relative;
+    width: 140px;
+    height: 140px;
+}
+
+.onb-logo-glow {
+    position: absolute;
+    inset: -30px;
+    background: radial-gradient(circle, var(--onb-gold-glow) 0%, transparent 70%);
+    animation: logoGlow 3s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.onb-logo-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 0 40px var(--onb-gold-glow);
+}
+
+.onb-welcome-name {
+    font-size: 24px;
+    color: var(--onb-white);
+    font-weight: 500;
+}
+
+.onb-welcome-name span {
+    color: var(--onb-gold);
+    font-weight: 700;
+}
+
+/* === INPUT STEP === */
+.onb-input-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+}
+
+.onb-avatar-picker {
+    position: relative;
+}
+
+.onb-avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--onb-gold), var(--onb-gold-light));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    color: #000;
+    box-shadow: 0 0 30px var(--onb-gold-glow);
+    transition: all 0.3s ease;
+}
+
+.onb-avatar-change {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background: var(--onb-bg-card);
+    border: 2px solid var(--onb-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--onb-gold);
+    transition: all 0.3s ease;
+}
+
+.onb-avatar-change:hover {
+    background: var(--onb-gold);
+    color: #000;
+}
+
+.onb-input-field {
+    position: relative;
+    width: 100%;
+    max-width: 320px;
+}
+
+.onb-input-field input {
+    width: 100%;
+    padding: 18px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    font-size: 18px;
+    color: var(--onb-white);
+    text-align: center;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.onb-input-field input:focus {
+    border-color: var(--onb-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.onb-input-field input::placeholder {
+    color: var(--onb-gray);
+}
+
+.onb-input-glow {
+    position: absolute;
+    inset: -2px;
+    background: var(--onb-gold);
+    border-radius: 18px;
+    opacity: 0;
+    filter: blur(15px);
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.onb-input-field input:focus ~ .onb-input-glow {
+    opacity: 0.15;
+}
+
+/* === WORKSPACE STEP === */
+.onb-workspace-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.onb-workspace-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.onb-workspace-card {
+    position: relative;
+    padding: 24px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.onb-workspace-card:hover {
+    border-color: rgba(212, 175, 55, 0.3);
+    transform: translateY(-4px);
+}
+
+.onb-workspace-card.selected {
+    border-color: var(--onb-gold);
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.onb-workspace-card .ws-card-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.onb-workspace-card h3 {
+    font-size: 16px;
+    color: var(--onb-white);
+    margin: 0 0 8px;
+}
+
+.onb-workspace-card p {
+    font-size: 12px;
+    color: var(--onb-gray);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.onb-workspace-card .ws-card-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, var(--onb-gold-glow) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.onb-workspace-card.selected .ws-card-glow {
+    opacity: 0.2;
+}
+
+.onb-workspace-name {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.onb-workspace-name label {
+    font-size: 13px;
+    color: var(--onb-gray);
+}
+
+.onb-workspace-name input {
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    font-size: 15px;
+    color: var(--onb-white);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.onb-workspace-name input:focus {
+    border-color: var(--onb-gold);
+}
+
+/* === THEME STEP === */
+.onb-theme-section {
+    padding: 10px 0;
+}
+
+.onb-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.onb-theme-card {
+    position: relative;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.onb-theme-card:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+}
+
+.onb-theme-card.selected {
+    border-color: var(--onb-gold);
+}
+
+.onb-theme-card .theme-preview {
+    height: 80px;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.onb-theme-card .theme-accent {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+}
+
+.onb-theme-card .theme-lines {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.onb-theme-card .theme-lines span {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 2px;
+}
+
+.onb-theme-card .theme-lines span:first-child {
+    width: 60%;
+}
+
+.onb-theme-card .theme-lines span:nth-child(2) {
+    width: 80%;
+}
+
+.onb-theme-card .theme-lines span:last-child {
+    width: 40%;
+}
+
+.onb-theme-card .theme-name {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: var(--onb-white-soft);
+}
+
+.onb-theme-card .theme-check {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background: var(--onb-gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.onb-theme-card .theme-check svg {
+    width: 14px;
+    height: 14px;
+    color: #000;
+}
+
+.onb-theme-card.selected .theme-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* === FEATURES STEP === */
+.onb-features-section {
+    padding: 20px 0;
+}
+
+.onb-features-carousel {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.feature-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.5s ease;
+    pointer-events: none;
+}
+
+.feature-slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.feature-slide .feature-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+}
+
+.feature-slide h3 {
+    font-size: 22px;
+    color: var(--onb-white);
+    margin: 0 0 8px;
+}
+
+.feature-slide p {
+    font-size: 15px;
+    color: var(--onb-gray);
+    margin: 0;
+    max-width: 300px;
+}
+
+.onb-features-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.feature-dot {
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.feature-dot:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.feature-dot.active {
+    background: var(--onb-gold);
+    box-shadow: 0 0 15px var(--onb-gold-glow);
+}
+
+/* === COMPLETE STEP === */
+.onb-complete-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    padding: 20px 0;
+}
+
+.onb-complete-visual {
+    position: relative;
+}
+
+.onb-trophy {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.onb-trophy .trophy-icon {
+    font-size: 80px;
+    position: relative;
+    z-index: 2;
+    animation: trophyBounce 2s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-15px) rotate(5deg); }
+}
+
+.onb-trophy .trophy-glow {
+    position: absolute;
+    inset: -30px;
+    background: radial-gradient(circle, var(--onb-gold-glow) 0%, transparent 70%);
+    animation: trophyGlow 2s ease-in-out infinite;
+}
+
+@keyframes trophyGlow {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.3); opacity: 0.8; }
+}
+
+.onb-trophy .trophy-sparkles {
+    position: absolute;
+    inset: -20px;
+    background:
+        radial-gradient(2px 2px at 20% 30%, var(--onb-gold) 50%, transparent 50%),
+        radial-gradient(2px 2px at 80% 20%, var(--onb-gold) 50%, transparent 50%),
+        radial-gradient(2px 2px at 10% 70%, var(--onb-gold) 50%, transparent 50%),
+        radial-gradient(2px 2px at 90% 80%, var(--onb-gold) 50%, transparent 50%);
+    animation: sparkleRotate 3s linear infinite;
+}
+
+@keyframes sparkleRotate {
+    to { transform: rotate(360deg); }
+}
+
+.onb-stats-preview {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 32px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--onb-gold);
+}
+
+.stat-label {
+    font-size: 13px;
+    color: var(--onb-gray);
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Button confetti effect */
+.btn-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 640px) {
+    .onb-card {
+        padding: 32px 24px;
+        border-radius: 24px;
+        min-height: auto;
+    }
+
+    .onb-step-icon {
+        font-size: 48px;
+    }
+
+    .onb-step-title {
+        font-size: 24px;
+    }
+
+    .onb-step-subtitle {
+        font-size: 14px;
+    }
+
+    .onb-workspace-options,
+    .onb-theme-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .onb-workspace-card {
+        display: flex;
+        align-items: center;
+        text-align: left;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .onb-workspace-card .ws-card-icon {
+        font-size: 32px;
+        margin-bottom: 0;
+    }
+
+    .onb-workspace-card h3 {
+        margin-bottom: 4px;
+    }
+
+    .onb-theme-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .onb-actions {
+        flex-direction: column;
+    }
+
+    .onb-btn {
+        width: 100%;
+    }
+
+    .onb-progress-container {
+        bottom: 20px;
+    }
+
+    .onb-skip {
+        top: 15px;
+        right: 15px;
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .onb-stats-preview {
+        padding: 16px 20px;
+        gap: 16px;
+    }
+
+    .stat-value {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 380px) {
+    .onb-card {
+        padding: 24px 16px;
+    }
+
+    .onb-theme-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

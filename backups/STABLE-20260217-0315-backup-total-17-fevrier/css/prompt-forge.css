@@ -1,0 +1,763 @@
+/**
+ * PROMPT FORGE — STYLES v5.0
+ * Logo réel + effets glow · Sections transparentes · Bibliothèque par catégories
+ * Adaptatif à tous les thèmes via var(--)
+ */
+
+/* ───────────────────────────────────────────────
+   VARIABLES GLOW (identité visuelle, intouchables)
+─────────────────────────────────────────────── */
+:root {
+    --pf-ray1: rgba(255,200,100,.60);
+    --pf-ray2: rgba(255,160, 60,.50);
+    --pf-aura: rgba(255,150, 50,.30);
+}
+
+/* ───────────────────────────────────────────────
+   CONTAINER ADAPTATIF
+─────────────────────────────────────────────── */
+.prompt-forge-container {
+    min-height: 100%;
+    padding: 2.5rem 2rem 5rem;
+    overflow-y: auto;
+    position: relative;
+    background: linear-gradient(160deg,
+        color-mix(in srgb, var(--accent) 14%, var(--bg-primary)) 0%,
+        color-mix(in srgb, var(--accent)  5%, var(--bg-primary)) 100%
+    );
+}
+
+/* Halo d'ambiance */
+.prompt-forge-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse at 15% 10%,
+            color-mix(in srgb, var(--accent) 8%, transparent) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 85%,
+            color-mix(in srgb, var(--accent) 5%, transparent) 0%, transparent 55%);
+    pointer-events: none;
+    animation: pfAmbiance 18s ease-in-out infinite;
+    z-index: 0;
+}
+@keyframes pfAmbiance {
+    0%,100% { opacity:.5; }
+    50%      { opacity:1; }
+}
+
+/* Grille subtile */
+.prompt-forge-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(color-mix(in srgb, var(--accent) 3%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--accent) 3%, transparent) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.prompt-forge-container > * { position: relative; z-index: 1; }
+
+/* ───────────────────────────────────────────────
+   HEADER & LOGO AVEC EFFETS
+─────────────────────────────────────────────── */
+.pf-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-top: 1rem;
+}
+
+/* Conteneur logo — perspective 3D pour orbitales */
+.pf-logo-container {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin: 0 auto 1.8rem;
+    perspective: 900px;
+}
+
+/* AURA pulsante externe */
+.pf-logo-aura {
+    position: absolute;
+    inset: -60px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+        rgba(255,175,50,.45) 0%,
+        rgba(255,120,40,.20) 45%,
+        transparent 100%
+    );
+    filter: blur(30px);
+    animation: pfAuraPulse 4s ease-in-out infinite;
+    z-index: 0;
+}
+@keyframes pfAuraPulse {
+    0%,100% { opacity:.55; transform: scale(1); }
+    50%      { opacity:1;   transform: scale(1.20); }
+}
+
+/* RAYONS conic-gradient */
+.pf-logo-rays {
+    position: absolute;
+    inset: -45px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,    var(--pf-ray1) 7deg,   transparent 17deg,
+        transparent 50deg,   var(--pf-ray2) 58deg,  transparent 68deg,
+        transparent 100deg,  var(--pf-ray1) 108deg, transparent 118deg,
+        transparent 150deg,  var(--pf-ray2) 158deg, transparent 168deg,
+        transparent 200deg,  var(--pf-ray1) 208deg, transparent 218deg,
+        transparent 252deg,  var(--pf-ray2) 260deg, transparent 270deg,
+        transparent 302deg,  var(--pf-ray1) 310deg, transparent 320deg,
+        transparent 352deg,  var(--pf-ray2) 358deg, transparent 366deg
+    );
+    animation: pfRaysRotate 16s linear infinite;
+    filter: blur(1.5px);
+    opacity: .80;
+    z-index: 1;
+}
+.pf-logo-rays-slow {
+    inset: -20px;
+    opacity: .50;
+    filter: blur(2px);
+    animation: pfRaysRotate 28s linear infinite reverse;
+}
+@keyframes pfRaysRotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* ORBITALES 3D autour du logo */
+.pf-logo-orbital {
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,200,100,.35);
+    z-index: 2;
+}
+.pf-logo-orbital-1 {
+    animation: pfOrb1 5s linear infinite;
+    transform-origin: center;
+}
+.pf-logo-orbital-2 {
+    animation: pfOrb2 8s linear infinite;
+    border-color: rgba(255,150,80,.25);
+}
+@keyframes pfOrb1 {
+    from { transform: rotateX(60deg) rotateZ(0deg); }
+    to   { transform: rotateX(60deg) rotateZ(360deg); }
+}
+@keyframes pfOrb2 {
+    from { transform: rotateX(72deg) rotateZ(0deg) rotateY(20deg); }
+    to   { transform: rotateX(72deg) rotateZ(-360deg) rotateY(20deg); }
+}
+
+/* Électrons sur les orbitales */
+.pf-logo-electron {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: radial-gradient(circle, #ffe0a0, #ff9f43);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255,200,80,.9);
+    top: -3.5px;
+    left: calc(50% - 3.5px);
+}
+.pf-logo-electron:nth-child(2) {
+    top: auto;
+    bottom: -3.5px;
+}
+
+/* IMAGE DU LOGO */
+.pf-logo-wrap {
+    position: absolute;
+    inset: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 3;
+    box-shadow:
+        0 0  0 4px  rgba(255,255,255,.55),
+        0 0  0 10px rgba(255,200,100,.22),
+        0 0  50px   rgba(255,150,50,.60),
+        0 0  90px   rgba(255,100,30,.30);
+}
+.pf-logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    animation: pfLogoBreath 5s ease-in-out infinite;
+    filter: brightness(1.05) saturate(1.1);
+}
+@keyframes pfLogoBreath {
+    0%,100% { transform: scale(1); }
+    50%      { transform: scale(1.04); }
+}
+
+/* Particules autour du logo */
+.pf-logo-particles { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.pf-lp {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,230,120,.9), rgba(255,160,50,.5));
+    box-shadow: 0 0 6px rgba(255,200,80,.7);
+}
+.pf-lp:nth-child(1) { top:  5%; left: 50%; animation: pfPart1 3.2s ease-in-out infinite; }
+.pf-lp:nth-child(2) { top: 25%; left: 90%; animation: pfPart2 4.1s ease-in-out infinite 0.5s; }
+.pf-lp:nth-child(3) { top: 75%; left: 85%; animation: pfPart3 3.7s ease-in-out infinite 1s; }
+.pf-lp:nth-child(4) { top: 90%; left: 50%; animation: pfPart1 4.5s ease-in-out infinite 1.5s; }
+.pf-lp:nth-child(5) { top: 70%; left: 10%; animation: pfPart2 3.9s ease-in-out infinite 0.8s; }
+.pf-lp:nth-child(6) { top: 20%; left: 12%; animation: pfPart3 3.4s ease-in-out infinite 0.3s; }
+@keyframes pfPart1 {
+    0%,100% { transform: translateY(0) scale(1); opacity:.7; }
+    50%      { transform: translateY(-18px) scale(1.4); opacity:1; }
+}
+@keyframes pfPart2 {
+    0%,100% { transform: translate(0,0) scale(1); opacity:.6; }
+    50%      { transform: translate(-14px,-12px) scale(1.3); opacity:1; }
+}
+@keyframes pfPart3 {
+    0%,100% { transform: translate(0,0) scale(1); opacity:.5; }
+    50%      { transform: translate(12px,-16px) scale(1.5); opacity:.9; }
+}
+
+/* TITRE */
+.pf-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff9f43, #ffc857, #ff7b25);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0 0 .6rem;
+    letter-spacing: -.02em;
+}
+.pf-subtitle {
+    color: var(--text-muted);
+    font-size: .95rem;
+    margin: 0;
+    opacity: .85;
+}
+
+/* ───────────────────────────────────────────────
+   ONGLETS
+─────────────────────────────────────────────── */
+.pf-tabs {
+    display: flex;
+    gap: .75rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+.pf-tab {
+    padding: .6rem 1.6rem;
+    border: 1.5px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: .9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .2s ease;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+.pf-tab:hover { color: var(--text); border-color: var(--accent); }
+.pf-tab.active {
+    background: linear-gradient(135deg, #ff9f43, #ff7b25);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 14px rgba(255,140,50,.35);
+}
+.pf-tab-badge {
+    background: rgba(255,255,255,.25);
+    border-radius: 999px;
+    padding: .1rem .5rem;
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+/* ───────────────────────────────────────────────
+   VUE FORGE — SECTIONS TRANSPARENTES
+─────────────────────────────────────────────── */
+.pf-forge-view { display: flex; flex-direction: column; gap: 1.5rem; max-width: 760px; margin: 0 auto; }
+
+.pf-input-section {
+    background: transparent;
+    padding: 0;
+}
+
+.pf-label {
+    display: block;
+    font-size: .85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--text-muted);
+    margin-bottom: .75rem;
+}
+
+.pf-textarea {
+    width: 100%;
+    min-height: 130px;
+    padding: 1.1rem 1.25rem;
+    border: 1.5px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--bg-card) 70%, transparent);
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.6;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color .2s, box-shadow .2s;
+    backdrop-filter: blur(8px);
+}
+.pf-textarea:focus {
+    outline: none;
+    border-color: #ff9f43;
+    box-shadow: 0 0 0 3px rgba(255,159,67,.18), 0 0 20px rgba(255,159,67,.10);
+}
+.pf-textarea::placeholder { color: var(--text-muted); opacity: .6; }
+
+.pf-hint {
+    margin: .5rem 0 0;
+    font-size: .8rem;
+    color: var(--text-muted);
+    opacity: .7;
+    font-style: italic;
+}
+
+/* BOUTON GÉNÉRATION */
+.pf-generate-btn {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    padding: 1.1rem 2rem;
+    background: linear-gradient(135deg, #ff9f43 0%, #ff7b25 60%, #e85d04 100%);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+    box-shadow: 0 6px 20px rgba(255,130,50,.40), 0 2px 6px rgba(0,0,0,.15);
+    transition: transform .15s ease, box-shadow .15s ease, opacity .15s;
+}
+.pf-generate-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.18) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform .6s ease;
+}
+.pf-generate-btn:not(:disabled):hover::before { transform: translateX(100%); }
+.pf-generate-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(255,130,50,.50);
+}
+.pf-generate-btn:active { transform: translateY(0); }
+.pf-generate-btn:disabled { opacity: .65; cursor: not-allowed; }
+
+.pf-btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255,255,255,.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: pfSpin .7s linear infinite;
+    flex-shrink: 0;
+}
+@keyframes pfSpin { to { transform: rotate(360deg); } }
+
+.pf-error {
+    padding: .9rem 1.25rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, #ef4444 12%, var(--bg-card));
+    border: 1px solid rgba(239,68,68,.25);
+    color: #ef4444;
+    font-size: .9rem;
+}
+
+/* ───────────────────────────────────────────────
+   RÉSULTAT GÉNÉRÉ
+─────────────────────────────────────────────── */
+.pf-result-section {
+    border-radius: 16px;
+    border: 1.5px solid color-mix(in srgb, #ff9f43 30%, var(--border));
+    background: color-mix(in srgb, var(--bg-card) 75%, transparent);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    animation: pfResultAppear .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pfResultAppear {
+    from { opacity: 0; transform: translateY(18px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pf-result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+    background: color-mix(in srgb, #ff9f43 6%, transparent);
+}
+
+.pf-result-title {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+.pf-result-title h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.pf-result-icon { font-size: 1.2rem; }
+
+.pf-detected-cat {
+    padding: .25rem .75rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--cat-color) 15%, transparent);
+    color: var(--cat-color);
+    border: 1px solid color-mix(in srgb, var(--cat-color) 30%, transparent);
+}
+
+.pf-result-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+
+.pf-action-btn {
+    padding: .45rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    background: color-mix(in srgb, var(--bg-card) 80%, transparent);
+    color: var(--text);
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s ease;
+}
+.pf-action-btn:hover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--bg-card));
+    transform: translateY(-1px);
+}
+.pf-action-btn.save {
+    background: linear-gradient(135deg, #ff9f43, #ff7b25);
+    color: #fff;
+    border-color: transparent;
+}
+.pf-action-btn.save:hover { box-shadow: 0 4px 12px rgba(255,130,50,.35); }
+
+.pf-result-content { padding: 1.25rem; }
+.pf-prompt-text {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: inherit;
+    font-size: .9rem;
+    line-height: 1.7;
+    color: var(--text);
+}
+
+/* ───────────────────────────────────────────────
+   BIBLIOTHÈQUE — VUE VIDE
+─────────────────────────────────────────────── */
+.pf-library-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+.pf-empty-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.pf-library-empty h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 .6rem;
+}
+.pf-library-empty p {
+    color: var(--text-muted);
+    max-width: 380px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
+}
+.pf-go-forge-btn {
+    padding: .8rem 2rem;
+    background: linear-gradient(135deg, #ff9f43, #ff7b25);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(255,130,50,.35);
+    transition: transform .15s, box-shadow .15s;
+}
+.pf-go-forge-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,130,50,.45); }
+
+/* ───────────────────────────────────────────────
+   BIBLIOTHÈQUE — BARRE DE GESTION SÉLECTION
+─────────────────────────────────────────────── */
+.pf-mgmt-bar {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+    padding: .75rem 1.25rem;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--accent) 12%, var(--bg-card));
+    border: 1.5px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    margin-bottom: 1.5rem;
+    animation: pfSlideIn .25s ease;
+}
+@keyframes pfSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.pf-mgmt-count { font-size: .9rem; font-weight: 700; color: var(--text); flex: 1; }
+.pf-delete-sel {
+    padding: .45rem 1rem;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+.pf-delete-sel:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239,68,68,.35); }
+.pf-cancel-sel {
+    padding: .45rem .9rem;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: .85rem;
+    cursor: pointer;
+    transition: all .15s;
+}
+.pf-cancel-sel:hover { color: var(--text); border-color: var(--text-muted); }
+
+/* ───────────────────────────────────────────────
+   BIBLIOTHÈQUE — GROUPES PAR CATÉGORIE
+─────────────────────────────────────────────── */
+.pf-library-view { display: flex; flex-direction: column; gap: 2rem; }
+
+.pf-cat-group {
+    border-radius: 16px;
+    border: 1.5px solid color-mix(in srgb, var(--group-color) 20%, var(--border));
+    background: color-mix(in srgb, var(--bg-card) 60%, transparent);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+}
+
+.pf-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .9rem 1.25rem;
+    background: color-mix(in srgb, var(--group-color) 8%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--group-color) 15%, var(--border));
+    gap: .75rem;
+    flex-wrap: wrap;
+}
+
+.pf-group-title {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+.pf-group-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--group-color);
+    box-shadow: 0 0 8px var(--group-color);
+    flex-shrink: 0;
+}
+.pf-group-icon { font-size: 1.1rem; }
+.pf-group-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+.pf-group-count {
+    padding: .15rem .55rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--group-color) 18%, transparent);
+    color: var(--group-color);
+    font-size: .75rem;
+    font-weight: 700;
+    border: 1px solid color-mix(in srgb, var(--group-color) 30%, transparent);
+}
+
+.pf-select-all-label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+}
+.pf-select-all-label input { cursor: pointer; accent-color: var(--group-color); }
+.pf-select-all-label:hover { color: var(--text); }
+
+.pf-group-cards {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+/* ───────────────────────────────────────────────
+   CARDS DE PROMPTS
+─────────────────────────────────────────────── */
+.pf-prompt-card {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: 1rem 1.1rem;
+    border-radius: 12px;
+    border: 1.5px solid color-mix(in srgb, var(--cat-color, var(--border)) 15%, var(--border));
+    background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
+    transition: border-color .2s, transform .15s, box-shadow .15s;
+}
+.pf-prompt-card:hover {
+    border-color: color-mix(in srgb, var(--cat-color, var(--accent)) 40%, var(--border));
+    transform: translateX(3px);
+    box-shadow: -3px 0 0 var(--cat-color, var(--accent));
+}
+.pf-prompt-card.selected {
+    border-color: color-mix(in srgb, var(--cat-color, var(--accent)) 60%, var(--border));
+    background: color-mix(in srgb, var(--cat-color, var(--accent)) 7%, var(--bg-primary));
+}
+
+.pf-card-select { padding-top: 2px; flex-shrink: 0; }
+.pf-card-check {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: var(--cat-color, var(--accent));
+}
+
+.pf-card-body { flex: 1; min-width: 0; }
+.pf-card-meta { margin-bottom: .35rem; }
+.pf-card-date { font-size: .75rem; color: var(--text-muted); }
+
+.pf-card-title {
+    margin: 0 0 .4rem;
+    font-size: .95rem;
+    font-weight: 700;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pf-card-preview {
+    margin: 0;
+    font-size: .83rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pf-card-actions {
+    display: flex;
+    gap: .4rem;
+    align-items: flex-start;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.pf-card-btn {
+    padding: .35rem .75rem;
+    border-radius: 7px;
+    border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+    background: color-mix(in srgb, var(--bg-card) 85%, transparent);
+    color: var(--text-muted);
+    font-size: .8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .15s ease;
+}
+.pf-card-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: color-mix(in srgb, var(--accent) 10%, var(--bg-card));
+}
+.pf-card-btn.use {
+    background: linear-gradient(135deg, #ff9f43, #ff7b25);
+    color: #fff;
+    border-color: transparent;
+}
+.pf-card-btn.use:hover { box-shadow: 0 3px 10px rgba(255,130,50,.35); color: #fff; }
+.pf-card-btn.danger { color: #ef4444; }
+.pf-card-btn.danger:hover {
+    background: rgba(239,68,68,.1);
+    border-color: rgba(239,68,68,.3);
+    color: #ef4444;
+}
+
+/* ───────────────────────────────────────────────
+   TOAST
+─────────────────────────────────────────────── */
+.pf-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(16px);
+    opacity: 0;
+    z-index: 9999;
+    padding: .75rem 1.4rem;
+    border-radius: 12px;
+    font-size: .9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    backdrop-filter: blur(12px);
+    transition: opacity .3s ease, transform .3s cubic-bezier(.34,1.56,.64,1);
+    background: color-mix(in srgb, var(--bg-card) 90%, transparent);
+    border: 1px solid var(--border);
+    color: var(--text);
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+.pf-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+.pf-toast.success { border-color: rgba(34,197,94,.35); background: color-mix(in srgb, #22c55e 12%, var(--bg-card)); }
+.pf-toast.error   { border-color: rgba(239,68,68,.35);  background: color-mix(in srgb, #ef4444 12%, var(--bg-card)); }
+.pf-toast.warning { border-color: rgba(245,158,11,.35); background: color-mix(in srgb, #f59e0b 12%, var(--bg-card)); }
+.pf-toast.info    { border-color: rgba(59,130,246,.35); background: color-mix(in srgb, #3b82f6 12%, var(--bg-card)); }
+
+/* ───────────────────────────────────────────────
+   RESPONSIVE MOBILE
+─────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .pf-logo-container { width: 180px; height: 180px; }
+    .pf-title { font-size: 1.7rem; }
+    .pf-prompt-card { flex-direction: column; }
+    .pf-card-actions { flex-direction: row; }
+    .pf-result-header { flex-direction: column; align-items: flex-start; }
+    .pf-group-header { flex-direction: column; align-items: flex-start; }
+}

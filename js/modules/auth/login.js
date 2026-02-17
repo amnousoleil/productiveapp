@@ -34,11 +34,21 @@ const AuthLogin = {
         if (accessToken) {
             console.log('🔐 AuthLogin: Token found, validating...');
             try {
+                // Refresh proactif si le token expire bientôt (avant getMe)
+                if (typeof ApiFetch !== 'undefined' && ApiFetch.ensureValidToken) {
+                    await ApiFetch.ensureValidToken();
+                }
+
                 const response = await ApiAuth.getMe();
 
                 if (response && response.user) {
                     console.log('✅ AuthLogin: Session valid');
                     this.apiUser = response.user;
+
+                    // Démarrer le refresh automatique en arrière-plan
+                    if (typeof ApiFetch !== 'undefined' && ApiFetch.startAutoRefresh) {
+                        ApiFetch.startAutoRefresh();
+                    }
 
                     // Vérifier si un membre était déjà sélectionné
                     const savedMemberId = localStorage.getItem('selectedMemberId');
@@ -57,7 +67,11 @@ const AuthLogin = {
                 }
             } catch (e) {
                 console.warn('⚠️ AuthLogin: Token invalid:', e.message);
-                ApiTokens.clearTokens();
+                // Ne pas effacer si le refresh token existe encore (tenter la reconnexion)
+                const refreshToken = ApiTokens.getRefreshToken();
+                if (!refreshToken || e.message === 'Session expired') {
+                    ApiTokens.clearTokens();
+                }
             }
         }
 

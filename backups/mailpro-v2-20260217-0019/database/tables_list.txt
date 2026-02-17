@@ -1,0 +1,11 @@
+                       List of relations
+ Schema |            Name            | Type  |      Owner      
+--------+----------------------------+-------+-----------------
+ public | conversation_email_exports | table | postgres
+ public | email_queue                | table | productive_user
+ public | email_templates            | table | productive_user
+ public | email_verification_tokens  | table | productive_user
+ public | mail_templates             | table | productive_user
+ public | sent_mails                 | table | productive_user
+(6 rows)
+

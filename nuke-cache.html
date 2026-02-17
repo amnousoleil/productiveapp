@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html><head><title>Nuke Cache</title></head>
+<body>
+<h1>Nettoyage en cours...</h1>
+<pre id="log"></pre>
+<script>
+const log = document.getElementById('log');
+function l(msg) { log.textContent += msg + '\n'; }
+
+async function nuke() {
+  // 1. Unregister ALL service workers
+  l('Unregistering service workers...');
+  const regs = await navigator.serviceWorker.getRegistrations();
+  for (const reg of regs) {
+    await reg.unregister();
+    l('  Unregistered: ' + reg.scope);
+  }
+  l('SW done: ' + regs.length + ' removed');
+
+  // 2. Delete ALL caches
+  l('Deleting caches...');
+  const keys = await caches.keys();
+  for (const key of keys) {
+    await caches.delete(key);
+    l('  Deleted: ' + key);
+  }
+  l('Caches done: ' + keys.length + ' removed');
+
+  // 3. Clear all storage
+  l('Clearing storage...');
+  localStorage.clear();
+  sessionStorage.clear();
+  l('Storage cleared');
+
+  // 4. Redirect
+  l('');
+  l('DONE - Redirecting in 3 seconds...');
+  setTimeout(() => {
+    window.location.href = '/?nocache=' + Date.now();
+  }, 3000);
+}
+
+nuke().catch(e => l('ERROR: ' + e.message));
+</script>
+</body></html>

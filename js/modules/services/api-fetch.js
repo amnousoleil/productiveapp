@@ -195,11 +195,48 @@ const ApiFetch = (function() {
         return fetchWithAuth(endpoint, { ...options, includeAuth: false });
     }
 
+    /**
+     * Refresh proactif au démarrage
+     * Appelé une fois quand l'app se charge — si le token expire bientôt, on le renouvelle silencieusement
+     */
+    async function ensureValidToken() {
+        const accessToken = ApiTokens.getAccessToken();
+        if (!accessToken) return false;
+
+        // Refresh si token expire dans moins de 2h (120 * 60 = 7200 sec)
+        if (ApiTokens.isTokenExpiringSoon(accessToken, 7200)) {
+            console.log('[Auth] Token expire bientôt → refresh silencieux...');
+            const refreshed = await refreshAccessToken();
+            if (refreshed) {
+                console.log('[Auth] ✅ Token renouvelé silencieusement');
+            } else {
+                console.warn('[Auth] ❌ Refresh échoué — token invalide');
+            }
+            return refreshed;
+        }
+        return true;
+    }
+
+    /**
+     * Démarrer le refresh automatique toutes les heures si l'utilisateur est connecté
+     */
+    function startAutoRefresh() {
+        // Refresh toutes les 6h si connecté (bien avant l'expiry de 7j)
+        setInterval(async () => {
+            const token = ApiTokens.getAccessToken();
+            if (token && ApiTokens.isTokenExpiringSoon(token, 3600 * 6)) {
+                await refreshAccessToken();
+            }
+        }, 3600 * 1000); // check toutes les heures
+    }
+
     return {
         buildUrl,
         getHeaders,
         fetchWithAuth,
         fetchWithoutAuth,
+        ensureValidToken,
+        startAutoRefresh,
         showToast,
         redirectToLogin
     };

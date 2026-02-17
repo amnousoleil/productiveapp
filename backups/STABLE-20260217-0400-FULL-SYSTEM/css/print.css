@@ -1,0 +1,141 @@
+/* PRINT CSS - ProductiveApp */
+@media print {
+    /* Masquer navigation et elements interactifs */
+    #app-sidebar, .sidebar, .sidebar-mobile-toggle, .sidebar-mobile-overlay,
+    .chatbot-fab, .chatbot-panel, #chatbot-toggle, #chatbot-window,
+    .animation-controls-fab, .animation-controls-panel,
+    .pwa-install-prompt, .offline-indicator,
+    .global-search-overlay, #matrix-bg,
+    .quick-add-fab, .zen-status-bar,
+    .pomodoro-widget, .time-tracker-float,
+    .notification-center-panel,
+    .undo-toast, .mobile-bottom-nav,
+    .breadcrumbs, .menu-container,
+    .task-input-section, .journal-input-row,
+    .add-chip-btn, .search-container,
+    .urgent-filter-btn, .user-filter-bar,
+    #add-task-btn, .btn-primary, .btn-secondary, .btn-accent, .btn-premium,
+    .journal-report, .galaxy-icon-container,
+    .kanban-board-overlay, .command-palette-overlay,
+    .keyboard-shortcuts-overlay {
+        display: none !important;
+    }
+
+    /* Reset layout */
+    body {
+        background: white !important;
+        color: black !important;
+        font-family: 'Inter', -apple-system, sans-serif;
+        font-size: 11pt;
+        margin: 0;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+    .view-container {
+        margin: 0 !important;
+        padding: 12px !important;
+        box-shadow: none !important;
+        border: none !important;
+        background: white !important;
+    }
+
+    /* En-tete */
+    .app-header {
+        background: white !important;
+        border-bottom: 2px solid #333 !important;
+        padding: 8px 0 !important;
+        box-shadow: none !important;
+    }
+    .app-title {
+        color: #333 !important;
+        font-size: 16pt !important;
+    }
+
+    /* Taches */
+    .task-column {
+        break-inside: avoid;
+        border: 1px solid #ddd !important;
+        border-radius: 4px !important;
+        margin-bottom: 12px !important;
+        background: white !important;
+        page-break-inside: avoid;
+    }
+    .column-header {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        border-bottom: 1px solid #ddd !important;
+        padding: 8px 12px !important;
+    }
+    .task-item, .task-bubble {
+        background: white !important;
+        border: 1px solid #eee !important;
+        color: #333 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+    }
+    .task-item * { color: #333 !important; }
+
+    /* Projets chips */
+    .project-chip {
+        background: #f0f0f0 !important;
+        color: #333 !important;
+        border: 1px solid #ddd !important;
+    }
+
+    /* Comptabilite - Factures */
+    .acc-wrapper {
+        background: white !important;
+    }
+    .acc-card, .acc-invoice-card {
+        border: 1px solid #ddd !important;
+        background: white !important;
+        box-shadow: none !important;
+        color: #333 !important;
+        page-break-inside: avoid;
+    }
+
+    /* Notes */
+    .note-card {
+        border: 1px solid #ddd !important;
+        background: white !important;
+        page-break-inside: avoid;
+    }
+
+    /* Rapports */
+    .report-card, .settings-card {
+        border: 1px solid #ddd !important;
+        background: white !important;
+        page-break-inside: avoid;
+    }
+
+    /* Enlever animations, transitions, ombres */
+    * {
+        animation: none !important;
+        transition: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    /* Liens */
+    a { color: #333 !important; text-decoration: underline; }
+
+    /* Pages */
+    @page {
+        margin: 1.5cm;
+        size: A4;
+    }
+
+    /* Footer impression */
+    body::after {
+        content: "ProductiveApp - Imprime le " attr(data-print-date);
+        display: block;
+        text-align: center;
+        font-size: 9pt;
+        color: #999;
+        margin-top: 24px;
+        padding-top: 8px;
+        border-top: 1px solid #ddd;
+    }
+}

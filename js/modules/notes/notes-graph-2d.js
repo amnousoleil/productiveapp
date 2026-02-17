@@ -40,13 +40,18 @@ const NotesGraph2D = (function() {
     let simulationRunning = true;
 
     // Physics
-    const REPULSION_STRENGTH = 5000;
-    const ATTRACTION_STRENGTH = 0.02;
-    const DAMPING = 0.85;
-    const MIN_DISTANCE = 50;
-    const MAX_FORCE = 10;
+    const REPULSION_STRENGTH = 1200;
+    const ATTRACTION_STRENGTH = 0.03;
+    const DAMPING = 0.88;
+    const MIN_DISTANCE = 40;
+    const MAX_FORCE = 5;
+    const GRAVITY = 0.003;       // Pull toward center
     const NODE_RADIUS = 20;
     const EDGE_WIDTH = 2;
+
+    // Simulation cooling (stabilize after ~3 seconds)
+    let simFrame = 0;
+    const SIM_COOLDOWN = 180; // frames before reducing forces
 
     // Colors (matching NotesAiCluster themes)
     const DEFAULT_COLORS = {
@@ -120,6 +125,7 @@ const NotesGraph2D = (function() {
         // Reset
         nodes = [];
         edges = [];
+        simFrame = 0;
 
         // Get clusters from NotesAiCluster if available
         const clusters = typeof NotesAiCluster !== 'undefined'
@@ -164,8 +170,20 @@ const NotesGraph2D = (function() {
             });
         });
 
-        // Create edges from AI connections
-        connections.forEach(conn => {
+        // Create edges — merge AI connections + graphData.connections (wiki links, manual)
+        const allConnections = [...connections];
+        if (graphData.connections && graphData.connections.length > 0) {
+            graphData.connections.forEach(conn => {
+                // Avoid duplicate edges
+                const dup = allConnections.some(c =>
+                    (c.fromNoteId === conn.fromNoteId && c.toNoteId === conn.toNoteId) ||
+                    (c.fromNoteId === conn.toNoteId && c.toNoteId === conn.fromNoteId)
+                );
+                if (!dup) allConnections.push(conn);
+            });
+        }
+
+        allConnections.forEach(conn => {
             const fromNode = nodes.find(n => n.id === conn.fromNoteId);
             const toNode = nodes.find(n => n.id === conn.toNoteId);
 
@@ -178,8 +196,8 @@ const NotesGraph2D = (function() {
             }
         });
 
-        // Center camera
-        centerCamera();
+        // Fit all nodes into view after a short delay (let initial layout settle)
+        setTimeout(() => fitAllNodes(), 500);
 
         console.log(`NotesGraph2D: loaded ${nodes.length} nodes, ${edges.length} edges`);
     }
@@ -189,6 +207,16 @@ const NotesGraph2D = (function() {
     function simulate() {
         if (!simulationRunning) return;
 
+        simFrame++;
+
+        // Cooling factor: simulation slows down over time → stabilization
+        const cooling = Math.max(0.05, 1.0 - simFrame / (SIM_COOLDOWN * 3));
+        const repulsion = REPULSION_STRENGTH * cooling;
+
+        const cx = width / 2;
+        const cy = height / 2;
+        const margin = 80;
+
         // Coulomb repulsion (all pairs)
         for (let i = 0; i < nodes.length; i++) {
             for (let j = i + 1; j < nodes.length; j++) {
@@ -197,19 +225,17 @@ const NotesGraph2D = (function() {
 
                 const dx = n2.x - n1.x;
                 const dy = n2.y - n1.y;
-                const distSq = dx * dx + dy * dy;
+                const distSq = Math.max(dx * dx + dy * dy, MIN_DISTANCE * MIN_DISTANCE);
                 const dist = Math.sqrt(distSq);
 
-                if (dist < MIN_DISTANCE) continue;
+                const force = repulsion / distSq;
+                const fx = Math.max(-MAX_FORCE, Math.min(MAX_FORCE, (dx / dist) * force));
+                const fy = Math.max(-MAX_FORCE, Math.min(MAX_FORCE, (dy / dist) * force));
 
-                const force = REPULSION_STRENGTH / distSq;
-                const fx = (dx / dist) * force;
-                const fy = (dy / dist) * force;
-
-                n1.vx -= Math.max(-MAX_FORCE, Math.min(MAX_FORCE, fx));
-                n1.vy -= Math.max(-MAX_FORCE, Math.min(MAX_FORCE, fy));
-                n2.vx += Math.max(-MAX_FORCE, Math.min(MAX_FORCE, fx));
-                n2.vy += Math.max(-MAX_FORCE, Math.min(MAX_FORCE, fy));
+                n1.vx -= fx;
+                n1.vy -= fy;
+                n2.vx += fx;
+                n2.vy += fy;
             }
         }
 
@@ -217,7 +243,7 @@ const NotesGraph2D = (function() {
         edges.forEach(edge => {
             const dx = edge.to.x - edge.from.x;
             const dy = edge.to.y - edge.from.y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
 
             const force = dist * ATTRACTION_STRENGTH * edge.strength;
             const fx = (dx / dist) * force;
@@ -231,17 +257,32 @@ const NotesGraph2D = (function() {
 
         // Update positions
         nodes.forEach(node => {
+            // Gravity toward center
+            const gdx = cx - node.x;
+            const gdy = cy - node.y;
+            node.vx += gdx * GRAVITY;
+            node.vy += gdy * GRAVITY;
+
             node.x += node.vx;
             node.y += node.vy;
             node.vx *= DAMPING;
             node.vy *= DAMPING;
 
-            // Boundary (soft)
-            const margin = 100;
-            if (node.x < margin) node.vx += 0.5;
-            if (node.x > width - margin) node.vx -= 0.5;
-            if (node.y < margin) node.vy += 0.5;
-            if (node.y > height - margin) node.vy -= 0.5;
+            // Hard boundary walls — strong proportional push
+            if (node.x < margin) {
+                node.x = margin;
+                node.vx = Math.abs(node.vx) * 0.5;
+            } else if (node.x > width - margin) {
+                node.x = width - margin;
+                node.vx = -Math.abs(node.vx) * 0.5;
+            }
+            if (node.y < margin) {
+                node.y = margin;
+                node.vy = Math.abs(node.vy) * 0.5;
+            } else if (node.y > height - margin) {
+                node.y = height - margin;
+                node.vy = -Math.abs(node.vy) * 0.5;
+            }
         });
     }
 
@@ -279,15 +320,17 @@ const NotesGraph2D = (function() {
             const isSelected = node === selectedNode;
             const r = node.radius * (isHovered ? 1.3 : isSelected ? 1.2 : 1.0);
 
-            // Outer glow
+            // Outer glow (guard against NaN/Infinity from camera transforms)
             if (isHovered || isSelected) {
-                const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 2);
-                gradient.addColorStop(0, node.color + '40');
-                gradient.addColorStop(1, node.color + '00');
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(node.x, node.y, r * 2, 0, Math.PI * 2);
-                ctx.fill();
+                if (isFinite(node.x) && isFinite(node.y) && isFinite(r) && r > 0) {
+                    const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, r * 2);
+                    gradient.addColorStop(0, node.color + '40');
+                    gradient.addColorStop(1, node.color + '00');
+                    ctx.fillStyle = gradient;
+                    ctx.beginPath();
+                    ctx.arc(node.x, node.y, r * 2, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
 
             // Main circle
@@ -418,9 +461,50 @@ const NotesGraph2D = (function() {
         scale = 1.0;
     }
 
+    function fitAllNodes() {
+        if (nodes.length === 0) {
+            centerCamera();
+            return;
+        }
+
+        // Compute bounding box of all nodes
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+
+        nodes.forEach(node => {
+            if (!isFinite(node.x) || !isFinite(node.y)) return;
+            const r = node.radius || NODE_RADIUS;
+            minX = Math.min(minX, node.x - r);
+            maxX = Math.max(maxX, node.x + r);
+            minY = Math.min(minY, node.y - r);
+            maxY = Math.max(maxY, node.y + r);
+        });
+
+        if (!isFinite(minX)) { centerCamera(); return; }
+
+        const graphW = maxX - minX;
+        const graphH = maxY - minY;
+        const padding = 80;
+
+        // Scale to fit canvas
+        const scaleX = (width - padding * 2) / Math.max(graphW, 1);
+        const scaleY = (height - padding * 2) / Math.max(graphH, 1);
+        const newScale = Math.max(0.1, Math.min(2.0, Math.min(scaleX, scaleY)));
+
+        // Center of bounding box → canvas center
+        const graphCX = (minX + maxX) / 2;
+        const graphCY = (minY + maxY) / 2;
+
+        targetScale = newScale;
+        scale = newScale;
+        offsetX = (width / 2 - graphCX) / newScale;
+        offsetY = (height / 2 - graphCY) / newScale;
+
+        console.log(`NotesGraph2D: fitAllNodes scale=${newScale.toFixed(2)} offset=(${offsetX.toFixed(0)},${offsetY.toFixed(0)})`);
+    }
+
     function resetView() {
-        centerCamera();
-        loadGraph({ nodes: nodes.map(n => n.note) });
+        fitAllNodes();
     }
 
     function focusNode(node) {
@@ -494,13 +578,29 @@ const NotesGraph2D = (function() {
         canvas.style.cursor = 'grab';
     }
 
-    function onClick(e) {
-        if (selectedNode && !isDragging) {
-            console.log('NotesGraph2D: node clicked', selectedNode.id);
+    let lastClickTime = 0;
+    let lastClickNodeId = null;
 
-            // Call NotesGraphView's click handler
+    function onClick(e) {
+        if (!selectedNode || isDragging) return;
+
+        const now = Date.now();
+        const isDoubleClick = selectedNode.id === lastClickNodeId && (now - lastClickTime) < 350;
+        lastClickTime = now;
+        lastClickNodeId = selectedNode.id;
+
+        if (isDoubleClick) {
+            // Double click → close graph + open note in editor
+            console.log('NotesGraph2D: double-click → open note', selectedNode.id);
             if (typeof NotesGraphView !== 'undefined' && NotesGraphView.onNoteClick) {
                 NotesGraphView.onNoteClick(selectedNode.id);
+            }
+        } else {
+            // Single click → show inline preview panel (stay in graph)
+            console.log('NotesGraph2D: single-click → preview note', selectedNode.id);
+            focusNode(selectedNode);
+            if (typeof NotesGraphView !== 'undefined' && NotesGraphView.showNotePreview) {
+                NotesGraphView.showNotePreview(selectedNode.id, selectedNode.note, selectedNode.cluster);
             }
         }
     }
@@ -547,6 +647,7 @@ const NotesGraph2D = (function() {
         init,
         loadGraph,
         resetView,
+        fitAllNodes,
         toggleLabels,
         toggleAutoRotate,
         toggleSimulation,

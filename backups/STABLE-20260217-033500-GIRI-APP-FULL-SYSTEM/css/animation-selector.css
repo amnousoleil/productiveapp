@@ -1,0 +1,617 @@
+/* ============================================================
+   PRODUCTIVE APP — ANIMATION SELECTOR v1.0
+   Modal CapCut-style pour sélection animations
+   ============================================================ */
+
+/* ============================================================
+   MODAL OVERLAY
+   ============================================================ */
+.animation-selector-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animation-selector-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ============================================================
+   MODAL CONTAINER
+   ============================================================ */
+.animation-selector-modal {
+    width: 90vw;
+    max-width: 1400px;
+    height: 85vh;
+    background: linear-gradient(145deg,
+        rgba(20, 20, 30, 0.98) 0%,
+        rgba(30, 30, 45, 0.98) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 100px rgba(138, 99, 246, 0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.9) translateY(30px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animation-selector-overlay.active .animation-selector-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.anim-selector-header {
+    padding: 24px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(90deg,
+        rgba(138, 99, 246, 0.1) 0%,
+        rgba(99, 102, 241, 0.1) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.anim-selector-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.anim-selector-title h2 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.anim-selector-title .icon {
+    font-size: 28px;
+    animation: animIconPulse 2s ease-in-out infinite;
+}
+
+@keyframes animIconPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.anim-selector-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 20px;
+}
+
+.anim-selector-close:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+    transform: rotate(90deg);
+}
+
+/* ============================================================
+   TOOLBAR
+   ============================================================ */
+.anim-selector-toolbar {
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.anim-search {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.anim-search input {
+    width: 100%;
+    padding: 10px 40px 10px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.anim-search input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(138, 99, 246, 0.5);
+    box-shadow: 0 0 0 3px rgba(138, 99, 246, 0.1);
+}
+
+.anim-search input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.anim-search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.anim-filter-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.anim-filter-tab {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.anim-filter-tab:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.anim-filter-tab.active {
+    background: linear-gradient(135deg, rgba(138, 99, 246, 0.3), rgba(99, 102, 241, 0.3));
+    border-color: rgba(138, 99, 246, 0.5);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(138, 99, 246, 0.2);
+}
+
+.anim-filter-tab .icon {
+    margin-right: 6px;
+}
+
+/* ============================================================
+   CONTENT AREA
+   ============================================================ */
+.anim-selector-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+}
+
+/* Scrollbar custom */
+.anim-selector-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.anim-selector-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.anim-selector-content::-webkit-scrollbar-thumb {
+    background: rgba(138, 99, 246, 0.3);
+    border-radius: 4px;
+}
+
+.anim-selector-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 99, 246, 0.5);
+}
+
+/* ============================================================
+   SECTIONS PAR CATÉGORIE
+   ============================================================ */
+.anim-category-section {
+    margin-bottom: 48px;
+}
+
+.anim-category-section:last-child {
+    margin-bottom: 0;
+}
+
+.anim-category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.anim-category-icon {
+    font-size: 24px;
+}
+
+.anim-category-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.anim-category-count {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* ============================================================
+   GRILLE D'ANIMATIONS (Style CapCut)
+   ============================================================ */
+.anim-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.anim-card {
+    position: relative;
+    aspect-ratio: 16/9;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.anim-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    border-color: rgba(138, 99, 246, 0.5);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.3),
+        0 0 40px rgba(138, 99, 246, 0.15);
+}
+
+.anim-card.selected {
+    border-color: rgba(138, 99, 246, 0.8);
+    box-shadow:
+        0 0 0 3px rgba(138, 99, 246, 0.2),
+        0 8px 24px rgba(138, 99, 246, 0.3);
+}
+
+/* Preview canvas miniature */
+.anim-card-preview {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.anim-card-preview canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Overlay gradient */
+.anim-card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px;
+    background: linear-gradient(to top,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        transparent 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.anim-card-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.anim-card-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.anim-card-tag {
+    font-size: 10px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 4px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Bouton favori (étoile en bas à droite) */
+.anim-card-favorite {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.anim-card-favorite:hover {
+    transform: scale(1.15);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.anim-card-favorite.active {
+    background: linear-gradient(135deg, #f59e0b, #f97316);
+    border-color: #fbbf24;
+}
+
+.anim-card-favorite .star {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.anim-card-favorite.active .star {
+    color: #fff;
+    animation: starPop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes starPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Badge "Special" pour easter eggs */
+.anim-card-special-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+}
+
+/* Badge "Selected" */
+.anim-card-selected-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #34d399);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+/* ============================================================
+   FOOTER - COLOR PICKER & ACTIONS
+   ============================================================ */
+.anim-selector-footer {
+    padding: 20px 32px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.anim-color-picker-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.anim-color-picker-label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.anim-color-swatches {
+    display: flex;
+    gap: 8px;
+}
+
+.anim-color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.anim-color-swatch:hover {
+    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.anim-color-swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.anim-color-swatch input[type="color"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.anim-custom-color-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(45deg,
+        #ff0000 0%, #ff7f00 14%, #ffff00 28%,
+        #00ff00 42%, #0000ff 57%, #4b0082 71%,
+        #9400d3 85%, #ff0000 100%);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.anim-custom-color-btn:hover {
+    transform: scale(1.15);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.anim-custom-color-btn input[type="color"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.anim-selector-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.anim-action-btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.anim-action-btn.secondary {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.anim-action-btn.secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.anim-action-btn.primary {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.anim-action-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.anim-action-btn.primary:active {
+    transform: translateY(0);
+}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.anim-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.anim-empty-state .icon {
+    font-size: 64px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.anim-empty-state p {
+    font-size: 16px;
+    margin: 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .animation-selector-modal {
+        width: 95vw;
+        height: 90vh;
+    }
+
+    .anim-selector-header,
+    .anim-selector-toolbar,
+    .anim-selector-content,
+    .anim-selector-footer {
+        padding: 16px;
+    }
+
+    .anim-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .anim-selector-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .anim-color-picker-section {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .anim-selector-actions {
+        width: 100%;
+    }
+
+    .anim-action-btn {
+        flex: 1;
+    }
+}

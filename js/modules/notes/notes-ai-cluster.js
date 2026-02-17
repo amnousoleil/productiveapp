@@ -72,26 +72,23 @@ const NotesAiCluster = (function() {
 
     // ========== AI CLUSTERING ==========
 
-    async function analyzeAndCluster() {
+    // silent=true suppresses all toasts (used for background auto-clustering)
+    async function analyzeAndCluster(silent) {
         const notes = NotesModule.getNotes();
 
         if (notes.length === 0) {
-            if (window.Toast) {
-                window.Toast.warning('Aucune note à analyser');
-            }
+            if (!silent && window.Toast) window.Toast.warning('Aucune note à analyser');
             return { clusters: [], connections: [] };
         }
 
         if (notes.length < 3) {
-            if (window.Toast) {
-                window.Toast.warning('Minimum 3 notes nécessaires pour le clustering');
-            }
+            if (!silent && window.Toast) window.Toast.warning('Minimum 3 notes nécessaires pour le clustering');
             return { clusters: [], connections: [] };
         }
 
-        // Show loading toast
-        if (window.Toast) {
-            window.Toast.info('Analyse IA en cours...', { duration: 10000 });
+        // Show loading toast (only if not silent)
+        if (!silent && window.Toast) {
+            window.Toast.info('Analyse IA des clusters en cours...', { duration: 8000 });
         }
 
         try {
@@ -104,9 +101,9 @@ const NotesAiCluster = (function() {
 
                 saveToCache();
 
-                if (window.Toast) {
+                if (!silent && window.Toast) {
                     window.Toast.success(
-                        `Clustering terminé: ${clusters.length} thèmes, ${connections.length} connexions`,
+                        `✦ ${clusters.length} clusters · ${connections.length} connexions détectés`,
                         { duration: 5000 }
                     );
                 }
@@ -117,11 +114,9 @@ const NotesAiCluster = (function() {
             }
         } catch (error) {
             console.error('AI Clustering failed:', error);
-
-            if (window.Toast) {
+            if (!silent && window.Toast) {
                 window.Toast.error('Erreur lors du clustering IA');
             }
-
             return { clusters: [], connections: [] };
         }
     }
@@ -131,59 +126,31 @@ const NotesAiCluster = (function() {
             throw new Error('ApiAi not available');
         }
 
-        // Prepare notes data for AI
-        const notesData = notes.map(note => ({
+        // Prepare notes data for AI (limit size to avoid payload issues)
+        const notesToAnalyze = notes.slice(0, 30); // Max 30 notes per request
+        const notesData = notesToAnalyze.map(note => ({
             id: note.id,
-            title: note.title || 'Sans titre',
-            content: (note.content || '').substring(0, 500), // Limit to 500 chars per note
-            tags: note.tags || []
+            title: (note.title || 'Sans titre').substring(0, 80),
+            content: (note.content || '').substring(0, 200), // 200 chars per note max
+            tags: (note.tags || []).slice(0, 5)
         }));
 
-        const systemPrompt = `Tu es un expert en analyse sémantique et clustering de notes.
+        const systemPrompt = `Tu es un expert en analyse sémantique. Analyse ces notes et retourne UNIQUEMENT un JSON valide avec cette structure:
+{"clusters":[{"theme":"Nom","noteIds":["id1","id2"],"keywords":["mot1"],"color":"#hex"}],"connections":[{"fromNoteId":"id1","toNoteId":"id2","strength":0.8,"reason":"raison"}]}
+RÈGLES: 3-7 clusters max, connexions strength 0.0-1.0, couleurs hex variées, JSON brut uniquement sans markdown.`;
 
-Analyse les notes fournies et retourne UNIQUEMENT un JSON valide avec cette structure exacte:
-
-{
-  "clusters": [
-    {
-      "theme": "Nom du thème",
-      "noteIds": ["note_123", "note_456"],
-      "keywords": ["mot-clé1", "mot-clé2"],
-      "color": "#8b5cf6"
-    }
-  ],
-  "connections": [
-    {
-      "fromNoteId": "note_123",
-      "toNoteId": "note_456",
-      "strength": 0.8,
-      "reason": "Raison du lien"
-    }
-  ]
-}
-
-RÈGLES:
-- Base ton analyse sur la SÉMANTIQUE, pas juste les mots-clés
-- Groupe les notes par thèmes conceptuels (3-7 clusters max)
-- Détecte les connexions logiques entre notes (strength: 0.0-1.0)
-- Utilise des couleurs variées pour les clusters
-- NE génère PAS de texte avant ou après le JSON
-- RETOURNE UNIQUEMENT le JSON brut`;
-
-        const userPrompt = `Notes à analyser:\n\n${JSON.stringify(notesData, null, 2)}`;
+        const userPrompt = `Notes à analyser:\n${JSON.stringify(notesData)}`;
 
         try {
-            const response = await ApiAi.generate(userPrompt, {
-                temperature: 0.3,
-                systemPrompt: systemPrompt
-            });
+            // ApiAi.generate(prompt, system) — returns string directly
+            const responseText = await ApiAi.generate(userPrompt, systemPrompt);
 
-            if (!response || !response.content) {
+            if (!responseText) {
                 throw new Error('Empty API response');
             }
 
             // Extract JSON from response (handle markdown code blocks)
-            let jsonText = response.content.trim();
+            let jsonText = String(responseText).trim();
 
             // Remove markdown code blocks if present
             jsonText = jsonText.replace(/```json\s*\n?/g, '');

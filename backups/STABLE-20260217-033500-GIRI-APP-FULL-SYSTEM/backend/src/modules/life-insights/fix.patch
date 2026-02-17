@@ -1,0 +1,29 @@
+--- a/src/modules/life-insights/life-insights.service.ts
++++ b/src/modules/life-insights/life-insights.service.ts
+@@ -3,7 +3,7 @@
+ // Service de tracking et analytics
+ // =============================================
+ 
+-import { sql } from '../../config/database.js';
++import { pool } from './pool.js';
+ import {
+   ActivityLogEntry,
+   CreateActivityLogDto,
+@@ -177,7 +177,7 @@ export class LifeInsightsService {
+     `;
+
+     const result = await pool.query(query, [userId]);
+-    return result.rows.map((row) => ({
++    return result.rows.map((row: any) => ({
+       hour: parseInt(row.hour),
+       action_count: parseInt(row.action_count),
+       dominant_action_type: row.dominant_action_type as ActionType,
+@@ -205,7 +205,7 @@ export class LifeInsightsService {
+     `;
+
+     const result = await pool.query(query, [userId]);
+-    return result.rows.map((row) => ({
++    return result.rows.map((row: any) => ({
+       date: row.date.toISOString().split('T')[0],
+       action_count: parseInt(row.action_count),
+       tasks_completed: parseInt(row.tasks_completed),

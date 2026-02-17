@@ -1,0 +1,30 @@
+/* ── EXAMPLES ELITE (pfe) ── */
+.pfe-root { display: flex; flex-direction: column; gap: 1.2rem; max-width: 900px; margin: 0 auto; padding: .5rem 0 2rem; }
+.pfe-header { text-align: center; }
+.pfe-title { margin: 0 0 .3rem; font-size: 1.5rem; font-weight: 900; color: var(--text); }
+.pfe-desc { margin: 0; font-size: .86rem; color: var(--text-muted); }
+.pfe-filters { display: flex; flex-wrap: wrap; gap: .4rem; padding: .5rem 0; }
+.pfe-filter-btn { padding: .32rem .85rem; border-radius: 20px; font-size: .76rem; font-weight: 700; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all .15s; }
+.pfe-filter-btn:hover { border-color: var(--cat-c, var(--pf-fire2)); color: var(--text); }
+.pfe-filter-btn.active { background: color-mix(in srgb, var(--cat-c, var(--pf-fire2)) 15%, var(--bg-card)); border-color: var(--cat-c, var(--pf-fire2)); color: var(--text); }
+.pfe-filter-count { opacity: .6; font-weight: 600; margin-left: .2rem; }
+.pfe-grid { display: flex; flex-direction: column; gap: .5rem; }
+.pfe-card { border-radius: 14px; border: 1.5px solid var(--border); overflow: hidden; transition: border-color .15s; }
+.pfe-card:hover { border-color: color-mix(in srgb, var(--cat-c, var(--pf-fire2)) 40%, var(--border)); }
+.pfe-card.open { border-color: var(--cat-c, var(--pf-fire2)); box-shadow: 0 0 20px color-mix(in srgb, var(--cat-c, var(--pf-fire2)) 12%, transparent); }
+.pfe-card-head { display: flex; align-items: center; gap: .7rem; padding: .8rem 1rem; cursor: pointer; background: color-mix(in srgb, var(--bg-card) 70%, transparent); }
+.pfe-card-head:hover { background: color-mix(in srgb, var(--cat-c, var(--pf-fire2)) 6%, var(--bg-card)); }
+.pfe-card-icon { font-size: 1.3rem; flex-shrink: 0; }
+.pfe-card-info { display: flex; flex-direction: column; gap: .1rem; flex: 1; }
+.pfe-card-cat { font-size: .68rem; font-weight: 800; color: var(--cat-c, var(--pf-fire2)); text-transform: uppercase; letter-spacing: .07em; }
+.pfe-card-title { font-size: .9rem; font-weight: 700; color: var(--text); }
+.pfe-card-arrow { font-size: .7rem; color: var(--text-muted); flex-shrink: 0; }
+.pfe-card-body { padding: 1rem; background: color-mix(in srgb, var(--bg-card) 40%, transparent); border-top: 1px solid var(--border); }
+.pfe-card-prompt { margin: 0 0 .9rem; font-family: inherit; font-size: .82rem; line-height: 1.65; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.pfe-card-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.pfe-btn-copy, .pfe-btn-forge, .pfe-btn-gpt { padding: .45rem 1rem; border-radius: 10px; font-size: .78rem; font-weight: 700; border: 1.5px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; transition: all .15s; }
+.pfe-btn-copy:hover { border-color: var(--pf-fire2); color: var(--text); }
+.pfe-btn-forge { border-color: rgba(255,159,67,.3); color: var(--pf-fire2); }
+.pfe-btn-forge:hover { background: rgba(255,159,67,.1); }
+.pfe-btn-gpt { border-color: rgba(16,185,129,.3); color: #10b981; }
+.pfe-btn-gpt:hover { background: rgba(16,185,129,.1); }

@@ -204,14 +204,40 @@ const NotesGraphView = (function() {
         showLoading(true);
 
         try {
-            if (typeof ApiNotesGraph === 'undefined') {
-                throw new Error('ApiNotesGraph not loaded');
-            }
+            let data = null;
 
-            const data = await ApiNotesGraph.getGraph(currentWorkspaceId, {
-                includeManual: true,
-                includeAuto: true
-            });
+            // Try API first
+            if (typeof ApiNotesGraph !== 'undefined') {
+                data = await ApiNotesGraph.getGraph(currentWorkspaceId, {
+                    includeManual: true,
+                    includeAuto: true
+                });
+            } else {
+                // Fallback: build graph from local notes + wiki links
+                console.log('NotesGraphView: building graph from local notes (ApiNotesGraph not available)');
+                const notes = typeof NotesModule !== 'undefined' ? NotesModule.getNotes() : [];
+                // Build connections using getForwardLinks per note
+                const connections = [];
+                if (typeof NotesWikiLinks !== 'undefined' && NotesWikiLinks.getForwardLinks) {
+                    notes.forEach(note => {
+                        const linked = NotesWikiLinks.getForwardLinks(note.id) || [];
+                        linked.forEach(linkedNote => {
+                            if (linkedNote && linkedNote.id) {
+                                connections.push({ fromNoteId: note.id, toNoteId: linkedNote.id, strength: 1 });
+                            }
+                        });
+                    });
+                }
+                data = {
+                    nodes: notes,
+                    connections,
+                    stats: {
+                        totalNotes: notes.length,
+                        totalLinks: connections.length,
+                        categories: 0
+                    }
+                };
+            }
 
             graphData = data;
 
@@ -225,7 +251,39 @@ const NotesGraphView = (function() {
                 console.error('NotesGraph2D not loaded');
             }
 
-            console.log('NotesGraphView: graph loaded', data);
+            console.log('NotesGraphView: graph loaded', data.nodes?.length, 'nodes');
+
+            // === AUTO-TRIGGER AI CLUSTERING if no cached data ===
+            if (typeof NotesAiCluster !== 'undefined') {
+                NotesAiCluster.init();
+                if (!NotesAiCluster.isCacheValid() && (data.nodes || []).length >= 3) {
+                    console.log('NotesGraphView: no AI clusters yet — triggering auto-clustering...');
+                    NotesAiCluster.analyzeAndCluster(true /* silent */).then(() => {
+                        // Reload graph with fresh AI clusters + connections
+                        if (typeof NotesGraph2D !== 'undefined' && graphData) {
+                            NotesGraph2D.loadGraph(graphData);
+                            // Update stats with AI connection count
+                            const aiConns = NotesAiCluster.getConnections().length;
+                            const aiClusters = NotesAiCluster.getClusters().length;
+                            updateStats({
+                                totalNotes: (graphData.nodes || []).length,
+                                totalLinks: aiConns,
+                                categories: aiClusters
+                            });
+                        }
+                    }).catch(err => console.warn('Auto-clustering failed:', err));
+                } else if (NotesAiCluster.isCacheValid()) {
+                    // Cache exists — reload immediately with clusters applied
+                    if (typeof NotesGraph2D !== 'undefined') {
+                        NotesGraph2D.loadGraph(data);
+                        updateStats({
+                            totalNotes: (data.nodes || []).length,
+                            totalLinks: NotesAiCluster.getConnections().length,
+                            categories: NotesAiCluster.getClusters().length
+                        });
+                    }
+                }
+            }
 
         } catch (error) {
             console.error('NotesGraphView: failed to load graph', error);
@@ -270,35 +328,62 @@ const NotesGraphView = (function() {
     async function autoLink() {
         if (!currentWorkspaceId) return;
 
-        if (typeof Toast === 'undefined') {
-            alert('Auto-linking en cours (peut prendre 1-2 minutes pour 100 notes)...');
-        } else {
-            Toast.info('Auto-linking IA en cours...', { duration: 0 });
+        // === AI CLUSTERING VIA NotesAiCluster (primary path) ===
+        if (typeof NotesAiCluster !== 'undefined') {
+            try {
+                // Force fresh analysis (clear old cache)
+                NotesAiCluster.clearCache();
+
+                // analyzeAndCluster() handles its own toasts (loading + success/error)
+                const result = await NotesAiCluster.analyzeAndCluster();
+
+                if (result && result.clusters && result.clusters.length > 0) {
+                    // Reload graph — loadGraph() will pick up new clusters + connections
+                    if (typeof NotesGraph2D !== 'undefined' && graphData) {
+                        NotesGraph2D.loadGraph(graphData);
+                        updateStats({
+                            totalNotes: (graphData.nodes || []).length,
+                            totalLinks: (result.connections || []).length,
+                            categories: result.clusters.length
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('NotesGraphView: AI auto-link failed', error);
+                if (typeof Toast !== 'undefined') {
+                    Toast.error('Analyse IA échouée — vérifiez la connexion');
+                }
+            }
+            return;
         }
 
-        try {
-            if (typeof ApiNotesGraph === 'undefined') {
-                throw new Error('ApiNotesGraph not loaded');
+        // === FALLBACK: ApiNotesGraph if available ===
+        if (typeof ApiNotesGraph !== 'undefined') {
+            try {
+                if (typeof Toast !== 'undefined') {
+                    Toast.info('Auto-linking via API...', { duration: 0 });
+                }
+                const result = await ApiNotesGraph.autoLinkNotes(currentWorkspaceId, {
+                    strategy: 'keyword',
+                    minStrength: 0.3,
+                    maxLinksPerNote: 10
+                });
+                if (typeof Toast !== 'undefined') {
+                    Toast.success(`${result.linksCreated} liens créés`);
+                }
+                await loadGraphData();
+            } catch (error) {
+                console.error('NotesGraphView: auto-link API failed', error);
+                if (typeof Toast !== 'undefined') {
+                    Toast.error('Échec auto-link');
+                }
             }
+            return;
+        }
 
-            const result = await ApiNotesGraph.autoLinkNotes(currentWorkspaceId, {
-                strategy: 'keyword',
-                minStrength: 0.3,
-                maxLinksPerNote: 10
-            });
-
-            if (typeof Toast !== 'undefined') {
-                Toast.success(`${result.linksCreated} liens créés en ${(result.timeMs / 1000).toFixed(1)}s`);
-            }
-
-            // Reload graph
-            await loadGraphData();
-
-        } catch (error) {
-            console.error('NotesGraphView: auto-link failed', error);
-            if (typeof Toast !== 'undefined') {
-                Toast.error('Échec de l\'auto-linking');
-            }
+        // No AI or API available
+        if (typeof Toast !== 'undefined') {
+            Toast.warning('Module IA non disponible pour l\'auto-linking');
         }
     }
 
@@ -351,7 +436,253 @@ const NotesGraphView = (function() {
         }
     }
 
-    // === NOTE CLICK HANDLER ===
+    // === NOTE PREVIEW PANEL (single click — stays in graph) ===
+    function showNotePreview(noteId, noteData, cluster) {
+        if (!modalEl) return;
+
+        // Remove existing panel
+        const existing = document.getElementById('graph-note-preview');
+        if (existing) existing.remove();
+
+        const note = noteData || {};
+        const title = note.title || 'Sans titre';
+        const rawContent = (note.content || '')
+            .replace(/#{1,6}\s[^\n]*/g, '')
+            .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+            .replace(/\[\[([^\]]+)\]\]/g, '$1')
+            .replace(/\n+/g, ' ')
+            .trim()
+            .slice(0, 280);
+        const tags = note.tags || [];
+        const clusterTheme = cluster ? cluster.theme : null;
+        const clusterColor = cluster ? cluster.color : '#a371f7';
+
+        // Get AI connections for this note
+        const aiConns = typeof NotesAiCluster !== 'undefined'
+            ? NotesAiCluster.getConnectionsForNote(noteId) : [];
+
+        const safeId = String(noteId).replace(/'/g, '');
+
+        // Restore saved font size preference
+        const savedFontSize = parseInt(localStorage.getItem('gnp_font_size') || '15');
+
+        const panel = document.createElement('div');
+        panel.id = 'graph-note-preview';
+        panel.innerHTML = `
+            <style>
+                #graph-note-preview {
+                    position: absolute; top: 0; right: 0; bottom: 0;
+                    width: 340px;
+                    background: linear-gradient(160deg, rgba(10,14,26,0.97) 0%, rgba(15,20,40,0.97) 100%);
+                    backdrop-filter: blur(20px);
+                    border-left: 1px solid rgba(163,113,247,0.2);
+                    display: flex; flex-direction: column;
+                    z-index: 100;
+                    transform: translateX(100%);
+                    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+                    overflow: hidden;
+                }
+                #graph-note-preview.visible { transform: translateX(0); }
+                .gnp-header {
+                    padding: 16px 14px 12px;
+                    border-bottom: 1px solid rgba(163,113,247,0.12);
+                    background: linear-gradient(180deg, rgba(163,113,247,0.06) 0%, transparent 100%);
+                }
+                .gnp-header-top {
+                    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+                }
+                .gnp-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+                .gnp-title {
+                    flex: 1; font-size: 16px; font-weight: 700; color: #e6edf3;
+                    line-height: 1.4; word-break: break-word;
+                }
+                .gnp-close {
+                    background: none; border: none; color: #6b7280;
+                    cursor: pointer; font-size: 18px; padding: 0; line-height: 1;
+                    flex-shrink: 0; transition: color 0.15s;
+                }
+                .gnp-close:hover { color: #e6edf3; }
+
+                /* Font size controls */
+                .gnp-font-controls {
+                    display: flex; align-items: center; gap: 6px;
+                    background: rgba(255,255,255,0.04);
+                    border: 1px solid rgba(255,255,255,0.08);
+                    border-radius: 8px; padding: 4px 8px;
+                }
+                .gnp-font-label {
+                    font-size: 10px; color: #6b7280; letter-spacing: 0.08em;
+                    text-transform: uppercase; flex: 1;
+                }
+                .gnp-font-size-display {
+                    font-size: 11px; color: #a371f7; font-weight: 700; min-width: 28px; text-align: center;
+                }
+                .gnp-font-btn {
+                    background: rgba(163,113,247,0.15); border: 1px solid rgba(163,113,247,0.25);
+                    border-radius: 5px; color: #c4b5fd;
+                    cursor: pointer; font-size: 14px; line-height: 1;
+                    padding: 2px 7px; transition: all 0.15s; font-weight: 700;
+                }
+                .gnp-font-btn:hover { background: rgba(163,113,247,0.3); color: white; }
+                .gnp-font-btn-reset {
+                    font-size: 10px; padding: 2px 6px; color: #6b7280;
+                    background: transparent; border-color: rgba(255,255,255,0.1);
+                }
+
+                .gnp-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
+                .gnp-cluster {
+                    display: inline-flex; align-items: center; gap: 6px;
+                    font-size: 12px; font-weight: 700; padding: 4px 12px;
+                    border-radius: 20px; margin-bottom: 14px;
+                    text-transform: uppercase; letter-spacing: 0.06em;
+                }
+                .gnp-preview {
+                    color: #b0b8c8; line-height: 1.7;
+                    margin-bottom: 14px;
+                    border-left: 2px solid rgba(163,113,247,0.35);
+                    padding-left: 14px;
+                }
+                .gnp-tags {
+                    display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px;
+                }
+                .gnp-tag {
+                    padding: 3px 10px; border-radius: 5px;
+                    background: rgba(163,113,247,0.1); color: #a371f7;
+                    border: 1px solid rgba(163,113,247,0.2);
+                }
+                .gnp-connections-section { margin-bottom: 14px; }
+                .gnp-section-title {
+                    font-size: 10px; font-weight: 700; color: #4b5563;
+                    text-transform: uppercase; letter-spacing: 0.1em;
+                    margin-bottom: 8px;
+                }
+                .gnp-conn-item {
+                    color: #9ca3af; padding: 6px 10px;
+                    border-radius: 6px; margin-bottom: 3px;
+                    background: rgba(255,255,255,0.03);
+                    border: 1px solid rgba(255,255,255,0.05);
+                    display: flex; align-items: center; gap: 6px;
+                    cursor: pointer; transition: all 0.15s;
+                }
+                .gnp-conn-item:hover {
+                    background: rgba(163,113,247,0.08);
+                    border-color: rgba(163,113,247,0.2);
+                    color: #c4b5fd;
+                }
+                .gnp-footer {
+                    padding: 12px 16px;
+                    border-top: 1px solid rgba(163,113,247,0.1);
+                }
+                .gnp-open-btn {
+                    width: 100%; padding: 12px 16px;
+                    background: linear-gradient(135deg, #a371f7, #58a6ff);
+                    border: none; border-radius: 10px; color: white;
+                    font-weight: 700; font-size: 14px; cursor: pointer;
+                    letter-spacing: 0.01em; transition: all 0.2s;
+                    box-shadow: 0 4px 14px rgba(163,113,247,0.35);
+                }
+                .gnp-open-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 24px rgba(163,113,247,0.5);
+                }
+                .gnp-hint {
+                    font-size: 11px; color: #374151; text-align: center; margin-top: 8px;
+                }
+            </style>
+
+            <div class="gnp-header">
+                <div class="gnp-header-top">
+                    <span class="gnp-icon">📝</span>
+                    <span class="gnp-title">${escHtml(title)}</span>
+                    <button class="gnp-close" onclick="document.getElementById('graph-note-preview').remove()">✕</button>
+                </div>
+                <!-- Font size controls -->
+                <div class="gnp-font-controls">
+                    <span class="gnp-font-label">Texte</span>
+                    <button class="gnp-font-btn" onclick="NotesGraphView.gnpChangeFontSize(-2)">A-</button>
+                    <span class="gnp-font-size-display" id="gnp-font-size-val">${savedFontSize}px</span>
+                    <button class="gnp-font-btn" onclick="NotesGraphView.gnpChangeFontSize(+2)">A+</button>
+                    <button class="gnp-font-btn gnp-font-btn-reset" onclick="NotesGraphView.gnpChangeFontSize(0)">↺</button>
+                </div>
+            </div>
+
+            <div class="gnp-body">
+                ${clusterTheme ? `
+                    <div class="gnp-cluster" style="background:${clusterColor}20;color:${clusterColor};border:1px solid ${clusterColor}40;">
+                        ● ${escHtml(clusterTheme)}
+                    </div>` : ''}
+
+                ${rawContent ? `<div class="gnp-preview">${escHtml(rawContent)}${rawContent.length >= 280 ? '...' : ''}</div>` : '<p style="color:#4b5563;font-size:13px;font-style:italic">Note vide</p>'}
+
+                ${tags.length > 0 ? `
+                    <div class="gnp-tags">
+                        ${tags.slice(0, 5).map(t => `<span class="gnp-tag">${escHtml(t)}</span>`).join('')}
+                    </div>` : ''}
+
+                ${aiConns.length > 0 ? `
+                    <div class="gnp-connections-section">
+                        <div class="gnp-section-title">Connexions (${aiConns.length})</div>
+                        ${aiConns.slice(0, 5).map(conn => {
+                            const otherId = conn.fromNoteId === noteId ? conn.toNoteId : conn.fromNoteId;
+                            const otherNote = (typeof NotesModule !== 'undefined' ? NotesModule.getNotes() : []).find(n => n.id === otherId);
+                            const otherTitle = otherNote ? (otherNote.title || 'Sans titre') : otherId.slice(0, 12) + '...';
+                            const strength = Math.round((conn.strength || 0.5) * 100);
+                            return `<div class="gnp-conn-item" onclick="NotesGraphView.showNotePreview('${otherId}',null,null)">
+                                <span style="color:${clusterColor};font-size:9px">●</span>
+                                ${escHtml(otherTitle.slice(0, 28))}
+                                <span style="margin-left:auto;font-size:10px;color:#4b5563">${strength}%</span>
+                            </div>`;
+                        }).join('')}
+                    </div>` : ''}
+            </div>
+
+            <div class="gnp-footer">
+                <button class="gnp-open-btn" onclick="NotesGraphView.onNoteClick('${safeId}')">
+                    ✦ Ouvrir dans l'éditeur
+                </button>
+                <div class="gnp-hint">Double-clic sur le nœud pour ouvrir directement</div>
+            </div>
+        `;
+
+        // Find the graph container to append into
+        const graphModal = modalEl.querySelector('.notes-graph-modal');
+        if (graphModal) {
+            graphModal.style.position = 'relative';
+            graphModal.appendChild(panel);
+            // Apply saved font size to body
+            const body = panel.querySelector('.gnp-body');
+            if (body) body.style.fontSize = savedFontSize + 'px';
+            // Trigger slide-in animation
+            requestAnimationFrame(() => panel.classList.add('visible'));
+        }
+    }
+
+    // Font size control (called from panel buttons)
+    function gnpChangeFontSize(delta) {
+        const panel = document.getElementById('graph-note-preview');
+        if (!panel) return;
+        const body = panel.querySelector('.gnp-body');
+        const display = panel.querySelector('#gnp-font-size-val');
+        if (!body || !display) return;
+
+        let current = parseInt(body.style.fontSize || '15');
+        if (delta === 0) {
+            current = 15; // Reset to default
+        } else {
+            current = Math.max(12, Math.min(24, current + delta));
+        }
+
+        body.style.fontSize = current + 'px';
+        display.textContent = current + 'px';
+        localStorage.setItem('gnp_font_size', current);
+    }
+
+    function escHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // === NOTE CLICK HANDLER (double-click or "Open" button) ===
     function onNoteClick(noteId) {
         console.log('NotesGraphView: note clicked', noteId);
 
@@ -360,36 +691,36 @@ const NotesGraphView = (function() {
 
         // Open note in editor (after brief delay for modal close animation)
         setTimeout(() => {
-            if (typeof NotesModule !== 'undefined' && typeof NotesModule.openNote === 'function') {
-                NotesModule.openNote(noteId);
-            } else if (typeof NotesEditor !== 'undefined' && typeof NotesEditor.loadNote === 'function') {
-                NotesEditor.loadNote(noteId);
+            // Use GiriNoteUI if available (preferred)
+            if (typeof GiriNoteUI !== 'undefined' && GiriNoteUI.openNote) {
+                GiriNoteUI.openNote(noteId);
+                return;
+            }
+            // Fallback: select note + render editor
+            if (typeof NotesModule !== 'undefined') {
+                NotesModule.selectNote(noteId);
+            }
+            if (typeof NotesEditor !== 'undefined' && NotesEditor.render) {
+                NotesEditor.render();
             }
         }, 300);
     }
 
     // === UTILITIES ===
     function getCurrentWorkspaceId() {
-        // Try multiple sources
-        if (typeof AppState !== 'undefined' && AppState.currentWorkspaceId) {
-            return AppState.currentWorkspaceId;
-        }
-        if (typeof NotesModule !== 'undefined' && NotesModule.currentWorkspaceId) {
-            return NotesModule.currentWorkspaceId;
-        }
-        if (typeof AppConfig !== 'undefined' && AppConfig.DEFAULT_WORKSPACE_ID) {
-            return AppConfig.DEFAULT_WORKSPACE_ID;
+        // Primary source: ApiTokens (stores workspaceId in localStorage under 'workspaceId' key)
+        if (typeof ApiTokens !== 'undefined' && ApiTokens.getWorkspaceId) {
+            const id = ApiTokens.getWorkspaceId();
+            if (id) return id;
         }
 
-        // Fallback: try localStorage
-        const savedWorkspace = localStorage.getItem('productiveapp_current_workspace');
-        if (savedWorkspace) {
-            try {
-                const data = JSON.parse(savedWorkspace);
-                return data.id || data;
-            } catch (e) {
-                return savedWorkspace;
-            }
+        // Fallback: direct key used by ApiTokens
+        const directId = localStorage.getItem('workspaceId');
+        if (directId) return directId;
+
+        // Fallback: AppState
+        if (typeof AppState !== 'undefined' && AppState.currentWorkspaceId) {
+            return AppState.currentWorkspaceId;
         }
 
         console.error('NotesGraphView: no workspace ID found');
@@ -407,7 +738,9 @@ const NotesGraphView = (function() {
         toggleLabels,
         toggleAutoRotate,
         resetView,
-        onNoteClick
+        onNoteClick,
+        showNotePreview,
+        gnpChangeFontSize
     };
 })();
 

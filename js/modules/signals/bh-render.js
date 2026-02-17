@@ -1,130 +1,251 @@
 /**
- * Behavioral Render - Profile assembly with insights
- * ProductiveApp v4.0
+ * Behavioral Render v2.0 — Portrait psychologique profond
+ * ProductiveApp v5.0
  */
 const BehavioralRender = (function() {
     'use strict';
 
     function renderProfile(container, data) {
-        if (!container || !data) return;
+        if (!container) return;
 
-        const html = `
-            <div class="bh-profile">
-                ${renderRhythm(data)}
-                ${renderPatterns(data)}
-                ${renderEvolution(data)}
-                ${renderProjects(data)}
+        if (!data || (!data.hourlyActivity && !data.completion_rate && !data.completionRate)) {
+            container.innerHTML = '<div class="bh-empty">Aucune donnée disponible. Commence à utiliser l\'app pour générer ton profil.</div>';
+            return;
+        }
+
+        let insights;
+        try {
+            insights = BehavioralInsights.analyze(data);
+        } catch (e) {
+            console.error('BH insights error:', e);
+            container.innerHTML = '<div class="bh-empty">Erreur d\'analyse. Rafraîchis la page.</div>';
+            return;
+        }
+
+        container.innerHTML = `
+            <div class="bh-profile-v2">
+                ${renderChronotype(insights.chronotype, insights.stats)}
+                <div class="bh-dual-row">
+                    ${renderArchetype(insights.archetype, insights.stats)}
+                    ${renderPressure(insights.pressureStyle, insights.stats)}
+                </div>
+                ${renderWindows(insights.windows)}
+                ${renderMomentum(insights.momentum)}
+                ${renderSignature(insights.signature)}
+                <div class="bh-details-toggle" onclick="BehavioralRender.toggleDetails(this)">
+                    <span class="bh-toggle-label">Vue détaillée</span>
+                    <span class="bh-toggle-icon">▼</span>
+                </div>
+                <div class="bh-details-section" style="display:none">
+                    ${renderClassicCharts(data)}
+                </div>
             </div>
         `;
-        container.innerHTML = html;
+
+        // Animations d'entrée
+        requestAnimationFrame(() => {
+            container.querySelectorAll('[data-reveal]').forEach((el, i) => {
+                el.style.animationDelay = `${i * 80}ms`;
+                el.classList.add('bh-reveal');
+            });
+        });
     }
 
-    function renderRhythm(data) {
-        const { peakHours, avgTasksPerDay, hourlyActivity } = data;
-        const peakText = peakHours ? `Tu es le plus productif entre <strong>${peakHours.start}h et ${peakHours.end}h</strong>.` : '';
-        const avgText = avgTasksPerDay ? `En moyenne, tu termines <strong>${avgTasksPerDay.toFixed(1)} tâches par jour</strong>.` : '';
-
+    function renderChronotype(ct, stats) {
+        const peakText = stats.peakHour !== undefined ? `${stats.peakHour}h–${(stats.peakHour + 2) % 24}h` : '?';
         return `
-            <section class="bh-section bh-section-rhythm">
-                <h3 class="bh-section-title">Ton rythme</h3>
-                <div class="bh-chart-container">
-                    ${BehavioralCharts.activityClock(hourlyActivity || Array(24).fill(0))}
+        <div class="bh-card bh-chronotype" style="--ct-color: ${ct.badge}" data-reveal>
+            <div class="bh-chronotype-header">
+                <div class="bh-chronotype-icon">${ct.icon}</div>
+                <div class="bh-chronotype-meta">
+                    <div class="bh-label-row">
+                        <span class="bh-module-label">CHRONOTYPE</span>
+                        <span class="bh-badge" style="background: ${ct.badge}20; color: ${ct.badge}; border-color: ${ct.badge}40">${ct.percent}</span>
+                    </div>
+                    <h2 class="bh-chronotype-name">${ct.name}</h2>
+                    <p class="bh-chronotype-tagline">${ct.tagline}</p>
                 </div>
-                <p class="bh-insight-text">${peakText} ${avgText}</p>
-            </section>
-        `;
+            </div>
+            <p class="bh-chronotype-desc">${ct.description}</p>
+            <div class="bh-chronotype-stats">
+                <div class="bh-stat-pill">
+                    <span class="bh-stat-icon">⚡</span>
+                    <span class="bh-stat-label">Superpower</span>
+                    <span class="bh-stat-value">${ct.superpower}</span>
+                </div>
+                <div class="bh-stat-pill bh-stat-warning">
+                    <span class="bh-stat-icon">🎯</span>
+                    <span class="bh-stat-label">Point faible</span>
+                    <span class="bh-stat-value">${ct.kryptonite}</span>
+                </div>
+                <div class="bh-stat-pill">
+                    <span class="bh-stat-icon">⏰</span>
+                    <span class="bh-stat-label">Ton pic naturel</span>
+                    <span class="bh-stat-value">${peakText}</span>
+                </div>
+            </div>
+            <div class="bh-chronotype-advice">
+                <span class="bh-advice-icon">💡</span>
+                <span>${ct.advice}</span>
+            </div>
+        </div>`;
     }
 
-    function renderPatterns(data) {
-        const { weeklyHeatmap, completionRate } = data;
-        const rateClass = completionRate > 70 ? 'good' : completionRate > 40 ? 'medium' : 'low';
-        const rateText = completionRate ? `Ton taux de complétion est de <strong class="bh-highlight-${rateClass}">${completionRate}%</strong>.` : '';
-
-        // Find most/least active days
-        let insights = [];
-        if (weeklyHeatmap) {
-            const daySums = weeklyHeatmap.map(d => d.reduce((a, b) => a + b, 0));
-            const days = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche'];
-            const maxDay = days[daySums.indexOf(Math.max(...daySums))];
-            const minDay = days[daySums.indexOf(Math.min(...daySums))];
-            if (maxDay !== minDay) {
-                insights.push(`Le <strong>${maxDay}</strong> est ton jour le plus actif.`);
-            }
-        }
-
+    function renderArchetype(at, stats) {
+        const burstLabel = stats.burstIndex >= 4 ? 'Très burst' : stats.burstIndex >= 2.5 ? 'Burst modéré' : 'Régulier';
         return `
-            <section class="bh-section bh-section-patterns">
-                <h3 class="bh-section-title">Tes patterns</h3>
-                <div class="bh-chart-container">
-                    ${BehavioralCharts.weeklyHeatmap(weeklyHeatmap || Array(7).fill(Array(24).fill(0)))}
+        <div class="bh-card bh-dual-card" style="--at-color: ${at.color}" data-reveal>
+            <div class="bh-dual-header">
+                <span class="bh-module-label">ARCHÉTYPE</span>
+                <span class="bh-dual-icon">${at.icon}</span>
+            </div>
+            <h3 class="bh-dual-name" style="color: ${at.color}">${at.name}</h3>
+            <p class="bh-dual-desc">${at.description}</p>
+            <div class="bh-trait-list">
+                ${at.traits.map(t => `<span class="bh-trait">${t}</span>`).join('')}
+            </div>
+            <div class="bh-dual-stats">
+                <div class="bh-mini-stat">
+                    <span class="bh-mini-stat-val">${stats.completionRate}%</span>
+                    <span class="bh-mini-stat-lbl">Complétion</span>
                 </div>
-                <p class="bh-insight-text">${rateText} ${insights.join(' ')}</p>
-            </section>
-        `;
+                <div class="bh-mini-stat">
+                    <span class="bh-mini-stat-val">${burstLabel}</span>
+                    <span class="bh-mini-stat-lbl">Intensité</span>
+                </div>
+            </div>
+        </div>`;
     }
 
-    function renderEvolution(data) {
-        const { auditScores } = data;
-        if (!auditScores || !auditScores.length) return '';
-
-        const recent = auditScores.slice(-7);
-        const trend = recent.length > 1 ? recent[recent.length - 1].score - recent[0].score : 0;
-        const trendText = trend > 5 ? 'en progression' : trend < -5 ? 'en baisse' : 'stable';
-        const trendIcon = trend > 5 ? '📈' : trend < -5 ? '📉' : '➡️';
-        const currentScore = Math.round(auditScores[auditScores.length - 1]?.score || 0);
-
+    function renderPressure(ps, stats) {
         return `
-            <section class="bh-section bh-section-evolution">
-                <h3 class="bh-section-title">Ton évolution</h3>
-                <div class="bh-chart-container">
-                    ${BehavioralCharts.evolutionCurve(auditScores)}
+        <div class="bh-card bh-dual-card" style="--at-color: ${ps.color}" data-reveal>
+            <div class="bh-dual-header">
+                <span class="bh-module-label">FACE À LA PRESSION</span>
+                <span class="bh-dual-icon">${ps.icon}</span>
+            </div>
+            <h3 class="bh-dual-name" style="color: ${ps.color}">${ps.name}</h3>
+            <p class="bh-dual-desc">${ps.desc}</p>
+            <div class="bh-dual-stats">
+                <div class="bh-mini-stat">
+                    <span class="bh-mini-stat-val" style="color: ${stats.overdueRate > 30 ? '#EF4444' : '#10B981'}">${stats.overdueRate}%</span>
+                    <span class="bh-mini-stat-lbl">Tâches en retard</span>
                 </div>
-                <p class="bh-insight-text">
-                    ${trendIcon} Score actuel : <strong>${currentScore}</strong> — tendance <strong>${trendText}</strong> sur les 7 derniers jours.
-                </p>
-            </section>
-        `;
+                <div class="bh-mini-stat">
+                    <span class="bh-mini-stat-val">${stats.completionRate}%</span>
+                    <span class="bh-mini-stat-lbl">Taux finalisé</span>
+                </div>
+            </div>
+        </div>`;
     }
 
-    function renderProjects(data) {
-        const { projectEngagement } = data;
-        if (!projectEngagement || !projectEngagement.length) return '';
+    function renderWindows(windows) {
+        if (!windows || windows.length === 0) return '';
 
-        const sorted = [...projectEngagement].sort((a, b) => b.score - a.score);
-        const top = sorted[0];
-        const neglected = sorted.filter(p => p.score < 40);
-
-        let insights = [];
-        if (top) insights.push(`Tu investis beaucoup dans <strong>${top.name}</strong>.`);
-        if (neglected.length) {
-            const names = neglected.map(p => p.name).join(', ');
-            const lastActive = neglected[0]?.lastActive || 'longtemps';
-            insights.push(`<strong>${names}</strong> attend${neglected.length > 1 ? 'ent' : ''} ton attention depuis ${lastActive}.`);
-        }
+        const icons = ['🥇', '🥈', '🥉'];
+        const windowCards = windows.map((w, i) => {
+            const intensity = Math.round(w.intensity * 100);
+            return `
+            <div class="bh-window-card" data-reveal>
+                <div class="bh-window-rank">${icons[i]}</div>
+                <div class="bh-window-time">${w.start}h–${w.end}h</div>
+                <div class="bh-window-label">${w.label}</div>
+                <div class="bh-window-bar">
+                    <div class="bh-window-fill" style="width: ${intensity}%; background: var(--primary)"></div>
+                </div>
+            </div>`;
+        }).join('');
 
         return `
-            <section class="bh-section bh-section-projects">
-                <h3 class="bh-section-title">Tes projets</h3>
-                <div class="bh-chart-container">
-                    ${BehavioralCharts.projectBars(sorted)}
+        <div class="bh-card bh-windows" data-reveal>
+            <div class="bh-card-header">
+                <span class="bh-module-label">FENÊTRES D'EXCELLENCE</span>
+                <span class="bh-card-subtitle">Tes 3 meilleures plages horaires</span>
+            </div>
+            <div class="bh-window-grid">
+                ${windowCards}
+            </div>
+        </div>`;
+    }
+
+    function renderMomentum(momentum) {
+        const barWidth = Math.min(100, Math.max(5, 50 + momentum.delta));
+        return `
+        <div class="bh-card bh-momentum" data-reveal>
+            <div class="bh-card-header">
+                <span class="bh-module-label">MOMENTUM CETTE SEMAINE</span>
+            </div>
+            <div class="bh-momentum-body">
+                <span class="bh-momentum-icon">${momentum.icon}</span>
+                <div class="bh-momentum-info">
+                    <span class="bh-momentum-label" style="color: ${momentum.color}">${momentum.label}</span>
+                    ${momentum.delta !== 0 ? `<span class="bh-momentum-delta">${momentum.delta > 0 ? '+' : ''}${momentum.delta}% vs moyenne</span>` : ''}
+                    <span class="bh-momentum-count">${momentum.count7d} actions cette semaine</span>
                 </div>
-                <p class="bh-insight-text">${insights.join(' ')}</p>
-            </section>
-        `;
+            </div>
+            <div class="bh-momentum-bar">
+                <div class="bh-momentum-fill" style="width: ${barWidth}%; background: ${momentum.color}"></div>
+            </div>
+        </div>`;
+    }
+
+    function renderSignature(signature) {
+        return `
+        <div class="bh-card bh-signature" data-reveal>
+            <div class="bh-signature-label">TA SIGNATURE COMPORTEMENTALE</div>
+            <div class="bh-signature-code">${signature}</div>
+            <div class="bh-signature-note">Unique à toi — mise à jour à chaque connexion</div>
+        </div>`;
+    }
+
+    function renderClassicCharts(data) {
+        const { hourlyActivity, weeklyHeatmap, auditScores, projectEngagement } = data;
+
+        return `
+        <div class="bh-classic-charts">
+            <div class="bh-chart-block">
+                <h4 class="bh-chart-title">Rythme horaire</h4>
+                <div class="bh-chart-wrap">${BehavioralCharts.activityClock(hourlyActivity || Array(24).fill(0))}</div>
+            </div>
+            ${weeklyHeatmap ? `
+            <div class="bh-chart-block">
+                <h4 class="bh-chart-title">Heatmap hebdomadaire</h4>
+                <div class="bh-chart-wrap">${BehavioralCharts.weeklyHeatmap(weeklyHeatmap)}</div>
+            </div>` : ''}
+            ${auditScores && auditScores.length > 1 ? `
+            <div class="bh-chart-block">
+                <h4 class="bh-chart-title">Évolution du score</h4>
+                <div class="bh-chart-wrap">${BehavioralCharts.evolutionCurve(auditScores)}</div>
+            </div>` : ''}
+            ${projectEngagement && projectEngagement.length ? `
+            <div class="bh-chart-block">
+                <h4 class="bh-chart-title">Engagement par projet</h4>
+                <div class="bh-chart-wrap">${BehavioralCharts.projectBars([...projectEngagement].sort((a, b) => b.score - a.score))}</div>
+            </div>` : ''}
+        </div>`;
+    }
+
+    function toggleDetails(btn) {
+        const section = btn.nextElementSibling;
+        if (!section) return;
+        const visible = section.style.display !== 'none';
+        section.style.display = visible ? 'none' : 'block';
+        btn.querySelector('.bh-toggle-icon').textContent = visible ? '▼' : '▲';
+        btn.querySelector('.bh-toggle-label').textContent = visible ? 'Vue détaillée' : 'Masquer';
     }
 
     function renderMini(container, data) {
-        if (!container || !data) return;
-        const { completionRate, peakHours } = data;
+        if (!container) return;
+        const cr = data?.completion_rate ?? data?.completionRate ?? 0;
+        const peak = data?.peakHours?.start ?? 9;
         container.innerHTML = `
             <div class="bh-mini">
-                <span class="bh-mini-stat">${completionRate || 0}% complété</span>
-                <span class="bh-mini-peak">Peak: ${peakHours?.start || 9}h-${peakHours?.end || 11}h</span>
-            </div>
-        `;
+                <span class="bh-mini-stat">${cr}% complété</span>
+                <span class="bh-mini-peak">Peak: ${peak}h</span>
+            </div>`;
     }
 
-    return { renderProfile, renderMini };
+    return { renderProfile, renderMini, toggleDetails };
 })();
 
 if (typeof window !== 'undefined') window.BehavioralRender = BehavioralRender;

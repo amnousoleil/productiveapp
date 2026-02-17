@@ -83,7 +83,7 @@ const MailDetail = {
             </svg>
             Renvoyer
           </button>
-          <button class="btn btn-outline mail-modal-close">Fermer</button>
+          <button class="btn btn-secondary mail-modal-close">✕ Fermer</button>
         </div>
       </div>
     `;
@@ -122,8 +122,12 @@ const MailDetail = {
         </div>
       `;
     } else {
-      // Afficher texte plain
-      return `<pre class="mail-detail-text">${MailUtils.escapeHtml(mail.body)}</pre>`;
+      // Afficher texte plain avec sauts de ligne propres
+      const cleanBody = (mail.body || '')
+        .replace(/\\n/g, '\n')   // Fix littéraux \n stockés en DB
+        .replace(/\r\n/g, '\n'); // Normalise Windows CRLF
+      const htmlBody = MailUtils.escapeHtml(cleanBody).replace(/\n/g, '<br>');
+      return `<div class="mail-detail-text-clean">${htmlBody}</div>`;
     }
   },
 
@@ -163,6 +167,137 @@ const MailDetail = {
   },
 
   /**
+   * Ouvre le détail d'un email reçu (inbox)
+   */
+  async openInbound(emailId) {
+    try {
+      const result = await MailAPI.getInboxEmail(emailId);
+      const email = result.email;
+      this.renderInboundModal(email);
+    } catch (error) {
+      console.error('[MailDetail] openInbound error:', error);
+      if (typeof Toast !== 'undefined') Toast.error('Erreur lors du chargement');
+    }
+  },
+
+  /**
+   * Modal pour email reçu
+   */
+  renderInboundModal(email) {
+    const toAddresses = Array.isArray(email.to_addresses)
+      ? email.to_addresses.join(', ')
+      : email.to_addresses || '';
+
+    const modal = document.createElement('div');
+    modal.className = 'mail-modal-overlay';
+    modal.innerHTML = `
+      <div class="mail-modal mail-modal-large">
+        <div class="mail-modal-header">
+          <h3>📩 ${MailUtils.escapeHtml(email.subject || '(sans objet)')}</h3>
+          <button class="mail-modal-close">×</button>
+        </div>
+        <div class="mail-modal-body">
+          <div class="mail-detail-meta">
+            <div class="mail-detail-meta-row">
+              <span class="mail-detail-meta-label">De :</span>
+              <span class="mail-detail-meta-value">
+                ${email.from_name ? MailUtils.escapeHtml(email.from_name) + ' &lt;' : ''}
+                ${MailUtils.escapeHtml(email.from_address || '')}
+                ${email.from_name ? '&gt;' : ''}
+              </span>
+            </div>
+            <div class="mail-detail-meta-row">
+              <span class="mail-detail-meta-label">À :</span>
+              <span class="mail-detail-meta-value">${MailUtils.escapeHtml(toAddresses)}</span>
+            </div>
+            <div class="mail-detail-meta-row">
+              <span class="mail-detail-meta-label">Reçu :</span>
+              <span class="mail-detail-meta-value">${MailUtils.formatDateDetailed(email.received_at || email.created_at)}</span>
+            </div>
+          </div>
+          <div class="mail-detail-body">
+            ${email.body_html
+              ? `<div class="mail-detail-html-wrapper">
+                  <iframe class="mail-detail-html-iframe" sandbox="allow-same-origin"
+                    srcdoc="${MailUtils.escapeHtml(email.body_html)}"></iframe>
+                </div>`
+              : (() => {
+                  const cleanText = (email.body_text || '(email vide)')
+                    .replace(/\\n/g, '\n')
+                    .replace(/\r\n/g, '\n');
+                  const htmlText = MailUtils.escapeHtml(cleanText).replace(/\n/g, '<br>');
+                  return `<div class="mail-detail-text-clean">${htmlText}</div>`;
+                })()
+            }
+          </div>
+        </div>
+        <div class="mail-modal-footer">
+          <div class="mail-modal-footer-ai">
+            <button class="btn btn-ai" data-action="ai-reply" title="Rédiger une réponse avec l'IA">
+              ✨ Répondre avec l'IA
+            </button>
+            <button class="btn btn-ai-subtle" data-action="extract-tasks" title="Extraire les tâches de cet email">
+              ✅ Créer tâches
+            </button>
+          </div>
+          <div class="mail-modal-footer-actions">
+            <button class="btn btn-outline" data-action="reply">↩ Répondre</button>
+            <button class="btn btn-secondary mail-modal-close">✕ Fermer</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelectorAll('.mail-modal-close').forEach(btn => {
+      btn.addEventListener('click', () => modal.remove());
+    });
+    modal.addEventListener('click', e => {
+      if (e.target.classList.contains('mail-modal-overlay')) modal.remove();
+    });
+
+    // AI Reply button
+    const aiReplyBtn = modal.querySelector('[data-action="ai-reply"]');
+    if (aiReplyBtn && typeof MailAI !== 'undefined') {
+      aiReplyBtn.addEventListener('click', () => {
+        MailAI.generateReply(email, aiReplyBtn);
+      });
+    } else if (aiReplyBtn) {
+      aiReplyBtn.style.display = 'none';
+    }
+
+    // Extract Tasks button
+    const extractTasksBtn = modal.querySelector('[data-action="extract-tasks"]');
+    if (extractTasksBtn && typeof MailAI !== 'undefined') {
+      extractTasksBtn.addEventListener('click', () => {
+        MailAI.extractTasks(email, extractTasksBtn);
+      });
+    } else if (extractTasksBtn) {
+      extractTasksBtn.style.display = 'none';
+    }
+
+    const replyBtn = modal.querySelector('[data-action="reply"]');
+    if (replyBtn) {
+      replyBtn.addEventListener('click', () => {
+        modal.remove();
+        if (typeof MailComposer !== 'undefined') {
+          MailComposer.open({
+            to: [email.from_address],
+            subject: `Re: ${email.subject || ''}`,
+            body: '',
+            isHtml: false
+          });
+        }
+      });
+    }
+
+    const escHandler = e => {
+      if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escHandler); }
+    };
+    document.addEventListener('keydown', escHandler);
+  },
+
+  /**
    * Resend an email (open composer with pre-filled data)
    */
   resendMail(mail) {
@@ -181,3 +316,14 @@ const MailDetail = {
 };
 
 window.MailDetail = MailDetail;
+
+// =============================================
+// CLEANUP AUTOMATIQUE - Ferme tous les modaux
+// mail quand on quitte la page mail
+// =============================================
+document.addEventListener('viewchange', (e) => {
+  if (e.detail && e.detail.previous === 'mail' && e.detail.view !== 'mail') {
+    // On quitte la page mail → nettoyer tous les overlays
+    document.querySelectorAll('.mail-modal-overlay').forEach(el => el.remove());
+  }
+});

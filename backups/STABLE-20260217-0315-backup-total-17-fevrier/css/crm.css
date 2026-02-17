@@ -1,0 +1,461 @@
+/* =============================================
+   PRODUCTIVEAPP - CRM MODULE
+   Pipeline Kanban, Deal Cards, Stats, Timeline
+   v1.0 - 2026-02-07
+   ============================================= */
+
+/* === MODULE HEADER === */
+.crm-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.crm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.crm-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crm-btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity var(--transition-fast);
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.crm-btn-primary:hover { opacity: 0.9; }
+
+/* === STATS BAR === */
+.crm-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.crm-stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.crm-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+}
+
+.crm-stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.crm-stat-trend {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.crm-stat-trend.up { color: var(--success); }
+.crm-stat-trend.down { color: var(--danger); }
+
+/* === PIPELINE KANBAN === */
+.crm-pipeline {
+    display: flex;
+    gap: 14px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 12px;
+    min-height: calc(100vh - 320px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.crm-pipeline::-webkit-scrollbar { height: 6px; }
+.crm-pipeline::-webkit-scrollbar-track { background: transparent; }
+.crm-pipeline::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.crm-pipeline-stage {
+    min-width: 270px;
+    max-width: 320px;
+    flex: 1;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 340px);
+}
+
+.crm-stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 10px;
+    border-bottom: 2px solid var(--accent);
+    flex-shrink: 0;
+}
+
+.crm-stage-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.crm-stage-total {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-light);
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+/* Stage color variants */
+.crm-pipeline-stage[data-stage="lead"] .crm-stage-header { border-bottom-color: #3b82f6; }
+.crm-pipeline-stage[data-stage="qualified"] .crm-stage-header { border-bottom-color: #a78bfa; }
+.crm-pipeline-stage[data-stage="proposal"] .crm-stage-header { border-bottom-color: var(--warning); }
+.crm-pipeline-stage[data-stage="negotiation"] .crm-stage-header { border-bottom-color: var(--accent); }
+.crm-pipeline-stage[data-stage="won"] .crm-stage-header { border-bottom-color: var(--success); }
+.crm-pipeline-stage[data-stage="lost"] .crm-stage-header { border-bottom-color: var(--danger); }
+
+.crm-stage-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.crm-stage-body::-webkit-scrollbar { width: 4px; }
+.crm-stage-body::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+/* === DEAL CARD === */
+.crm-deal-card {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: grab;
+    user-select: none;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.crm-deal-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.crm-deal-card:active { cursor: grabbing; }
+
+.crm-deal-card.dragging {
+    opacity: 0.9;
+    transform: rotate(1deg) scale(1.02);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+}
+
+.crm-deal-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.crm-deal-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+    margin-right: 8px;
+}
+
+.crm-deal-value {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--success);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.crm-deal-contact {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.crm-deal-contact-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.crm-deal-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.crm-deal-stage-indicator {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: var(--bg-card);
+    color: var(--text-muted);
+}
+
+.crm-deal-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+}
+
+.crm-deal-date.overdue { color: var(--danger); font-weight: 600; }
+
+/* === DEAL DETAIL PANEL (slide-in) === */
+.crm-detail-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: flex-end;
+    backdrop-filter: blur(4px);
+}
+
+.crm-detail-panel {
+    width: 440px;
+    max-width: 92vw;
+    background: var(--bg-secondary);
+    border-left: 1px solid var(--border);
+    padding: 24px;
+    overflow-y: auto;
+    animation: crmSlideIn 0.3s ease;
+}
+
+@keyframes crmSlideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+.crm-detail-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--bg-card);
+    color: var(--text);
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.crm-detail-close:hover { background: var(--bg-tertiary); }
+
+.crm-detail-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.crm-detail-value-big {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--success);
+    margin-bottom: 20px;
+}
+
+.crm-detail-section {
+    margin-bottom: 20px;
+}
+
+.crm-detail-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+}
+
+.crm-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.crm-detail-row span:first-child { color: var(--text-muted); }
+.crm-detail-row span:last-child { color: var(--text); font-weight: 500; }
+
+/* === ACTIVITY TIMELINE === */
+.crm-timeline {
+    position: relative;
+    padding-left: 24px;
+}
+
+.crm-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--border);
+    border-radius: 1px;
+}
+
+.crm-timeline-item {
+    position: relative;
+    padding-bottom: 16px;
+}
+
+.crm-timeline-item:last-child { padding-bottom: 0; }
+
+.crm-timeline-dot {
+    position: absolute;
+    left: -20px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent);
+    z-index: 1;
+}
+
+.crm-timeline-dot.completed { background: var(--success); border-color: var(--success); }
+.crm-timeline-dot.call { border-color: #3b82f6; }
+.crm-timeline-dot.email { border-color: #a78bfa; }
+.crm-timeline-dot.meeting { border-color: var(--warning); }
+
+.crm-timeline-content {
+    font-size: 0.82rem;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.crm-timeline-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+/* === EMPTY PIPELINE STATE === */
+.crm-stage-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    opacity: 0.6;
+    text-align: center;
+}
+
+.crm-stage-empty-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .crm-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .crm-pipeline {
+        flex-direction: column;
+        overflow-x: hidden;
+        min-height: auto;
+    }
+
+    .crm-pipeline-stage {
+        min-width: 100%;
+        max-width: 100%;
+        max-height: none;
+    }
+
+    .crm-stage-body {
+        max-height: 300px;
+    }
+
+    .crm-detail-panel {
+        width: 100%;
+    }
+
+    .crm-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .crm-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .crm-stat-value {
+        font-size: 22px;
+    }
+}

@@ -1,0 +1,722 @@
+/* ================================================
+   PRODUCTIVITY TOOLS - Pomodoro Timer & Time Tracker
+   ProductiveApp Premium
+   Glassmorphism, theme-aware, responsive
+   ================================================ */
+
+/* ================================================
+   POMODORO TIMER - COMPACT (Pill)
+   ================================================ */
+
+.pomodoro-pill {
+    position: fixed;
+    bottom: 24px;
+    left: 90px;
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: var(--radius-xl, 50px);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: var(--bg-primary, #1a1410);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px var(--accent-glow, rgba(224, 120, 64, 0.4)),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.25s ease,
+                opacity 0.25s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    letter-spacing: 0.5px;
+}
+
+.pomodoro-pill:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 28px var(--accent-glow, rgba(224, 120, 64, 0.5)),
+                0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.pomodoro-pill.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.8) translateY(10px);
+}
+
+.pomodoro-pill__icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.pomodoro-pill__time {
+    font-variant-numeric: tabular-nums;
+}
+
+.pomodoro-pill__action {
+    font-size: 0.85rem;
+    opacity: 0.85;
+}
+
+/* Pulsing animation when timer is running */
+@keyframes pomodoroPulse {
+    0%, 100% {
+        box-shadow: 0 4px 20px var(--accent-glow, rgba(224, 120, 64, 0.4)),
+                    0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px var(--accent-glow, rgba(224, 120, 64, 0.4)),
+                    0 2px 8px rgba(0, 0, 0, 0.3),
+                    0 0 20px var(--accent-glow, rgba(224, 120, 64, 0.5));
+    }
+}
+
+.pomodoro-pill.running {
+    animation: pomodoroPulse 2s ease-in-out infinite;
+}
+
+/* Break state colors */
+.pomodoro-pill.on-break {
+    background: linear-gradient(135deg, var(--success, #22c55e) 0%, #4ade80 100%);
+    box-shadow: 0 4px 20px var(--success-glow, rgba(34, 197, 94, 0.4)),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes pomodoroBreakPulse {
+    0%, 100% {
+        box-shadow: 0 4px 20px var(--success-glow, rgba(34, 197, 94, 0.4)),
+                    0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 20px var(--success-glow, rgba(34, 197, 94, 0.4)),
+                    0 2px 8px rgba(0, 0, 0, 0.3),
+                    0 0 20px var(--success-glow, rgba(34, 197, 94, 0.5));
+    }
+}
+
+.pomodoro-pill.on-break.running {
+    animation: pomodoroBreakPulse 2s ease-in-out infinite;
+}
+
+
+/* ================================================
+   POMODORO TIMER - EXPANDED (Card)
+   ================================================ */
+
+.pomodoro-card {
+    position: fixed;
+    bottom: 24px;
+    left: 90px;
+    z-index: 9998;
+    width: 280px;
+    padding: 24px 20px 20px;
+    border-radius: var(--radius-lg, 20px);
+    background: rgba(45, 33, 23, 0.85);
+    backdrop-filter: blur(24px) saturate(1.3);
+    -webkit-backdrop-filter: blur(24px) saturate(1.3);
+    border: 1px solid var(--border, rgba(224, 120, 64, 0.2));
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5),
+                0 0 1px rgba(255, 255, 255, 0.1) inset;
+    color: var(--text, #f5e6d3);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    user-select: none;
+}
+
+.pomodoro-card.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(0.92) translateY(12px);
+}
+
+/* Close / Collapse button */
+.pomodoro-card__close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted, #a89078);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+}
+
+.pomodoro-card__close:hover {
+    color: var(--text, #f5e6d3);
+    background: var(--bg-card, rgba(224, 120, 64, 0.08));
+}
+
+/* Header label */
+.pomodoro-card__label {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent, #e07840);
+    margin-bottom: 16px;
+}
+
+.pomodoro-card__label.break-label {
+    color: var(--success, #22c55e);
+}
+
+/* SVG Progress Ring */
+.pomodoro-card__ring-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.pomodoro-ring {
+    width: 120px;
+    height: 120px;
+    transform: rotate(-90deg);
+}
+
+.pomodoro-ring__bg {
+    fill: none;
+    stroke: var(--border, rgba(224, 120, 64, 0.2));
+    stroke-width: 6;
+}
+
+.pomodoro-ring__progress {
+    fill: none;
+    stroke: var(--accent, #e07840);
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.pomodoro-ring__progress.break-stroke {
+    stroke: var(--success, #22c55e);
+}
+
+/* Time display inside ring */
+.pomodoro-card__time {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text, #f5e6d3);
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Session info */
+.pomodoro-card__session {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--text-muted, #a89078);
+    margin-bottom: 16px;
+    letter-spacing: 0.3px;
+}
+
+/* Controls row */
+.pomodoro-card__controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.pomodoro-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border, rgba(224, 120, 64, 0.2));
+    background: var(--bg-card, rgba(224, 120, 64, 0.08));
+    color: var(--text, #f5e6d3);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.pomodoro-btn:hover {
+    background: var(--accent, #e07840);
+    color: var(--bg-primary, #1a1410);
+    border-color: var(--accent, #e07840);
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px var(--accent-glow, rgba(224, 120, 64, 0.3));
+}
+
+.pomodoro-btn.primary-action {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+    color: var(--bg-primary, #1a1410);
+    border: none;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 16px var(--accent-glow, rgba(224, 120, 64, 0.3));
+}
+
+.pomodoro-btn.primary-action:hover {
+    transform: scale(1.12);
+    box-shadow: 0 6px 24px var(--accent-glow, rgba(224, 120, 64, 0.5));
+}
+
+/* Settings toggle */
+.pomodoro-card__settings-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.pomodoro-settings-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted, #a89078);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm, 8px);
+    transition: color 0.2s, background 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.pomodoro-settings-btn:hover {
+    color: var(--text, #f5e6d3);
+    background: var(--bg-card, rgba(224, 120, 64, 0.08));
+}
+
+/* Settings panel (inside card) */
+.pomodoro-card__settings {
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+    margin-top: 0;
+}
+
+.pomodoro-card__settings.open {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 8px;
+}
+
+.pomodoro-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.78rem;
+    color: var(--text-muted, #a89078);
+}
+
+.pomodoro-setting-row label {
+    flex: 1;
+}
+
+.pomodoro-setting-row input[type="number"] {
+    width: 52px;
+    padding: 4px 6px;
+    border-radius: var(--radius-sm, 8px);
+    border: 1px solid var(--border, rgba(224, 120, 64, 0.2));
+    background: var(--bg-secondary, #2d2117);
+    color: var(--text, #f5e6d3);
+    font-size: 0.78rem;
+    text-align: center;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    -moz-appearance: textfield;
+}
+
+.pomodoro-setting-row input[type="number"]::-webkit-outer-spin-button,
+.pomodoro-setting-row input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.pomodoro-setting-row input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent, #e07840);
+}
+
+/* Completed sessions badge */
+.pomodoro-card__completed {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-muted, #a89078);
+    margin-top: 6px;
+    opacity: 0.7;
+}
+
+
+/* ================================================
+   TIME TRACKER - Components
+   ================================================ */
+
+/* In-task compact tracker */
+.time-tracker {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: var(--radius-xl, 50px);
+    background: var(--bg-card, rgba(224, 120, 64, 0.08));
+    border: 1px solid var(--border, rgba(224, 120, 64, 0.2));
+    font-size: 0.78rem;
+    color: var(--text-muted, #a89078);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.time-tracker.active {
+    border-color: var(--success, #22c55e);
+    background: rgba(34, 197, 94, 0.08);
+}
+
+.time-tracker-display {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text, #f5e6d3);
+    font-size: 0.82rem;
+}
+
+.time-tracker-icon {
+    font-size: 0.85rem;
+    line-height: 1;
+}
+
+/* Pulsing green dot for active timer */
+.time-tracker-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success, #22c55e);
+    display: none;
+    flex-shrink: 0;
+}
+
+.time-tracker.active .time-tracker-dot {
+    display: block;
+    animation: ttDotPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ttDotPulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 var(--success-glow, rgba(34, 197, 94, 0.4));
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 0 4px rgba(34, 197, 94, 0);
+    }
+}
+
+/* Start / Stop button */
+.time-tracker-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--border, rgba(224, 120, 64, 0.2));
+    background: var(--bg-secondary, #2d2117);
+    color: var(--text, #f5e6d3);
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    padding: 0;
+    line-height: 1;
+}
+
+.time-tracker-btn:hover {
+    background: var(--accent, #e07840);
+    color: var(--bg-primary, #1a1410);
+    border-color: var(--accent, #e07840);
+    transform: scale(1.1);
+}
+
+.time-tracker-btn.stop-btn {
+    border-color: var(--danger, #ef4444);
+}
+
+.time-tracker-btn.stop-btn:hover {
+    background: var(--danger, #ef4444);
+    border-color: var(--danger, #ef4444);
+    color: #fff;
+}
+
+
+/* ================================================
+   TIME TRACKER - Floating indicator (when running)
+   ================================================ */
+
+.time-tracker-floating {
+    position: fixed;
+    bottom: 24px;
+    left: 90px;
+    z-index: 9997;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: var(--radius-xl, 50px);
+    background: rgba(34, 197, 94, 0.15);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+    color: var(--text, #f5e6d3);
+    font-size: 0.82rem;
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2),
+                0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    cursor: default;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.time-tracker-floating.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px) scale(0.9);
+}
+
+.time-tracker-floating__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success, #22c55e);
+    animation: ttDotPulse 1.5s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.time-tracker-floating__time {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+}
+
+.time-tracker-floating__task {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-muted, #a89078);
+    font-size: 0.75rem;
+}
+
+.time-tracker-floating__stop {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger, #ef4444);
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+    padding: 0;
+    line-height: 1;
+}
+
+.time-tracker-floating__stop:hover {
+    background: var(--danger, #ef4444);
+    color: #fff;
+    transform: scale(1.12);
+}
+
+
+/* ================================================
+   TIME TRACKER - Log table (in task detail/modal)
+   ================================================ */
+
+.time-tracker-log {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    margin-top: 10px;
+}
+
+.time-tracker-log th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted, #a89078);
+    border-bottom: 1px solid var(--border, rgba(224, 120, 64, 0.2));
+}
+
+.time-tracker-log td {
+    padding: 8px 10px;
+    color: var(--text, #f5e6d3);
+    border-bottom: 1px solid rgba(224, 120, 64, 0.08);
+    vertical-align: middle;
+}
+
+.time-tracker-log tr:last-child td {
+    border-bottom: none;
+}
+
+.time-tracker-log tr:hover td {
+    background: var(--bg-card, rgba(224, 120, 64, 0.08));
+}
+
+.time-tracker-log__duration {
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent, #e07840);
+}
+
+.time-tracker-log__date {
+    font-size: 0.72rem;
+    color: var(--text-muted, #a89078);
+}
+
+.time-tracker-log__total {
+    font-weight: 700;
+    color: var(--accent, #e07840);
+    border-top: 2px solid var(--border, rgba(224, 120, 64, 0.2));
+}
+
+.time-tracker-log__empty {
+    text-align: center;
+    color: var(--text-muted, #a89078);
+    padding: 20px 10px;
+    font-style: italic;
+}
+
+/* Delete entry button */
+.time-tracker-log__delete {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-muted, #a89078);
+    font-size: 0.7rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+    opacity: 0;
+}
+
+.time-tracker-log tr:hover .time-tracker-log__delete {
+    opacity: 1;
+}
+
+.time-tracker-log__delete:hover {
+    color: var(--danger, #ef4444);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+
+/* ================================================
+   SIDEBAR BUTTON (optional trigger)
+   ================================================ */
+
+.sidebar-pomodoro-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: var(--radius-md, 12px);
+    cursor: pointer;
+    transition: background 0.2s;
+    color: var(--text-muted, #a89078);
+    font-size: 0.85rem;
+}
+
+.sidebar-pomodoro-btn:hover {
+    background: var(--bg-card, rgba(224, 120, 64, 0.08));
+    color: var(--text, #f5e6d3);
+}
+
+.sidebar-pomodoro-btn .sidebar-icon {
+    font-size: 1rem;
+}
+
+.sidebar-pomodoro-btn.active {
+    color: var(--accent, #e07840);
+}
+
+
+/* ================================================
+   POMODORO - Positioning when time tracker visible
+   Shift pomodoro up when both are shown
+   ================================================ */
+
+.pomodoro-pill.has-tracker,
+.pomodoro-card.has-tracker {
+    bottom: 64px;
+}
+
+
+/* ================================================
+   RESPONSIVE
+   ================================================ */
+
+@media (max-width: 768px) {
+    .pomodoro-pill {
+        left: 16px;
+        bottom: 80px;
+    }
+
+    .pomodoro-card {
+        left: 12px;
+        right: 12px;
+        bottom: 80px;
+        width: auto;
+    }
+
+    .time-tracker-floating {
+        left: 16px;
+        bottom: 80px;
+    }
+
+    .pomodoro-pill.has-tracker,
+    .pomodoro-card.has-tracker {
+        bottom: 120px;
+    }
+}
+
+
+/* ================================================
+   REDUCED MOTION
+   ================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    .pomodoro-pill.running,
+    .pomodoro-pill.on-break.running {
+        animation: none;
+    }
+
+    .time-tracker.active .time-tracker-dot,
+    .time-tracker-floating__dot {
+        animation: none;
+        opacity: 1;
+    }
+
+    .pomodoro-card,
+    .pomodoro-pill,
+    .time-tracker-floating {
+        transition-duration: 0.01ms;
+    }
+}

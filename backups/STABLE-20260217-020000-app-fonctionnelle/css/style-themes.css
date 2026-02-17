@@ -1,0 +1,1052 @@
+/* =============================================
+   PRODUCTIVEAPP - THEMES CSS v4.0
+   60 thèmes organisés en 10 catégories
+   ============================================= */
+
+/* === FALLBACK PAR DÉFAUT (executive theme) === */
+/* Appliqué sur :root avant que JavaScript ne charge le thème sauvegardé */
+:root {
+    --bg-primary: #0d0d0d; --bg-secondary: #1a1a1a; --bg-tertiary: #262626;
+    --bg-card: rgba(212,175,55,0.05);
+    --text: #f5f5f5; --text-muted: #a0a0a0;
+    --accent: #d4af37; --accent-light: #f0d975; --accent-glow: rgba(212,175,55,0);
+    --success: #5b64b8; --success-glow: rgba(91, 100, 184, 0);
+    --warning: #c9a554; --danger: #8b4a4a;
+    --border: rgba(212,175,55,0.15); --border-strong: rgba(212,175,55,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.04) 100%);
+    --bubble-border: rgba(212,175,55,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%);
+    --bubble-inprogress-border: rgba(212,175,55,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(91, 100, 184, 0.12) 0%, rgba(91, 100, 184, 0.06) 100%);
+    --bubble-done-border: rgba(91, 100, 184, 0.4); --bubble-done-glow: none; --bubble-done-text: #7e89ff;
+}
+
+/* ==============================================
+   CATÉGORIE 1: ÉLÉGANCE
+   ============================================== */
+
+[data-theme="executive"] {
+    --bg-primary: #0d0d0d; --bg-secondary: #1a1a1a; --bg-tertiary: #262626;
+    --bg-card: rgba(212,175,55,0.05);
+    --text: #f5f5f5; --text-muted: #a0a0a0;
+    --accent: #d4af37; --accent-light: #f0d975; --accent-glow: rgba(212,175,55,0);
+    --success: #5b64b8; --success-glow: rgba(91, 100, 184, 0);
+    --warning: #c9a554; --danger: #8b4a4a;
+    --border: rgba(212,175,55,0.15); --border-strong: rgba(212,175,55,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.04) 100%);
+    --bubble-border: rgba(212,175,55,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%);
+    --bubble-inprogress-border: rgba(212,175,55,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(91, 100, 184, 0.12) 0%, rgba(91, 100, 184, 0.06) 100%);
+    --bubble-done-border: rgba(91, 100, 184, 0.4); --bubble-done-glow: none; --bubble-done-text: #7e89ff;
+}
+
+[data-theme="corporate"] {
+    --bg-primary: #0a1628; --bg-secondary: #0f1e35; --bg-tertiary: #152842;
+    --bg-card: rgba(100,149,237,0.08);
+    --text: #e8eef5; --text-muted: #8a9fb5;
+    --accent: #6495ed; --accent-light: #89b4f7; --accent-glow: rgba(100,149,237,0);
+    --success: #5064be; --success-glow: rgba(80, 100, 190, 0);
+    --warning: #b8934a; --danger: #a65c5c;
+    --border: rgba(100,149,237,0.2); --border-strong: rgba(100,149,237,0.4);
+    --bubble-bg: linear-gradient(145deg, rgba(100,149,237,0.08) 0%, rgba(100,149,237,0.04) 100%);
+    --bubble-border: rgba(100,149,237,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(100,149,237,0.15) 0%, rgba(100,149,237,0.08) 100%);
+    --bubble-inprogress-border: rgba(100,149,237,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(80, 100, 190, 0.12) 0%, rgba(80, 100, 190, 0.06) 100%);
+    --bubble-done-border: rgba(80, 100, 190, 0.4); --bubble-done-glow: none; --bubble-done-text: #7e89ff;
+}
+
+[data-theme="ivory"] {
+    --bg-primary: #FAF7F0; --bg-secondary: #F5F0E6; --bg-tertiary: #EDE8DC;
+    --bg-card: rgba(139,115,85,0.06);
+    --text: #3D3226; --text-muted: #8B7B6B;
+    --accent: #8B7355; --accent-light: #B8A080; --accent-glow: rgba(139,115,85,0);
+    --success: #5e6fcb; --success-glow: rgba(94, 111, 203, 0);
+    --warning: #C49840; --danger: #C45050;
+    --border: rgba(139,115,85,0.15); --border-strong: rgba(139,115,85,0.3);
+    --bubble-bg: linear-gradient(145deg, #F5F0E6 0%, #EDE8DC 100%);
+    --bubble-border: rgba(139,115,85,0.25); --bubble-glow: none; --bubble-text-color: #3D3226;
+    --bubble-inprogress-bg: linear-gradient(145deg, #EDE4D0 0%, #E5DCC4 100%);
+    --bubble-inprogress-border: rgba(139,115,85,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3D3226;
+    --bubble-done-bg: linear-gradient(145deg, #e9d4ff 0%, #d7c9ff 100%);
+    --bubble-done-border: #5e6fcb; --bubble-done-glow: none; --bubble-done-text: #304579;
+}
+
+[data-theme="sterling"] {
+    --bg-primary: #1a1e24; --bg-secondary: #252b34; --bg-tertiary: #303845;
+    --bg-card: rgba(192,200,210,0.06);
+    --text: #E8ECF0; --text-muted: #8898A8;
+    --accent: #C0C8D0; --accent-light: #D8DDE5; --accent-glow: rgba(192,200,210,0);
+    --success: #5f71d8; --success-glow: rgba(95, 113, 216, 0);
+    --warning: #B8A050; --danger: #B85858;
+    --border: rgba(192,200,210,0.15); --border-strong: rgba(192,200,210,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(192,200,210,0.08) 0%, rgba(192,200,210,0.04) 100%);
+    --bubble-border: rgba(192,200,210,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(192,200,210,0.15) 0%, rgba(192,200,210,0.08) 100%);
+    --bubble-inprogress-border: rgba(192,200,210,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(95, 113, 216, 0.12) 0%, rgba(95, 113, 216, 0.06) 100%);
+    --bubble-done-border: rgba(95, 113, 216, 0.4); --bubble-done-glow: none; --bubble-done-text: #7f8cff;
+}
+
+[data-theme="diplomat"] {
+    --bg-primary: #1a0810; --bg-secondary: #2d101a; --bg-tertiary: #3d1828;
+    --bg-card: rgba(196,50,74,0.08);
+    --text: #F5E0E5; --text-muted: #B88898;
+    --accent: #C4324A; --accent-light: #E05A72; --accent-glow: rgba(196,50,74,0);
+    --success: #5f71d8; --success-glow: rgba(95, 113, 216, 0);
+    --warning: #C4A050; --danger: #E04040;
+    --border: rgba(196,50,74,0.2); --border-strong: rgba(196,50,74,0.4);
+    --bubble-bg: linear-gradient(145deg, rgba(196,50,74,0.08) 0%, rgba(196,50,74,0.04) 100%);
+    --bubble-border: rgba(196,50,74,0.3); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(196,50,74,0.15) 0%, rgba(196,50,74,0.08) 100%);
+    --bubble-inprogress-border: rgba(196,50,74,0.6); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(95, 113, 216, 0.12) 0%, rgba(95, 113, 216, 0.06) 100%);
+    --bubble-done-border: rgba(95, 113, 216, 0.4); --bubble-done-glow: none; --bubble-done-text: #7f8cff;
+}
+
+[data-theme="academie"] {
+    --bg-primary: #2c2f33; --bg-secondary: #36393f; --bg-tertiary: #40444b;
+    --bg-card: rgba(218,185,130,0.12);
+    --text: #f0ebe0; --text-muted: #b8b0a0;
+    --accent: #daa520; --accent-light: #f0c850; --accent-glow: rgba(218,165,32,0);
+    --success: #8c8bfd; --success-glow: rgba(140, 139, 253, 0);
+    --warning: #e8b84a; --danger: #d4644a;
+    --border: rgba(218,185,130,0.25); --border-strong: rgba(218,185,130,0.5);
+    --bubble-bg: linear-gradient(145deg, #f7e8c8 0%, #e8d4a8 100%);
+    --bubble-border: #b8954a; --bubble-glow: none; --bubble-text-color: #1a1510;
+    --bubble-inprogress-bg: linear-gradient(145deg, #ffe8a0 0%, #f5d878 100%);
+    --bubble-inprogress-border: #c9952a; --bubble-inprogress-glow: none; --bubble-inprogress-text: #1a1510;
+    --bubble-done-bg: linear-gradient(145deg, #dbc7ff 0%, #c8b9ff 100%);
+    --bubble-done-border: #878af4; --bubble-done-glow: none; --bubble-done-text: #292b4f;
+}
+
+/* ==============================================
+   CATÉGORIE 2: NATURE
+   ============================================== */
+
+[data-theme="ocean"] {
+    --bg-primary: #051923; --bg-secondary: #003554; --bg-tertiary: #006494;
+    --bg-card: rgba(0,180,216,0.12);
+    --text: #e8f4f8; --text-muted: #88b8d0;
+    --accent: #00b4d8; --accent-light: #48cae4; --accent-glow: rgba(0,180,216,0.3);
+    --success: #33a6ff; --success-glow: rgba(51, 166, 255, 0.3);
+    --warning: #ffb703; --danger: #ef476f;
+    --border: rgba(0,180,216,0.25); --border-strong: rgba(0,180,216,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(0,180,216,0.2) 0%, rgba(0,100,148,0.1) 100%);
+    --bubble-border: rgba(0,180,216,0.5); --bubble-glow: 0 4px 20px rgba(0,180,216,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(72,202,228,0.35) 0%, rgba(0,180,216,0.2) 100%);
+    --bubble-inprogress-border: rgba(72,202,228,0.8); --bubble-inprogress-glow: 0 6px 25px rgba(72,202,228,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(51, 166, 255, 0.25) 0%, rgba(39, 129, 246, 0.12) 100%);
+    --bubble-done-border: rgba(51, 166, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(51, 166, 255, 0.2); --bubble-done-text: #33a6ff;
+}
+
+[data-theme="forest"] {
+    --bg-primary: #0a1208; --bg-secondary: #152010; --bg-tertiary: #1e2d18;
+    --bg-card: rgba(74,170,100,0.08);
+    --text: #e0f0e0; --text-muted: #80a880;
+    --accent: #4aaa64; --accent-light: #70c888; --accent-glow: rgba(74,170,100,0.25);
+    --success: #3f94ff; --success-glow: rgba(63, 148, 255, 0.3);
+    --warning: #a3e635; --danger: #ef4444;
+    --border: rgba(74,170,100,0.2); --border-strong: rgba(74,170,100,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(74,170,100,0.2) 0%, rgba(30,120,60,0.1) 100%);
+    --bubble-border: rgba(74,170,100,0.45); --bubble-glow: 0 4px 18px rgba(74,170,100,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(112,200,136,0.35) 0%, rgba(74,170,100,0.2) 100%);
+    --bubble-inprogress-border: rgba(112,200,136,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(112,200,136,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(63, 148, 255, 0.25) 0%, rgba(44, 112, 198, 0.1) 100%);
+    --bubble-done-border: rgba(63, 148, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(63, 148, 255, 0.2); --bubble-done-text: #3f94ff;
+}
+
+[data-theme="sunset"] {
+    --bg-primary: #1a0a05; --bg-secondary: #2d1810; --bg-tertiary: #4a2515;
+    --bg-card: rgba(249,115,22,0.12);
+    --text: #ffe8d5; --text-muted: #d0a070;
+    --accent: #f97316; --accent-light: #fb923c; --accent-glow: rgba(249,115,22,0.3);
+    --success: #fbbf24; --success-glow: rgba(251,191,36,0.3);
+    --warning: #fbbf24; --danger: #dc2626;
+    --border: rgba(249,115,22,0.25); --border-strong: rgba(249,115,22,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(220,38,38,0.2) 0%, rgba(249,115,22,0.25) 100%);
+    --bubble-border: rgba(249,115,22,0.5); --bubble-glow: 0 4px 20px rgba(249,115,22,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(251,146,60,0.4) 0%, rgba(220,38,38,0.2) 100%);
+    --bubble-inprogress-border: rgba(251,146,60,0.8); --bubble-inprogress-glow: 0 6px 25px rgba(251,146,60,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(251,191,36,0.3) 0%, rgba(245,158,11,0.12) 100%);
+    --bubble-done-border: rgba(251,191,36,0.65); --bubble-done-glow: 0 4px 15px rgba(251,191,36,0.2); --bubble-done-text: #fbbf24;
+}
+
+[data-theme="desert"] {
+    --bg-primary: #1a1410; --bg-secondary: #2d2117; --bg-tertiary: #3d2e1f;
+    --bg-card: rgba(224,120,64,0.08);
+    --text: #f5e6d3; --text-muted: #a89078;
+    --accent: #e07840; --accent-light: #f4a261; --accent-glow: rgba(224,120,64,0.3);
+    --success: #3f94ff; --success-glow: rgba(63, 148, 255, 0.3);
+    --warning: #fbbf24; --danger: #ef4444;
+    --border: rgba(224,120,64,0.2); --border-strong: rgba(224,120,64,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(224,120,64,0.2) 0%, rgba(180,80,40,0.1) 100%);
+    --bubble-border: rgba(224,120,64,0.5); --bubble-glow: 0 4px 20px rgba(224,120,64,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(244,162,97,0.35) 0%, rgba(224,120,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(244,162,97,0.7); --bubble-inprogress-glow: 0 6px 25px rgba(244,162,97,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(63, 148, 255, 0.25) 0%, rgba(48, 122, 215, 0.12) 100%);
+    --bubble-done-border: rgba(63, 148, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(63, 148, 255, 0.2); --bubble-done-text: #64b0ff;
+}
+
+[data-theme="lavender"] {
+    --bg-primary: #150d1a; --bg-secondary: #231628; --bg-tertiary: #352240;
+    --bg-card: rgba(176,124,200,0.08);
+    --text: #F0E5F5; --text-muted: #A888B8;
+    --accent: #B07CC8; --accent-light: #D0A0E8; --accent-glow: rgba(176,124,200,0.25);
+    --success: #7395ff; --success-glow: rgba(115, 149, 255, 0.25);
+    --warning: #D8B040; --danger: #D86060;
+    --border: rgba(176,124,200,0.2); --border-strong: rgba(176,124,200,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(176,124,200,0.2) 0%, rgba(120,80,150,0.1) 100%);
+    --bubble-border: rgba(176,124,200,0.45); --bubble-glow: 0 4px 18px rgba(176,124,200,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(208,160,232,0.35) 0%, rgba(176,124,200,0.2) 100%);
+    --bubble-inprogress-border: rgba(208,160,232,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(208,160,232,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(115, 149, 255, 0.25) 0%, rgba(90, 121, 229, 0.12) 100%);
+    --bubble-done-border: rgba(115, 149, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(115, 149, 255, 0.2); --bubble-done-text: #7395ff;
+}
+
+[data-theme="sakura"] {
+    --bg-primary: #FBF5F6; --bg-secondary: #F5ECF0; --bg-tertiary: #EDE2E8;
+    --bg-card: rgba(212,104,140,0.06);
+    --text: #3A2530; --text-muted: #907080;
+    --accent: #D4688C; --accent-light: #E890A8; --accent-glow: rgba(212,104,140,0);
+    --success: #617be6; --success-glow: rgba(97, 123, 230, 0);
+    --warning: #D4A840; --danger: #D85050;
+    --border: rgba(212,104,140,0.15); --border-strong: rgba(212,104,140,0.3);
+    --bubble-bg: linear-gradient(145deg, #F5ECF0 0%, #EDE2E8 100%);
+    --bubble-border: rgba(212,104,140,0.25); --bubble-glow: none; --bubble-text-color: #3A2530;
+    --bubble-inprogress-bg: linear-gradient(145deg, #F0DCE4 0%, #E8D0D8 100%);
+    --bubble-inprogress-border: rgba(212,104,140,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A2530;
+    --bubble-done-bg: linear-gradient(145deg, #e9d4ff 0%, #d7c9ff 100%);
+    --bubble-done-border: #617be6; --bubble-done-glow: none; --bubble-done-text: #304579;
+}
+
+/* ==============================================
+   CATÉGORIE 3: ATMOSPHÈRE
+   ============================================== */
+
+[data-theme="aurora"] {
+    --bg-primary: #0a0d14; --bg-secondary: #151a25; --bg-tertiary: #1f2736;
+    --bg-card: rgba(147,197,253,0.08);
+    --text: #e8f0fe; --text-muted: #94a3b8;
+    --accent: #93c5fd; --accent-light: #bfdbfe; --accent-glow: rgba(147,197,253,0.3);
+    --success: #9ac9ff; --success-glow: rgba(154, 201, 255, 0.3);
+    --warning: #fcd34d; --danger: #fca5a5;
+    --border: rgba(147,197,253,0.2); --border-strong: rgba(147,197,253,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(147,197,253,0.2) 0%, rgba(196,181,253,0.12) 50%, rgba(134,239,172,0.08) 100%);
+    --bubble-border: rgba(147,197,253,0.4); --bubble-glow: 0 4px 20px rgba(147,197,253,0.15);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(196,181,253,0.35) 0%, rgba(147,197,253,0.2) 100%);
+    --bubble-inprogress-border: rgba(196,181,253,0.7); --bubble-inprogress-glow: 0 6px 25px rgba(196,181,253,0.25);
+    --bubble-done-bg: linear-gradient(135deg, rgba(154, 201, 255, 0.25) 0%, rgba(184, 212, 255, 0.12) 100%);
+    --bubble-done-border: rgba(154, 201, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(154, 201, 255, 0.2); --bubble-done-text: #9ac9ff;
+}
+
+[data-theme="midnight"] {
+    --bg-primary: #0d0d18; --bg-secondary: #14142a; --bg-tertiary: #1c1c3c;
+    --bg-card: rgba(124,159,255,0.08);
+    --text: #e0e6ff; --text-muted: #8898c8;
+    --accent: #7c9fff; --accent-light: #a0c0ff; --accent-glow: rgba(124,159,255,0.3);
+    --success: #94b5ff; --success-glow: rgba(148, 181, 255, 0.3);
+    --warning: #ffcc70; --danger: #ff7080;
+    --border: rgba(124,159,255,0.25); --border-strong: rgba(124,159,255,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(124,159,255,0.2) 0%, rgba(100,130,220,0.1) 100%);
+    --bubble-border: rgba(124,159,255,0.5); --bubble-glow: 0 6px 25px rgba(124,159,255,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(160,192,255,0.35) 0%, rgba(124,159,255,0.2) 100%);
+    --bubble-inprogress-border: rgba(160,192,255,0.8); --bubble-inprogress-glow: 0 8px 30px rgba(160,192,255,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(148, 181, 255, 0.25) 0%, rgba(111, 145, 255, 0.12) 100%);
+    --bubble-done-border: rgba(148, 181, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(148, 181, 255, 0.2); --bubble-done-text: #94b5ff;
+}
+
+[data-theme="twilight"] {
+    --bg-primary: #14081a; --bg-secondary: #22102d; --bg-tertiary: #351845;
+    --bg-card: rgba(196,144,224,0.08);
+    --text: #F0E5FA; --text-muted: #A888C0;
+    --accent: #C490E0; --accent-light: #D8B0F0; --accent-glow: rgba(196,144,224,0.3);
+    --success: #76a1ff; --success-glow: rgba(118, 161, 255, 0.3);
+    --warning: #E8C050; --danger: #E06060;
+    --border: rgba(196,144,224,0.2); --border-strong: rgba(196,144,224,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(196,144,224,0.2) 0%, rgba(140,100,180,0.1) 100%);
+    --bubble-border: rgba(196,144,224,0.45); --bubble-glow: 0 4px 18px rgba(196,144,224,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(216,176,240,0.35) 0%, rgba(196,144,224,0.2) 100%);
+    --bubble-inprogress-border: rgba(216,176,240,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(216,176,240,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(118, 161, 255, 0.25) 0%, rgba(91, 128, 240, 0.12) 100%);
+    --bubble-done-border: rgba(118, 161, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(118, 161, 255, 0.2); --bubble-done-text: #76a1ff;
+}
+
+[data-theme="candlelight"] {
+    --bg-primary: #1a1208; --bg-secondary: #2d200e; --bg-tertiary: #3d2e16;
+    --bg-card: rgba(232,168,64,0.08);
+    --text: #F5ECD3; --text-muted: #B8A070;
+    --accent: #E8A840; --accent-light: #F0C060; --accent-glow: rgba(232,168,64,0.3);
+    --success: #6e86f2; --success-glow: rgba(110, 134, 242, 0.25);
+    --warning: #E8C040; --danger: #D85050;
+    --border: rgba(232,168,64,0.2); --border-strong: rgba(232,168,64,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(232,168,64,0.2) 0%, rgba(180,128,40,0.1) 100%);
+    --bubble-border: rgba(232,168,64,0.45); --bubble-glow: 0 4px 18px rgba(232,168,64,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(240,192,96,0.35) 0%, rgba(232,168,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(240,192,96,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(240,192,96,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(110, 134, 242, 0.25) 0%, rgba(85, 108, 194, 0.12) 100%);
+    --bubble-done-border: rgba(110, 134, 242, 0.6); --bubble-done-glow: 0 4px 15px rgba(110, 134, 242, 0.2); --bubble-done-text: #6e86f2;
+}
+
+[data-theme="moonlit"] {
+    --bg-primary: #0d1018; --bg-secondary: #161c28; --bg-tertiary: #1f2838;
+    --bg-card: rgba(160,184,216,0.06);
+    --text: #E0E8F5; --text-muted: #8098B0;
+    --accent: #A0B8D8; --accent-light: #C0D0E8; --accent-glow: rgba(160,184,216,0.2);
+    --success: #7395ff; --success-glow: rgba(115, 149, 255, 0.2);
+    --warning: #D8B848; --danger: #D86868;
+    --border: rgba(160,184,216,0.15); --border-strong: rgba(160,184,216,0.3);
+    --bubble-bg: linear-gradient(135deg, rgba(160,184,216,0.15) 0%, rgba(120,148,180,0.08) 100%);
+    --bubble-border: rgba(160,184,216,0.35); --bubble-glow: 0 4px 15px rgba(160,184,216,0.12);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(192,208,232,0.3) 0%, rgba(160,184,216,0.18) 100%);
+    --bubble-inprogress-border: rgba(192,208,232,0.7); --bubble-inprogress-glow: 0 6px 20px rgba(192,208,232,0.22);
+    --bubble-done-bg: linear-gradient(135deg, rgba(115, 149, 255, 0.2) 0%, rgba(90, 121, 229, 0.1) 100%);
+    --bubble-done-border: rgba(115, 149, 255, 0.5); --bubble-done-glow: 0 4px 12px rgba(115, 149, 255, 0.15); --bubble-done-text: #7395ff;
+}
+
+[data-theme="golden-hour"] {
+    --bg-primary: #1a1008; --bg-secondary: #2d1c10; --bg-tertiary: #4a2c18;
+    --bg-card: rgba(212,160,64,0.08);
+    --text: #F5E8D0; --text-muted: #B8A068;
+    --accent: #D4A040; --accent-light: #E8C060; --accent-glow: rgba(212,160,64,0.3);
+    --success: #6e86f2; --success-glow: rgba(110, 134, 242, 0.25);
+    --warning: #E0B840; --danger: #D85050;
+    --border: rgba(212,160,64,0.2); --border-strong: rgba(212,160,64,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(212,160,64,0.2) 0%, rgba(170,120,40,0.1) 100%);
+    --bubble-border: rgba(212,160,64,0.45); --bubble-glow: 0 4px 18px rgba(212,160,64,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(232,192,96,0.35) 0%, rgba(212,160,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(232,192,96,0.75); --bubble-inprogress-glow: 0 6px 22px rgba(232,192,96,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(110, 134, 242, 0.25) 0%, rgba(85, 108, 194, 0.12) 100%);
+    --bubble-done-border: rgba(110, 134, 242, 0.6); --bubble-done-glow: 0 4px 15px rgba(110, 134, 242, 0.2); --bubble-done-text: #6e86f2;
+}
+
+[data-theme="storm"] {
+    --bg-primary: #0a0e14; --bg-secondary: #141a22; --bg-tertiary: #1e2832;
+    --bg-card: rgba(107,141,181,0.06);
+    --text: #D8E4F0; --text-muted: #7890A8;
+    --accent: #6B8DB5; --accent-light: #90B0D0; --accent-glow: rgba(107,141,181,0.25);
+    --success: #6387ff; --success-glow: rgba(99, 135, 255, 0.25);
+    --warning: #C8A840; --danger: #C85858;
+    --border: rgba(107,141,181,0.18); --border-strong: rgba(107,141,181,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(107,141,181,0.18) 0%, rgba(74,112,152,0.09) 100%);
+    --bubble-border: rgba(107,141,181,0.4); --bubble-glow: 0 4px 18px rgba(107,141,181,0.15);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(144,176,208,0.32) 0%, rgba(107,141,181,0.18) 100%);
+    --bubble-inprogress-border: rgba(144,176,208,0.72); --bubble-inprogress-glow: 0 6px 22px rgba(144,176,208,0.25);
+    --bubble-done-bg: linear-gradient(135deg, rgba(99, 135, 255, 0.22) 0%, rgba(78, 112, 209, 0.1) 100%);
+    --bubble-done-border: rgba(99, 135, 255, 0.55); --bubble-done-glow: 0 4px 14px rgba(99, 135, 255, 0.18); --bubble-done-text: #6387ff;
+}
+
+/* ==============================================
+   CATÉGORIE 4: MODERNE
+   ============================================== */
+
+[data-theme="bubblegum"] {
+    --bg-primary: #1a0a14; --bg-secondary: #2d1025; --bg-tertiary: #3f1836;
+    --bg-card: rgba(255,107,157,0.12);
+    --text: #ffe8f5; --text-muted: #d090b0;
+    --accent: #ff6b9d; --accent-light: #ff9ec4; --accent-glow: rgba(255,107,157,0.3);
+    --success: #38bdf8; --success-glow: rgba(56,189,248,0.3);
+    --warning: #ffd93d; --danger: #ff6b6b;
+    --border: rgba(255,107,157,0.25); --border-strong: rgba(255,107,157,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(255,107,157,0.2) 0%, rgba(150,50,90,0.1) 100%);
+    --bubble-border: rgba(255,107,157,0.5); --bubble-glow: 0 4px 20px rgba(255,107,157,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,158,196,0.35) 0%, rgba(255,107,157,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,158,196,0.8); --bubble-inprogress-glow: 0 6px 25px rgba(255,158,196,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(56,189,248,0.25) 0%, rgba(14,165,233,0.12) 100%);
+    --bubble-done-border: rgba(56,189,248,0.6); --bubble-done-glow: 0 4px 15px rgba(56,189,248,0.2); --bubble-done-text: #38bdf8;
+}
+
+[data-theme="neon"] {
+    --bg-primary: #0a0014; --bg-secondary: #14062a; --bg-tertiary: #200e40;
+    --bg-card: rgba(255,20,147,0.08);
+    --text: #F5E0FF; --text-muted: #A070C0;
+    --accent: #FF1493; --accent-light: #FF69B4; --accent-glow: rgba(255,20,147,0.4);
+    --success: #39caff; --success-glow: rgba(57, 202, 255, 0.4);
+    --warning: #FFD700; --danger: #FF4040;
+    --border: rgba(255,20,147,0.3); --border-strong: rgba(255,20,147,0.6);
+    --bubble-bg: linear-gradient(135deg, rgba(255,20,147,0.25) 0%, rgba(136,0,255,0.12) 100%);
+    --bubble-border: rgba(255,20,147,0.6); --bubble-glow: 0 6px 28px rgba(255,20,147,0.3);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,105,180,0.4) 0%, rgba(255,20,147,0.25) 100%);
+    --bubble-inprogress-border: rgba(255,105,180,0.9); --bubble-inprogress-glow: 0 8px 35px rgba(255,105,180,0.4);
+    --bubble-done-bg: linear-gradient(135deg, rgba(57, 202, 255, 0.3) 0%, rgba(42, 150, 255, 0.15) 100%);
+    --bubble-done-border: rgba(57, 202, 255, 0.7); --bubble-done-glow: 0 6px 25px rgba(57, 202, 255, 0.3); --bubble-done-text: #39caff;
+}
+
+[data-theme="pastel"] {
+    --bg-primary: #F8F2FA; --bg-secondary: #F0E8F4; --bg-tertiary: #E8DEEE;
+    --bg-card: rgba(168,136,200,0.06);
+    --text: #3A3040; --text-muted: #887898;
+    --accent: #A888C8; --accent-light: #C8A8E0; --accent-glow: rgba(168,136,200,0);
+    --success: #7395ff; --success-glow: rgba(115, 149, 255, 0);
+    --warning: #D4B050; --danger: #D07070;
+    --border: rgba(168,136,200,0.15); --border-strong: rgba(168,136,200,0.3);
+    --bubble-bg: linear-gradient(145deg, #F0E8F4 0%, #E8DEEE 100%);
+    --bubble-border: rgba(168,136,200,0.25); --bubble-glow: none; --bubble-text-color: #3A3040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E8DCF0 0%, #DCD0E8 100%);
+    --bubble-inprogress-border: rgba(168,136,200,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3040;
+    --bubble-done-bg: linear-gradient(145deg, #e5d4ff 0%, #d4c9ff 100%);
+    --bubble-done-border: #7395ff; --bubble-done-glow: none; --bubble-done-text: #324c8d;
+}
+
+[data-theme="retrowave"] {
+    --bg-primary: #0d0520; --bg-secondary: #1a0c38; --bg-tertiary: #2a1450;
+    --bg-card: rgba(255,110,199,0.08);
+    --text: #F0E0FF; --text-muted: #A080C8;
+    --accent: #FF6EC7; --accent-light: #FF90D8; --accent-glow: rgba(255,110,199,0.4);
+    --success: #32b3ff; --success-glow: rgba(50, 179, 255, 0.35);
+    --warning: #FFD700; --danger: #FF4060;
+    --border: rgba(255,110,199,0.25); --border-strong: rgba(255,110,199,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(255,110,199,0.22) 0%, rgba(136,102,255,0.12) 100%);
+    --bubble-border: rgba(255,110,199,0.55); --bubble-glow: 0 6px 25px rgba(255,110,199,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,144,216,0.38) 0%, rgba(255,110,199,0.22) 100%);
+    --bubble-inprogress-border: rgba(255,144,216,0.85); --bubble-inprogress-glow: 0 8px 32px rgba(255,144,216,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(50, 179, 255, 0.28) 0%, rgba(38, 135, 255, 0.14) 100%);
+    --bubble-done-border: rgba(50, 179, 255, 0.65); --bubble-done-glow: 0 5px 20px rgba(50, 179, 255, 0.25); --bubble-done-text: #32b3ff;
+}
+
+[data-theme="mint"] {
+    --bg-primary: #F2FAF6; --bg-secondary: #E4F5EC; --bg-tertiary: #D4EEE2;
+    --bg-card: rgba(61,168,120,0.06);
+    --text: #1A3A2A; --text-muted: #588870;
+    --accent: #3DA878; --accent-light: #60C898; --accent-glow: rgba(61,168,120,0);
+    --success: #4282f0; --success-glow: rgba(66, 130, 240, 0);
+    --warning: #C4A040; --danger: #D05050;
+    --border: rgba(61,168,120,0.15); --border-strong: rgba(61,168,120,0.3);
+    --bubble-bg: linear-gradient(145deg, #E4F5EC 0%, #D4EEE2 100%);
+    --bubble-border: rgba(61,168,120,0.25); --bubble-glow: none; --bubble-text-color: #1A3A2A;
+    --bubble-inprogress-bg: linear-gradient(145deg, #D0EEE0 0%, #C0E8D4 100%);
+    --bubble-inprogress-border: rgba(61,168,120,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #1A3A2A;
+    --bubble-done-bg: linear-gradient(145deg, #d3d0ff 0%, #c3c6ff 100%);
+    --bubble-done-border: #4282f0; --bubble-done-glow: none; --bubble-done-text: #24457e;
+}
+
+[data-theme="coral"] {
+    --bg-primary: #1a0e0e; --bg-secondary: #2d1818; --bg-tertiary: #3d2525;
+    --bg-card: rgba(255,111,97,0.08);
+    --text: #FFE5E0; --text-muted: #C09088;
+    --accent: #FF6F61; --accent-light: #FF9488; --accent-glow: rgba(255,111,97,0.3);
+    --success: #5fa1ff; --success-glow: rgba(95, 161, 255, 0.3);
+    --warning: #F0B840; --danger: #FF4040;
+    --border: rgba(255,111,97,0.2); --border-strong: rgba(255,111,97,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(255,111,97,0.2) 0%, rgba(200,70,60,0.1) 100%);
+    --bubble-border: rgba(255,111,97,0.48); --bubble-glow: 0 4px 18px rgba(255,111,97,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,148,136,0.35) 0%, rgba(255,111,97,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,148,136,0.78); --bubble-inprogress-glow: 0 6px 22px rgba(255,148,136,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(95, 161, 255, 0.25) 0%, rgba(70, 132, 252, 0.12) 100%);
+    --bubble-done-border: rgba(95, 161, 255, 0.6); --bubble-done-glow: 0 4px 15px rgba(95, 161, 255, 0.2); --bubble-done-text: #5fa1ff;
+}
+
+/* ==============================================
+   CATÉGORIE 5: MINIMALISTE
+   ============================================== */
+
+[data-theme="obsidian"] {
+    --bg-primary: #0b0b0b; --bg-secondary: #141414; --bg-tertiary: #1e1e1e;
+    --bg-card: rgba(255,255,255,0.03);
+    --text: #e3e3e3; --text-muted: #8b8b8b;
+    --accent: #a0a0a0; --accent-light: #c0c0c0; --accent-glow: rgba(160,160,160,0);
+    --success: #6d73dc; --success-glow: rgba(109, 115, 220, 0);
+    --warning: #b8a56b; --danger: #a66b6b;
+    --border: rgba(255,255,255,0.1); --border-strong: rgba(255,255,255,0.2);
+    --bubble-bg: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 100%);
+    --bubble-border: rgba(255,255,255,0.12); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.04) 100%);
+    --bubble-inprogress-border: rgba(160,160,160,0.5); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(109, 115, 220, 0.1) 0%, rgba(109, 115, 220, 0.05) 100%);
+    --bubble-done-border: rgba(109, 115, 220, 0.35); --bubble-done-glow: none; --bubble-done-text: #9594ff;
+}
+
+[data-theme="paper"] {
+    --bg-primary: #F8F4EC; --bg-secondary: #F0ECE2; --bg-tertiary: #E8E4D8;
+    --bg-card: rgba(139,123,101,0.05);
+    --text: #3A3228; --text-muted: #887868;
+    --accent: #8B7B65; --accent-light: #B0A088; --accent-glow: rgba(139,123,101,0);
+    --success: #5e6fcb; --success-glow: rgba(94, 111, 203, 0);
+    --warning: #B89840; --danger: #C05050;
+    --border: rgba(139,123,101,0.15); --border-strong: rgba(139,123,101,0.3);
+    --bubble-bg: linear-gradient(145deg, #F0ECE2 0%, #E8E4D8 100%);
+    --bubble-border: rgba(139,123,101,0.2); --bubble-glow: none; --bubble-text-color: #3A3228;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E8E0D0 0%, #E0D8C8 100%);
+    --bubble-inprogress-border: rgba(139,123,101,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3228;
+    --bubble-done-bg: linear-gradient(145deg, #e6d0ff 0%, #d6c7ff 100%);
+    --bubble-done-border: #5e6fcb; --bubble-done-glow: none; --bubble-done-text: #304579;
+}
+
+[data-theme="clay"] {
+    --bg-primary: #201A14; --bg-secondary: #302820; --bg-tertiary: #40362C;
+    --bg-card: rgba(184,152,120,0.06);
+    --text: #E8DCD0; --text-muted: #A89880;
+    --accent: #B89878; --accent-light: #D0B898; --accent-glow: rgba(184,152,120,0);
+    --success: #6f87fa; --success-glow: rgba(111, 135, 250, 0);
+    --warning: #C8A840; --danger: #C86060;
+    --border: rgba(184,152,120,0.15); --border-strong: rgba(184,152,120,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(184,152,120,0.1) 0%, rgba(184,152,120,0.05) 100%);
+    --bubble-border: rgba(184,152,120,0.28); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(184,152,120,0.18) 0%, rgba(184,152,120,0.1) 100%);
+    --bubble-inprogress-border: rgba(184,152,120,0.55); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(111, 135, 250, 0.12) 0%, rgba(111, 135, 250, 0.06) 100%);
+    --bubble-done-border: rgba(111, 135, 250, 0.4); --bubble-done-glow: none; --bubble-done-text: #7e95ff;
+}
+
+[data-theme="porcelain"] {
+    --bg-primary: #F2F5FA; --bg-secondary: #E8EEF5; --bg-tertiary: #DEE6F0;
+    --bg-card: rgba(104,136,168,0.05);
+    --text: #2A3440; --text-muted: #6880A0;
+    --accent: #6888A8; --accent-light: #88A8C8; --accent-glow: rgba(104,136,168,0);
+    --success: #557ae4; --success-glow: rgba(85, 122, 228, 0);
+    --warning: #C4A040; --danger: #C85050;
+    --border: rgba(104,136,168,0.12); --border-strong: rgba(104,136,168,0.25);
+    --bubble-bg: linear-gradient(145deg, #E8EEF5 0%, #DEE6F0 100%);
+    --bubble-border: rgba(104,136,168,0.2); --bubble-glow: none; --bubble-text-color: #2A3440;
+    --bubble-inprogress-bg: linear-gradient(145deg, #DCE4F0 0%, #D0DCE8 100%);
+    --bubble-inprogress-border: rgba(104,136,168,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #2A3440;
+    --bubble-done-bg: linear-gradient(145deg, #e2d4ff 0%, #d0c9ff 100%);
+    --bubble-done-border: #557ae4; --bubble-done-glow: none; --bubble-done-text: #314784;
+}
+
+[data-theme="espresso"] {
+    --bg-primary: #140E0A; --bg-secondary: #241A12; --bg-tertiary: #34261C;
+    --bg-card: rgba(168,120,72,0.06);
+    --text: #F0E4D4; --text-muted: #A89070;
+    --accent: #A87848; --accent-light: #C89868; --accent-glow: rgba(168,120,72,0);
+    --success: #607ade; --success-glow: rgba(96, 122, 222, 0);
+    --warning: #C8A040; --danger: #C85858;
+    --border: rgba(168,120,72,0.15); --border-strong: rgba(168,120,72,0.3);
+    --bubble-bg: linear-gradient(145deg, rgba(168,120,72,0.1) 0%, rgba(168,120,72,0.05) 100%);
+    --bubble-border: rgba(168,120,72,0.28); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(168,120,72,0.18) 0%, rgba(168,120,72,0.1) 100%);
+    --bubble-inprogress-border: rgba(168,120,72,0.55); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(96, 122, 222, 0.12) 0%, rgba(96, 122, 222, 0.06) 100%);
+    --bubble-done-border: rgba(96, 122, 222, 0.4); --bubble-done-glow: none; --bubble-done-text: #7d90ff;
+}
+
+/* ==============================================
+   CATÉGORIE 6: TECH
+   ============================================== */
+
+[data-theme="matrix"] {
+    --bg-primary: #0a0f0a; --bg-secondary: #0f1a0f; --bg-tertiary: #152015;
+    --bg-card: rgba(0,255,102,0.08);
+    --text: #e0ffe0; --text-muted: #70b070;
+    --accent: #00ff66; --accent-light: #4dff8d; --accent-glow: rgba(0,255,102,0.4);
+    --success: #2994ff; --success-glow: rgba(41, 148, 255, 0.4);
+    --warning: #66ff00; --danger: #ff3333;
+    --border: rgba(0,255,102,0.2); --border-strong: rgba(0,255,102,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(0,255,102,0.22) 0%, rgba(102,255,0,0.12) 100%);
+    --bubble-border: rgba(0,255,102,0.5); --bubble-glow: 0 8px 35px rgba(0,255,102,0.35);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(102,255,0,0.5) 0%, rgba(0,255,102,0.35) 100%);
+    --bubble-inprogress-border: rgba(102,255,0,0.9); --bubble-inprogress-glow: 0 12px 60px rgba(102,255,0,0.7);
+    --bubble-done-bg: linear-gradient(135deg, rgba(37, 131, 232, 0.22) 0%, rgba(25, 88, 157, 0.1) 100%);
+    --bubble-done-border: rgba(37, 131, 232, 0.55); --bubble-done-glow: 0 6px 25px rgba(37, 131, 232, 0.3); --bubble-done-text: #37c0ff;
+}
+
+[data-theme="cyberpunk"] {
+    --bg-primary: #0d0221; --bg-secondary: #190b3a; --bg-tertiary: #2a1454;
+    --bg-card: rgba(255,0,255,0.08);
+    --text: #f0e6ff; --text-muted: #b088d8;
+    --accent: #ff00ff; --accent-light: #ff66ff; --accent-glow: rgba(255,0,255,0.5);
+    --success: #3dd5ff; --success-glow: rgba(61, 213, 255, 0.5);
+    --warning: #ffff00; --danger: #ff0080;
+    --border: rgba(255,0,255,0.3); --border-strong: rgba(255,0,255,0.6);
+    --bubble-bg: linear-gradient(135deg, rgba(255,0,255,0.22) 0%, rgba(138,43,226,0.12) 100%);
+    --bubble-border: rgba(255,0,255,0.55); --bubble-glow: 0 8px 30px rgba(255,0,255,0.35);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,0,255,0.4) 0%, rgba(255,105,180,0.25) 100%);
+    --bubble-inprogress-border: rgba(255,0,255,0.9); --bubble-inprogress-glow: 0 10px 45px rgba(255,0,255,0.5);
+    --bubble-done-bg: linear-gradient(135deg, rgba(61, 213, 255, 0.3) 0%, rgba(45, 159, 255, 0.15) 100%);
+    --bubble-done-border: rgba(61, 213, 255, 0.75); --bubble-done-glow: 0 8px 35px rgba(61, 213, 255, 0.4); --bubble-done-text: #3dd5ff;
+}
+
+[data-theme="terminal"] {
+    --bg-primary: #0a0800; --bg-secondary: #141000; --bg-tertiary: #1e1800;
+    --bg-card: rgba(255,176,0,0.06);
+    --text: #FFE0A0; --text-muted: #B89848;
+    --accent: #FFB000; --accent-light: #FFD060; --accent-glow: rgba(255,176,0,0.4);
+    --success: #87a6ff; --success-glow: rgba(135, 166, 255, 0.35);
+    --warning: #FFD700; --danger: #FF4040;
+    --border: rgba(255,176,0,0.25); --border-strong: rgba(255,176,0,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(255,176,0,0.18) 0%, rgba(200,140,0,0.08) 100%);
+    --bubble-border: rgba(255,176,0,0.45); --bubble-glow: 0 6px 25px rgba(255,176,0,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,208,96,0.35) 0%, rgba(255,176,0,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,208,96,0.8); --bubble-inprogress-glow: 0 8px 35px rgba(255,208,96,0.4);
+    --bubble-done-bg: linear-gradient(135deg, rgba(135, 166, 255, 0.25) 0%, rgba(106, 134, 236, 0.12) 100%);
+    --bubble-done-border: rgba(135, 166, 255, 0.6); --bubble-done-glow: 0 5px 20px rgba(135, 166, 255, 0.25); --bubble-done-text: #87a6ff;
+}
+
+[data-theme="tron"] {
+    --bg-primary: #000810; --bg-secondary: #001020; --bg-tertiary: #001830;
+    --bg-card: rgba(0,212,255,0.06);
+    --text: #D0F0FF; --text-muted: #6098C0;
+    --accent: #00D4FF; --accent-light: #40E0FF; --accent-glow: rgba(0,212,255,0.4);
+    --success: #38c5ff; --success-glow: rgba(56, 197, 255, 0.35);
+    --warning: #FFDD00; --danger: #FF4060;
+    --border: rgba(0,212,255,0.2); --border-strong: rgba(0,212,255,0.45);
+    --bubble-bg: linear-gradient(135deg, rgba(0,212,255,0.18) 0%, rgba(0,128,160,0.08) 100%);
+    --bubble-border: rgba(0,212,255,0.45); --bubble-glow: 0 6px 25px rgba(0,212,255,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(64,224,255,0.35) 0%, rgba(0,212,255,0.2) 100%);
+    --bubble-inprogress-border: rgba(64,224,255,0.8); --bubble-inprogress-glow: 0 8px 35px rgba(64,224,255,0.4);
+    --bubble-done-bg: linear-gradient(135deg, rgba(56, 197, 255, 0.25) 0%, rgba(42, 147, 255, 0.12) 100%);
+    --bubble-done-border: rgba(56, 197, 255, 0.6); --bubble-done-glow: 0 5px 20px rgba(56, 197, 255, 0.25); --bubble-done-text: #38c5ff;
+}
+
+[data-theme="hologram"] {
+    --bg-primary: #0d1018; --bg-secondary: #141820; --bg-tertiary: #1c2230;
+    --bg-card: rgba(136,221,255,0.06);
+    --text: #E0F0FF; --text-muted: #7098B8;
+    --accent: #88DDFF; --accent-light: #A8E8FF; --accent-glow: rgba(136,221,255,0.3);
+    --success: #9cdbff; --success-glow: rgba(156, 219, 255, 0.3);
+    --warning: #FFE060; --danger: #FF7088;
+    --border: rgba(136,221,255,0.18); --border-strong: rgba(136,221,255,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(136,221,255,0.15) 0%, rgba(255,136,221,0.08) 50%, rgba(136,255,187,0.06) 100%);
+    --bubble-border: rgba(136,221,255,0.4); --bubble-glow: 0 5px 22px rgba(136,221,255,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(255,136,221,0.3) 0%, rgba(136,221,255,0.2) 100%);
+    --bubble-inprogress-border: rgba(255,136,221,0.7); --bubble-inprogress-glow: 0 7px 28px rgba(255,136,221,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(156, 219, 255, 0.22) 0%, rgba(117, 165, 255, 0.1) 100%);
+    --bubble-done-border: rgba(156, 219, 255, 0.55); --bubble-done-glow: 0 4px 18px rgba(156, 219, 255, 0.2); --bubble-done-text: #9cdbff;
+}
+
+/* ==============================================
+   CATÉGORIE 7: ARTISTE
+   ============================================== */
+
+[data-theme="zen"] {
+    --bg-primary: #F5F2EA; --bg-secondary: #EDE8DC; --bg-tertiary: #E0DCCE;
+    --bg-card: rgba(112,128,88,0.05);
+    --text: #3A3830; --text-muted: #808068;
+    --accent: #708058; --accent-light: #90A070; --accent-glow: rgba(112,128,88,0);
+    --success: #607ade; --success-glow: rgba(96, 122, 222, 0);
+    --warning: #B8A040; --danger: #C05050;
+    --border: rgba(112,128,88,0.12); --border-strong: rgba(112,128,88,0.25);
+    --bubble-bg: linear-gradient(145deg, #EDE8DC 0%, #E0DCCE 100%);
+    --bubble-border: rgba(112,128,88,0.2); --bubble-glow: none; --bubble-text-color: #3A3830;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E0DCC8 0%, #D8D4BE 100%);
+    --bubble-inprogress-border: rgba(112,128,88,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3830;
+    --bubble-done-bg: linear-gradient(145deg, #dfceff 0%, #cdc3ff 100%);
+    --bubble-done-border: #607ade; --bubble-done-glow: none; --bubble-done-text: #304579;
+}
+
+[data-theme="art-deco"] {
+    --bg-primary: #0a0808; --bg-secondary: #141210; --bg-tertiary: #1e1a18;
+    --bg-card: rgba(200,160,64,0.06);
+    --text: #F0E8D0; --text-muted: #A89870;
+    --accent: #C8A040; --accent-light: #E0C060; --accent-glow: rgba(200,160,64,0.25);
+    --success: #6f87fa; --success-glow: rgba(111, 135, 250, 0.2);
+    --warning: #E0C050; --danger: #D05050;
+    --border: rgba(200,160,64,0.18); --border-strong: rgba(200,160,64,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(200,160,64,0.15) 0%, rgba(160,120,40,0.08) 100%);
+    --bubble-border: rgba(200,160,64,0.38); --bubble-glow: 0 4px 16px rgba(200,160,64,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(224,192,96,0.3) 0%, rgba(200,160,64,0.18) 100%);
+    --bubble-inprogress-border: rgba(224,192,96,0.68); --bubble-inprogress-glow: 0 6px 22px rgba(224,192,96,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(111, 135, 250, 0.18) 0%, rgba(86, 109, 199, 0.08) 100%);
+    --bubble-done-border: rgba(111, 135, 250, 0.48); --bubble-done-glow: 0 4px 14px rgba(111, 135, 250, 0.15); --bubble-done-text: #7e95ff;
+}
+
+[data-theme="watercolor"] {
+    --bg-primary: #F8F2F8; --bg-secondary: #F0E8F0; --bg-tertiary: #E5DCE8;
+    --bg-card: rgba(136,136,192,0.05);
+    --text: #383040; --text-muted: #887898;
+    --accent: #8888C0; --accent-light: #A8A8D8; --accent-glow: rgba(136,136,192,0);
+    --success: #7395ff; --success-glow: rgba(115, 149, 255, 0);
+    --warning: #C8A848; --danger: #C86868;
+    --border: rgba(136,136,192,0.12); --border-strong: rgba(136,136,192,0.25);
+    --bubble-bg: linear-gradient(145deg, #F0E8F0 0%, #E5DCE8 100%);
+    --bubble-border: rgba(136,136,192,0.2); --bubble-glow: none; --bubble-text-color: #383040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E5DCF0 0%, #D8D0E8 100%);
+    --bubble-inprogress-border: rgba(136,136,192,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #383040;
+    --bubble-done-bg: linear-gradient(145deg, #e2d4ff 0%, #d0c9ff 100%);
+    --bubble-done-border: #7395ff; --bubble-done-glow: none; --bubble-done-text: #324c8d;
+}
+
+[data-theme="nordic"] {
+    --bg-primary: #F5F0E8; --bg-secondary: #ECE6DC; --bg-tertiary: #E0D8CC;
+    --bg-card: rgba(90,122,106,0.05);
+    --text: #303828; --text-muted: #708068;
+    --accent: #5A7A6A; --accent-light: #78A890; --accent-glow: rgba(90,122,106,0);
+    --success: #547ee3; --success-glow: rgba(84, 126, 227, 0);
+    --warning: #B8A040; --danger: #C05050;
+    --border: rgba(90,122,106,0.12); --border-strong: rgba(90,122,106,0.25);
+    --bubble-bg: linear-gradient(145deg, #ECE6DC 0%, #E0D8CC 100%);
+    --bubble-border: rgba(90,122,106,0.2); --bubble-glow: none; --bubble-text-color: #303828;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E0DCC8 0%, #D4D0BC 100%);
+    --bubble-inprogress-border: rgba(90,122,106,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #303828;
+    --bubble-done-bg: linear-gradient(145deg, #dcceff 0%, #cac3ff 100%);
+    --bubble-done-border: #547ee3; --bubble-done-glow: none; --bubble-done-text: #2e4578;
+}
+
+[data-theme="cosmic"] {
+    --bg-primary: #050210; --bg-secondary: #0a0520; --bg-tertiary: #120835;
+    --bg-card: rgba(153,102,255,0.06);
+    --text: #E0D5FF; --text-muted: #8878B8;
+    --accent: #9966FF; --accent-light: #B888FF; --accent-glow: rgba(153,102,255,0.4);
+    --success: #7eb8ff; --success-glow: rgba(126, 184, 255, 0.35);
+    --warning: #F0D050; --danger: #FF5070;
+    --border: rgba(153,102,255,0.22); --border-strong: rgba(153,102,255,0.45);
+    --bubble-bg: linear-gradient(135deg, rgba(153,102,255,0.2) 0%, rgba(100,60,200,0.1) 100%);
+    --bubble-border: rgba(153,102,255,0.48); --bubble-glow: 0 6px 25px rgba(153,102,255,0.22);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(184,136,255,0.38) 0%, rgba(153,102,255,0.22) 100%);
+    --bubble-inprogress-border: rgba(184,136,255,0.8); --bubble-inprogress-glow: 0 8px 32px rgba(184,136,255,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(126, 184, 255, 0.25) 0%, rgba(96, 143, 255, 0.12) 100%);
+    --bubble-done-border: rgba(126, 184, 255, 0.6); --bubble-done-glow: 0 5px 20px rgba(126, 184, 255, 0.22); --bubble-done-text: #7eb8ff;
+}
+
+/* ==============================================
+   CATÉGORIE 8: SAISONS
+   Les quatre saisons, cycle éternel du vivant
+   ============================================== */
+
+[data-theme="printemps"] {
+    --bg-primary: #F6F9F0; --bg-secondary: #EEF4E4; --bg-tertiary: #E2ECD4;
+    --bg-card: rgba(120,180,100,0.06);
+    --text: #2A3820; --text-muted: #688858;
+    --accent: #78B464; --accent-light: #98D080; --accent-glow: rgba(120,180,100,0);
+    --success: #557ee4; --success-glow: rgba(85, 126, 228, 0);
+    --warning: #C4A040; --danger: #D05050;
+    --border: rgba(120,180,100,0.15); --border-strong: rgba(120,180,100,0.3);
+    --bubble-bg: linear-gradient(145deg, #EEF4E4 0%, #E2ECD4 100%);
+    --bubble-border: rgba(120,180,100,0.25); --bubble-glow: none; --bubble-text-color: #2A3820;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E2ECC8 0%, #D8E4BC 100%);
+    --bubble-inprogress-border: rgba(120,180,100,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #2A3820;
+    --bubble-done-bg: linear-gradient(145deg, #dcd1ff 0%, #ccc7ff 100%);
+    --bubble-done-border: #557ee4; --bubble-done-glow: none; --bubble-done-text: #304579;
+}
+
+[data-theme="ete"] {
+    --bg-primary: #F8F6EE; --bg-secondary: #F2EEE0; --bg-tertiary: #E8E2D0;
+    --bg-card: rgba(40,144,192,0.06);
+    --text: #1A2830; --text-muted: #607888;
+    --accent: #2890C0; --accent-light: #48B0E0; --accent-glow: rgba(40,144,192,0);
+    --success: #5684f1; --success-glow: rgba(86, 132, 241, 0);
+    --warning: #D8A840; --danger: #D05050;
+    --border: rgba(40,144,192,0.15); --border-strong: rgba(40,144,192,0.3);
+    --bubble-bg: linear-gradient(145deg, #F2EEE0 0%, #E8E2D0 100%);
+    --bubble-border: rgba(40,144,192,0.25); --bubble-glow: none; --bubble-text-color: #1A2830;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E0E8F0 0%, #D4E0E8 100%);
+    --bubble-inprogress-border: rgba(40,144,192,0.5); --bubble-inprogress-glow: none; --bubble-inprogress-text: #1A2830;
+    --bubble-done-bg: linear-gradient(145deg, #ded4ff 0%, #cdc8ff 100%);
+    --bubble-done-border: #5684f1; --bubble-done-glow: none; --bubble-done-text: #30467d;
+}
+
+[data-theme="automne"] {
+    --bg-primary: #1A0E08; --bg-secondary: #2C1810; --bg-tertiary: #3D2418;
+    --bg-card: rgba(200,90,40,0.08);
+    --text: #F5E0CC; --text-muted: #B88868;
+    --accent: #C85A28; --accent-light: #E07840; --accent-glow: rgba(200,90,40,0.3);
+    --success: #6c80e5; --success-glow: rgba(108, 128, 229, 0.25);
+    --warning: #D8A030; --danger: #D04040;
+    --border: rgba(200,90,40,0.2); --border-strong: rgba(200,90,40,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(200,90,40,0.2) 0%, rgba(160,60,20,0.1) 100%);
+    --bubble-border: rgba(200,90,40,0.48); --bubble-glow: 0 4px 18px rgba(200,90,40,0.18);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(224,120,64,0.35) 0%, rgba(200,90,40,0.2) 100%);
+    --bubble-inprogress-border: rgba(224,120,64,0.78); --bubble-inprogress-glow: 0 6px 22px rgba(224,120,64,0.28);
+    --bubble-done-bg: linear-gradient(135deg, rgba(108, 128, 229, 0.22) 0%, rgba(84, 103, 183, 0.1) 100%);
+    --bubble-done-border: rgba(108, 128, 229, 0.55); --bubble-done-glow: 0 4px 14px rgba(108, 128, 229, 0.18); --bubble-done-text: #6c80e5;
+}
+
+[data-theme="hiver"] {
+    --bg-primary: #080C14; --bg-secondary: #101824; --bg-tertiary: #1A2434;
+    --bg-card: rgba(136,184,224,0.06);
+    --text: #E4EEF8; --text-muted: #7898B8;
+    --accent: #88B8E0; --accent-light: #A8D0F0; --accent-glow: rgba(136,184,224,0.25);
+    --success: #6d94ff; --success-glow: rgba(109, 148, 255, 0.25);
+    --warning: #D8C050; --danger: #D86868;
+    --border: rgba(136,184,224,0.15); --border-strong: rgba(136,184,224,0.3);
+    --bubble-bg: linear-gradient(135deg, rgba(136,184,224,0.15) 0%, rgba(100,150,190,0.08) 100%);
+    --bubble-border: rgba(136,184,224,0.38); --bubble-glow: 0 4px 16px rgba(136,184,224,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(168,208,240,0.32) 0%, rgba(136,184,224,0.18) 100%);
+    --bubble-inprogress-border: rgba(168,208,240,0.7); --bubble-inprogress-glow: 0 6px 22px rgba(168,208,240,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(109, 148, 255, 0.2) 0%, rgba(84, 120, 228, 0.1) 100%);
+    --bubble-done-border: rgba(109, 148, 255, 0.5); --bubble-done-glow: 0 4px 14px rgba(109, 148, 255, 0.16); --bubble-done-text: #6d94ff;
+}
+
+/* ==============================================
+   CATÉGORIE 9: PRÉCIEUX
+   Gemmes et matières nobles de la terre
+   ============================================== */
+
+[data-theme="amethyst"] {
+    --bg-primary: #0C0618; --bg-secondary: #180E28; --bg-tertiary: #24163A;
+    --bg-card: rgba(144,96,216,0.06);
+    --text: #EDE0FF; --text-muted: #9880B8;
+    --accent: #9060D8; --accent-light: #B080F0; --accent-glow: rgba(144,96,216,0.3);
+    --success: #70a2ff; --success-glow: rgba(112, 162, 255, 0.3);
+    --warning: #D8B850; --danger: #D86060;
+    --border: rgba(144,96,216,0.2); --border-strong: rgba(144,96,216,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(144,96,216,0.2) 0%, rgba(100,60,170,0.1) 100%);
+    --bubble-border: rgba(144,96,216,0.48); --bubble-glow: 0 5px 22px rgba(144,96,216,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(176,128,240,0.35) 0%, rgba(144,96,216,0.2) 100%);
+    --bubble-inprogress-border: rgba(176,128,240,0.78); --bubble-inprogress-glow: 0 7px 28px rgba(176,128,240,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(112, 162, 255, 0.22) 0%, rgba(86, 128, 241, 0.1) 100%);
+    --bubble-done-border: rgba(112, 162, 255, 0.55); --bubble-done-glow: 0 4px 18px rgba(112, 162, 255, 0.2); --bubble-done-text: #70a2ff;
+}
+
+[data-theme="jade"] {
+    --bg-primary: #060E0A; --bg-secondary: #0E1C14; --bg-tertiary: #162A1E;
+    --bg-card: rgba(64,168,120,0.06);
+    --text: #DCF0E6; --text-muted: #70A888;
+    --accent: #40A878; --accent-light: #60C898; --accent-glow: rgba(64,168,120,0.25);
+    --success: #5c9bff; --success-glow: rgba(92, 155, 255, 0.25);
+    --warning: #C8B040; --danger: #D06060;
+    --border: rgba(64,168,120,0.18); --border-strong: rgba(64,168,120,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(64,168,120,0.18) 0%, rgba(40,130,88,0.09) 100%);
+    --bubble-border: rgba(64,168,120,0.42); --bubble-glow: 0 4px 18px rgba(64,168,120,0.16);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(96,200,152,0.32) 0%, rgba(64,168,120,0.18) 100%);
+    --bubble-inprogress-border: rgba(96,200,152,0.72); --bubble-inprogress-glow: 0 6px 24px rgba(96,200,152,0.26);
+    --bubble-done-bg: linear-gradient(135deg, rgba(92, 155, 255, 0.2) 0%, rgba(66, 123, 220, 0.1) 100%);
+    --bubble-done-border: rgba(92, 155, 255, 0.5); --bubble-done-glow: 0 4px 14px rgba(92, 155, 255, 0.16); --bubble-done-text: #5c9bff;
+}
+
+[data-theme="ruby"] {
+    --bg-primary: #140608; --bg-secondary: #240E10; --bg-tertiary: #36161A;
+    --bg-card: rgba(216,48,64,0.06);
+    --text: #FFE4E8; --text-muted: #C08088;
+    --accent: #D83040; --accent-light: #F05060; --accent-glow: rgba(216,48,64,0.3);
+    --success: #6692ff; --success-glow: rgba(102, 146, 255, 0.25);
+    --warning: #D8B040; --danger: #F04040;
+    --border: rgba(216,48,64,0.2); --border-strong: rgba(216,48,64,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(216,48,64,0.2) 0%, rgba(170,30,48,0.1) 100%);
+    --bubble-border: rgba(216,48,64,0.48); --bubble-glow: 0 5px 22px rgba(216,48,64,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(240,80,96,0.35) 0%, rgba(216,48,64,0.2) 100%);
+    --bubble-inprogress-border: rgba(240,80,96,0.78); --bubble-inprogress-glow: 0 7px 28px rgba(240,80,96,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(102, 146, 255, 0.22) 0%, rgba(77, 119, 219, 0.1) 100%);
+    --bubble-done-border: rgba(102, 146, 255, 0.55); --bubble-done-glow: 0 4px 18px rgba(102, 146, 255, 0.2); --bubble-done-text: #6692ff;
+}
+
+[data-theme="pearl"] {
+    --bg-primary: #FAFAF8; --bg-secondary: #F2F0EE; --bg-tertiary: #E8E4E0;
+    --bg-card: rgba(160,152,176,0.05);
+    --text: #383040; --text-muted: #888090;
+    --accent: #A098B0; --accent-light: #B8B0C8; --accent-glow: rgba(160,152,176,0);
+    --success: #6387fb; --success-glow: rgba(99, 135, 251, 0);
+    --warning: #C8A840; --danger: #C86060;
+    --border: rgba(160,152,176,0.12); --border-strong: rgba(160,152,176,0.25);
+    --bubble-bg: linear-gradient(145deg, #F2F0EE 0%, #E8E4E0 100%);
+    --bubble-border: rgba(160,152,176,0.2); --bubble-glow: none; --bubble-text-color: #383040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E8E2E0 0%, #DED8D4 100%);
+    --bubble-inprogress-border: rgba(160,152,176,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #383040;
+    --bubble-done-bg: linear-gradient(145deg, #e2d4ff 0%, #d0c9ff 100%);
+    --bubble-done-border: #6387fb; --bubble-done-glow: none; --bubble-done-text: #314680;
+}
+
+[data-theme="copper"] {
+    --bg-primary: #120C08; --bg-secondary: #221610; --bg-tertiary: #32201A;
+    --bg-card: rgba(200,120,80,0.06);
+    --text: #F5E4D4; --text-muted: #B89070;
+    --accent: #C87850; --accent-light: #E09870; --accent-glow: rgba(200,120,80,0.25);
+    --success: #6987f9; --success-glow: rgba(105, 135, 249, 0.2);
+    --warning: #D0A840; --danger: #D06050;
+    --border: rgba(200,120,80,0.18); --border-strong: rgba(200,120,80,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(200,120,80,0.15) 0%, rgba(160,88,56,0.08) 100%);
+    --bubble-border: rgba(200,120,80,0.38); --bubble-glow: 0 4px 16px rgba(200,120,80,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(224,152,112,0.3) 0%, rgba(200,120,80,0.18) 100%);
+    --bubble-inprogress-border: rgba(224,152,112,0.68); --bubble-inprogress-glow: 0 6px 22px rgba(224,152,112,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(105, 135, 249, 0.18) 0%, rgba(80, 108, 198, 0.08) 100%);
+    --bubble-done-border: rgba(105, 135, 249, 0.48); --bubble-done-glow: 0 4px 14px rgba(105, 135, 249, 0.15); --bubble-done-text: #7e95ff;
+}
+
+/* ==============================================
+   CATÉGORIE 10: VOYAGE
+   Destinations du monde, horizons lointains
+   ============================================== */
+
+[data-theme="sahara"] {
+    --bg-primary: #1C1408; --bg-secondary: #30240E; --bg-tertiary: #443418;
+    --bg-card: rgba(210,175,90,0.08);
+    --text: #F0E4C8; --text-muted: #B8A068;
+    --accent: #D2AF5A; --accent-light: #E8C878; --accent-glow: rgba(210,175,90,0.25);
+    --success: #6e87f6; --success-glow: rgba(110, 135, 246, 0.2);
+    --warning: #E0C040; --danger: #D05048;
+    --border: rgba(210,175,90,0.18); --border-strong: rgba(210,175,90,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(210,175,90,0.18) 0%, rgba(170,140,60,0.09) 100%);
+    --bubble-border: rgba(210,175,90,0.4); --bubble-glow: 0 4px 16px rgba(210,175,90,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(232,200,120,0.32) 0%, rgba(210,175,90,0.18) 100%);
+    --bubble-inprogress-border: rgba(232,200,120,0.7); --bubble-inprogress-glow: 0 6px 22px rgba(232,200,120,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(110, 135, 246, 0.18) 0%, rgba(85, 108, 195, 0.08) 100%);
+    --bubble-done-border: rgba(110, 135, 246, 0.48); --bubble-done-glow: 0 4px 14px rgba(110, 135, 246, 0.15); --bubble-done-text: #6e87f6;
+}
+
+[data-theme="fjord"] {
+    --bg-primary: #060C10; --bg-secondary: #0E1820; --bg-tertiary: #162430;
+    --bg-card: rgba(60,130,150,0.06);
+    --text: #DEF0F5; --text-muted: #6898A8;
+    --accent: #3C8296; --accent-light: #58A8C0; --accent-glow: rgba(60,130,150,0.25);
+    --success: #5b92ff; --success-glow: rgba(91, 146, 255, 0.25);
+    --warning: #C8B048; --danger: #D06060;
+    --border: rgba(60,130,150,0.18); --border-strong: rgba(60,130,150,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(60,130,150,0.18) 0%, rgba(40,100,120,0.09) 100%);
+    --bubble-border: rgba(60,130,150,0.42); --bubble-glow: 0 4px 18px rgba(60,130,150,0.16);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(88,168,192,0.32) 0%, rgba(60,130,150,0.18) 100%);
+    --bubble-inprogress-border: rgba(88,168,192,0.72); --bubble-inprogress-glow: 0 6px 24px rgba(88,168,192,0.26);
+    --bubble-done-bg: linear-gradient(135deg, rgba(91, 146, 255, 0.2) 0%, rgba(65, 118, 222, 0.1) 100%);
+    --bubble-done-border: rgba(91, 146, 255, 0.5); --bubble-done-glow: 0 4px 14px rgba(91, 146, 255, 0.16); --bubble-done-text: #5b92ff;
+}
+
+[data-theme="bamboo"] {
+    --bg-primary: #F5F4EC; --bg-secondary: #ECE8DA; --bg-tertiary: #E0DCCC;
+    --bg-card: rgba(100,128,60,0.05);
+    --text: #2C3020; --text-muted: #707858;
+    --accent: #64803C; --accent-light: #88A858; --accent-glow: rgba(100,128,60,0);
+    --success: #5478d8; --success-glow: rgba(84, 120, 216, 0);
+    --warning: #B8A040; --danger: #C05050;
+    --border: rgba(100,128,60,0.12); --border-strong: rgba(100,128,60,0.25);
+    --bubble-bg: linear-gradient(145deg, #ECE8DA 0%, #E0DCCC 100%);
+    --bubble-border: rgba(100,128,60,0.2); --bubble-glow: none; --bubble-text-color: #2C3020;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E0DCC4 0%, #D4D0B8 100%);
+    --bubble-inprogress-border: rgba(100,128,60,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #2C3020;
+    --bubble-done-bg: linear-gradient(145deg, #dbcdff 0%, #cac3ff 100%);
+    --bubble-done-border: #5478d8; --bubble-done-glow: none; --bubble-done-text: #2e4578;
+}
+
+[data-theme="bali"] {
+    --bg-primary: #0A1210; --bg-secondary: #121E1A; --bg-tertiary: #1A2C26;
+    --bg-card: rgba(0,180,150,0.08);
+    --text: #E0F5F0; --text-muted: #70B0A0;
+    --accent: #00B496; --accent-light: #30D8B8; --accent-glow: rgba(0,180,150,0.3);
+    --success: #579cff; --success-glow: rgba(87, 156, 255, 0.3);
+    --warning: #D8B848; --danger: #E06060;
+    --border: rgba(0,180,150,0.2); --border-strong: rgba(0,180,150,0.4);
+    --bubble-bg: linear-gradient(135deg, rgba(0,180,150,0.2) 0%, rgba(0,140,116,0.1) 100%);
+    --bubble-border: rgba(0,180,150,0.48); --bubble-glow: 0 4px 20px rgba(0,180,150,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(48,216,184,0.35) 0%, rgba(0,180,150,0.2) 100%);
+    --bubble-inprogress-border: rgba(48,216,184,0.78); --bubble-inprogress-glow: 0 6px 25px rgba(48,216,184,0.3);
+    --bubble-done-bg: linear-gradient(135deg, rgba(87, 156, 255, 0.22) 0%, rgba(61, 123, 225, 0.1) 100%);
+    --bubble-done-border: rgba(87, 156, 255, 0.55); --bubble-done-glow: 0 4px 15px rgba(87, 156, 255, 0.2); --bubble-done-text: #579cff;
+}
+
+[data-theme="provence"] {
+    --bg-primary: #FAF6F0; --bg-secondary: #F2ECE4; --bg-tertiary: #E8E0D6;
+    --bg-card: rgba(140,110,160,0.05);
+    --text: #3A3040; --text-muted: #887898;
+    --accent: #8C6EA0; --accent-light: #A888C0; --accent-glow: rgba(140,110,160,0);
+    --success: #6286f8; --success-glow: rgba(98, 134, 248, 0);
+    --warning: #C8A840; --danger: #C86060;
+    --border: rgba(140,110,160,0.12); --border-strong: rgba(140,110,160,0.25);
+    --bubble-bg: linear-gradient(145deg, #F2ECE4 0%, #E8E0D6 100%);
+    --bubble-border: rgba(140,110,160,0.2); --bubble-glow: none; --bubble-text-color: #3A3040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E8DCE0 0%, #DED0D6 100%);
+    --bubble-inprogress-border: rgba(140,110,160,0.45); --bubble-inprogress-glow: none; --bubble-inprogress-text: #3A3040;
+    --bubble-done-bg: linear-gradient(145deg, #e2d4ff 0%, #d0c9ff 100%);
+    --bubble-done-border: #6286f8; --bubble-done-glow: none; --bubble-done-text: #314680;
+}
+
+/* ==============================================
+   ADDITIONS AUX CATÉGORIES EXISTANTES
+   ============================================== */
+
+/* NATURE + moss */
+[data-theme="moss"] {
+    --bg-primary: #0A0E08; --bg-secondary: #141C10; --bg-tertiary: #1E2A18;
+    --bg-card: rgba(80,120,50,0.08);
+    --text: #DCF0D0; --text-muted: #80A868;
+    --accent: #507832; --accent-light: #70A048; --accent-glow: rgba(80,120,50,0.25);
+    --success: #5789f6; --success-glow: rgba(87, 137, 246, 0.25);
+    --warning: #B8A840; --danger: #D05050;
+    --border: rgba(80,120,50,0.18); --border-strong: rgba(80,120,50,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(80,120,50,0.18) 0%, rgba(56,88,32,0.09) 100%);
+    --bubble-border: rgba(80,120,50,0.42); --bubble-glow: 0 4px 16px rgba(80,120,50,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(112,160,72,0.32) 0%, rgba(80,120,50,0.18) 100%);
+    --bubble-inprogress-border: rgba(112,160,72,0.7); --bubble-inprogress-glow: 0 6px 22px rgba(112,160,72,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(87, 137, 246, 0.2) 0%, rgba(61, 108, 191, 0.1) 100%);
+    --bubble-done-border: rgba(87, 137, 246, 0.5); --bubble-done-glow: 0 4px 14px rgba(87, 137, 246, 0.16); --bubble-done-text: #5789f6;
+}
+
+/* ATMOSPHÈRE + ember */
+[data-theme="ember"] {
+    --bg-primary: #180808; --bg-secondary: #281010; --bg-tertiary: #3A1818;
+    --bg-card: rgba(220,80,30,0.08);
+    --text: #FFE0D0; --text-muted: #C08868;
+    --accent: #DC5020; --accent-light: #F07040; --accent-glow: rgba(220,80,30,0.35);
+    --success: #6987f9; --success-glow: rgba(105, 135, 249, 0.25);
+    --warning: #E0A030; --danger: #F04030;
+    --border: rgba(220,80,30,0.22); --border-strong: rgba(220,80,30,0.44);
+    --bubble-bg: linear-gradient(135deg, rgba(220,80,30,0.22) 0%, rgba(180,50,16,0.1) 100%);
+    --bubble-border: rgba(220,80,30,0.5); --bubble-glow: 0 5px 22px rgba(220,80,30,0.22);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(240,112,64,0.38) 0%, rgba(220,80,30,0.22) 100%);
+    --bubble-inprogress-border: rgba(240,112,64,0.82); --bubble-inprogress-glow: 0 7px 28px rgba(240,112,64,0.32);
+    --bubble-done-bg: linear-gradient(135deg, rgba(105, 135, 249, 0.2) 0%, rgba(80, 108, 198, 0.1) 100%);
+    --bubble-done-border: rgba(105, 135, 249, 0.52); --bubble-done-glow: 0 4px 16px rgba(105, 135, 249, 0.18); --bubble-done-text: #6987f9;
+}
+
+/* MINIMALISTE + snow */
+[data-theme="snow"] {
+    --bg-primary: #FAFCFE; --bg-secondary: #F0F4F8; --bg-tertiary: #E4EAF0;
+    --bg-card: rgba(100,120,150,0.04);
+    --text: #2A3040; --text-muted: #7888A0;
+    --accent: #6880A0; --accent-light: #88A0C0; --accent-glow: rgba(100,120,150,0);
+    --success: #557ae4; --success-glow: rgba(85, 122, 228, 0);
+    --warning: #C0A040; --danger: #C05050;
+    --border: rgba(100,120,150,0.1); --border-strong: rgba(100,120,150,0.2);
+    --bubble-bg: linear-gradient(145deg, #F0F4F8 0%, #E4EAF0 100%);
+    --bubble-border: rgba(100,120,150,0.15); --bubble-glow: none; --bubble-text-color: #2A3040;
+    --bubble-inprogress-bg: linear-gradient(145deg, #E4E8F0 0%, #D8DEE8 100%);
+    --bubble-inprogress-border: rgba(100,120,150,0.4); --bubble-inprogress-glow: none; --bubble-inprogress-text: #2A3040;
+    --bubble-done-bg: linear-gradient(145deg, #e2d4ff 0%, #d0c9ff 100%);
+    --bubble-done-border: #557ae4; --bubble-done-glow: none; --bubble-done-text: #314680;
+}
+
+/* MINIMALISTE + charcoal */
+[data-theme="charcoal"] {
+    --bg-primary: #101214; --bg-secondary: #1A1C20; --bg-tertiary: #24282C;
+    --bg-card: rgba(150,160,170,0.04);
+    --text: #D8DDE2; --text-muted: #808890;
+    --accent: #909AA4; --accent-light: #B0B8C0; --accent-glow: rgba(150,160,170,0);
+    --success: #627cea; --success-glow: rgba(98, 124, 234, 0);
+    --warning: #B0A060; --danger: #B06060;
+    --border: rgba(150,160,170,0.1); --border-strong: rgba(150,160,170,0.2);
+    --bubble-bg: linear-gradient(145deg, rgba(150,160,170,0.06) 0%, rgba(150,160,170,0.03) 100%);
+    --bubble-border: rgba(150,160,170,0.14); --bubble-glow: none;
+    --bubble-inprogress-bg: linear-gradient(145deg, rgba(150,160,170,0.1) 0%, rgba(150,160,170,0.06) 100%);
+    --bubble-inprogress-border: rgba(144,154,164,0.45); --bubble-inprogress-glow: none;
+    --bubble-done-bg: linear-gradient(145deg, rgba(98, 124, 234, 0.1) 0%, rgba(98, 124, 234, 0.05) 100%);
+    --bubble-done-border: rgba(98, 124, 234, 0.35); --bubble-done-glow: none; --bubble-done-text: #8197ff;
+}
+
+/* TECH + bioluminescence */
+[data-theme="bioluminescence"] {
+    --bg-primary: #040810; --bg-secondary: #08101C; --bg-tertiary: #0E1828;
+    --bg-card: rgba(0,200,220,0.06);
+    --text: #D0F0F8; --text-muted: #5898B0;
+    --accent: #00C8DC; --accent-light: #40E8F0; --accent-glow: rgba(0,200,220,0.4);
+    --success: #33b5ff; --success-glow: rgba(51, 181, 255, 0.35);
+    --warning: #F0D040; --danger: #FF5060;
+    --border: rgba(0,200,220,0.2); --border-strong: rgba(0,200,220,0.45);
+    --bubble-bg: linear-gradient(135deg, rgba(0,200,220,0.2) 0%, rgba(0,100,160,0.1) 50%, rgba(0,232,160,0.06) 100%);
+    --bubble-border: rgba(0,200,220,0.5); --bubble-glow: 0 6px 25px rgba(0,200,220,0.25);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(64,232,240,0.38) 0%, rgba(0,200,220,0.22) 100%);
+    --bubble-inprogress-border: rgba(64,232,240,0.85); --bubble-inprogress-glow: 0 8px 32px rgba(64,232,240,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(51, 181, 255, 0.28) 0%, rgba(38, 135, 255, 0.14) 100%);
+    --bubble-done-border: rgba(51, 181, 255, 0.65); --bubble-done-glow: 0 5px 20px rgba(51, 181, 255, 0.25); --bubble-done-text: #33b5ff;
+}
+
+/* TECH + pipboy (Fallout Pip-Boy 3000) */
+[data-theme="pipboy"] {
+    --bg-primary: #0A0A0A; --bg-secondary: #0D120D; --bg-tertiary: #101810;
+    --bg-card: rgba(0,255,119,0.05);
+    --text: #00FF77; --text-muted: #338855;
+    --accent: #00FF77; --accent-light: #44FFAA; --accent-glow: rgba(0,255,119,0.45);
+    --success: #2ea4ff; --success-glow: rgba(46, 164, 255, 0.4);
+    --warning: #44CC44; --danger: #00FF77;
+    --border: rgba(0,255,119,0.2); --border-strong: rgba(0,255,119,0.5);
+    --bubble-bg: linear-gradient(135deg, rgba(0,255,119,0.12) 0%, rgba(0,200,90,0.06) 100%);
+    --bubble-border: rgba(0,255,119,0.4); --bubble-glow: 0 4px 18px rgba(0,255,119,0.2);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(0,255,119,0.28) 0%, rgba(0,200,90,0.16) 100%);
+    --bubble-inprogress-border: rgba(0,255,119,0.75); --bubble-inprogress-glow: 0 6px 28px rgba(0,255,119,0.35);
+    --bubble-done-bg: linear-gradient(135deg, rgba(37, 131, 232, 0.18) 0%, rgba(25, 87, 154, 0.08) 100%);
+    --bubble-done-border: rgba(37, 131, 232, 0.5); --bubble-done-glow: 0 4px 16px rgba(37, 131, 232, 0.2); --bubble-done-text: #2994ff;
+}
+
+/* ARTISTE + ukiyo-e */
+[data-theme="ukiyo-e"] {
+    --bg-primary: #0C0A14; --bg-secondary: #18141E; --bg-tertiary: #241E2A;
+    --bg-card: rgba(180,80,60,0.06);
+    --text: #F0E8E0; --text-muted: #A89888;
+    --accent: #B45038; --accent-light: #D07050; --accent-glow: rgba(180,80,60,0.25);
+    --success: #6486f8; --success-glow: rgba(100, 134, 248, 0.2);
+    --warning: #D0A840; --danger: #D04840;
+    --border: rgba(180,80,60,0.18); --border-strong: rgba(180,80,60,0.35);
+    --bubble-bg: linear-gradient(135deg, rgba(180,80,60,0.18) 0%, rgba(140,56,40,0.09) 100%);
+    --bubble-border: rgba(180,80,60,0.4); --bubble-glow: 0 4px 16px rgba(180,80,60,0.14);
+    --bubble-inprogress-bg: linear-gradient(135deg, rgba(208,112,80,0.32) 0%, rgba(180,80,60,0.18) 100%);
+    --bubble-inprogress-border: rgba(208,112,80,0.7); --bubble-inprogress-glow: 0 6px 22px rgba(208,112,80,0.24);
+    --bubble-done-bg: linear-gradient(135deg, rgba(100, 134, 248, 0.18) 0%, rgba(77, 108, 197, 0.08) 100%);
+    --bubble-done-border: rgba(100, 134, 248, 0.48); --bubble-done-glow: 0 4px 14px rgba(100, 134, 248, 0.15); --bubble-done-text: #6486f8;
+}

@@ -3,27 +3,67 @@
 ## ⛔ REGLES CRITIQUES - NE PAS VIOLER
 
 ### Mot de passe
-**NE JAMAIS CHANGER LE MOT DE PASSE** de `contact@mahagiri.fr` sans demande EXPLICITE et VALIDEE par l'utilisateur !
+**NE JAMAIS CHANGER LE MOT DE PASSE** de `contact@mahagiri.fr` sans demande EXPLICITE !
 - Mot de passe actuel : `444@`
-- Si l'utilisateur mentionne un probleme de connexion, DEMANDER D'ABORD avant de changer quoi que ce soit
-- Cette regle s'applique a TOUTES les sessions Claude Code
 
-### Coordination Multi-Sessions (OBLIGATOIRE)
-**PLUSIEURS SESSIONS CLAUDE CODE TRAVAILLENT EN PARALLELE sur ce serveur.**
-Une session GARDIEN coordonne toutes les autres. Avant de commencer :
-1. **LIRE** `/root/.claude/projects/-root/memory/coordination.md` - Regles completes
-2. **LIRE** `/root/.claude/projects/-root/memory/sessions-registry.md` - Qui fait quoi
-3. **TOUJOURS relire** un fichier avant de le modifier (une autre session a pu le changer)
-4. **Utiliser `Edit`** (remplacement cible) au lieu de `Write` (ecrasement complet)
-5. **Fichiers proteges** (relire TOUJOURS avant de toucher) : index.html, config.js, app-modular.js, animations.js, style-themes.css, sw.js
-6. **Apres modification** : incrementer cache buster `?v=`, verifier HTTP 200 sur localhost:8080
-7. **Annoncer** a l'utilisateur : "J'ai lu les regles de coordination"
+### ⚙️ RÈGLES SYSTÈME MULTI-SESSIONS (instaurées 2026-02-17 — PERMANENTES)
+**Fichier complet** : `/root/.claude/projects/-root/memory/system-rules.md`
+
+1. **Rester dans son périmètre** — ne modifier QUE les fichiers de sa section
+2. **Fichiers INTERDITS** : `auth.js`, `login.js`, `login-ui.js`, `login.css` — NE JAMAIS TOUCHER
+3. **Backup OBLIGATOIRE** avant toute modification (format : `/var/www/productiveapp/backups/[SECTION]-YYYYMMDD-HHMM/`)
+4. **Fichiers partagés** (index.html, router.js, sidebar-*.js) : modifications ADDITIVES uniquement, relire avant d'éditer
+5. **Utiliser `Edit`** (remplacement ciblé) au lieu de `Write` (écrasement complet)
+6. **Après modification** : incrémenter cache buster `?v=`, vérifier HTTP 200 sur localhost:8080
+7. **Restauration si casse** : STOP → `./RESTORE.sh` → comprendre → refaire
+8. **Backup stable 17/02 04h00** : `/var/www/productiveapp/backups/STABLE-20260217-0400-FULL-SYSTEM/`
 
 ---
 
-> **Dernière mise à jour** : 2026-02-06 22:30
-> **Version** : 4.3.0
-> **Statut** : ✅ Production STABLE - PWA + WebSocket + Charts + 3D Relief UI + Notes AI
+> **Dernière mise à jour** : 2026-02-17
+> **Version** : 4.4.0
+> **Statut** : ✅ Production STABLE | 🟡 Intégration Stripe en cours (config Dashboard à faire)
+
+---
+
+## 🟡 CHANTIER EN COURS : Frontend Billing Stripe (2026-02-17)
+
+### Fichiers créés (100% opérationnels côté code)
+| Fichier | Status | Rôle |
+|---|---|---|
+| `js/modules/billing/billing-api.js?v=100` | ✅ | Appels API Stripe (checkout, portal, plans, status) |
+| `js/modules/billing/feature-gate.js?v=100` | ✅ | Blocage features par plan + modale upgrade |
+| `js/modules/billing/billing-plans.js?v=100` | ✅ | Page pricing (4 plans, toggle mensuel/annuel, FAQ) |
+| `css/billing.css?v=100` | ✅ | Design glassmorphism complet + responsive |
+
+### Intégrations effectuées
+- `index.html` : +4 tags (1 CSS + 3 JS) + `<div id="view-billing">`
+- `js/modules/router.js` : route `billing` enregistrée
+- `js/modules/sidebar/sidebar-core.js` : item "Abonnement" (icône credit-card, en bas de sidebar)
+
+### ❌ Reste à faire pour que les paiements fonctionnent
+**Dans le dashboard Stripe** (https://dashboard.stripe.com) :
+1. Créer produits Pro (9.99€/mois, 95.90€/an) et Business (29.99€/mois, 287.90€/an)
+2. Copier les Price IDs dans `/root/productive-core-backend/.env`
+3. Configurer webhook → `https://giri-app.com/api/v1/billing/webhooks` (events : checkout.session.completed, customer.subscription.*, invoice.*)
+4. Copier `STRIPE_WEBHOOK_SECRET` dans `.env`
+5. Configurer le Customer Portal dans Stripe
+6. `npm run build && pm2 restart productive-core` dans le dossier backend
+7. Test : card `4242 4242 4242 4242`
+
+### Accès à la page billing
+- URL interne : cliquer "Abonnement" dans la sidebar (icône carte de crédit, tout en bas)
+- Ou depuis le code : `ViewRouter.navigate('billing')`
+
+### Usage du feature-gate (pour futures features)
+```javascript
+// Dans n'importe quel module JS
+if (!FeatureGate.requireFeature('graph3D')) return; // bloque + modale upgrade
+
+// Sur un élément HTML
+// <button data-requires-plan="pro" data-feature-label="Graph 3D">Ouvrir Graph</button>
+FeatureGate.addPlanBadges(document.querySelector('.ma-section'));
+```
 
 ---
 

@@ -304,6 +304,9 @@ const AdminView = {
           <button class="admin-tab" onclick="AdminView.switchTab('system', event)">
             🖥️ Système
           </button>
+          <button class="admin-tab" onclick="AdminView.switchTab('users', event)">
+            👥 Utilisateurs
+          </button>
         </div>
 
         <!-- Tab Contents -->
@@ -326,6 +329,12 @@ const AdminView = {
         <div class="admin-tab-content" data-tab="system">
           ${this.renderSystemInfo()}
         </div>
+
+        <div class="admin-tab-content" data-tab="users">
+          <div id="admin-users-content">
+            <div class="loading">Chargement utilisateurs...</div>
+          </div>
+        </div>
       </div>
     `;
   },
@@ -340,8 +349,13 @@ const AdminView = {
     const targetContent = document.querySelector(`.admin-tab-content[data-tab="${tabName}"]`);
     if (targetContent) {
       targetContent.classList.add('active');
-      // Re-init charts for this tab
-      setTimeout(() => this.initCharts(), 100);
+      // Lazy-load users tab
+      if (tabName === 'users' && typeof AdminUsers !== 'undefined') {
+        const container = document.getElementById('admin-users-content');
+        if (container) AdminUsers.render(container);
+      }
+      // Re-init charts for other tabs
+      if (tabName !== 'users') setTimeout(() => this.initCharts(), 100);
     }
   },
 

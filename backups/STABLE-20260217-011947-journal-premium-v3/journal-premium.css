@@ -1,0 +1,745 @@
+/**
+ * JOURNAL PREMIUM v3.0 - Design Ultra-Stylé
+ * Pour les esprits les plus brillants
+ */
+
+/* =============================================
+   VUE PRINCIPALE
+   ============================================= */
+
+#view-journal {
+    padding: 0;
+    max-width: none;
+    background: var(--bg-primary);
+    min-height: calc(100vh - 60px);
+}
+
+.jp-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: calc(100vh - 60px);
+    max-width: 1400px;
+    margin: 0 auto;
+    gap: 0;
+}
+
+/* =============================================
+   HEADER PREMIUM
+   ============================================= */
+
+.jp-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg,
+        var(--bg-secondary) 0%,
+        var(--bg-primary) 100%);
+}
+
+.jp-header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.jp-title-area h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.jp-title-area .jp-date {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    text-transform: capitalize;
+}
+
+.jp-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.jp-user-pill .avatar { font-size: 18px; }
+.jp-user-pill .name { font-weight: 600; }
+.jp-user-pill .lock {
+    font-size: 11px;
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.jp-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jp-streak {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg,
+        rgba(255, 107, 53, 0.15) 0%,
+        rgba(247, 147, 30, 0.10) 100%);
+    border: 1px solid rgba(255, 107, 53, 0.3);
+    border-radius: 99px;
+}
+
+.jp-streak-fire { font-size: 20px; animation: flicker 1.5s ease-in-out infinite; }
+.jp-streak-count {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ff6b35;
+    line-height: 1;
+}
+.jp-streak-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+@keyframes flicker {
+    0%, 100% { transform: scale(1) rotate(-3deg); }
+    50% { transform: scale(1.1) rotate(3deg); }
+}
+
+.jp-btn-focus {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.jp-btn-focus:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px var(--accent-glow, rgba(0,0,0,0.3));
+    filter: brightness(1.1);
+}
+
+/* =============================================
+   SIDEBAR GAUCHE - STATS + HEATMAP
+   ============================================= */
+
+.jp-sidebar {
+    padding: 24px 20px;
+    border-right: 1px solid var(--border);
+    background: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    overflow-y: auto;
+}
+
+/* Stats journalières */
+.jp-daily-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.jp-stat-card {
+    padding: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+    transition: all 0.2s ease;
+}
+
+.jp-stat-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.jp-stat-card .stat-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.jp-stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Heatmap 7 jours */
+.jp-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+}
+
+.jp-heatmap {
+    display: flex;
+    gap: 6px;
+}
+
+.jp-heatmap-day {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.jp-heatmap-day .day-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.jp-heatmap-day .day-cell {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+    cursor: default;
+}
+
+.jp-heatmap-day .day-cell.active-1 { background: rgba(var(--accent-rgb, 99,102,241), 0.2); }
+.jp-heatmap-day .day-cell.active-2 { background: rgba(var(--accent-rgb, 99,102,241), 0.4); }
+.jp-heatmap-day .day-cell.active-3 { background: rgba(var(--accent-rgb, 99,102,241), 0.7); }
+.jp-heatmap-day .day-cell.active-4 { background: var(--accent); }
+.jp-heatmap-day .day-cell.today { border: 2px solid var(--accent); }
+.jp-heatmap-day .day-count {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+/* Graphique énergie */
+.jp-energy-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+}
+
+.jp-energy-bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    min-height: 4px;
+    transition: height 0.5s ease;
+    position: relative;
+}
+
+.jp-energy-bar.level-1 { background: rgba(239, 68, 68, 0.5); }
+.jp-energy-bar.level-2 { background: rgba(234, 179, 8, 0.6); }
+.jp-energy-bar.level-3 { background: rgba(34, 197, 94, 0.7); }
+
+/* Citation du jour */
+.jp-quote {
+    padding: 16px;
+    background: linear-gradient(135deg,
+        var(--bg-card) 0%,
+        var(--bg-tertiary, var(--bg-card)) 100%);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.jp-quote .quote-author {
+    display: block;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 11px;
+    color: var(--accent);
+    margin-top: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* =============================================
+   ZONE PRINCIPALE - ÉDITEUR + TIMELINE
+   ============================================= */
+
+.jp-main {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Tabs Matin / Soir */
+.jp-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 16px 24px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.jp-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px 10px 0 0;
+    border: 1px solid transparent;
+    border-bottom: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.2s ease;
+    position: relative;
+    bottom: -1px;
+}
+
+.jp-tab.active {
+    color: var(--text);
+    background: var(--bg-secondary);
+    border-color: var(--border);
+    border-bottom-color: var(--bg-secondary);
+}
+
+.jp-tab:hover:not(.active) {
+    color: var(--text);
+    background: var(--bg-card);
+}
+
+.jp-tab .tab-icon { font-size: 16px; }
+
+/* Éditeur d'entrée */
+.jp-editor {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+}
+
+.jp-editor-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.jp-category-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.jp-category-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.jp-category-pill.selected,
+.jp-category-pill:hover {
+    color: var(--text);
+    border-color: var(--accent);
+    background: var(--bg-card);
+}
+
+.jp-category-pill.selected {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    font-weight: 600;
+}
+
+.jp-textarea-wrap {
+    position: relative;
+}
+
+.jp-textarea {
+    width: 100%;
+    min-height: 80px;
+    max-height: 200px;
+    padding: 14px 16px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    line-height: 1.6;
+    resize: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.jp-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+}
+
+.jp-textarea::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+.jp-editor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.jp-energy-selector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.jp-energy-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+}
+
+.jp-energy-btn.selected,
+.jp-energy-btn:hover {
+    border-color: var(--accent);
+    color: var(--text);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.jp-submit-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.jp-submit-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--accent-glow, rgba(0,0,0,0.3));
+}
+
+.jp-submit-btn:active { transform: translateY(0); }
+
+/* =============================================
+   TIMELINE
+   ============================================= */
+
+.jp-timeline {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px;
+}
+
+.jp-timeline-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    gap: 12px;
+    color: var(--text-muted);
+}
+
+.jp-timeline-empty .empty-icon { font-size: 48px; opacity: 0.5; }
+.jp-timeline-empty h3 { font-size: 16px; color: var(--text); margin: 0; }
+.jp-timeline-empty p { font-size: 13px; margin: 0; opacity: 0.7; }
+
+.jp-entry {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    animation: entrySlideIn 0.3s ease-out;
+}
+
+@keyframes entrySlideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.jp-entry-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+}
+
+.jp-entry-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    background: var(--bg-card);
+}
+
+.jp-entry-dot.cat-task    { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.4); }
+.jp-entry-dot.cat-idea    { background: rgba(234,179,8,0.15);  border-color: rgba(234,179,8,0.4); }
+.jp-entry-dot.cat-win     { background: rgba(34,197,94,0.15);  border-color: rgba(34,197,94,0.4); }
+.jp-entry-dot.cat-blocker { background: rgba(239,68,68,0.15);  border-color: rgba(239,68,68,0.4); }
+.jp-entry-dot.cat-reflection { background: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.4); }
+
+.jp-entry-line {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    background: var(--border);
+    margin-top: 4px;
+}
+
+.jp-entry-content {
+    flex: 1;
+    padding: 14px 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+}
+
+.jp-entry-content:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateX(4px);
+}
+
+.jp-entry-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.jp-entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jp-entry-cat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.jp-entry-cat-label.cat-task     { background: rgba(99,102,241,0.15); color: #6366f1; }
+.jp-entry-cat-label.cat-idea     { background: rgba(234,179,8,0.15);  color: #ca8a04; }
+.jp-entry-cat-label.cat-win      { background: rgba(34,197,94,0.15);  color: #16a34a; }
+.jp-entry-cat-label.cat-blocker  { background: rgba(239,68,68,0.15);  color: #dc2626; }
+.jp-entry-cat-label.cat-reflection { background: rgba(139,92,246,0.15); color: #7c3aed; }
+
+.jp-entry-time {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+.jp-entry-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.jp-entry-content:hover .jp-entry-actions { opacity: 1; }
+
+.jp-entry-action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+}
+
+.jp-entry-action-btn:hover {
+    background: var(--bg-primary);
+    color: var(--text);
+}
+
+.jp-entry-action-btn.delete:hover { color: var(--danger, #dc2626); }
+
+.jp-entry-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+    word-break: break-word;
+}
+
+.jp-entry-energy {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* =============================================
+   MODE FOCUS (PLEIN ÉCRAN)
+   ============================================= */
+
+.jp-focus-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: var(--bg-primary);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    animation: focusFadeIn 0.4s ease-out;
+}
+
+.jp-focus-overlay.active { display: flex; }
+
+@keyframes focusFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.jp-focus-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 40px;
+}
+
+.jp-focus-textarea {
+    width: 100%;
+    max-width: 680px;
+    min-height: 300px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 0;
+    font-size: 22px;
+    line-height: 1.8;
+    color: var(--text);
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    text-align: center;
+}
+
+.jp-focus-textarea::placeholder {
+    color: var(--text-muted);
+    opacity: 0.4;
+}
+
+.jp-focus-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.jp-focus-close {
+    padding: 12px 32px;
+    background: var(--accent);
+    color: var(--bg-primary);
+    border: none;
+    border-radius: 99px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.jp-focus-close:hover { filter: brightness(1.1); }
+
+.jp-focus-esc {
+    font-size: 12px;
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 900px) {
+    .jp-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+    }
+
+    .jp-sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 16px;
+    }
+
+    .jp-daily-stats { grid-template-columns: repeat(4, 1fr); }
+    .jp-heatmap, .jp-energy-bars, .jp-quote { display: none; }
+}
+
+@media (max-width: 600px) {
+    .jp-header { padding: 16px; flex-direction: column; gap: 12px; }
+    .jp-daily-stats { grid-template-columns: 1fr 1fr; }
+}

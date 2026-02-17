@@ -11,6 +11,8 @@ const AccScanner = (function() {
     let batchResults = [];
     let extractionData = null;
     let categories = [];
+    let sessionResults = []; // Historique des factures scannées dans cette session
+    let mahayawenClassification = null; // Résultat classification Mahayawen
 
     function render(container) {
         container.innerHTML = `
@@ -20,11 +22,17 @@ const AccScanner = (function() {
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M3 9h2M19 9h2M3 15h2M19 15h2M9 3v2M15 3v2M9 19v2M15 19v2"/></svg>
                     FinScan - Scanner Intelligent
                 </h2>
+                <div style="display:flex;align-items:center;gap:12px;">
+                ${sessionResults.length > 0 ? `<button class="acc-btn acc-btn-success" data-action="export-csv" style="display:flex;align-items:center;gap:6px;font-size:.85rem;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    Exporter ${sessionResults.length} facture${sessionResults.length>1?'s':''} (Excel)
+                </button>` : ''}
                 <label class="acc-toggle">
                     <input type="checkbox" id="acc-batch-toggle" ${batchMode ? 'checked' : ''}>
                     <span class="acc-toggle-slider"></span>
                     Mode batch
                 </label>
+            </div>
             </div>
 
             <div id="acc-scan-zone" class="acc-scan-zone">
@@ -100,6 +108,7 @@ const AccScanner = (function() {
             const action = btn.dataset.action;
             if (action === 'save-invoice') saveExtractedInvoice(container);
             if (action === 'scan-next') resetScan(container);
+            if (action === 'export-csv') exportToCSV();
         });
     }
 
@@ -160,14 +169,25 @@ const AccScanner = (function() {
         const confidence = ext.confidence || 0;
         const confClass = confidence >= 85 ? 'high' : confidence >= 60 ? 'medium' : 'low';
         const confLabel = confidence >= 85 ? 'Confiance elevee' : confidence >= 60 ? 'A verifier' : 'Saisie requise';
-        const cats = AccState.getState().categories || [];
+        const cats = AccState.get('categories') || [];
+        mahayawenClassification = null; // Reset classification
+
+        // Lancer la classification Mahayawen en parallèle
+        classifyWithMahayawen(inv, ext).then(classif => {
+            mahayawenClassification = classif;
+            renderMahayawenPanel(zone, classif);
+        }).catch(() => {});
 
         zone.innerHTML = `
-        <div class="acc-extraction">
-            <div class="acc-confidence-bar">
-                <div class="acc-confidence-fill ${confClass}" style="width:${confidence}%"></div>
-                <span class="acc-confidence-label">${confidence}% - ${confLabel}</span>
+        <div class="acc-finscan-result">
+            <div class="acc-finscan-result-header">
+                <h3>📄 Document analysé</h3>
+                <span class="acc-finscan-confidence">Confiance : <strong>${confidence}%</strong> — ${confLabel}</span>
             </div>
+            <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin-bottom:18px;overflow:hidden;">
+                <div style="height:100%;width:${confidence}%;border-radius:3px;background:${confidence>=85?'var(--fin-success,#00d68f)':confidence>=60?'var(--fin-warning,#ffaa00)':'var(--fin-danger,#ff3d71)'};transition:width 0.8s ease;"></div>
+            </div>
+        <div class="acc-extraction" style="margin-top:0">
 
             <form id="acc-extraction-form" class="acc-form">
                 <div class="acc-form-row">
@@ -281,11 +301,13 @@ const AccScanner = (function() {
 
         try {
             await AccountingApi.createInvoice(data);
-            showToast('Facture enregistree avec succes !', 'success');
+            // Ajouter au journal session pour export Excel
+            sessionResults.push({ invoice: data, classification: mahayawenClassification });
+            showToast('Facture enregistrée ✓  (' + sessionResults.length + ' dans la session)', 'success');
             resetScan(container);
         } catch (e) {
             console.error('Save error:', e);
-            alert('Erreur: ' + (e.message || 'Impossible de sauvegarder'));
+            showToast('Erreur: ' + (e.message || 'Impossible de sauvegarder'), 'error');
         }
     }
 
@@ -343,6 +365,149 @@ const AccScanner = (function() {
     }
 
     function escHtml(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    /* ========== MAHAYAWEN AI CLASSIFICATION ========== */
+    async function classifyWithMahayawen(inv, ext) {
+        if (typeof ApiAi === 'undefined' || !ApiAi.generate) return null;
+
+        const systemPrompt = `Tu es un expert-comptable français certifié. Tu analyses des documents fiscaux et comptables.
+Tu réponds UNIQUEMENT en JSON valide, sans markdown, sans explication.`;
+
+        const userPrompt = `Analyse cette facture et classe-la intelligemment pour la comptabilité française.
+
+Document extrait:
+- Fournisseur: ${inv.fournisseur || 'Inconnu'}
+- Montant HT: ${inv.montant_ht || 0} EUR
+- TVA: ${inv.tva_rate || 20}%
+- Date: ${inv.date_facture || 'inconnue'}
+- Type: ${inv.type || 'expense'}
+- Notes: ${inv.notes || ''}
+
+Réponds avec ce JSON exact:
+{
+  "type_document": "facture|avoir|note_de_frais|recu",
+  "nature_charge": "ex: Frais de télécommunication",
+  "code_pcg": "ex: 626000",
+  "compte_pcg_libelle": "ex: Frais postaux et de télécommunications",
+  "deductibilite_tva": "totale|partielle_50|non_deductible",
+  "deductibilite_is": "totale|partielle|non",
+  "charge_recurrente": true,
+  "priorite_declaration": "urgent|normal|faible",
+  "categorie_suggeree": "ex: Charges externes",
+  "conseil": "Conseil court de l'expert-comptable en 1-2 phrases max."
+}`;
+
+        try {
+            const raw = await ApiAi.generate(userPrompt, systemPrompt);
+            // Extraire le JSON de la réponse
+            const jsonMatch = raw.match(/\{[\s\S]*\}/);
+            if (jsonMatch) return JSON.parse(jsonMatch[0]);
+        } catch(e) {
+            console.warn('[AccScanner] Mahayawen classification failed:', e.message);
+        }
+        return null;
+    }
+
+    function renderMahayawenPanel(zone, classif) {
+        if (!classif || !zone) return;
+        const existing = zone.querySelector('.acc-mahayawen-panel');
+        if (existing) existing.remove();
+
+        const deductTVA = { totale: '✅ 100%', partielle_50: '⚠️ 50%', non_deductible: '❌ Non' }[classif.deductibilite_tva] || '?';
+        const deductIS  = { totale: '✅ Oui', partielle: '⚠️ Partielle', non: '❌ Non' }[classif.deductibilite_is] || '?';
+        const priorityColor = { urgent: '#ff3d71', normal: '#00d68f', faible: '#8f9bb3' }[classif.priorite_declaration] || '#8f9bb3';
+
+        const panel = document.createElement('div');
+        panel.className = 'acc-mahayawen-panel';
+        panel.innerHTML = `
+        <div class="acc-mah-header">
+            <span class="acc-mah-badge">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                Mahayawen — Classification IA
+            </span>
+            <span style="font-size:.78rem;color:${priorityColor};font-weight:600;text-transform:uppercase;">${classif.priorite_declaration || 'normal'}</span>
+        </div>
+        <div class="acc-mah-grid">
+            <div class="acc-mah-item">
+                <span class="acc-mah-label">Nature charge</span>
+                <span class="acc-mah-value">${escHtml(classif.nature_charge || '-')}</span>
+            </div>
+            <div class="acc-mah-item">
+                <span class="acc-mah-label">Code PCG</span>
+                <span class="acc-mah-value acc-mah-code">${escHtml(classif.code_pcg || '-')} <small>${escHtml(classif.compte_pcg_libelle || '')}</small></span>
+            </div>
+            <div class="acc-mah-item">
+                <span class="acc-mah-label">Déductibilité TVA</span>
+                <span class="acc-mah-value">${deductTVA}</span>
+            </div>
+            <div class="acc-mah-item">
+                <span class="acc-mah-label">Déductible IS</span>
+                <span class="acc-mah-value">${deductIS}</span>
+            </div>
+            <div class="acc-mah-item">
+                <span class="acc-mah-label">Récurrente</span>
+                <span class="acc-mah-value">${classif.charge_recurrente ? '🔄 Oui' : '◻️ Non'}</span>
+            </div>
+            <div class="acc-mah-item">
+                <span class="acc-mah-label">Catégorie</span>
+                <span class="acc-mah-value">${escHtml(classif.categorie_suggeree || '-')}</span>
+            </div>
+        </div>
+        ${classif.conseil ? `<div class="acc-mah-conseil">💡 ${escHtml(classif.conseil)}</div>` : ''}`;
+
+        zone.appendChild(panel);
+    }
+
+    /* ========== EXPORT EXCEL/CSV ========== */
+    function exportToCSV() {
+        if (sessionResults.length === 0) {
+            showToast('Aucune facture scannée dans cette session', 'warning');
+            return;
+        }
+
+        const headers = [
+            'Date facture', 'Fournisseur', 'Référence',
+            'Montant HT', 'Taux TVA', 'Montant TVA', 'Montant TTC',
+            'Type', 'Catégorie', 'Code PCG', 'Déductibilité TVA', 'Déductible IS',
+            'Récurrente', 'Priorité déclaration', 'Notes'
+        ];
+
+        const rows = sessionResults.map(function(r) {
+            const inv = r.invoice || {};
+            const cl  = r.classification || {};
+            const ht  = parseFloat(inv.montant_ht) || 0;
+            const tva = parseFloat(inv.montant_tva) || 0;
+            const ttc = parseFloat(inv.montant_ttc) || 0;
+            return [
+                inv.date_facture || '',
+                inv.fournisseur || '',
+                inv.reference || '',
+                ht.toFixed(2).replace('.', ','),
+                (inv.tva_rate || 20) + '%',
+                tva.toFixed(2).replace('.', ','),
+                ttc.toFixed(2).replace('.', ','),
+                inv.type === 'income' ? 'Revenu' : 'Dépense',
+                cl.categorie_suggeree || '',
+                cl.code_pcg || '',
+                { totale: '100%', partielle_50: '50%', non_deductible: 'Non' }[cl.deductibilite_tva] || '',
+                { totale: 'Oui', partielle: 'Partielle', non: 'Non' }[cl.deductibilite_is] || '',
+                cl.charge_recurrente ? 'Oui' : 'Non',
+                cl.priorite_declaration || '',
+                inv.notes || ''
+            ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
+        });
+
+        const csv = '\uFEFF' + [headers.map(h => '"'+h+'"').join(';')].concat(rows).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const d = new Date();
+        a.href = url;
+        a.download = 'declaration-fiscale-' + d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '.csv';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        showToast('Export Excel téléchargé (' + sessionResults.length + ' factures)', 'success');
+    }
 
     async function refresh(container) {
         try { categories = await AccountingApi.getCategories(); AccState.setState('categories', Array.isArray(categories) ? categories : []); } catch(e) {}

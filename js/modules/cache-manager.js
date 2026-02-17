@@ -80,9 +80,8 @@ const CacheManager = {
     // Mapping des vues vers leurs fichiers critiques
     const viewResources = {
       giriVision: [
-        `${baseUrl}/js/modules/giri-vision/giri-vision-view.js?v=3600`,
-        `${baseUrl}/js/modules/giri-vision/giri-api.js?v=3600`,
-        `${baseUrl}/css/giri-vision.css?v=3600`
+        `${baseUrl}/js/modules/vision/vision-main.js?v=100`,
+        `${baseUrl}/css/giri-vision.css?v=100`
       ],
       mail: [
         `${baseUrl}/js/modules/mail/mail-composer-v7.js?v=2700`,
@@ -176,7 +175,7 @@ const CacheManager = {
       '/router.js',
       '/app-modular.js',
       '/config.js',
-      '/giri-vision-view.js',
+      '/vision-main.js',
       '/mail-composer-v7.js',
       '/calendar-view-v7.js'
     ];
@@ -241,15 +240,23 @@ const CacheManager = {
       return;
     }
 
+    // Anti-loop : pas plus d'1 reload toutes les 30 secondes (sessionStorage persiste entre reloads)
+    const RELOAD_KEY = '_cm_hard_refresh_ts';
+    const now = Date.now();
+    const lastReload = parseInt(sessionStorage.getItem(RELOAD_KEY) || '0');
+    if (now - lastReload < 30000) {
+      console.warn('[CacheManager] Loop détecté — skip reload');
+      return;
+    }
+
     this.reloadInProgress = true;
+    sessionStorage.setItem(RELOAD_KEY, now.toString());
     console.warn(`🔄 Forcing hard refresh: ${reason}`);
 
-    // Toast notification pour l'utilisateur
     if (typeof Toast !== 'undefined') {
       Toast.info('Actualisation en cours...', { duration: 2000 });
     }
 
-    // Delay court pour que le toast s'affiche
     setTimeout(() => {
       window.location.reload(true);
     }, 500);

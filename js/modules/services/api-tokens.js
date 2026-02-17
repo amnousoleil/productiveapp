@@ -58,8 +58,37 @@ const ApiTokens = (function() {
         }
     }
 
+    /**
+     * Décoder un JWT sans vérification (lecture seule des claims)
+     */
+    function decodeToken(token) {
+        try {
+            const payload = token.split('.')[1];
+            return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /**
+     * Vérifier si le token est expiré ou expire dans moins de `bufferSeconds`
+     */
+    function isTokenExpiringSoon(token, bufferSeconds) {
+        bufferSeconds = bufferSeconds || 300; // 5 min par défaut
+        if (!token) return true;
+        const decoded = decodeToken(token);
+        if (!decoded || !decoded.exp) return true;
+        const expiresAt = decoded.exp * 1000;
+        return Date.now() > (expiresAt - bufferSeconds * 1000);
+    }
+
     function isAuthenticated() {
-        return !!getAccessToken();
+        const token = getAccessToken();
+        if (!token) return false;
+        // Si le token existe mais est expiré → pas authentifié (le refresh sera tenté)
+        const decoded = decodeToken(token);
+        if (!decoded || !decoded.exp) return true; // token sans exp = toujours valide
+        return Date.now() < decoded.exp * 1000;
     }
 
     return {
@@ -71,7 +100,9 @@ const ApiTokens = (function() {
         setWorkspaceId,
         getStoredUser,
         setStoredUser,
-        isAuthenticated
+        isAuthenticated,
+        decodeToken,
+        isTokenExpiringSoon
     };
 })();
 

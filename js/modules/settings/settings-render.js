@@ -287,6 +287,7 @@ const SettingsRender = (function() {
                         '<button class="settings-btn" onclick="SettingsView.previewAnimations()" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">\u25B6 Aper\u00E7u</button>' +
                         '<button class="settings-btn" onclick="SettingsView.resetAnimations()" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;">\u21BA Reset</button>' +
                     '</div>' +
+                    '<button onclick="if(window.AnimationSelector)window.AnimationSelector.open()" style="width:100%;margin-top:12px;padding:11px 16px;border-radius:10px;border:1px solid rgba(138,99,246,0.4);background:linear-gradient(135deg,rgba(124,58,237,0.18),rgba(99,102,241,0.18));color:#c4b5fd;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;">&#127916; S\u00E9lecteur d\u2019animations</button>' +
                 '</div>' +
             '</div>' +
         '</section>';

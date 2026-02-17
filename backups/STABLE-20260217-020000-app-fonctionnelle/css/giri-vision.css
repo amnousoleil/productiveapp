@@ -1,0 +1,1051 @@
+/* =============================================
+   GIRI VISION v3.0 - Simple Video Meetings
+   One-click video conferencing interface
+   ============================================= */
+
+/* =============================================
+   MAIN CONTAINER
+   ============================================= */
+
+#view-giri-vision {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+}
+
+#view-giri-vision.active {
+  display: flex;
+  animation: gvViewEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* =============================================
+   HEADER - Premium Glassmorphism Design
+   ============================================= */
+
+.gv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 40px;
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 12%, transparent),
+    color-mix(in srgb, var(--bg-secondary) 95%, transparent)
+  );
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  position: relative;
+  overflow: hidden;
+}
+
+.gv-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    var(--accent-light),
+    transparent
+  );
+  opacity: 0.5;
+}
+
+.gv-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.gv-logo-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg,
+    #FFD700 0%,
+    #FFA500 50%,
+    #FF8C00 100%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow:
+    0 8px 32px rgba(255, 215, 0, 0.3),
+    inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: gvLogoGlow 3s ease-in-out infinite;
+}
+
+@keyframes gvLogoGlow {
+  0%, 100% {
+    box-shadow:
+      0 8px 32px rgba(255, 215, 0, 0.3),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 8px 40px rgba(255, 215, 0, 0.5),
+      inset 0 -2px 8px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.gv-logo-text {
+  font-size: 26px;
+  font-weight: 800;
+  background: linear-gradient(135deg,
+    #FFD700 0%,
+    #FFA500 50%,
+    #FF8C00 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.3));
+}
+
+.gv-header-subtitle {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* =============================================
+   CONTENT AREA
+   ============================================= */
+
+.gv-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.gv-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gv-content::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+/* =============================================
+   HERO CARD - Main CTA
+   ============================================= */
+
+.gv-main-card {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    var(--bg-secondary)
+  );
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 20px);
+  padding: 60px 40px;
+  margin-bottom: 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.gv-main-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    var(--accent-glow) 0%,
+    transparent 50%
+  );
+  opacity: 0.1;
+  animation: gvRotate 20s linear infinite;
+}
+
+.gv-hero {
+  position: relative;
+  z-index: 1;
+}
+
+.gv-hero-icon {
+  font-size: 72px;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 4px 16px var(--accent-glow));
+  animation: gvFloat 3s ease-in-out infinite;
+}
+
+.gv-hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+}
+
+.gv-hero-subtitle {
+  font-size: 16px;
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+.gv-hero-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =============================================
+   BUTTONS
+   ============================================= */
+
+.gv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-md, 10px);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.gv-btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: var(--bg-primary);
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+
+.gv-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--accent-glow);
+  filter: brightness(1.1);
+}
+
+.gv-btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.gv-btn-secondary:hover {
+  border-color: var(--accent);
+  background: var(--bg-tertiary);
+}
+
+.gv-btn-success {
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.gv-btn-danger {
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.gv-btn-danger:hover {
+  background: color-mix(in srgb, var(--danger) 25%, transparent);
+}
+
+.gv-btn-recording {
+  background: color-mix(in srgb, var(--danger) 20%, transparent);
+  color: var(--danger);
+  border-color: var(--danger);
+  animation: gvRecordingPulse 2s ease-in-out infinite;
+}
+
+@keyframes gvRecordingPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 0, 0, 0);
+  }
+}
+
+.gv-btn-sm {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+.gv-btn-xs {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+.gv-btn-lg {
+  padding: 16px 40px;
+  font-size: 16px;
+  border-radius: var(--radius-lg, 16px);
+}
+
+/* =============================================
+   SECTIONS
+   ============================================= */
+
+.gv-section {
+  margin-top: 40px;
+}
+
+.gv-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.gv-section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* =============================================
+   MEETINGS LIST
+   ============================================= */
+
+#gv-meetings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gv-meeting-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 20px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: gvStaggerIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.gv-meeting-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  transform: translateX(4px);
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent-glow) 15%, transparent);
+}
+
+.gv-meeting-card:nth-child(1) { animation-delay: 0ms; }
+.gv-meeting-card:nth-child(2) { animation-delay: 50ms; }
+.gv-meeting-card:nth-child(3) { animation-delay: 100ms; }
+.gv-meeting-card:nth-child(4) { animation-delay: 150ms; }
+.gv-meeting-card:nth-child(5) { animation-delay: 200ms; }
+
+.gv-meeting-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.gv-meeting-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.gv-meeting-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.gv-meeting-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gv-meeting-card-date {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.gv-meeting-card-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.gv-meeting-card-status.scheduled {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.gv-meeting-card-status.in_progress {
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+}
+
+.gv-meeting-card-status.completed {
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+  color: var(--text-muted);
+}
+
+.gv-meeting-card-status.cancelled {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.gv-meeting-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.gv-meeting-card-duration {
+  flex: 1;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* =============================================
+   MEETING ROOM (Video Container) - FULLSCREEN MODE
+   ============================================= */
+
+.gv-meeting-room {
+  display: none;
+  flex-direction: column;
+  /* FULLSCREEN: Position fixed pour sortir du flow normal */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999; /* Au-dessus de tout (sidebar = 1000) */
+  background: #000;
+}
+
+.gv-meeting-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: rgba(17, 17, 24, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
+  gap: 16px;
+}
+
+.gv-meeting-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.gv-meeting-timer {
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.gv-meeting-name {
+  font-size: 14px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gv-meeting-participants {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+  white-space: nowrap;
+}
+
+#gv-participants-count {
+  font-weight: 600;
+  color: var(--success);
+}
+
+.gv-meeting-controls {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.gv-video-container {
+  flex: 1;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
+
+.gv-video-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Custom GIRI VISION logo overlay (top-left of video) */
+.gv-custom-logo {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  pointer-events: none;
+  animation: gvLogoFadeIn 0.5s ease-out;
+}
+
+@keyframes gvLogoFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gv-custom-logo-icon {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 8px rgba(255, 215, 0, 0.5));
+}
+
+.gv-custom-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* =============================================
+   EMPTY STATES
+   ============================================= */
+
+.gv-empty-history {
+  text-align: center;
+  padding: 60px 20px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+}
+
+.gv-empty-history.gv-empty-first-time {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    var(--bg-secondary)
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+  padding: 80px 40px;
+}
+
+.gv-empty-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.gv-empty-icon-large {
+  font-size: 80px;
+  margin-bottom: 24px;
+  animation: gvFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 16px rgba(255, 215, 0, 0.3));
+}
+
+.gv-empty-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 12px 0;
+}
+
+.gv-empty-history p {
+  font-size: 15px;
+  color: var(--text);
+  margin: 8px 0;
+}
+
+.gv-empty-hint {
+  font-size: 15px;
+  color: var(--text-muted) !important;
+  margin: 0 0 32px 0 !important;
+  line-height: 1.6;
+}
+
+.gv-empty-first-time .gv-btn {
+  margin-top: 8px;
+}
+
+.gv-loading {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.gv-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.gv-empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 12px 0 8px;
+}
+
+.gv-empty-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+/* =============================================
+   ANIMATIONS
+   ============================================= */
+
+@keyframes gvViewEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gvStaggerIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gvFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes gvRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =============================================
+   RESPONSIVE
+   ============================================= */
+
+@media (max-width: 768px) {
+  .gv-header {
+    padding: 16px 20px;
+  }
+
+  .gv-content {
+    padding: 20px;
+  }
+
+  .gv-main-card {
+    padding: 40px 24px;
+  }
+
+  .gv-hero-icon {
+    font-size: 56px;
+  }
+
+  .gv-hero-title {
+    font-size: 26px;
+  }
+
+  .gv-hero-subtitle {
+    font-size: 14px;
+  }
+
+  .gv-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gv-meeting-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .gv-meeting-controls {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .gv-meeting-card-footer {
+    flex-wrap: wrap;
+  }
+
+  .gv-meeting-card-duration {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .gv-logo-text {
+    font-size: 18px;
+  }
+
+  .gv-header-subtitle {
+    display: none;
+  }
+
+  .gv-hero-title {
+    font-size: 22px;
+  }
+
+  .gv-btn-lg {
+    padding: 14px 32px;
+    font-size: 15px;
+  }
+
+  .gv-meeting-card {
+    padding: 16px;
+  }
+
+  .gv-meeting-card-header {
+    gap: 12px;
+  }
+
+  .gv-meeting-card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+}
+
+/* =============================================
+   FULLSCREEN MODE - Hide sidebar when in meeting
+   ============================================= */
+
+body.gv-fullscreen-active .sidebar {
+  display: none !important;
+}
+
+body.gv-fullscreen-active .main-content {
+  margin-left: 0 !important;
+}
+
+body.gv-fullscreen-active #animation-canvas,
+body.gv-fullscreen-active #animation-controls-fab,
+body.gv-fullscreen-active #chatbot-fab {
+  display: none !important;
+}
+
+/* =============================================
+   RECORDING CARDS
+   ============================================= */
+
+.gv-recording-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: gvStaggerIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.gv-recording-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, #DC2626, #F59E0B, #10B981);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.gv-recording-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-color: var(--accent);
+}
+
+.gv-recording-card:hover::before {
+  opacity: 1;
+}
+
+.gv-recording-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.gv-recording-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #DC2626, #EF4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.gv-recording-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.gv-recording-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gv-recording-card-date {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.gv-recording-card-size {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 6px 12px;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border-radius: 8px;
+}
+
+.gv-recording-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.gv-recording-card-duration {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+/* =============================================
+   VIDEO MODAL
+   ============================================= */
+
+.gv-video-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: gvModalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gv-video-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+}
+
+.gv-video-modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 1200px;
+  background: var(--bg-secondary);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  animation: gvModalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border);
+}
+
+.gv-video-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-tertiary);
+}
+
+.gv-video-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+}
+
+.gv-video-modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--text);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.gv-video-modal-close:hover {
+  background: var(--bg-tertiary);
+  transform: scale(1.1);
+}
+
+.gv-video-modal-body {
+  padding: 0;
+  background: #000;
+}
+
+.gv-video-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 32px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-tertiary);
+}
+
+@keyframes gvModalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gvModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.gv-empty-hint-small {
+  font-size: 13px;
+  color: var(--text-muted) !important;
+  margin-top: 4px !important;
+  opacity: 0.7;
+}
+
+/* =============================================
+   PREFERS REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .gv-main-card::before {
+    animation: none;
+  }
+
+  .gv-hero-icon {
+    animation: none;
+  }
+}

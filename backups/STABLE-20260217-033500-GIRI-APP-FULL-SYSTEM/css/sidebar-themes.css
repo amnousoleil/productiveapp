@@ -1,0 +1,453 @@
+/* ================================================
+   SIDEBAR THEME SUPPORT v2.0
+   Smart defaults that auto-inherit from theme vars
+   ================================================ */
+
+/* === DEFAULT: Auto-inherit from theme variables === */
+.sidebar {
+    --sidebar-bg: var(--bg-secondary);
+    --sidebar-border: var(--border);
+    --sidebar-hover: var(--bg-card);
+    --sidebar-active: var(--bg-card);
+    --sidebar-text: var(--text-muted);
+    --sidebar-text-active: var(--text);
+    --sidebar-accent: var(--accent);
+}
+
+/* ==============================================
+   DARK THEME FINE-TUNING
+   ============================================== */
+
+[data-theme="executive"] .sidebar {
+    --sidebar-bg: #0d0d0d;
+    --sidebar-hover: rgba(212, 175, 55, 0.08);
+    --sidebar-active: rgba(212, 175, 55, 0.15);
+}
+
+[data-theme="corporate"] .sidebar {
+    --sidebar-bg: #0a1628;
+    --sidebar-hover: rgba(100, 149, 237, 0.08);
+    --sidebar-active: rgba(100, 149, 237, 0.15);
+}
+
+[data-theme="diplomat"] .sidebar {
+    --sidebar-bg: #1a0810;
+    --sidebar-hover: rgba(196, 50, 74, 0.08);
+    --sidebar-active: rgba(196, 50, 74, 0.15);
+}
+
+[data-theme="sterling"] .sidebar {
+    --sidebar-bg: #1a1e24;
+    --sidebar-hover: rgba(192, 200, 210, 0.06);
+    --sidebar-active: rgba(192, 200, 210, 0.12);
+}
+
+[data-theme="ocean"] .sidebar {
+    --sidebar-bg: #051923;
+    --sidebar-hover: rgba(0, 180, 216, 0.08);
+    --sidebar-active: rgba(0, 180, 216, 0.15);
+}
+
+[data-theme="forest"] .sidebar {
+    --sidebar-bg: #0a1208;
+    --sidebar-hover: rgba(74, 170, 100, 0.08);
+    --sidebar-active: rgba(74, 170, 100, 0.15);
+}
+
+[data-theme="sunset"] .sidebar {
+    --sidebar-bg: #1a0a05;
+    --sidebar-hover: rgba(249, 115, 22, 0.08);
+    --sidebar-active: rgba(249, 115, 22, 0.15);
+}
+
+[data-theme="desert"] .sidebar {
+    --sidebar-bg: #1a1410;
+    --sidebar-hover: rgba(224, 120, 64, 0.08);
+    --sidebar-active: rgba(224, 120, 64, 0.15);
+}
+
+[data-theme="lavender"] .sidebar {
+    --sidebar-bg: #150d1a;
+    --sidebar-hover: rgba(176, 124, 200, 0.08);
+    --sidebar-active: rgba(176, 124, 200, 0.15);
+}
+
+[data-theme="aurora"] .sidebar {
+    --sidebar-bg: #0a0d14;
+    --sidebar-hover: rgba(147, 197, 253, 0.08);
+    --sidebar-active: rgba(147, 197, 253, 0.15);
+}
+
+[data-theme="midnight"] .sidebar {
+    --sidebar-bg: #0d0d18;
+    --sidebar-hover: rgba(124, 159, 255, 0.08);
+    --sidebar-active: rgba(124, 159, 255, 0.15);
+}
+
+[data-theme="twilight"] .sidebar {
+    --sidebar-bg: #14081a;
+    --sidebar-hover: rgba(196, 144, 224, 0.08);
+    --sidebar-active: rgba(196, 144, 224, 0.15);
+}
+
+[data-theme="candlelight"] .sidebar {
+    --sidebar-bg: #1a1208;
+    --sidebar-hover: rgba(232, 168, 64, 0.08);
+    --sidebar-active: rgba(232, 168, 64, 0.15);
+}
+
+[data-theme="moonlit"] .sidebar {
+    --sidebar-bg: #0d1018;
+    --sidebar-hover: rgba(160, 184, 216, 0.06);
+    --sidebar-active: rgba(160, 184, 216, 0.12);
+}
+
+[data-theme="golden-hour"] .sidebar {
+    --sidebar-bg: #1a1008;
+    --sidebar-hover: rgba(212, 160, 64, 0.08);
+    --sidebar-active: rgba(212, 160, 64, 0.15);
+}
+
+[data-theme="storm"] .sidebar {
+    --sidebar-bg: #0a0e14;
+    --sidebar-hover: rgba(107, 141, 181, 0.08);
+    --sidebar-active: rgba(107, 141, 181, 0.15);
+}
+
+[data-theme="bubblegum"] .sidebar {
+    --sidebar-bg: #1a0a14;
+    --sidebar-hover: rgba(255, 107, 157, 0.08);
+    --sidebar-active: rgba(255, 107, 157, 0.15);
+}
+
+[data-theme="neon"] .sidebar {
+    --sidebar-bg: #0a0014;
+    --sidebar-hover: rgba(255, 20, 147, 0.08);
+    --sidebar-active: rgba(255, 20, 147, 0.15);
+}
+
+[data-theme="retrowave"] .sidebar {
+    --sidebar-bg: #0d0520;
+    --sidebar-hover: rgba(255, 110, 199, 0.08);
+    --sidebar-active: rgba(255, 110, 199, 0.15);
+}
+
+[data-theme="coral"] .sidebar {
+    --sidebar-bg: #1a0e0e;
+    --sidebar-hover: rgba(255, 111, 97, 0.08);
+    --sidebar-active: rgba(255, 111, 97, 0.15);
+}
+
+[data-theme="obsidian"] .sidebar {
+    --sidebar-bg: #0b0b0b;
+    --sidebar-hover: rgba(160, 160, 160, 0.06);
+    --sidebar-active: rgba(160, 160, 160, 0.12);
+}
+
+[data-theme="clay"] .sidebar {
+    --sidebar-bg: #201A14;
+    --sidebar-hover: rgba(184, 152, 120, 0.08);
+    --sidebar-active: rgba(184, 152, 120, 0.15);
+}
+
+[data-theme="espresso"] .sidebar {
+    --sidebar-bg: #140E0A;
+    --sidebar-hover: rgba(168, 120, 72, 0.08);
+    --sidebar-active: rgba(168, 120, 72, 0.15);
+}
+
+[data-theme="matrix"] .sidebar {
+    --sidebar-bg: #0a0f0a;
+    --sidebar-hover: rgba(0, 255, 102, 0.06);
+    --sidebar-active: rgba(0, 255, 102, 0.15);
+    --sidebar-text: #70b070;
+}
+
+[data-theme="cyberpunk"] .sidebar {
+    --sidebar-bg: #0d0221;
+    --sidebar-hover: rgba(255, 0, 255, 0.08);
+    --sidebar-active: rgba(255, 0, 255, 0.15);
+}
+
+[data-theme="terminal"] .sidebar {
+    --sidebar-bg: #0a0800;
+    --sidebar-hover: rgba(255, 176, 0, 0.08);
+    --sidebar-active: rgba(255, 176, 0, 0.15);
+    --sidebar-text: #B89848;
+}
+
+[data-theme="tron"] .sidebar {
+    --sidebar-bg: #000810;
+    --sidebar-hover: rgba(0, 212, 255, 0.08);
+    --sidebar-active: rgba(0, 212, 255, 0.15);
+}
+
+[data-theme="hologram"] .sidebar {
+    --sidebar-bg: #0d1018;
+    --sidebar-hover: rgba(136, 221, 255, 0.06);
+    --sidebar-active: rgba(136, 221, 255, 0.12);
+}
+
+[data-theme="art-deco"] .sidebar {
+    --sidebar-bg: #0a0808;
+    --sidebar-hover: rgba(200, 160, 64, 0.08);
+    --sidebar-active: rgba(200, 160, 64, 0.15);
+}
+
+[data-theme="cosmic"] .sidebar {
+    --sidebar-bg: #050210;
+    --sidebar-hover: rgba(153, 102, 255, 0.08);
+    --sidebar-active: rgba(153, 102, 255, 0.15);
+}
+
+/* ==============================================
+   LIGHT THEME SIDEBARS
+   ============================================== */
+
+[data-theme="ivory"] .sidebar {
+    --sidebar-bg: #F0ECE2;
+    --sidebar-border: rgba(139, 115, 85, 0.15);
+    --sidebar-hover: rgba(139, 115, 85, 0.06);
+    --sidebar-active: rgba(139, 115, 85, 0.12);
+    --sidebar-text: #8B7B6B;
+    --sidebar-text-active: #3D3226;
+    --sidebar-accent: #8B7355;
+}
+
+[data-theme="sakura"] .sidebar {
+    --sidebar-bg: #F0E8EC;
+    --sidebar-border: rgba(212, 104, 140, 0.15);
+    --sidebar-hover: rgba(212, 104, 140, 0.06);
+    --sidebar-active: rgba(212, 104, 140, 0.12);
+    --sidebar-text: #907080;
+    --sidebar-text-active: #3A2530;
+    --sidebar-accent: #D4688C;
+}
+
+[data-theme="pastel"] .sidebar {
+    --sidebar-bg: #EDE6F2;
+    --sidebar-border: rgba(168, 136, 200, 0.15);
+    --sidebar-hover: rgba(168, 136, 200, 0.06);
+    --sidebar-active: rgba(168, 136, 200, 0.12);
+    --sidebar-text: #887898;
+    --sidebar-text-active: #3A3040;
+    --sidebar-accent: #A888C8;
+}
+
+[data-theme="mint"] .sidebar {
+    --sidebar-bg: #DCEEE4;
+    --sidebar-border: rgba(61, 168, 120, 0.15);
+    --sidebar-hover: rgba(61, 168, 120, 0.06);
+    --sidebar-active: rgba(61, 168, 120, 0.12);
+    --sidebar-text: #588870;
+    --sidebar-text-active: #1A3A2A;
+    --sidebar-accent: #3DA878;
+}
+
+[data-theme="paper"] .sidebar {
+    --sidebar-bg: #ECE8DE;
+    --sidebar-border: rgba(139, 123, 101, 0.15);
+    --sidebar-hover: rgba(139, 123, 101, 0.06);
+    --sidebar-active: rgba(139, 123, 101, 0.12);
+    --sidebar-text: #887868;
+    --sidebar-text-active: #3A3228;
+    --sidebar-accent: #8B7B65;
+}
+
+[data-theme="porcelain"] .sidebar {
+    --sidebar-bg: #E2E8F0;
+    --sidebar-border: rgba(104, 136, 168, 0.15);
+    --sidebar-hover: rgba(104, 136, 168, 0.06);
+    --sidebar-active: rgba(104, 136, 168, 0.12);
+    --sidebar-text: #6880A0;
+    --sidebar-text-active: #2A3440;
+    --sidebar-accent: #6888A8;
+}
+
+[data-theme="zen"] .sidebar {
+    --sidebar-bg: #E8E4D6;
+    --sidebar-border: rgba(112, 128, 88, 0.15);
+    --sidebar-hover: rgba(112, 128, 88, 0.06);
+    --sidebar-active: rgba(112, 128, 88, 0.12);
+    --sidebar-text: #808068;
+    --sidebar-text-active: #3A3830;
+    --sidebar-accent: #708058;
+}
+
+[data-theme="watercolor"] .sidebar {
+    --sidebar-bg: #ECE6EE;
+    --sidebar-border: rgba(136, 136, 192, 0.15);
+    --sidebar-hover: rgba(136, 136, 192, 0.06);
+    --sidebar-active: rgba(136, 136, 192, 0.12);
+    --sidebar-text: #887898;
+    --sidebar-text-active: #383040;
+    --sidebar-accent: #8888C0;
+}
+
+[data-theme="nordic"] .sidebar {
+    --sidebar-bg: #E4DED2;
+    --sidebar-border: rgba(90, 122, 106, 0.15);
+    --sidebar-hover: rgba(90, 122, 106, 0.06);
+    --sidebar-active: rgba(90, 122, 106, 0.12);
+    --sidebar-text: #708068;
+    --sidebar-text-active: #303828;
+    --sidebar-accent: #5A7A6A;
+}
+
+[data-theme="academie"] .sidebar {
+    --sidebar-bg: #36393f;
+    --sidebar-hover: rgba(218, 165, 32, 0.08);
+    --sidebar-active: rgba(218, 165, 32, 0.15);
+}
+
+/* ==============================================
+   NEW THEMES v4.0 — DARK SIDEBARS
+   ============================================== */
+
+[data-theme="moss"] .sidebar {
+    --sidebar-bg: #0A0E08;
+    --sidebar-hover: rgba(80, 120, 50, 0.08);
+    --sidebar-active: rgba(80, 120, 50, 0.15);
+}
+
+[data-theme="ember"] .sidebar {
+    --sidebar-bg: #180808;
+    --sidebar-hover: rgba(220, 80, 30, 0.08);
+    --sidebar-active: rgba(220, 80, 30, 0.15);
+}
+
+[data-theme="charcoal"] .sidebar {
+    --sidebar-bg: #101214;
+    --sidebar-hover: rgba(150, 160, 170, 0.06);
+    --sidebar-active: rgba(150, 160, 170, 0.12);
+}
+
+[data-theme="bioluminescence"] .sidebar {
+    --sidebar-bg: #040810;
+    --sidebar-hover: rgba(0, 200, 220, 0.08);
+    --sidebar-active: rgba(0, 200, 220, 0.15);
+}
+
+[data-theme="ukiyo-e"] .sidebar {
+    --sidebar-bg: #0C0A14;
+    --sidebar-hover: rgba(180, 80, 60, 0.08);
+    --sidebar-active: rgba(180, 80, 60, 0.15);
+}
+
+[data-theme="automne"] .sidebar {
+    --sidebar-bg: #1A0E08;
+    --sidebar-hover: rgba(200, 90, 40, 0.08);
+    --sidebar-active: rgba(200, 90, 40, 0.15);
+}
+
+[data-theme="hiver"] .sidebar {
+    --sidebar-bg: #080C14;
+    --sidebar-hover: rgba(136, 184, 224, 0.08);
+    --sidebar-active: rgba(136, 184, 224, 0.15);
+}
+
+[data-theme="amethyst"] .sidebar {
+    --sidebar-bg: #0C0618;
+    --sidebar-hover: rgba(144, 96, 216, 0.08);
+    --sidebar-active: rgba(144, 96, 216, 0.15);
+}
+
+[data-theme="jade"] .sidebar {
+    --sidebar-bg: #060E0A;
+    --sidebar-hover: rgba(64, 168, 120, 0.08);
+    --sidebar-active: rgba(64, 168, 120, 0.15);
+}
+
+[data-theme="ruby"] .sidebar {
+    --sidebar-bg: #140608;
+    --sidebar-hover: rgba(216, 48, 64, 0.08);
+    --sidebar-active: rgba(216, 48, 64, 0.15);
+}
+
+[data-theme="copper"] .sidebar {
+    --sidebar-bg: #120C08;
+    --sidebar-hover: rgba(200, 120, 80, 0.08);
+    --sidebar-active: rgba(200, 120, 80, 0.15);
+}
+
+[data-theme="sahara"] .sidebar {
+    --sidebar-bg: #1C1408;
+    --sidebar-hover: rgba(210, 175, 90, 0.08);
+    --sidebar-active: rgba(210, 175, 90, 0.15);
+}
+
+[data-theme="fjord"] .sidebar {
+    --sidebar-bg: #060C10;
+    --sidebar-hover: rgba(60, 130, 150, 0.08);
+    --sidebar-active: rgba(60, 130, 150, 0.15);
+}
+
+[data-theme="bali"] .sidebar {
+    --sidebar-bg: #0A1210;
+    --sidebar-hover: rgba(0, 180, 150, 0.08);
+    --sidebar-active: rgba(0, 180, 150, 0.15);
+}
+
+/* ==============================================
+   NEW THEMES v4.0 — LIGHT SIDEBARS
+   ============================================== */
+
+[data-theme="printemps"] .sidebar {
+    --sidebar-bg: #E8F0DC;
+    --sidebar-border: rgba(120, 180, 100, 0.15);
+    --sidebar-hover: rgba(120, 180, 100, 0.06);
+    --sidebar-active: rgba(120, 180, 100, 0.12);
+    --sidebar-text: #688858;
+    --sidebar-text-active: #2A3820;
+    --sidebar-accent: #78B464;
+}
+
+[data-theme="ete"] .sidebar {
+    --sidebar-bg: #ECE8D8;
+    --sidebar-border: rgba(40, 144, 192, 0.15);
+    --sidebar-hover: rgba(40, 144, 192, 0.06);
+    --sidebar-active: rgba(40, 144, 192, 0.12);
+    --sidebar-text: #607888;
+    --sidebar-text-active: #1A2830;
+    --sidebar-accent: #2890C0;
+}
+
+[data-theme="pearl"] .sidebar {
+    --sidebar-bg: #ECEAE8;
+    --sidebar-border: rgba(160, 152, 176, 0.15);
+    --sidebar-hover: rgba(160, 152, 176, 0.06);
+    --sidebar-active: rgba(160, 152, 176, 0.12);
+    --sidebar-text: #888090;
+    --sidebar-text-active: #383040;
+    --sidebar-accent: #A098B0;
+}
+
+[data-theme="snow"] .sidebar {
+    --sidebar-bg: #E8ECF2;
+    --sidebar-border: rgba(100, 120, 150, 0.12);
+    --sidebar-hover: rgba(100, 120, 150, 0.06);
+    --sidebar-active: rgba(100, 120, 150, 0.12);
+    --sidebar-text: #7888A0;
+    --sidebar-text-active: #2A3040;
+    --sidebar-accent: #6880A0;
+}
+
+[data-theme="bamboo"] .sidebar {
+    --sidebar-bg: #E4E0D0;
+    --sidebar-border: rgba(100, 128, 60, 0.15);
+    --sidebar-hover: rgba(100, 128, 60, 0.06);
+    --sidebar-active: rgba(100, 128, 60, 0.12);
+    --sidebar-text: #707858;
+    --sidebar-text-active: #2C3020;
+    --sidebar-accent: #64803C;
+}
+
+[data-theme="provence"] .sidebar {
+    --sidebar-bg: #ECE4DC;
+    --sidebar-border: rgba(140, 110, 160, 0.15);
+    --sidebar-hover: rgba(140, 110, 160, 0.06);
+    --sidebar-active: rgba(140, 110, 160, 0.12);
+    --sidebar-text: #887898;
+    --sidebar-text-active: #3A3040;
+    --sidebar-accent: #8C6EA0;
+}

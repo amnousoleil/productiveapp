@@ -233,7 +233,7 @@ const TC = {
     academie:    { type: 'academie',   c: ['#daa520','#f0c850','#b8860b'], a: 0.92 }, // Pages de livre
     // NATURE — 7 animations UNIQUES
     ocean:       { type: 'ocean',     c: ['#00b4d8','#48cae4','#06d6a0'], a: 0.95 }, // CONSERVER - Vagues + poissons
-    forest:      { type: 'forest',    c: ['#4aaa64','#70c888','#a3e635'], a: 0.92 }, // CONSERVER - Feuilles qui tombent
+    forest:      { type: 'forest',    c: ['#22c55e','#4ade80','#86efac'], a: 0.92 }, // Vert émeraude vivant (feuilles)
     sunset:      { type: 'sunset',    c: ['#f97316','#fbbf24','#ef4444','#fb7185'], a: 0.92 }, // CONSERVER - God rays
     desert:      { type: 'desert',    c: ['#e07840','#f4a261','#fbbf24'], a: 0.92 }, // CONSERVER - Tempête de sable
     lavender:    { type: 'lavender',  c: ['#B07CC8','#D0A0E8','#E8C0FF'], a: 0.88 }, // Champ ondulant + papillons
@@ -256,7 +256,7 @@ const TC = {
     // MINIMALISTE
     obsidian:    { type: 'obsidian',  c: ['#a78bfa','#8b5cf6'], a: 0.88 },
     paper:       { type: 'paper',     c: ['#8B7B65','#B0A088','#C8B8A0'], a: 0.30 },
-    clay:        { type: 'clay',      c: ['#B89878','#D0B898','#C8A878'], a: 0.75 },
+    clay:        { type: 'clay',      c: ['#C4783C','#E09060','#D06848'], a: 0.75 }, // Terracotta chaud
     porcelain:   { type: 'porcelain', c: ['#6888A8','#88A8C8','#A0C0D8'], a: 0.30 },
     espresso:    { type: 'espresso',  c: ['#A87848','#C89868','#B08858'], a: 0.75 },
     // TECH
@@ -283,13 +283,13 @@ const TC = {
     pearl:       { type: 'pearl',      c: ['#A098B0','#B8B0C8','#D0C8D8'], a: 0.40 },
     copper:      { type: 'copper',     c: ['#C87850','#E09870','#A06038'], a: 0.82 },
     // VOYAGE
-    sahara:      { type: 'desert',    c: ['#D2AF5A','#E8C878','#C09838'], a: 0.98 },
+    sahara:      { type: 'desert',    c: ['#D4A017','#E8BC40','#C88010'], a: 0.98 }, // Or riche doré
     fjord:       { type: 'waves',     c: ['#3C8296','#58A8C0','#286878'], a: 0.88 },
     bamboo:      { type: 'bamboo',    c: ['#64803C','#88A858','#A0C070'], a: 0.40 },
-    bali:        { type: 'ocean',     c: ['#00B496','#30D8B8','#008870'], a: 0.92 },
+    bali:        { type: 'desert',    c: ['#F59E0B','#FBBF24','#FB923C'], a: 0.92 }, // Soleil tropical doré
     provence:    { type: 'provence',  c: ['#8C6EA0','#A888C0','#C0A0D0'], a: 0.92 },
     // ADDITIONS (NATURE + ATMOSPHÈRE)
-    moss:        { type: 'moss',      c: ['#507832','#70A048','#3A5A20'], a: 0.88 }, // Mycélium organique
+    moss:        { type: 'moss',      c: ['#10b981','#34d399','#059669'], a: 0.88 }, // Vert mousse vivant humide
     ember:       { type: 'ember',     c: ['#DC5020','#F07040','#FF9060'], a: 0.92 }, // Braises volantes
     snow:        { type: 'snow',      c: ['#6880A0','#88A0C0','#A0B8D0'], a: 0.35 },
     charcoal:    { type: 'charcoal',  c: ['#909AA4','#B0B8C0'], a: 0.92 },
@@ -354,11 +354,13 @@ AT.executive = {
             p.phase += dt * 0.3;
             const pulse = (Math.sin(p.phase) + 1) * 0.5;
 
-            // Orbite organique
+            // Orbite organique + parallax souris subtil (5-15px selon taille du polygone)
             const nx = quality === 'low' ? Math.sin(p.phase) : noise2D(p.phase, p.y * 0.005);
             const ny = quality === 'low' ? Math.cos(p.phase * 0.7) : noise2D(p.x * 0.005, p.phase);
-            const px = p.x + nx * p.orbit;
-            const py = p.y + ny * p.orbit;
+            const mfx = mouse.active ? (mouse.sx - W * 0.5) * 0.006 * (p.size / 60) : 0;
+            const mfy = mouse.active ? (mouse.sy - H * 0.5) * 0.006 * (p.size / 60) : 0;
+            const px = p.x + nx * p.orbit + mfx;
+            const py = p.y + ny * p.orbit + mfy;
 
             ctx.save();
             ctx.translate(px, py);
@@ -390,26 +392,23 @@ AT.executive = {
     }
 };
 
-// --- CORPORATE: Flux de données ascendants style Bloomberg Terminal ---
+// --- CORPORATE: Flux de données ascendants style Bloomberg Terminal (loop continue) ---
 AT.corporate = {
     init(cfg) {
-        const count = cap(25, quality);
-        state.dataLines = [];
-        for (let i = 0; i < count; i++) {
-            state.dataLines.push({
-                x: rand(0, W),
-                y: rand(0, H),
-                speed: rand(80, 200),
-                height: rand(60, 150),
-                width: rand(2, 5),
-                color: cfg.c[i % cfg.c.length],
-                segments: []
-            });
-            // Créer segments de données
-            for (let j = 0; j < 8; j++) {
-                state.dataLines[i].segments.push({
-                    offset: j * 15,
-                    alpha: rand(0.3, 1)
+        // Colonnes Bloomberg Terminal : segments tombants par colonnes
+        const colCount = Math.floor(W / 28);
+        const perCol = quality === 'low' ? 2 : 3;
+        state.dataParticles = [];
+        for (let c = 0; c < colCount; c++) {
+            for (let j = 0; j < perCol; j++) {
+                state.dataParticles.push({
+                    x: c * 28 + rand(2, 8),
+                    y: rand(-H * 1.5, 0),
+                    speed: rand(55, 120),
+                    size: rand(1.8, 3.5),
+                    height: rand(8, 22),
+                    color: cfg.c[(c + j) % cfg.c.length],
+                    alpha: rand(0.3, 0.8)
                 });
             }
         }
@@ -421,33 +420,25 @@ AT.corporate = {
         if (quality !== 'low') {
             ctx.strokeStyle = 'rgba(100, 149, 237, 0.03)';
             ctx.lineWidth = 1;
-            for (let x = 0; x < W; x += 40) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, H);
-                ctx.stroke();
+            for (let x = 0; x < W; x += 28) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
             }
         }
 
         ctx.globalCompositeOperation = 'lighter';
 
-        if (state.dataLines) for (const line of state.dataLines) {
-            line.y -= line.speed * dt;
-            if (line.y < -line.height - 150) {
-                line.y = H + 50;
-                line.x = rand(0, W);
+        if (state.dataParticles) for (const p of state.dataParticles) {
+            p.y += p.speed * dt;  // Tombe vers le bas
+            if (p.y > H + 10) {
+                p.y = rand(-60, -10);
+                p.alpha = rand(0.3, 0.8);
+                p.speed = rand(55, 120);
             }
 
-            // Dessiner segments de données
-            for (const seg of line.segments) {
-                const sy = line.y + seg.offset;
-                if (sy > -20 && sy < H + 20) {
-                    ctx.globalAlpha = fadeIn * seg.alpha * 0.6;
-                    glow(6, line.color);
-                    ctx.fillStyle = line.color;
-                    ctx.fillRect(line.x, sy, line.width, 10);
-                }
-            }
+            ctx.globalAlpha = fadeIn * p.alpha * intensityFactor;
+            glow(5, p.color);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.height);
         }
 
         noGlow();
@@ -456,17 +447,30 @@ AT.corporate = {
     }
 };
 
-// --- IVORY: Soie fluide avec effet marbré véronèse ---
+// --- IVORY: Cercles concentriques pulsants doux + grain de papier subtil ---
+// Animation continue sans cycle défini (pas de "paf"), ultra-reposante
 AT.ivory = {
     init(cfg) {
-        state.silkWaves = [];
-        const layers = quality === 'low' ? 3 : 5;
-        for (let i = 0; i < layers; i++) {
-            state.silkWaves.push({
-                yOffset: (i / layers) * H,
-                speed: 0.3 + i * 0.1,
-                amplitude: 40 + i * 15,
-                frequency: 0.003 + i * 0.001,
+        const ringCount = quality === 'low' ? 5 : 8;
+        state.ivoRings = [];
+        for (let i = 0; i < ringCount; i++) {
+            state.ivoRings.push({
+                phase: i * (Math.PI * 2 / ringCount),
+                speed: rand(0.12, 0.28),
+                radius: rand(60, 140),
+                cx: rand(W * 0.2, W * 0.8),
+                cy: rand(H * 0.2, H * 0.8),
+                color: cfg.c[i % cfg.c.length]
+            });
+        }
+        // Particules grain de papier
+        const dustCount = cap(25, quality);
+        state.ivoParticles = [];
+        for (let i = 0; i < dustCount; i++) {
+            state.ivoParticles.push({
+                x: rand(0, W), y: rand(0, H),
+                size: rand(1, 2.5), alpha: rand(0.04, 0.15),
+                vy: rand(2, 8), vx: rand(-3, 3),
                 color: cfg.c[i % cfg.c.length]
             });
         }
@@ -474,61 +478,70 @@ AT.ivory = {
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
 
-        const ws = getStep();
-        if (state.silkWaves) for (let l = 0; l < state.silkWaves.length; l++) {
-            const wave = state.silkWaves[l];
+        // Cercles concentriques pulsants — continus, jamais de reset brutal
+        if (state.ivoRings) for (const ring of state.ivoRings) {
+            ring.phase += ring.speed * dt;
+            // Pulse sinusoïdal continu: jamais de "paf"
+            const pulse = (Math.sin(ring.phase) + 1) * 0.5;
+            const r = ring.radius + pulse * ring.radius * 0.6;
+            const alpha = 0.04 + pulse * 0.07;
 
-            // Gradient vertical pour effet soie
-            const grad = ctx.createLinearGradient(0, 0, 0, H);
-            const hr = parseInt(wave.color.slice(1,3),16);
-            const hg = parseInt(wave.color.slice(3,5),16);
-            const hb = parseInt(wave.color.slice(5,7),16);
-            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+',0.02)');
-            grad.addColorStop(0.5, 'rgba('+hr+','+hg+','+hb+',0.08)');
-            grad.addColorStop(1, 'rgba('+hr+','+hg+','+hb+',0.02)');
+            const hr = parseInt(ring.color.slice(1,3),16);
+            const hg = parseInt(ring.color.slice(3,5),16);
+            const hb = parseInt(ring.color.slice(5,7),16);
 
+            // Cercle principal
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-
-            for (let x = 0; x <= W; x += ws) {
-                // Multi-octave noise pour mouvement organique
-                const n1 = noise2D(x * wave.frequency, time * wave.speed);
-                const n2 = noise2D(x * wave.frequency * 2.3, time * wave.speed * 0.7);
-                const y = wave.yOffset + n1 * wave.amplitude + n2 * wave.amplitude * 0.4;
-
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-
-            ctx.lineTo(W, H);
-            ctx.lineTo(0, H);
-            ctx.closePath();
-
-            ctx.fillStyle = grad;
+            ctx.arc(ring.cx, ring.cy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${hr},${hg},${hb},${alpha * intensityFactor})`;
+            ctx.lineWidth = 1.5;
             ctx.globalAlpha = fadeIn;
-            ctx.fill();
+            ctx.stroke();
+
+            // Halo intérieur plus doux
+            ctx.beginPath();
+            ctx.arc(ring.cx, ring.cy, r * 0.65, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(${hr},${hg},${hb},${alpha * 0.5 * intensityFactor})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+
+        // Grain de papier: micro-particules chaleureux
+        if (state.ivoParticles) for (const p of state.ivoParticles) {
+            p.y += p.vy * dt;
+            p.x += p.vx * dt;
+            if (p.y > H + 5) { p.y = -5; p.x = rand(0, W); }
+            if (p.x < -5) p.x = W + 3;
+            if (p.x > W + 5) p.x = -3;
+            const hr2 = parseInt(p.color.slice(1,3),16);
+            const hg2 = parseInt(p.color.slice(3,5),16);
+            const hb2 = parseInt(p.color.slice(5,7),16);
+            ctx.globalAlpha = fadeIn * p.alpha * intensityFactor;
+            ctx.fillStyle = `rgba(${hr2},${hg2},${hb2},1)`;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
         }
 
         ctx.globalAlpha = fadeIn;
     }
 };
 
-// --- STERLING: Cristaux de givre qui croissent et se dissolvent ---
+// --- STERLING: Particules argentées fines qui dérivent comme de la poussière de lumière ---
+// Petits flocons/particules 2-4px, opacité basse (0.15-0.40), mouvement doux
 AT.sterling = {
     init(cfg) {
-        const count = cap(12, quality);
-        state.crystals = [];
+        const count = cap(70, quality);
+        state.silverDust = [];
         for (let i = 0; i < count; i++) {
-            state.crystals.push({
+            state.silverDust.push({
                 x: rand(0, W),
-                y: rand(0, H),
-                growth: rand(0, 1),
-                growSpeed: rand(0.15, 0.4),
-                maxSize: rand(40, 100),
-                branches: rand(4, 8),
-                rotation: rand(0, Math.PI*2),
-                color: cfg.c[i % cfg.c.length],
-                phase: rand(0, Math.PI*2)
+                y: rand(-H, H),         // Distribution sur tout l'écran
+                size: rand(1.5, 3.5),   // Très petites particules
+                vy: rand(12, 40),       // Flottent doucement vers le bas
+                vx: rand(-8, 8),        // Légère dérive latérale
+                alpha: rand(0.12, 0.38),// Opacité basse (subtil)
+                wobble: rand(0, Math.PI * 2),
+                wobbleSpeed: rand(0.4, 1.2),
+                color: cfg.c[i % cfg.c.length]
             });
         }
     },
@@ -536,46 +549,26 @@ AT.sterling = {
         ctx.clearRect(0, 0, W, H);
         ctx.globalCompositeOperation = 'lighter';
 
-        if (state.crystals) for (const c of state.crystals) {
-            c.phase += dt * 0.5;
+        if (state.silverDust) for (const s of state.silverDust) {
+            s.wobble += s.wobbleSpeed * dt;
+            s.y += s.vy * dt;
+            s.x += Math.sin(s.wobble) * s.vx * dt;
 
-            // Cycle de croissance/dissolution
-            c.growth += c.growSpeed * dt;
-            if (c.growth > 2) c.growth = 0;
+            // Recyclage: sort par le bas → réapparaît en haut
+            if (s.y > H + 10) {
+                s.y = rand(-30, -5);
+                s.x = rand(0, W);
+                s.alpha = rand(0.12, 0.38);
+            }
+            if (s.x < -5) s.x = W + 3;
+            if (s.x > W + 5) s.x = -3;
 
-            const growthFactor = c.growth <= 1 ? c.growth : (2 - c.growth);
-            const size = c.maxSize * growthFactor;
-
-            if (size > 2) {
-                ctx.save();
-                ctx.translate(c.x, c.y);
-                ctx.rotate(c.rotation + c.phase * 0.1);
-
-                // Dessiner branches de cristal (fractales)
-                for (let i = 0; i < c.branches; i++) {
-                    const angle = (Math.PI * 2 / c.branches) * i;
-                    ctx.globalAlpha = fadeIn * growthFactor * 0.5;
-                    glow(4, c.color);
-                    ctx.strokeStyle = c.color;
-                    ctx.lineWidth = 1.5;
-
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    const ex = Math.cos(angle) * size;
-                    const ey = Math.sin(angle) * size;
-                    ctx.lineTo(ex, ey);
-
-                    // Sous-branches
-                    if (quality !== 'low') {
-                        ctx.lineTo(ex * 0.7 + Math.cos(angle + 0.5) * size * 0.3, ey * 0.7 + Math.sin(angle + 0.5) * size * 0.3);
-                        ctx.moveTo(ex, ey);
-                        ctx.lineTo(ex * 0.7 + Math.cos(angle - 0.5) * size * 0.3, ey * 0.7 + Math.sin(angle - 0.5) * size * 0.3);
-                    }
-
-                    ctx.stroke();
-                }
-
-                ctx.restore();
+            if (s.y >= -5 && s.y <= H + 5) {
+                ctx.globalAlpha = fadeIn * s.alpha * intensityFactor;
+                ctx.fillStyle = s.color;
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
@@ -586,116 +579,133 @@ AT.sterling = {
 };
 
 // --- DIPLOMAT: Rubans rouges ondulants type drapeau diplomatique ---
+// --- DIPLOMAT: Colonnes de devises qui tombent, lentes et majestueuses ---
+// Symboles monétaires + clin d'oeil "MAITRE MAHA GIRI" de temps en temps
 AT.diplomat = {
     init(cfg) {
-        const count = quality === 'low' ? 3 : 5;
-        state.ribbons = [];
-        for (let i = 0; i < count; i++) {
-            state.ribbons.push({
-                yBase: (i + 1) * (H / (count + 1)),
-                phase: rand(0, Math.PI*2),
-                speed: rand(0.4, 0.8),
-                amplitude: rand(30, 60),
-                width: rand(80, 150),
-                color: cfg.c[i % cfg.c.length]
-            });
+        const COLS = quality === 'low' ? 14 : 22;
+        const colW = W / COLS;
+        const CURRENCY_CHARS = ['$', '€', '£', '¥', '₿', '₣', '₹', '฿', '₩', '₫', '₲', '₴'];
+        state.dipCols = [];
+        state.dipMahaTimer = rand(20, 40);
+        state.dipMahaActive = false;
+        state.dipMahaChars = [];
+        state.dipMahaColIdx = 0;
+
+        for (let i = 0; i < COLS; i++) {
+            const col = { x: i * colW + colW / 2, chars: [], speed: rand(28, 70) };
+            const maxChars = Math.ceil(H / 26) + 4;
+            for (let j = 0; j < maxChars; j++) {
+                col.chars.push({
+                    y: rand(-H, H),
+                    char: CURRENCY_CHARS[Math.floor(rand(0, CURRENCY_CHARS.length))],
+                    alpha: rand(0.15, 0.70),
+                    gldPct: Math.random()   // probabilité de teinte or
+                });
+            }
+            state.dipCols.push(col);
         }
     },
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
+        ctx.globalCompositeOperation = 'lighter';
 
-        if (state.ribbons) for (const r of state.ribbons) {
-            r.phase += r.speed * dt;
+        const CURRENCY_CHARS = ['$', '€', '£', '¥', '₿', '₣', '₹', '฿', '₩', '₫'];
+        const fSize = 17;
+        ctx.font = `${fSize}px 'Courier New', monospace`;
+        ctx.textAlign = 'center';
 
-            // Courbe de Bézier pour ruban fluide
-            ctx.save();
-            ctx.globalAlpha = fadeIn * 0.6;
-
-            const points = [];
-            const segments = quality === 'low' ? 15 : 30;
-
-            for (let i = 0; i <= segments; i++) {
-                const t = i / segments;
-                const x = t * W;
-                const wave1 = Math.sin(x * 0.01 + r.phase) * r.amplitude;
-                const wave2 = Math.sin(x * 0.02 + r.phase * 0.7) * r.amplitude * 0.5;
-                const y = r.yBase + wave1 + wave2;
-                points.push({x, y});
+        // Minuterie pour "MAITRE MAHA GIRI"
+        state.dipMahaTimer -= dt;
+        if (state.dipMahaTimer <= 0 && !state.dipMahaActive) {
+            state.dipMahaTimer = rand(22, 45);
+            state.dipMahaActive = true;
+            const mahaText = 'MAITRE MAHA GIRI';
+            state.dipMahaColIdx = Math.floor(rand(2, state.dipCols.length - 2));
+            state.dipMahaChars = [];
+            for (let i = 0; i < mahaText.length; i++) {
+                state.dipMahaChars.push({ char: mahaText[i], y: H + 30 + i * 26 });
             }
+        }
 
-            // Dessiner ruban avec gradient
-            const grad = ctx.createLinearGradient(0, r.yBase - r.width/2, 0, r.yBase + r.width/2);
-            const hr = parseInt(r.color.slice(1,3),16);
-            const hg = parseInt(r.color.slice(3,5),16);
-            const hb = parseInt(r.color.slice(5,7),16);
-            grad.addColorStop(0, 'rgba('+hr+','+hg+','+hb+',0.1)');
-            grad.addColorStop(0.5, 'rgba('+hr+','+hg+','+hb+',0.4)');
-            grad.addColorStop(1, 'rgba('+hr+','+hg+','+hb+',0.1)');
-
-            // Partie haute du ruban
-            ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y - r.width/2);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i].x, points[i].y - r.width/2);
+        // Colonnes de devises
+        if (state.dipCols) for (const col of state.dipCols) {
+            for (const c of col.chars) {
+                c.y -= col.speed * dt;
+                if (c.y < -fSize - 5) {
+                    c.y = H + rand(0, 80);
+                    c.char = CURRENCY_CHARS[Math.floor(rand(0, CURRENCY_CHARS.length))];
+                    c.alpha = rand(0.15, 0.70);
+                    c.gldPct = Math.random();
+                }
+                if (c.y >= 0 && c.y <= H + fSize) {
+                    ctx.globalAlpha = fadeIn * c.alpha * intensityFactor;
+                    // Quelques caractères ont une teinte or plus prononcée
+                    ctx.fillStyle = c.gldPct > 0.75 ? '#ffd700' : cfg.c[0];
+                    ctx.fillText(c.char, col.x, c.y);
+                }
             }
-            for (let i = points.length - 1; i >= 0; i--) {
-                ctx.lineTo(points[i].x, points[i].y + r.width/2);
+        }
+
+        // "MAITRE MAHA GIRI" — tombe lettre par lettre, plus grand et lumineux
+        if (state.dipMahaActive && state.dipMahaChars) {
+            const col = state.dipCols[state.dipMahaColIdx] || state.dipCols[0];
+            ctx.font = `bold ${fSize + 5}px 'Courier New', monospace`;
+            glow(10, '#ffd700');
+            for (const c of state.dipMahaChars) {
+                c.y -= (col.speed * 0.9) * dt;
+                if (c.y <= H) allAbove = false;
+                if (c.y >= -fSize && c.y <= H + fSize) {
+                    ctx.globalAlpha = fadeIn * 0.95 * intensityFactor;
+                    ctx.fillStyle = '#ffd700';
+                    ctx.fillText(c.char, col.x, c.y);
+                }
             }
-            ctx.closePath();
-
-            ctx.fillStyle = grad;
-            ctx.fill();
-
-            // Contour brillant
-            glow(6, r.color);
-            ctx.strokeStyle = r.color;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(points[0].x, points[0].y);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i].x, points[i].y);
+            if (state.dipMahaChars.every(c => c.y < -fSize)) {
+                state.dipMahaActive = false;
             }
-            ctx.stroke();
-
-            ctx.restore();
+            ctx.font = `${fSize}px 'Courier New', monospace`;
         }
 
         noGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.textAlign = 'left';
         ctx.globalAlpha = fadeIn;
     }
 };
 
-// --- ACADEMIE: Pages de livre qui tournent + particules de connaissance ---
+// --- ACADEMIE: Symboles mathématiques et scientifiques flottants + particules ---
+// Ambiance bibliothèque/campus: formules qui dérivent doucement dans l'espace
 AT.academie = {
     init(cfg) {
-        const pageCount = cap(8, quality);
-        const particleCount = cap(30, quality);
+        const SYMBOLS = ['∑', 'π', '∞', '∫', '√', 'Δ', 'α', 'β', 'γ', 'θ',
+                         'λ', 'μ', 'σ', 'φ', 'ψ', 'Ω', '∂', '∇', '∈', '∀',
+                         '≡', '≈', '≤', '≥', 'E=mc²', 'F=ma', '⊕', '⊗'];
+        const count = cap(22, quality);
+        state.acadSymbols = [];
 
-        state.pages = [];
-        state.knowledgeParticles = [];
-
-        for (let i = 0; i < pageCount; i++) {
-            state.pages.push({
-                x: rand(W * 0.2, W * 0.8),
-                y: rand(H * 0.2, H * 0.8),
-                rotation: rand(0, Math.PI*2),
-                rotSpeed: rand(0.3, 0.8),
-                width: rand(40, 80),
-                height: rand(60, 100),
-                flip: 0,
-                flipSpeed: rand(0.5, 1.2),
+        for (let i = 0; i < count; i++) {
+            state.acadSymbols.push({
+                x: rand(0, W),
+                y: rand(0, H),
+                vy: rand(-18, -6),    // Monte lentement
+                vx: rand(-6, 6),      // Légère dérive
+                sym: SYMBOLS[Math.floor(rand(0, SYMBOLS.length))],
+                size: Math.floor(rand(11, 22)),
+                alpha: rand(0.08, 0.30),
+                phase: rand(0, Math.PI * 2),
+                wobble: rand(0.3, 0.9),
                 color: cfg.c[i % cfg.c.length]
             });
         }
-
-        for (let i = 0; i < particleCount; i++) {
-            state.knowledgeParticles.push({
-                x: rand(0, W),
-                y: rand(0, H),
-                vy: -rand(20, 60),
-                size: rand(1, 3),
-                alpha: rand(0.3, 1),
-                color: cfg.c[i % cfg.c.length]
+        // Particules lumineuses
+        const pCount = cap(20, quality);
+        state.acadParticles = [];
+        for (let i = 0; i < pCount; i++) {
+            state.acadParticles.push({
+                x: rand(0, W), y: rand(-H, H),
+                vy: -rand(15, 45), size: rand(1, 2.5),
+                alpha: rand(0.15, 0.55), color: cfg.c[i % cfg.c.length]
             });
         }
     },
@@ -703,69 +713,41 @@ AT.academie = {
         ctx.clearRect(0, 0, W, H);
         ctx.globalCompositeOperation = 'lighter';
 
-        // Particules de connaissance ascendantes
-        if (state.knowledgeParticles) for (const p of state.knowledgeParticles) {
-            p.y += p.vy * dt;
-            if (p.y < -20) {
-                p.y = H + 20;
-                p.x = rand(0, W);
+        // Symboles mathématiques qui dérivent
+        if (state.acadSymbols) for (const s of state.acadSymbols) {
+            s.phase += s.wobble * dt;
+            s.y += s.vy * dt;
+            s.x += Math.sin(s.phase) * s.vx * dt;
+            if (s.y < -30) {
+                s.y = H + 20;
+                s.x = rand(0, W);
+                const SYMBOLS = ['∑','π','∞','∫','√','Δ','α','β','γ','θ','λ','μ','σ','φ','ψ','Ω','∂','∇'];
+                s.sym = SYMBOLS[Math.floor(rand(0, SYMBOLS.length))];
             }
+            if (s.x < -20) s.x = W + 15;
+            if (s.x > W + 20) s.x = -15;
 
-            ctx.globalAlpha = fadeIn * p.alpha * 0.4;
-            glow(3, p.color);
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-            ctx.fill();
+            ctx.globalAlpha = fadeIn * s.alpha * intensityFactor;
+            ctx.font = `${s.size}px Georgia, serif`;
+            ctx.textAlign = 'center';
+            ctx.fillStyle = s.color;
+            ctx.fillText(s.sym, s.x, s.y);
         }
 
-        // Pages qui tournent (effet 3D simplifié)
-        if (state.pages) for (const page of state.pages) {
-            page.rotation += page.rotSpeed * dt;
-            page.flip += page.flipSpeed * dt;
-
-            const flipFactor = Math.abs(Math.sin(page.flip)); // 0 = de profil, 1 = face
-            const width3D = page.width * flipFactor;
-
-            if (width3D > 5) { // Ne pas dessiner si trop fin
-                ctx.save();
-                ctx.translate(page.x, page.y);
-                ctx.rotate(page.rotation);
-
-                ctx.globalAlpha = fadeIn * (0.3 + flipFactor * 0.5);
-
-                // Rectangle de page avec perspective
-                const hr = parseInt(page.color.slice(1,3),16);
-                const hg = parseInt(page.color.slice(3,5),16);
-                const hb = parseInt(page.color.slice(5,7),16);
-
-                ctx.fillStyle = 'rgba('+hr+','+hg+','+hb+',0.2)';
-                ctx.fillRect(-width3D/2, -page.height/2, width3D, page.height);
-
-                glow(4, page.color);
-                ctx.strokeStyle = page.color;
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(-width3D/2, -page.height/2, width3D, page.height);
-
-                // Lignes de texte
-                if (quality !== 'low' && flipFactor > 0.3) {
-                    ctx.strokeStyle = 'rgba('+hr+','+hg+','+hb+',0.3)';
-                    ctx.lineWidth = 1;
-                    for (let i = 0; i < 5; i++) {
-                        const ly = -page.height/2 + 15 + i * 12;
-                        ctx.beginPath();
-                        ctx.moveTo(-width3D/2 + 8, ly);
-                        ctx.lineTo(width3D/2 - 8, ly);
-                        ctx.stroke();
-                    }
-                }
-
-                ctx.restore();
-            }
+        // Particules lumineuses subtiles
+        if (state.acadParticles) for (const p of state.acadParticles) {
+            p.y += p.vy * dt;
+            if (p.y < -10) { p.y = H + 10; p.x = rand(0, W); }
+            ctx.globalAlpha = fadeIn * p.alpha * intensityFactor;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
         }
 
         noGlow();
         ctx.globalCompositeOperation = 'source-over';
+        ctx.textAlign = 'left';
         ctx.globalAlpha = fadeIn;
     }
 };
@@ -777,30 +759,20 @@ AT.academie = {
 // --- LAVENDER: Champ de lavande ondulant + papillons ---
 AT.lavender = {
     init(cfg) {
-        const fieldLines = quality === 'low' ? 8 : 15;
-        const butterflyCount = cap(6, quality);
-
-        state.lavenderField = [];
-        state.butterflies = [];
-
-        for (let i = 0; i < fieldLines; i++) {
-            state.lavenderField.push({
-                y: (H / (fieldLines + 1)) * (i + 1),
-                phase: rand(0, Math.PI*2),
-                speed: rand(0.3, 0.6),
-                amplitude: rand(15, 30)
-            });
-        }
-
-        for (let i = 0; i < butterflyCount; i++) {
-            state.butterflies.push({
-                x: rand(0, W),
-                y: rand(0, H),
-                phase: rand(0, Math.PI*2),
-                speed: rand(0.8, 1.5),
-                wingPhase: rand(0, Math.PI*2),
-                wingSpeed: rand(8, 12),
-                path: rand(40, 80),
+        const count = cap(70, quality);
+        state.lavPetals = [];
+        for (let i = 0; i < count; i++) {
+            state.lavPetals.push({
+                x: rand(0, W), y: rand(-H, H),
+                vx: rand(-12, 12),
+                vy: rand(20, 60),
+                rot: rand(0, Math.PI * 2),
+                rotSpeed: rand(-1.5, 1.5),
+                size: rand(2.5, 6.5),
+                sway: rand(0, Math.PI * 2),
+                swaySpeed: rand(0.5, 1.2),
+                swayAmp: rand(15, 35),
+                alpha: rand(0.3, 0.7),
                 color: cfg.c[i % cfg.c.length]
             });
         }
@@ -808,63 +780,33 @@ AT.lavender = {
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
 
-        // Champ de lavande ondulant
-        if (state.lavenderField) for (const line of state.lavenderField) {
-            line.phase += line.speed * dt;
+        if (state.lavPetals) for (const p of state.lavPetals) {
+            p.sway += p.swaySpeed * dt;
+            p.x += (p.vx + Math.sin(p.sway) * p.swayAmp) * dt;
+            p.y += p.vy * dt;
+            p.rot += p.rotSpeed * dt;
 
-            ctx.globalAlpha = fadeIn * 0.15;
-            ctx.strokeStyle = cfg.c[0];
-            ctx.lineWidth = 2;
-
-            ctx.beginPath();
-            for (let x = 0; x <= W; x += 8) {
-                const wave = Math.sin(x * 0.01 + line.phase) * line.amplitude;
-                const y = line.y + wave;
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+            if (p.y > H + 20) {
+                p.y = -rand(10, 60);
+                p.x = rand(0, W);
             }
-            ctx.stroke();
-        }
-
-        // Papillons
-        ctx.globalCompositeOperation = 'lighter';
-        if (state.butterflies) for (const b of state.butterflies) {
-            b.phase += b.speed * dt;
-            b.wingPhase += b.wingSpeed * dt;
-
-            const nx = noise2D(b.phase, b.y * 0.01);
-            const ny = noise2D(b.x * 0.01, b.phase);
-            b.x += nx * b.path * dt;
-            b.y += ny * b.path * dt * 0.5;
-
-            // Wrap around
-            if (b.x < -20) b.x = W + 20;
-            if (b.x > W + 20) b.x = -20;
-            if (b.y < -20) b.y = H + 20;
-            if (b.y > H + 20) b.y = -20;
-
-            const wingFlap = Math.abs(Math.sin(b.wingPhase));
+            if (p.x < -20) p.x = W + 20;
+            if (p.x > W + 20) p.x = -20;
 
             ctx.save();
-            ctx.translate(b.x, b.y);
-
-            ctx.globalAlpha = fadeIn * (0.4 + wingFlap * 0.4);
-            glow(4, b.color);
-            ctx.fillStyle = b.color;
-
-            // Ailes simplifiées
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.globalAlpha = fadeIn * p.alpha * intensityFactor;
+            glow(3, p.color);
+            ctx.fillStyle = p.color;
+            // Pétale ovale allongé
             ctx.beginPath();
-            ctx.ellipse(-3, 0, 5 * wingFlap, 8, 0, 0, Math.PI*2);
+            ctx.ellipse(0, 0, p.size * 0.45, p.size, 0, 0, Math.PI * 2);
             ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(3, 0, 5 * wingFlap, 8, 0, 0, Math.PI*2);
-            ctx.fill();
-
             ctx.restore();
         }
 
         noGlow();
-        ctx.globalCompositeOperation = 'source-over';
         ctx.globalAlpha = fadeIn;
     }
 };
@@ -1189,21 +1131,22 @@ AT.candlelight = {
 // --- MOONLIT: Rayons de lune à travers nuages ---
 AT.moonlit = {
     init(cfg) {
-        state.moonX = W * 0.75;
-        state.moonY = H * 0.25;
+        state.moonX = W * 0.84;  // Coin haut-droit
+        state.moonY = H * 0.10;
         state.moonGlow = 0;
 
         const rayCount = quality === 'low' ? 5 : 9;
         state.moonRays = [];
 
+        // Rayons orientés vers le bas-gauche depuis coin haut-droite
         for (let i = 0; i < rayCount; i++) {
             state.moonRays.push({
-                angle: (Math.PI / 4) + (i / rayCount) * (Math.PI / 2),
-                length: rand(200, 400),
-                width: rand(40, 80),
-                opacity: rand(0.05, 0.15),
+                angle: (Math.PI * 0.55) + (i / rayCount) * (Math.PI * 0.4),
+                length: rand(180, 380),
+                width: rand(35, 70),
+                opacity: rand(0.05, 0.14),
                 drift: rand(0, Math.PI*2),
-                driftSpeed: rand(0.1, 0.3)
+                driftSpeed: rand(0.08, 0.25)
             });
         }
     },
@@ -2778,14 +2721,17 @@ AT.provence = {
 AT.snow = {
     init(cfg) {
         state.snowfall = [];
-        for (let i = 0; i < cap(100, quality); i++) {
+        const total = cap(100, quality);
+        for (let i = 0; i < total; i++) {
+            const isGolden = (i % 50 === 3); // 1 flocon doré tous les 50
             state.snowfall.push({
                 x: rand(0, W), y: rand(-H, H),
                 vx: rand(-30, 30),
                 vy: rand(40, 120),
-                size: rand(2, 8),
+                size: isGolden ? rand(5, 11) : rand(2, 8),
                 twinkle: rand(0, Math.PI * 2),
-                color: cfg.c[i % cfg.c.length]
+                color: isGolden ? '#ffd700' : cfg.c[i % cfg.c.length],
+                golden: isGolden
             });
         }
         state.wind = 0;
@@ -2793,15 +2739,13 @@ AT.snow = {
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
 
-        // Vent variable
         state.wind = Math.sin(time * 0.3) * 20;
 
         if (state.snowfall) for (const flake of state.snowfall) {
             flake.x += (flake.vx + state.wind) * dt;
             flake.y += flake.vy * dt;
-            flake.twinkle += dt * 4;
+            flake.twinkle += dt * (flake.golden ? 6 : 4);
 
-            // Wrap autour
             if (flake.x < -10) flake.x = W + 10;
             if (flake.x > W + 10) flake.x = -10;
             if (flake.y > H + 10) {
@@ -2812,7 +2756,7 @@ AT.snow = {
             const brightness = (Math.sin(flake.twinkle) + 1) * 0.5;
             ctx.globalAlpha = fadeIn * (0.4 + brightness * 0.4);
 
-            glow(4, flake.color);
+            glow(flake.golden ? 10 : 4, flake.color);
             ctx.fillStyle = flake.color;
             ctx.beginPath();
             ctx.arc(flake.x, flake.y, flake.size, 0, Math.PI * 2);
@@ -2888,32 +2832,61 @@ AT.charcoal = {
         for (let i = 0; i < cap(50, quality); i++) {
             state.ashes.push({
                 x: rand(0, W), y: H + rand(0, 50),
-                vx: rand(-15, 15),
-                vy: rand(-60, -120),
-                rotation: rand(0, Math.PI * 2),
-                rotSpeed: rand(-2, 2),
-                size: rand(3, 10),
-                life: 1.0,
-                decay: rand(0.2, 0.4),
+                vx: rand(-15, 15), vy: rand(-60, -120),
+                rotation: rand(0, Math.PI * 2), rotSpeed: rand(-2, 2),
+                size: rand(3, 10), life: 1.0, decay: rand(0.2, 0.4),
                 color: cfg.c[i % cfg.c.length]
             });
         }
+        // Easter egg MAITRE MAHA GIRI
+        state.charcoalMaha = null;
+        state.charcoalMahaTimer = rand(18, 40);
     },
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
 
+        // Timer easter egg
+        state.charcoalMahaTimer -= dt;
+        if (state.charcoalMahaTimer <= 0 && !state.charcoalMaha) {
+            const letters = 'MAITRE MAHA GIRI'.split('');
+            state.charcoalMaha = letters.map((ch, i) => ({
+                ch, x: rand(W * 0.1, W * 0.85), y: H + rand(20, 80),
+                vy: rand(-35, -60), alpha: 0, fadeIn: true,
+                delay: i * 0.07
+            }));
+            state.charcoalMahaTimer = rand(25, 55);
+        }
+
+        // Render easter egg letters
+        if (state.charcoalMaha) {
+            let allDone = true;
+            ctx.font = 'bold 18px monospace';
+            ctx.textAlign = 'center';
+            for (const L of state.charcoalMaha) {
+                L.delay -= dt;
+                if (L.delay > 0) { allDone = false; continue; }
+                L.y += L.vy * dt;
+                L.alpha = Math.min(1, L.alpha + dt * 1.2);
+                if (L.y > -30) allDone = false;
+                ctx.globalAlpha = fadeIn * L.alpha * 0.55;
+                glow(6, '#ffd700');
+                ctx.fillStyle = '#ffd700';
+                ctx.fillText(L.ch, L.x, L.y);
+            }
+            noGlow();
+            if (allDone) state.charcoalMaha = null;
+        }
+
         if (state.ashes) for (let i = state.ashes.length - 1; i >= 0; i--) {
             const ash = state.ashes[i];
-
             ash.x += ash.vx * dt;
             ash.y += ash.vy * dt;
             ash.rotation += ash.rotSpeed * dt;
             ash.life -= ash.decay * dt;
-            ash.vy += 30 * dt; // Gravité légère
+            ash.vy += 30 * dt;
 
             if (ash.life <= 0 || ash.y < -50) {
                 state.ashes.splice(i, 1);
-                // Respawn
                 if (state.ashes.length < cap(50, quality)) {
                     state.ashes.push({
                         x: rand(0, W), y: H + rand(0, 50),
@@ -2930,13 +2903,12 @@ AT.charcoal = {
             ctx.translate(ash.x, ash.y);
             ctx.rotate(ash.rotation);
             ctx.globalAlpha = fadeIn * ash.life * 0.6;
-
             ctx.fillStyle = ash.color;
             ctx.fillRect(-ash.size / 2, -ash.size / 2, ash.size, ash.size);
-
             ctx.restore();
         }
 
+        ctx.textAlign = 'left';
         ctx.globalAlpha = fadeIn;
     }
 };
@@ -3045,67 +3017,83 @@ AT.bubblegum = {
 };
 
 // --- RETROWAVE: Grille rétro + soleil ---
+// --- RETROWAVE: Grille perspective stable + soleil centré stylisé ---
 AT.retrowave = {
     init(cfg) {
-        state.gridLines = 20;
-        state.sunY = H * 0.3;
+        state.gridLines = quality === 'low' ? 12 : 18;
+        state.gridSpacing = 45;
         state.gridPhase = 0;
+        state.sunCX = W * 0.5;
+        state.sunCY = H * 0.32;
+        state.sunR = Math.min(W, H) * 0.14;
     },
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
         ctx.globalCompositeOperation = 'lighter';
 
-        state.gridPhase += dt * 50;
-
-        // Grille perspective
-        ctx.strokeStyle = cfg.c[0];
-        ctx.lineWidth = 1.5;
-        ctx.globalAlpha = fadeIn * 0.5;
+        // Grille avance DOUCEMENT (30px/s), mouvement fluide et stable
+        state.gridPhase = (state.gridPhase + dt * 30) % state.gridSpacing;
 
         const horizon = H * 0.5;
-        const gridSpacing = 40;
+        const sunCX = state.sunCX;
+        const sunCY = state.sunCY;
+        const sunR = state.sunR;
 
-        // Lignes horizontales
-        for (let i = 0; i < state.gridLines; i++) {
-            const y = horizon + i * gridSpacing - (state.gridPhase % gridSpacing);
-            const scale = (y - horizon) / (H - horizon);
-            const width = W * (1 - scale * 0.5);
+        // Soleil rétro centré proprement avec dégradé net
+        const sunGrad = ctx.createLinearGradient(sunCX - sunR, sunCY - sunR, sunCX + sunR, sunCY + sunR);
+        sunGrad.addColorStop(0, cfg.c[1] || '#ff00ff');
+        sunGrad.addColorStop(0.5, cfg.c[2] || '#ff6600');
+        sunGrad.addColorStop(1, cfg.c[3] || '#ffff00');
 
-            ctx.beginPath();
-            ctx.moveTo((W - width) / 2, y);
-            ctx.lineTo((W + width) / 2, y);
-            ctx.stroke();
-        }
-
-        // Lignes verticales
-        for (let i = -10; i <= 10; i++) {
-            ctx.beginPath();
-            const xTop = W / 2 + i * 30;
-            const xBot = W / 2 + i * 100;
-            ctx.moveTo(xTop, horizon);
-            ctx.lineTo(xBot, H);
-            ctx.stroke();
-        }
-
-        // Soleil rétro
-        const sunGrad = ctx.createRadialGradient(W / 2, state.sunY, 0, W / 2, state.sunY, 100);
-        sunGrad.addColorStop(0, cfg.c[1]);
-        sunGrad.addColorStop(0.5, cfg.c[2]);
-        sunGrad.addColorStop(1, 'transparent');
-
-        ctx.globalAlpha = fadeIn * 0.7;
+        ctx.globalAlpha = fadeIn * 0.75;
         ctx.fillStyle = sunGrad;
         ctx.beginPath();
-        ctx.arc(W / 2, state.sunY, 100, 0, Math.PI * 2);
+        ctx.arc(sunCX, sunCY, sunR, 0, Math.PI * 2);
         ctx.fill();
 
-        // Lignes du soleil
-        ctx.strokeStyle = cfg.c[3] || cfg.c[0];
-        ctx.lineWidth = 2;
-        for (let i = 0; i < 10; i++) {
-            const y = state.sunY - 50 + i * 10;
+        // Lignes horizontales sur la demi-sphère inférieure
+        ctx.strokeStyle = cfg.c[0] || '#ff0080';
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = fadeIn * 0.6;
+        const stripeCount = 7;
+        for (let i = 1; i < stripeCount; i++) {
+            const t = i / stripeCount;
+            const sy = sunCY + t * sunR;
+            // Intersection du cercle avec ligne y = sy
+            const dx = Math.sqrt(Math.max(0, sunR * sunR - (sy - sunCY) * (sy - sunCY)));
+            if (dx > 2) {
+                ctx.beginPath();
+                ctx.moveTo(sunCX - dx, sy);
+                ctx.lineTo(sunCX + dx, sy);
+                ctx.stroke();
+            }
+        }
+
+        // Grille perspective fluide
+        ctx.strokeStyle = cfg.c[0] || '#ff0080';
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = fadeIn * 0.45;
+
+        // Lignes horizontales (avancent vers nous)
+        for (let i = 0; i < state.gridLines; i++) {
+            const rawY = horizon + i * state.gridSpacing + state.gridPhase;
+            if (rawY > H + state.gridSpacing) continue;
+            const pct = (rawY - horizon) / (H - horizon);
+            const w = W * 0.05 + W * 0.95 * pct;
             ctx.beginPath();
-            ctx.arc(W / 2, state.sunY, Math.abs(state.sunY - y), 0, Math.PI, true);
+            ctx.moveTo((W - w) * 0.5, rawY);
+            ctx.lineTo((W + w) * 0.5, rawY);
+            ctx.stroke();
+        }
+
+        // Lignes verticales convergentes (vers le point de fuite: centre horizon)
+        const vLineCount = quality === 'low' ? 9 : 15;
+        for (let i = 0; i <= vLineCount; i++) {
+            const t = i / vLineCount;
+            const xBottom = W * t;
+            ctx.beginPath();
+            ctx.moveTo(sunCX, horizon);   // Convergent vers le soleil
+            ctx.lineTo(xBottom, H);
             ctx.stroke();
         }
 
@@ -3293,36 +3281,53 @@ AT.waves = {
     }
 };
 
-// --- NEON PARTICLES: bright glow with connections ---
+// --- NEON PARTICLES: bright glow with connections — PLUS D'INTENSITÉ ---
 AT.neonp = {
     init(cfg) {
-        const count = cap(40, quality);
+        const count = cap(55, quality);   // Plus de bulles (+37%)
         state.pts = [];
         for (let i = 0; i < count; i++) {
-            state.pts.push({ x: rand(0, W), y: rand(0, H), vx: rand(-40, 40), vy: rand(-40, 40), size: rand(1, 3.5), color: cfg.c[i % cfg.c.length], life: rand(0.5, 1) });
+            state.pts.push({
+                x: rand(0, W), y: rand(0, H),
+                vx: rand(-45, 45), vy: rand(-45, 45),
+                size: rand(2, 5.5),           // Bulles plus grandes
+                color: cfg.c[i % cfg.c.length],
+                life: rand(0.5, 1)
+            });
         }
     },
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
-        // Connections
+        // Fils de lumière entre bulles — beaucoup plus visibles
+        const connDist = quality === 'low' ? 100 : 160;
+        ctx.globalCompositeOperation = 'lighter';
         if (quality !== 'low') {
-            ctx.lineWidth = 0.8;
             for (let i = 0; i < state.pts.length; i++) {
                 for (let j = i + 1; j < state.pts.length; j++) {
                     const a = state.pts[i], b = state.pts[j];
                     const d = dist(a.x, a.y, b.x, b.y);
-                    if (d < 120) { ctx.globalAlpha = fadeIn * (1-d/120) * 0.15; ctx.strokeStyle = a.color; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+                    if (d < connDist) {
+                        const alpha = (1 - d / connDist) * 0.40 * intensityFactor; // 0.40 au lieu de 0.15
+                        ctx.globalAlpha = fadeIn * alpha;
+                        ctx.lineWidth = 1.2;     // Légèrement plus épais
+                        ctx.strokeStyle = a.color;
+                        glow(8, a.color);
+                        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+                    }
                 }
             }
+            noGlow();
         }
-        ctx.globalCompositeOperation = 'lighter';
         if (state.pts) for (const p of state.pts) {
             p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt * 0.1;
             if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
             p.x = Math.max(0, Math.min(W, p.x)); p.y = Math.max(0, Math.min(H, p.y));
             if (p.life <= 0) { p.x = rand(0, W); p.y = rand(0, H); p.life = rand(0.5, 1); }
-            if (mouse.active) { const md = dist(p.x, p.y, mouse.sx, mouse.sy); if (md < 150) { const f = (1-md/150)*200*dt; p.vx += (p.x-mouse.sx)/md*f; p.vy += (p.y-mouse.sy)/md*f; } }
-            ctx.globalAlpha = fadeIn * p.life * 0.7; glow(12, p.color); ctx.fillStyle = p.color;
+            // Interaction souris conservée (c'est une force de la version neon)
+            if (mouse.active) { const md = dist(p.x, p.y, mouse.sx, mouse.sy); if (md < 180 && md > 1) { const f = (1-md/180)*220*dt; p.vx += (p.x-mouse.sx)/md*f; p.vy += (p.y-mouse.sy)/md*f; } }
+            ctx.globalAlpha = fadeIn * p.life * intensityFactor; // Opacité complète (pas * 0.7)
+            glow(15, p.color); // Glow plus fort (12→15)
+            ctx.fillStyle = p.color;
             ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
         }
         noGlow(); ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = fadeIn;
@@ -3555,7 +3560,7 @@ AT.cyberpunk = {
     },
     render(dt) {
         ctx.clearRect(0, 0, W, H);
-        const vx = W*0.5+(mouse.active?(mouse.sx-W/2)*0.05:0), vy = H*0.88;
+        const vx = W * 0.5, vy = H * 0.88; // Point d'origine fixe et centré (pas d'interaction souris)
         const gl = quality === 'low' ? 10 : 20;
         ctx.strokeStyle = 'rgba(255,0,255,0.08)'; ctx.lineWidth = 1;
         for (let i = 1; i <= gl; i++) { const t = i/gl, y = vy-t*t*H*0.8, s = (1-t*0.3)*W*0.8; ctx.beginPath(); ctx.moveTo(vx-s,y); ctx.lineTo(vx+s,y); ctx.stroke(); }
@@ -3985,7 +3990,9 @@ AT.aurora = {
         const ribbons = [{ yBase:H*0.2, colors:['rgba(0,255,128,','rgba(0,200,255,'], speed:0.06, amp:70 },{ yBase:H*0.32, colors:['rgba(128,0,255,','rgba(0,255,200,'], speed:-0.04, amp:90 },{ yBase:H*0.15, colors:['rgba(255,80,200,','rgba(80,140,255,'], speed:0.05, amp:55 }];
         if (quality==='ultra'||quality==='high') ribbons.push({ yBase:H*0.4, colors:['rgba(0,180,255,','rgba(80,255,160,'], speed:-0.03, amp:60 });
         const rs = quality==='low'?8:quality==='medium'?14:22, rxs = getStep();
-        for (const rb of ribbons) { const rh=100, mi=mouse.active?(mouse.sx/W-0.5)*0.02:0;
+        // Onde autonome lente et apaisante (15-20s par cycle, pas d'interaction souris)
+        const autonomousWave = Math.sin(time * 0.055) * 0.012;
+        for (const rb of ribbons) { const rh=100, mi=autonomousWave;
             for (let s=0;s<rs;s++) { const t=s/rs, ba=Math.sin(t*Math.PI); ctx.beginPath();
                 for (let x=0;x<=W;x+=rxs) { const n=fbm(x*0.0012+time*(rb.speed+mi),rb.yBase*0.003+t*0.3,3); const y=rb.yBase+(t-0.5)*rh+n*rb.amp*ba; if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y); }
                 const ci=Math.min((t*rb.colors.length)|0,rb.colors.length-1); ctx.strokeStyle=rb.colors[ci]+(ba*0.12)+')'; ctx.lineWidth=quality==='low'?8:4; ctx.globalAlpha=fadeIn; ctx.stroke();

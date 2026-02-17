@@ -1,0 +1,122 @@
+/* =============================================
+   PRODUCTIVEAPP - CLIENT PORTAL MODULE
+   Tokens d'acces, Portail client
+   v1.0 - 2026-02-07
+   ============================================= */
+
+.portal-wrapper {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.portal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.portal-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+}
+
+.portal-description {
+    color: var(--text-secondary, #888);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    line-height: 1.5;
+}
+
+/* Token Cards */
+.portal-tokens {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.portal-token-card {
+    background: var(--bg-secondary, #1a1a2e);
+    border: 1px solid var(--border-color, #333);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s;
+}
+
+.portal-token-card:hover { transform: translateY(-2px); }
+
+.portal-token-card.revoked {
+    opacity: 0.5;
+    border-left: 4px solid #EF4444;
+}
+
+.portal-token-card.active {
+    border-left: 4px solid #10B981;
+}
+
+.portal-token-info { flex: 1; }
+
+.portal-token-client {
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    font-size: 1rem;
+}
+
+.portal-token-meta {
+    color: var(--text-secondary, #888);
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.portal-token-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 6px 12px;
+    background: var(--bg-primary, #0d0d1a);
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary, #888);
+    word-break: break-all;
+}
+
+.portal-copy-btn {
+    background: var(--accent-color, #d4af37);
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.portal-token-actions {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+/* Empty State */
+.portal-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary, #888);
+}
+
+.portal-empty-icon { font-size: 3rem; margin-bottom: 16px; }
+.portal-empty-text { font-size: 1.1rem; margin-bottom: 8px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .portal-wrapper { padding: 12px; }
+    .portal-token-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .portal-token-actions { margin-left: 0; }
+}

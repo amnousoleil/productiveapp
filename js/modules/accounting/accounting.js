@@ -276,10 +276,35 @@ const AccountingView = (function() {
     function renderTabContent(tab) {
         var content = document.getElementById('acc-tab-content');
         if (!content) return;
-        content.innerHTML = tab.render();
-        // Post-render hooks (graphiques par ex.)
-        if (tab.id === 'dashboard') {
-            initDashboardCharts();
+
+        // ── Délégation vers modules premium ──────────────────────────────
+        // Dashboard premium avec KPI sparklines + charts line+area
+        if (tab.id === 'dashboard' && typeof AccDashboard !== 'undefined') {
+            content.innerHTML = '';
+            AccDashboard.refresh(content);
+            return;
+        }
+        // Factures premium avec tableau avancé (avatars, icônes SVG, hover)
+        if (tab.id === 'invoices' && typeof AccInvoices !== 'undefined') {
+            content.innerHTML = '';
+            AccInvoices.render(content);
+            return;
+        }
+        // Scanner FinScan premium
+        if (tab.id === 'scanner' && typeof AccScanner !== 'undefined') {
+            content.innerHTML = '';
+            AccScanner.render(content);
+            return;
+        }
+        // ─────────────────────────────────────────────────────────────────
+
+        try {
+            content.innerHTML = tab.render();
+        } catch(renderErr) {
+            console.error('[AccountingView] Erreur rendu onglet', tab.id, renderErr);
+            content.innerHTML = '<div class="acc-empty"><div class="acc-empty-title">Erreur d\'affichage</div>' +
+                '<div class="acc-empty-desc">' + (renderErr.message || 'Erreur rendu') + '</div>' +
+                '<button class="acc-btn acc-btn-primary" data-action="retry-tab">Reessayer</button></div>';
         }
         if (tab.id === 'recurring' && typeof AccRecurring !== 'undefined') {
             var rc = document.getElementById('acc-recurring-container');
@@ -380,8 +405,37 @@ const AccountingView = (function() {
             case 'next-page':
                 changePage(1);
                 break;
+            case 'tab-scanner':
+                switchTab('scanner');
+                break;
+            case 'tab-invoices':
+                switchTab('invoices');
+                break;
+            case 'tab-expenses':
+                switchTab('expenses');
+                break;
+            case 'tab-budgets':
+                switchTab('budgets');
+                break;
+            case 'tab-bank':
+                switchTab('bank');
+                break;
+            case 'tab-contacts':
+                switchTab('contacts');
+                break;
+            case 'tab-documents':
+                switchTab('documents');
+                break;
+            case 'tab-tva':
+                switchTab('tva');
+                break;
             default:
-                console.log('[AccountingView] Action non geree:', action);
+                // Gestion generique tab-XXX
+                if (action && action.startsWith('tab-')) {
+                    switchTab(action.replace('tab-', ''));
+                } else {
+                    console.log('[AccountingView] Action non geree:', action);
+                }
         }
     }
 
@@ -978,9 +1032,9 @@ const AccountingView = (function() {
     }
 
     function renderBudgets() {
-        var budgets = AccState.get('budgets');
-        var departments = AccState.get('departments');
-        var variance = budgets.variance || [];
+        var budgets = AccState.get('budgets') || { overview: null, variance: [] };
+        var departments = AccState.get('departments') || [];
+        var variance = (budgets && Array.isArray(budgets.variance)) ? budgets.variance : [];
         var html = '';
 
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">';
@@ -1832,6 +1886,8 @@ const AccountingView = (function() {
     return {
         init: init,
         refresh: refresh,
-        closeModal: closeModal
+        closeModal: closeModal,
+        switchToTab: switchTab,
+        handleActionPublic: handleAction
     };
 })();
