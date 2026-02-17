@@ -1754,35 +1754,53 @@ setTimeout(function() {
 
         CosmicState.nodes.forEach(function(n) {
             if (n.isTextNode && (!n.text || n.text.trim() === '')) return; // skip empty text nodes
-            var sizeRatio = (n.radius || 40) / 40; // normalize around 40px default
 
-            // Compute width/height ratio for rects
-            var widthRatio = 2.2, heightRatio = 1.4;
-            if (n.shape === 'rect' && n.width && n.height) {
-                var avg = (n.width + n.height) / 2;
-                widthRatio = (n.width / avg) * 2;
-                heightRatio = (n.height / avg) * 2;
+            // Real 2D dimensions in pixels — shape-aware
+            var pxW, pxH, pxRadius;
+            var r = n.radius || 40;
+            if (n.isTextNode && n.textBoxWidth) {
+                // Text box with explicit dimensions
+                pxW = n.textBoxWidth;
+                pxH = n.textBoxHeight;
+                pxRadius = Math.max(pxW, pxH) / 2;
+            } else if (n.shape === 'rect') {
+                // CosmicShapes.rect draws: w = r*1.6, h = r*1.2
+                pxW = r * 1.6;
+                pxH = r * 1.2;
+                pxRadius = r;
+            } else if (n.shape === 'diamond') {
+                // Diamond: inscribed in circle of radius r
+                pxW = r * 2;
+                pxH = r * 2;
+                pxRadius = r;
+            } else {
+                // circle, hexagon, star: diameter = r*2
+                pxW = r * 2;
+                pxH = r * 2;
+                pxRadius = r;
             }
 
             nodes3D.push({
                 id: n.id,
                 type: 'shape',
                 sourceId: n.id,
-                label: n.text || '',  // only real user text, no shape name
+                label: n.text || '',
                 hexColor: n.color || '#60a5fa',
-                size: Math.max(0.5, Math.min(2.5, sizeRatio)),
+                size: pxRadius / SCALE,  // direct proportional: 40px → 1.33, 200px → 6.67
                 position: {
                     x: (n.x || 0) / SCALE,
-                    y: -(n.y || 0) / SCALE, // flip Y (2D y-down → 3D y-up)
+                    y: -(n.y || 0) / SCALE,
                     z: (Math.random() - 0.5) * 30
                 },
                 tags: [],
                 metadata: {
                     shape: n.shape || 'circle',
                     isTextNode: !!n.isTextNode,
-                    widthRatio: widthRatio,
-                    heightRatio: heightRatio,
-                    fontSize: n.fontSize || 16
+                    pxW: pxW,
+                    pxH: pxH,
+                    fontSize: n.fontSize || 16,
+                    textColor: n.textColor || null,
+                    opacity: n.opacity != null ? n.opacity : 1
                 }
             });
         });
@@ -1800,42 +1818,50 @@ setTimeout(function() {
         return { nodes: nodes3D, connections: conns3D };
     }
 
-    // --- Create "Retour 2D" floating button ---
-    function createBackButton() {
-        if (backBtn) return backBtn;
+    // --- Create bottom bar with "Retour 2D" + "Fit View" buttons ---
+    var bottomBar = null;
+
+    function createBottomBar() {
+        if (bottomBar) return bottomBar;
+
+        var btnStyle = 'width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,0.25);border-radius:12px;' +
+            'background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;' +
+            'backdrop-filter:blur(8px);transition:all 0.2s;display:flex;align-items:center;justify-content:center;';
+        var hoverIn = 'this.style.background="rgba(255,255,255,0.22)"';
+        var hoverOut = 'this.style.background="rgba(255,255,255,0.1)"';
+
+        // Back button — curved arrow SVG
         backBtn = document.createElement('button');
         backBtn.id = 'galaxy-back-2d';
-        backBtn.textContent = '← Retour 2D';
-        backBtn.style.cssText = 'position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;' +
-            'padding:10px 24px;border:1px solid rgba(255,255,255,0.2);border-radius:12px;' +
-            'background:rgba(10,10,30,0.85);color:#fff;font-size:14px;font-weight:600;cursor:pointer;' +
-            'backdrop-filter:blur(8px);transition:all 0.2s;';
-        backBtn.addEventListener('mouseenter', function() { backBtn.style.background = 'rgba(80,80,200,0.6)'; });
-        backBtn.addEventListener('mouseleave', function() { backBtn.style.background = 'rgba(10,10,30,0.85)'; });
+        backBtn.title = 'Retour 2D';
+        backBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H14"/></svg>';
+        backBtn.style.cssText = btnStyle;
+        backBtn.setAttribute('onmouseenter', hoverIn);
+        backBtn.setAttribute('onmouseleave', hoverOut);
         backBtn.addEventListener('click', function() { toggle3D(); });
-        return backBtn;
-    }
 
-    // --- Create "Fit to view" button ---
-    function createFitButton() {
-        if (fitBtn) return fitBtn;
+        // Fit view button — eye SVG
         fitBtn = document.createElement('button');
         fitBtn.id = 'galaxy-fit-view';
-        fitBtn.title = 'Cadrer toute la galaxie';
-        fitBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>';
-        fitBtn.style.cssText = 'position:absolute;top:16px;right:16px;z-index:200;' +
-            'width:40px;height:40px;display:flex;align-items:center;justify-content:center;' +
-            'border:1px solid rgba(255,255,255,0.2);border-radius:10px;' +
-            'background:rgba(10,10,30,0.85);color:#fff;cursor:pointer;' +
-            'backdrop-filter:blur(8px);transition:all 0.2s;';
-        fitBtn.addEventListener('mouseenter', function() { fitBtn.style.background = 'rgba(80,80,200,0.6)'; });
-        fitBtn.addEventListener('mouseleave', function() { fitBtn.style.background = 'rgba(10,10,30,0.85)'; });
+        fitBtn.title = 'Vue panoramique';
+        fitBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3.5" fill="rgba(255,255,255,0.9)" stroke="none"/></svg>';
+        fitBtn.style.cssText = btnStyle;
+        fitBtn.setAttribute('onmouseenter', hoverIn);
+        fitBtn.setAttribute('onmouseleave', hoverOut);
         fitBtn.addEventListener('click', function() {
             if (typeof Galaxy3D !== 'undefined' && Galaxy3D.isInitialized) {
                 Galaxy3D.fitToView();
             }
         });
-        return fitBtn;
+
+        // Container bar
+        bottomBar = document.createElement('div');
+        bottomBar.id = 'galaxy-3d-bottombar';
+        bottomBar.style.cssText = 'position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;' +
+            'display:flex;gap:8px;';
+        bottomBar.appendChild(backBtn);
+        bottomBar.appendChild(fitBtn);
+        return bottomBar;
     }
 
     // --- Toggle ---
@@ -1897,9 +1923,8 @@ setTimeout(function() {
                 console.error('[3D Toggle] Galaxy3D not loaded!');
             }
 
-            // Add overlay buttons
-            container.appendChild(createBackButton());
-            container.appendChild(createFitButton());
+            // Add bottom bar (Retour 2D + Vue globale)
+            container.appendChild(createBottomBar());
 
             // Update toggle button
             if (toggleBtn) {
@@ -1920,9 +1945,8 @@ setTimeout(function() {
             canvas2D.style.display = 'block';
             if (toolbar) toolbar.style.display = '';
 
-            // Remove overlay buttons
-            if (backBtn && backBtn.parentNode) backBtn.parentNode.removeChild(backBtn);
-            if (fitBtn && fitBtn.parentNode) fitBtn.parentNode.removeChild(fitBtn);
+            // Remove bottom bar
+            if (bottomBar && bottomBar.parentNode) bottomBar.parentNode.removeChild(bottomBar);
 
             // Restore toggle button
             if (toggleBtn) {

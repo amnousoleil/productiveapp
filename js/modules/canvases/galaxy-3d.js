@@ -20,7 +20,7 @@ const Galaxy3D = (function() {
     // === STATE ===
     let scene, camera, renderer, controls;
     let raycaster, mouse;
-    let spheres = [];        // { mesh, data, label, glowMesh }
+    let spheres = [];        // { mesh, data, label, size }
     let connections = [];    // { line, data }
     let starField;
     let animationId = null;
@@ -294,21 +294,26 @@ const Galaxy3D = (function() {
     }
 
     // === SURFACE TEXT TEXTURE (for rect & diamond) ===
-    // fontSizeHint: the node's 2D fontSize (default 16)
-    function createSurfaceTexture(text, fillColor, canvasW, canvasH, fontSizeHint) {
+    // rectW/rectH: real pixel dimensions of the 2D node — canvas uses SAME ratio
+    function createSurfaceTexture(text, fillColor, rectW, rectH, fontSizeHint, textColor) {
+        // Canvas with SAME aspect ratio as the rectangle
+        var ratio = (rectW && rectH) ? rectW / rectH : 2;
+        var canvasHeight = 512;
+        var canvasWidth = Math.round(canvasHeight * ratio);
+
         var canvas = document.createElement('canvas');
-        canvas.width = canvasW || 512;
-        canvas.height = canvasH || 256;
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
         var ctx = canvas.getContext('2d');
 
         // Fill background with node color
         ctx.fillStyle = fillColor;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
         // Subtle inner border for depth
         ctx.strokeStyle = 'rgba(255,255,255,0.15)';
         ctx.lineWidth = 4;
-        ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
+        ctx.strokeRect(8, 8, canvasWidth - 16, canvasHeight - 16);
 
         if (!text || !text.trim()) {
             var tex = new window.THREE.CanvasTexture(canvas);
@@ -316,28 +321,27 @@ const Galaxy3D = (function() {
             return tex;
         }
 
-        // Scale initial font size from 2D fontSize
-        // 2D default is 16px → canvas font 48px. Scale proportionally.
-        var baseFontSize = Math.round(Math.max(24, Math.min(80, (fontSizeHint || 16) * 3)));
+        // Text color: use explicit textColor, or strong auto-contrast based on fill luminance
+        var txtColor = textColor;
+        if (!txtColor) {
+            var tmpC = new window.THREE.Color(fillColor);
+            var lum = 0.299 * tmpC.r + 0.587 * tmpC.g + 0.114 * tmpC.b;
+            txtColor = lum > 0.45 ? '#000000' : '#ffffff';
+        }
 
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
-        ctx.shadowBlur = 4;
-
-        var maxWidth = canvas.width * 0.85;
-        var maxHeight = canvas.height * 0.8;
+        // Auto-size: shrink font until text fits within padded area
+        var padding = canvasWidth * 0.10;  // 10% padding each side
+        var maxTextWidth = canvasWidth - (padding * 2);
+        var maxTextHeight = canvasHeight * 0.50;  // text ≤ 50% of height
         var words = text.split(/\s+/);
 
-        // Find the best font size that fits (start from scaled size)
-        var fontSize = baseFontSize;
+        var fontSize = Math.round(maxTextHeight);
         var lines = [];
-        while (fontSize >= 14) {
+        while (fontSize >= 12) {
             ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
-            lines = _wrapText(ctx, words, maxWidth);
+            lines = _wrapText(ctx, words, maxTextWidth);
             var totalH = lines.length * (fontSize * 1.25);
-            if (totalH <= maxHeight && lines.length <= 5) break;
+            if (totalH <= maxTextHeight && lines.length <= 5) break;
             fontSize -= 2;
         }
 
@@ -347,12 +351,18 @@ const Galaxy3D = (function() {
             lines[4] = lines[4].replace(/.{3}$/, '...');
         }
 
-        // Draw lines centered
+        // Draw text CENTERED with strong contrast
+        ctx.fillStyle = txtColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = txtColor === '#ffffff' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.3)';
+        ctx.shadowBlur = 6;
+
         var lineHeight = fontSize * 1.25;
-        var startY = (canvas.height - lines.length * lineHeight) / 2 + lineHeight / 2;
+        var startY = (canvasHeight - lines.length * lineHeight) / 2 + lineHeight / 2;
         ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
         for (var i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], canvas.width / 2, startY + i * lineHeight);
+            ctx.fillText(lines[i], canvasWidth / 2, startY + i * lineHeight);
         }
 
         var tex = new window.THREE.CanvasTexture(canvas);
@@ -374,6 +384,76 @@ const Galaxy3D = (function() {
         }
         if (current) lines.push(current);
         return lines;
+    }
+
+    // Create a circular transparent sprite with text — "Universal Pictures" style
+    // Placed at sphere center and oriented toward camera in animate()
+    function createSphereLabelSprite(text, sphereRadius, fillColor, textColor) {
+        var THREE = window.THREE;
+        var res = 512;
+        var canvas = document.createElement('canvas');
+        canvas.width = res;
+        canvas.height = res;
+        var ctx = canvas.getContext('2d');
+
+        // Transparent background — text only
+        ctx.clearRect(0, 0, res, res);
+
+        // Text color: explicit or auto-contrast
+        var txtColor = textColor;
+        if (!txtColor) {
+            var tmpC = new THREE.Color(fillColor);
+            var lum = 0.299 * tmpC.r + 0.587 * tmpC.g + 0.114 * tmpC.b;
+            txtColor = lum > 0.45 ? '#000000' : '#ffffff';
+        }
+
+        ctx.fillStyle = txtColor;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = txtColor === '#ffffff' ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.4)';
+        ctx.shadowBlur = 8;
+
+        // Auto-size: fit text within ~70% of the circle diameter
+        var maxWidth = res * 0.70;
+        var maxHeight = res * 0.40;
+        var words = text.split(/\s+/);
+
+        var fontSize = Math.round(maxHeight);
+        var lines = [];
+        while (fontSize >= 16) {
+            ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
+            lines = _wrapText(ctx, words, maxWidth);
+            var totalH = lines.length * (fontSize * 1.25);
+            if (totalH <= maxHeight && lines.length <= 3) break;
+            fontSize -= 2;
+        }
+        if (lines.length > 3) {
+            lines = lines.slice(0, 3);
+            lines[2] = lines[2].replace(/.{3}$/, '...');
+        }
+
+        // Draw centered
+        var lineHeight = fontSize * 1.25;
+        var startY = (res - lines.length * lineHeight) / 2 + lineHeight / 2;
+        ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
+        for (var i = 0; i < lines.length; i++) {
+            ctx.fillText(lines[i], res / 2, startY + i * lineHeight);
+        }
+
+        var texture = new THREE.CanvasTexture(canvas);
+        texture.minFilter = THREE.LinearFilter;
+        var material = new THREE.SpriteMaterial({
+            map: texture,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true
+        });
+        var sprite = new THREE.Sprite(material);
+        // Scale to match sphere diameter (slightly larger so text sits on surface)
+        var d = sphereRadius * 2.1;
+        sprite.scale.set(d, d, 1);
+        sprite.userData._isFaceLabel = true;
+        return sprite;
     }
 
     function addSphere(data) {
@@ -398,20 +478,25 @@ const Galaxy3D = (function() {
             pulseSpeed = pConfig.pulseSpeed;
         }
 
-        var size = (data.size || 1) * SPHERE_BASE_SIZE;
+        // Size comes directly from adapter: pxRadius / SCALE (no clamping)
+        var size = Math.max(0.3, data.size || 1);
         var isStar = (shape === 'star');
         var nodeFontSize = (data.metadata && data.metadata.fontSize) || 16;
+        var nodeTextColor = (data.metadata && data.metadata.textColor) || null;
+        var nodeOpacity = (data.metadata && data.metadata.opacity != null) ? data.metadata.opacity : 1;
+        var pxW = (data.metadata && data.metadata.pxW) || 80;
+        var pxH = (data.metadata && data.metadata.pxH) || 80;
+        var SCALE3D = 30; // same scale as position conversion
 
-        // Geometry based on shape
+        // Geometry based on shape — use real pixel proportions
         var geometry;
         if (isTextNode) {
             geometry = null;
         } else if (shape === 'star') {
             geometry = createStarGeometry(size);
         } else if (shape === 'rect') {
-            var wr = data.metadata.widthRatio || 2.2;
-            var hr = data.metadata.heightRatio || 1.4;
-            geometry = createRectGeometry(size, wr, hr);
+            // Real rect: use pixel W/H converted to 3D units
+            geometry = new THREE.BoxGeometry(pxW / SCALE3D, pxH / SCALE3D, Math.min(pxW, pxH) / SCALE3D * 0.15);
         } else if (shape === 'diamond') {
             geometry = createDiamondGeometry(size);
         } else if (shape === 'hexagon') {
@@ -421,22 +506,23 @@ const Galaxy3D = (function() {
         }
 
         var mesh;
-        var glowMesh = null;
 
         if (geometry) {
             // Build material — with surface texture for rect/diamond
             var material;
+            var isTransparent = nodeOpacity < 1;
             if (hasSurfaceText) {
                 var fillHex = '#' + sphereColor.getHexString();
-                var texW = (shape === 'rect') ? 512 : 256;
-                var texH = (shape === 'rect') ? 256 : 256;
-                var surfaceTex = createSurfaceTexture(data.label, fillHex, texW, texH, nodeFontSize);
+                // Pass real pixel dimensions — createSurfaceTexture will compute canvas at same ratio
+                var surfaceTex = createSurfaceTexture(data.label, fillHex, pxW, pxH, nodeFontSize, nodeTextColor);
                 material = new THREE.MeshStandardMaterial({
                     map: surfaceTex,
                     emissive: emissiveColor,
                     emissiveIntensity: emissiveIntensity * 0.5,
                     metalness: 0.2,
-                    roughness: 0.5
+                    roughness: 0.5,
+                    transparent: isTransparent,
+                    opacity: nodeOpacity
                 });
             } else {
                 material = new THREE.MeshStandardMaterial({
@@ -444,7 +530,9 @@ const Galaxy3D = (function() {
                     emissive: emissiveColor,
                     emissiveIntensity: emissiveIntensity,
                     metalness: 0.3,
-                    roughness: 0.4
+                    roughness: 0.4,
+                    transparent: isTransparent,
+                    opacity: nodeOpacity
                 });
             }
 
@@ -460,19 +548,7 @@ const Galaxy3D = (function() {
                 data.position?.z ?? (Math.random() - 0.5) * SPACE_RANGE
             );
 
-            // Glow
-            var glowRadius = (shape === 'rect') ? size * 2.0 : size * 1.6;
-            var glowGeometry = new THREE.SphereGeometry(glowRadius, 16, 16);
-            var glowMaterial = new THREE.MeshBasicMaterial({
-                color: sphereColor,
-                transparent: true,
-                opacity: 0.08,
-                side: THREE.BackSide,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false
-            });
-            glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-            mesh.add(glowMesh);
+            // Glow removed — clean airy look matching 2D
         } else {
             mesh = new THREE.Object3D();
             mesh.position.set(
@@ -498,18 +574,29 @@ const Galaxy3D = (function() {
 
         scene.add(mesh);
 
-        // Floating label: only for circle, star, hexagon, and text-only nodes
-        // rect and diamond get surface-printed text instead
+        // Labels — different strategy per shape:
+        // circle/hexagon/star: "Universal" style — text sprite at center, faces camera
+        // textNode: floating billboard at center
+        // rect/diamond: surface texture (already handled above via hasSurfaceText)
         var label = null;
         if (data.label && data.label.trim() && !hasSurfaceText) {
-            label = createTextSprite(data.label, sphereColor, nodeFontSize, size);
-            var labelY = isTextNode ? 0 : size + 1.2;
-            label.position.set(0, labelY, 0);
-            label.visible = showLabels;
-            mesh.add(label);
+            var fillHexForLabel = '#' + sphereColor.getHexString();
+            if (shape === 'circle' || shape === 'hexagon' || shape === 'star') {
+                // "Universal" face label — sits at center, faces camera
+                label = createSphereLabelSprite(data.label, size, fillHexForLabel, nodeTextColor);
+                label.position.set(0, 0, 0);
+                label.visible = showLabels;
+                mesh.add(label);
+            } else if (isTextNode) {
+                // Text-only node — floating billboard at center
+                label = createTextSprite(data.label, sphereColor, nodeFontSize, size);
+                label.position.set(0, 0, 0);
+                label.visible = showLabels;
+                mesh.add(label);
+            }
         }
 
-        var sphereObj = { mesh, data, label, glowMesh, size };
+        var sphereObj = { mesh, data, label, size };
         spheres.push(sphereObj);
         return sphereObj;
     }
@@ -551,11 +638,11 @@ const Galaxy3D = (function() {
         });
         var sprite = new THREE.Sprite(material);
 
-        // Scale sprite proportional to nodeSize and fontSize
-        // Base: size 1.2 (SPHERE_BASE_SIZE) → scaleX 8. Scale up with fontSize.
+        // Scale sprite to stay proportional to the sphere it sits above
+        // Cap width at ~1.5x the sphere diameter so labels never dwarf the shape
         var sizeRef = nodeSize || SPHERE_BASE_SIZE;
-        var fontScale = (fontSizeHint || 16) / 16;
-        var spriteW = Math.max(6, sizeRef * 4 * fontScale);
+        var diameter = sizeRef * 2;
+        var spriteW = Math.min(diameter * 1.5, Math.max(1.5, sizeRef * 1.6));
         var spriteH = spriteW * (canvas.height / canvas.width);
         sprite.scale.set(spriteW, spriteH, 1);
         return sprite;
@@ -779,15 +866,7 @@ const Galaxy3D = (function() {
                 const pulse = 1 + 0.02 * Math.sin(time * ud.pulseSpeed * 0.4 + ud.pulsePhase);
                 s.mesh.scale.setScalar(pulse);
 
-                // Slow rotation for stars
-                if (ud.isStar) {
-                    s.mesh.rotation.z += 0.003;
-                    s.mesh.rotation.y += 0.001;
-                }
-
-                if (s.glowMesh && s.glowMesh.material) {
-                    s.glowMesh.material.opacity = 0.06 + 0.02 * Math.sin(time * ud.pulseSpeed * 0.3 + ud.pulsePhase);
-                }
+                // Star rotation removed — label sprite is a child, rotation would spin it
             });
 
             // Connection glow animation
