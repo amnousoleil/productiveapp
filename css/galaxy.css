@@ -538,6 +538,36 @@
     background: #030308;
 }
 
+#view-galaxy:fullscreen {
+    width: 100vw;
+    height: 100vh;
+    background: #030308;
+}
+
+/* Hide toolbar in fullscreen for immersion */
+#view-galaxy:fullscreen #galaxy-toolbar {
+    display: none !important;
+}
+
+/* Floating project name in fullscreen */
+#galaxy-fs-project-label {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    color: rgba(255, 255, 255, 0.5);
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    transition: opacity 0.3s ease;
+}
+
 #view-galaxy #galaxy-toolbar {
     display: flex;
     align-items: center;

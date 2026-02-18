@@ -760,7 +760,8 @@ class CosmicRenderer {
         const r = node.radius;
         let ex, ey;
         if (node.shape === 'rect') {
-            const hw = r * 0.8, hh = r * 0.6;
+            const hw = node.width ? node.width / 2 : r * 0.8;
+            const hh = node.height ? node.height / 2 : r * 0.6;
             const absCos = Math.abs(Math.cos(angle)), absSin = Math.abs(Math.sin(angle));
             const scale = Math.min(hw / (absCos || 1e-6), hh / (absSin || 1e-6));
             ex = Math.cos(angle) * scale;
@@ -947,7 +948,7 @@ class CosmicRenderer {
                 ctx.beginPath();
                 ctx.rect(-tw / 2, -th / 2, tw, th);
             } else if (pathFn) {
-                pathFn(ctx, radius);
+                pathFn(ctx, radius, node.shape === 'rect' ? node : undefined);
             }
             if (isTextBox || pathFn) {
                 // Text nodes: skip fill/stroke (invisible shape)
@@ -988,6 +989,7 @@ class CosmicRenderer {
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 const maxW = (node.isTextNode && node.textBoxWidth) ? node.textBoxWidth * zoom * 0.95
+                           : (node.shape === 'rect' && node.width) ? node.width * zoom * 0.85
                            : node.isTextNode ? radius * 2.5
                            : radius * 1.4;
                 const words = node.text.split(' ');
@@ -1006,6 +1008,7 @@ class CosmicRenderer {
                 const lh = fs * 1.25;
                 // Vertical clamp: limit lines to fit inside shape
                 const maxH = (node.isTextNode && node.textBoxHeight) ? node.textBoxHeight * zoom * 0.95
+                           : (node.shape === 'rect' && node.height) ? node.height * zoom * 0.85
                            : (node.shape === 'rect') ? radius * zoom * 1.0
                            : radius * zoom * 1.6;
                 const maxLines = Math.max(1, Math.floor(maxH / lh));

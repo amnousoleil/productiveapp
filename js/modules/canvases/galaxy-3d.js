@@ -35,12 +35,12 @@ const Galaxy3D = (function() {
 
     // === CONSTANTS ===
     const PRIORITY_COLORS = {
-        urgent:   { color: 0xff2222, emissive: 0xff2222, intensity: 2.0, pulseSpeed: 3.0 },
-        high:     { color: 0xff6600, emissive: 0xff4400, intensity: 1.5, pulseSpeed: 2.0 },
-        medium:   { color: 0xffaa00, emissive: 0xff8800, intensity: 1.0, pulseSpeed: 1.5 },
-        low:      { color: 0x4488ff, emissive: 0x2266ff, intensity: 0.5, pulseSpeed: 1.0 },
-        done:     { color: 0x22cc66, emissive: 0x11aa44, intensity: 0.3, pulseSpeed: 0.5 },
-        default:  { color: 0xaaaacc, emissive: 0x8888aa, intensity: 0.4, pulseSpeed: 1.0 }
+        urgent:   { color: 0xff2222, emissive: 0xff2222, intensity: 0.6, pulseSpeed: 3.0 },
+        high:     { color: 0xff6600, emissive: 0xff4400, intensity: 0.5, pulseSpeed: 2.0 },
+        medium:   { color: 0xffaa00, emissive: 0xff8800, intensity: 0.4, pulseSpeed: 1.5 },
+        low:      { color: 0x4488ff, emissive: 0x2266ff, intensity: 0.3, pulseSpeed: 1.0 },
+        done:     { color: 0x22cc66, emissive: 0x11aa44, intensity: 0.2, pulseSpeed: 0.5 },
+        default:  { color: 0xaaaacc, emissive: 0x8888aa, intensity: 0.2, pulseSpeed: 1.0 }
     };
 
     const SPHERE_BASE_SIZE = 1.2;
@@ -149,11 +149,12 @@ const Galaxy3D = (function() {
             };
             console.log('[3D] OrbitControls OK');
 
-            // Trackpad: intercept wheel BEFORE OrbitControls
-            // Two-finger scroll (no ctrlKey) = pan, pinch (ctrlKey) = let OrbitControls zoom
+            // Wheel: distinguish trackpad vs mouse, intercept BEFORE OrbitControls
             canvasEl.addEventListener('wheel', function(e) {
-                if (!e.ctrlKey) {
-                    // Two-finger trackpad scroll → pan
+                var isTrackpad = Math.abs(e.deltaY) < 50 && e.deltaMode === 0;
+
+                if (isTrackpad && !e.ctrlKey) {
+                    // Trackpad two-finger scroll → PAN
                     e.preventDefault();
                     e.stopPropagation();
                     var dist = camera.position.distanceTo(controls.target);
@@ -162,8 +163,18 @@ const Galaxy3D = (function() {
                     camera.position.y -= e.deltaY * panScale;
                     controls.target.x += e.deltaX * panScale;
                     controls.target.y -= e.deltaY * panScale;
+                } else if (isTrackpad && e.ctrlKey) {
+                    // Trackpad pinch → ZOOM — OrbitControls handles it
+                } else if (!isTrackpad && e.ctrlKey) {
+                    // Mouse CTRL + wheel → PAN vertical
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var dist = camera.position.distanceTo(controls.target);
+                    var panScale = dist * 0.002;
+                    camera.position.y -= e.deltaY * panScale;
+                    controls.target.y -= e.deltaY * panScale;
                 }
-                // ctrlKey = true → pinch zoom, OrbitControls handles it
+                // Mouse wheel alone → ZOOM — OrbitControls handles it
             }, { passive: false, capture: true });
         } else {
             console.warn('[3D] OrbitControls NOT available');
@@ -179,9 +190,15 @@ const Galaxy3D = (function() {
         // Starfield
         createStarField();
 
+        // Nebulae
+        initNebulae();
+
         // Events
         canvasEl.addEventListener('mousemove', onMouseMove, false);
         canvasEl.addEventListener('click', onMouseClick, false);
+        canvasEl.addEventListener('mousedown', onUserInterrupt, false);
+        canvasEl.addEventListener('wheel', onUserInterrupt, false);
+        canvasEl.addEventListener('touchstart', onUserInterrupt, false);
         window.addEventListener('resize', onResize, false);
 
         initialized = true;
@@ -202,55 +219,255 @@ const Galaxy3D = (function() {
     }
 
 
+    let nodeLights = [];  // [{ light, baseIntensity, pulsePhase, pulsePeriod }]
+    const NODE_LIGHTS_MAX = 6;
+    const NODE_LIGHT_SIZE_THRESHOLD = 1.5; // minimum sphere size to emit light
+
     function setupLights() {
         const THREE = window.THREE;
 
-        // Ambient
-        const ambient = new THREE.AmbientLight(0x445577, 1.0);
+        // Ambient — base illumination so no face is pitch-black
+        const ambient = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambient);
 
-        // Point lights for atmosphere
-        const light1 = new THREE.PointLight(0x6644ff, 0.8, 200);
+        // Strong directional light — creates specular highlights on shiny surfaces
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(5, 10, 7);
+        scene.add(dirLight);
+
+        // Atmospheric point lights (subtle color accents)
+        const light1 = new THREE.PointLight(0x6644ff, 0.3, 300);
         light1.position.set(30, 30, 30);
         scene.add(light1);
 
-        const light2 = new THREE.PointLight(0xff4466, 0.5, 200);
+        const light2 = new THREE.PointLight(0xff4466, 0.2, 300);
         light2.position.set(-30, -20, -30);
         scene.add(light2);
 
-        const light3 = new THREE.PointLight(0x44aaff, 0.4, 200);
+        const light3 = new THREE.PointLight(0x44aaff, 0.2, 300);
         light3.position.set(0, 40, -20);
         scene.add(light3);
     }
 
-    function createStarField() {
-        const THREE = window.THREE;
-        const count = 3000;
-        const positions = new Float32Array(count * 3);
-        const colors = new Float32Array(count * 3);
-        for (var i = 0; i < count; i++) {
-            positions[i * 3]     = (Math.random() - 0.5) * 600;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 600;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 600;
-            var brightness = 0.4 + Math.random() * 0.6;
-            colors[i * 3]     = brightness;
-            colors[i * 3 + 1] = brightness;
-            colors[i * 3 + 2] = brightness + Math.random() * 0.15;
+    function rebuildNodeLights() {
+        var THREE = window.THREE;
+        disposeNodeLights();
+        if (spheres.length === 0) return;
+
+        // Find max size as reference
+        var maxSize = 0;
+        for (var i = 0; i < spheres.length; i++) {
+            if (spheres[i].size > maxSize) maxSize = spheres[i].size;
         }
+        if (maxSize < 0.1) return;
+
+        // Sort by size descending, pick top N
+        var sorted = spheres.slice().sort(function(a, b) { return b.size - a.size; });
+        var count = 0;
+
+        for (var j = 0; j < sorted.length && count < NODE_LIGHTS_MAX; j++) {
+            var s = sorted[j];
+            var ratio = s.size / maxSize;
+
+            // Skip small nodes (ratio < 0.3)
+            if (ratio < 0.3) break; // sorted desc, all following are smaller
+
+            var intensity, distance;
+            if (ratio >= 0.6) {
+                // Big nodes — strong light
+                var t = (ratio - 0.6) / 0.4; // 0→1
+                intensity = 0.2 + t * 0.2;   // 0.2→0.4
+                distance = s.size * 4;
+            } else {
+                // Medium nodes — faint glow
+                var t2 = (ratio - 0.3) / 0.3; // 0→1
+                intensity = 0.05 + t2 * 0.05;  // 0.05→0.1
+                distance = s.size * 2.5;
+            }
+
+            // Color from the sphere's emissive or main color
+            var color;
+            if (s.mesh.material && s.mesh.material.emissive) {
+                color = s.mesh.material.emissive.clone();
+            } else if (s.mesh.material && s.mesh.material.color) {
+                color = s.mesh.material.color.clone();
+            } else {
+                color = new THREE.Color(0x4488ff);
+            }
+
+            var light = new THREE.PointLight(color, intensity, distance, 2);
+            light.position.copy(s.mesh.position);
+            light.castShadow = false;
+            scene.add(light);
+
+            nodeLights.push({
+                light: light,
+                sphereRef: s,
+                baseIntensity: intensity,
+                pulsePhase: Math.random() * Math.PI * 2,
+                pulsePeriod: 8 + Math.random() * 4
+            });
+            count++;
+        }
+    }
+
+    function updateNodeLights(time) {
+        for (var i = 0; i < nodeLights.length; i++) {
+            var nl = nodeLights[i];
+            // Follow sphere position (in case of layout changes)
+            nl.light.position.copy(nl.sphereRef.mesh.position);
+            // Subtle pulse ±10%
+            var pulse = 1 + 0.1 * Math.sin(time / nl.pulsePeriod * Math.PI * 2 + nl.pulsePhase);
+            nl.light.intensity = nl.baseIntensity * pulse;
+        }
+    }
+
+    function disposeNodeLights() {
+        for (var i = 0; i < nodeLights.length; i++) {
+            if (scene) scene.remove(nodeLights[i].light);
+        }
+        nodeLights = [];
+    }
+
+    // === MULTI-LAYER STARFIELD ===
+    // 2 layers: far (backdrop) + mid (parallax depth)
+    var _starLayers = []; // { points, baseColors, phases, speeds, drift, followFactor }
+    var _starTexture = null; // shared round glow texture
+
+    function _getStarTexture() {
+        if (_starTexture) return _starTexture;
+        var THREE = window.THREE;
+        var c = document.createElement('canvas');
+        c.width = 32; c.height = 32;
+        var ctx = c.getContext('2d');
+        var g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        g.addColorStop(0, 'rgba(255,255,255,1)');
+        g.addColorStop(0.3, 'rgba(255,255,255,0.6)');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, 32, 32);
+        _starTexture = new THREE.CanvasTexture(c);
+        return _starTexture;
+    }
+
+    function _createStarLayer(count, spread, size, renderOrder, driftSpeed, followFactor) {
+        var THREE = window.THREE;
+        var positions = new Float32Array(count * 3);
+        var colors = new Float32Array(count * 3);
+        var baseColors = new Float32Array(count * 3);
+        var phases = new Float32Array(count);
+        var speeds = new Float32Array(count);
+
+        // Clamp max size to avoid giant square particles
+        var clampedSize = Math.min(size, 2.5);
+
+        for (var i = 0; i < count; i++) {
+            positions[i * 3]     = (Math.random() - 0.5) * spread;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * spread;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * spread;
+            // Bright white base — never dark, minimum 0.75
+            var brightness = 0.75 + Math.random() * 0.25;
+            // Subtle color tint variety
+            var tintR = 1.0, tintG = 1.0, tintB = 1.0;
+            var tint = Math.random();
+            if (tint < 0.12) { tintR = 0.9; tintB = 1.1; } // slight blue
+            else if (tint < 0.20) { tintR = 1.1; tintG = 0.95; tintB = 0.9; } // slight warm
+            colors[i * 3]     = brightness * tintR;
+            colors[i * 3 + 1] = brightness * tintG;
+            colors[i * 3 + 2] = brightness * tintB;
+            baseColors[i * 3]     = colors[i * 3];
+            baseColors[i * 3 + 1] = colors[i * 3 + 1];
+            baseColors[i * 3 + 2] = colors[i * 3 + 2];
+            phases[i] = Math.random() * Math.PI * 2;
+            speeds[i] = 0.3 + Math.random() * 1.5;
+        }
+
         var geometry = new THREE.BufferGeometry();
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
         var material = new THREE.PointsMaterial({
-            size: 1.5,
+            size: clampedSize,
+            map: _getStarTexture(),
             vertexColors: true,
             transparent: true,
-            opacity: 0.9,
+            opacity: 1.0,
+            alphaTest: 0.01,
             sizeAttenuation: true,
+            depthTest: false,
             depthWrite: false
         });
-        starField = new THREE.Points(geometry, material);
-        scene.add(starField);
-        console.log('Galaxy3D: starfield created (' + count + ' stars)');
+        var points = new THREE.Points(geometry, material);
+        points.renderOrder = renderOrder;
+        scene.add(points);
+
+        return {
+            points: points,
+            baseColors: baseColors,
+            phases: phases,
+            speeds: speeds,
+            driftSpeed: driftSpeed,
+            followFactor: followFactor,
+            count: count
+        };
+    }
+
+    function createStarField() {
+        // Far layer: dense tiny stars, deep background
+        _starLayers.push(_createStarLayer(
+            2500,   // count
+            800,    // spread
+            0.8,    // size (small points)
+            -2000,  // renderOrder (deepest)
+            0.00003, // drift speed (very slow)
+            1.0     // follows camera fully
+        ));
+
+        // Mid layer: moderate stars at medium distance (parallax depth)
+        _starLayers.push(_createStarLayer(
+            1200,   // count
+            600,    // spread
+            1.5,    // size (medium points)
+            -1800,  // renderOrder (between far and nodes)
+            0.0001,  // drift speed (slow)
+            0.95    // follows camera almost fully (slight parallax)
+        ));
+
+        // Keep starField reference pointing to far layer for compat
+        starField = _starLayers[0].points;
+    }
+
+    function updateStarField(time) {
+        if (_starLayers.length === 0) return;
+
+        for (var L = 0; L < _starLayers.length; L++) {
+            var layer = _starLayers[L];
+            var pts = layer.points;
+
+            // Follow camera with per-layer parallax factor
+            pts.position.set(
+                camera.position.x * layer.followFactor,
+                camera.position.y * layer.followFactor,
+                camera.position.z * layer.followFactor
+            );
+
+            // Slow drift rotation (each layer at different speed/axis)
+            pts.rotation.y += layer.driftSpeed;
+            pts.rotation.x += layer.driftSpeed * 0.4;
+
+            // Twinkle: batch update colors — never below 0.8x base so no black flicker
+            var colors = pts.geometry.attributes.color.array;
+            var count = layer.count;
+            var batchSize = Math.min(400, count);
+            var batchStart = (Math.floor(time * (2 + L)) * batchSize) % count;
+            var batchEnd = Math.min(batchStart + batchSize, count);
+            for (var i = batchStart; i < batchEnd; i++) {
+                var twinkle = 0.8 + 0.2 * Math.sin(time * layer.speeds[i] + layer.phases[i]);
+                colors[i * 3]     = layer.baseColors[i * 3]     * twinkle;
+                colors[i * 3 + 1] = layer.baseColors[i * 3 + 1] * twinkle;
+                colors[i * 3 + 2] = layer.baseColors[i * 3 + 2] * twinkle;
+            }
+            pts.geometry.attributes.color.needsUpdate = true;
+        }
     }
 
     // === SPHERE MANAGEMENT ===
@@ -322,11 +539,16 @@ const Galaxy3D = (function() {
         }
 
         // Text color: use explicit textColor, or strong auto-contrast based on fill luminance
+        // THREE.Color stores r/g/b in linear space [0..1]
         var txtColor = textColor;
         if (!txtColor) {
             var tmpC = new window.THREE.Color(fillColor);
-            var lum = 0.299 * tmpC.r + 0.587 * tmpC.g + 0.114 * tmpC.b;
-            txtColor = lum > 0.45 ? '#000000' : '#ffffff';
+            // W3C relative luminance (already linear in THREE.Color)
+            var lum = 0.2126 * tmpC.r + 0.7152 * tmpC.g + 0.0722 * tmpC.b;
+            // Contrast ratio against white vs black — pick whichever gives better contrast
+            var contrastWhite = (1.05) / (lum + 0.05);
+            var contrastBlack = (lum + 0.05) / (0.05);
+            txtColor = contrastWhite > contrastBlack ? '#ffffff' : '#000000';
         }
 
         // Auto-size: shrink font until text fits within padded area
@@ -351,16 +573,26 @@ const Galaxy3D = (function() {
             lines[4] = lines[4].replace(/.{3}$/, '...');
         }
 
-        // Draw text CENTERED with strong contrast
-        ctx.fillStyle = txtColor;
+        // Draw text CENTERED with strong contrast + outline for 3D readability
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = txtColor === '#ffffff' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.3)';
-        ctx.shadowBlur = 6;
 
         var lineHeight = fontSize * 1.25;
         var startY = (canvasHeight - lines.length * lineHeight) / 2 + lineHeight / 2;
         ctx.font = 'bold ' + fontSize + 'px Inter, Arial, sans-serif';
+
+        // Outline stroke (opposite color) for contrast under 3D lighting
+        ctx.strokeStyle = txtColor === '#ffffff' ? 'rgba(0,0,0,0.8)' : 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = Math.max(3, fontSize * 0.08);
+        ctx.lineJoin = 'round';
+        for (var i = 0; i < lines.length; i++) {
+            ctx.strokeText(lines[i], canvasWidth / 2, startY + i * lineHeight);
+        }
+
+        // Fill text on top
+        ctx.fillStyle = txtColor;
+        ctx.shadowColor = txtColor === '#ffffff' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.3)';
+        ctx.shadowBlur = 6;
         for (var i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i], canvasWidth / 2, startY + i * lineHeight);
         }
@@ -467,7 +699,7 @@ const Galaxy3D = (function() {
         if (data.hexColor) {
             sphereColor = new THREE.Color(data.hexColor);
             emissiveColor = sphereColor.clone();
-            emissiveIntensity = 1.2;
+            emissiveIntensity = 0.4;
             pulseSpeed = 1.5;
         } else {
             var priority = data.priority || 'default';
@@ -478,25 +710,36 @@ const Galaxy3D = (function() {
             pulseSpeed = pConfig.pulseSpeed;
         }
 
-        // Size comes directly from adapter: pxRadius / SCALE (no clamping)
-        var size = Math.max(0.3, data.size || 1);
+        // Size from adapter — linear scaling, clamp only outliers (>8x median)
+        var rawSize = Math.max(0.3, data.size || 1);
         var isStar = (shape === 'star');
         var nodeFontSize = (data.metadata && data.metadata.fontSize) || 16;
         var nodeTextColor = (data.metadata && data.metadata.textColor) || null;
         var nodeOpacity = (data.metadata && data.metadata.opacity != null) ? data.metadata.opacity : 1;
         var pxW = (data.metadata && data.metadata.pxW) || 80;
         var pxH = (data.metadata && data.metadata.pxH) || 80;
-        var SCALE3D = 30; // same scale as position conversion
+        var SCALE3D = 30;
 
-        // Geometry based on shape — use real pixel proportions
+        // Linear sizing — preserves 2D proportions exactly
+        var size = Math.min(rawSize, _sizeClamp);
+
+        // Rect dimensions: linear, clamp outliers to median-based threshold
+        var rectW = pxW / SCALE3D;
+        var rectH = pxH / SCALE3D;
+        if (rectW > _sizeClamp || rectH > _sizeClamp) {
+            var shrink = _sizeClamp / Math.max(rectW, rectH);
+            rectW *= shrink;
+            rectH *= shrink;
+        }
+
+        // Geometry based on shape
         var geometry;
         if (isTextNode) {
             geometry = null;
         } else if (shape === 'star') {
             geometry = createStarGeometry(size);
         } else if (shape === 'rect') {
-            // Real rect: use pixel W/H converted to 3D units
-            geometry = new THREE.BoxGeometry(pxW / SCALE3D, pxH / SCALE3D, Math.min(pxW, pxH) / SCALE3D * 0.15);
+            geometry = new THREE.BoxGeometry(rectW, rectH, Math.min(rectW, rectH) * 0.15);
         } else if (shape === 'diamond') {
             geometry = createDiamondGeometry(size);
         } else if (shape === 'hexagon') {
@@ -511,26 +754,60 @@ const Galaxy3D = (function() {
             // Build material — with surface texture for rect/diamond
             var material;
             var isTransparent = nodeOpacity < 1;
-            if (hasSurfaceText) {
+            if (shape === 'rect' && hasSurfaceText) {
+                // Multi-material: text only on front face (+Z), solid color on sides
                 var fillHex = '#' + sphereColor.getHexString();
-                // Pass real pixel dimensions — createSurfaceTexture will compute canvas at same ratio
+                var surfaceTex = createSurfaceTexture(data.label, fillHex, pxW, pxH, nodeFontSize, nodeTextColor);
+                var faceMaterial = new THREE.MeshStandardMaterial({
+                    map: surfaceTex,
+                    emissive: emissiveColor,
+                    emissiveIntensity: emissiveIntensity * 0.15,
+                    metalness: 0.1,
+                    roughness: 0.6,
+                    transparent: isTransparent,
+                    opacity: nodeOpacity
+                });
+                var sideMaterial = new THREE.MeshStandardMaterial({
+                    color: sphereColor,
+                    emissive: emissiveColor,
+                    emissiveIntensity: emissiveIntensity * 0.3,
+                    metalness: 0.05,
+                    roughness: 0.6,
+                    transparent: isTransparent,
+                    opacity: nodeOpacity
+                });
+                // BoxGeometry face order: +X, -X, +Y, -Y, +Z (front), -Z (back)
+                material = [
+                    sideMaterial, // right
+                    sideMaterial, // left
+                    sideMaterial, // top
+                    sideMaterial, // bottom
+                    faceMaterial, // front — TEXT HERE
+                    sideMaterial  // back
+                ];
+            } else if (hasSurfaceText) {
+                // Diamond etc — single material with texture on all faces
+                var fillHex = '#' + sphereColor.getHexString();
                 var surfaceTex = createSurfaceTexture(data.label, fillHex, pxW, pxH, nodeFontSize, nodeTextColor);
                 material = new THREE.MeshStandardMaterial({
                     map: surfaceTex,
                     emissive: emissiveColor,
-                    emissiveIntensity: emissiveIntensity * 0.5,
-                    metalness: 0.2,
-                    roughness: 0.5,
+                    emissiveIntensity: emissiveIntensity * 0.15,
+                    metalness: 0.1,
+                    roughness: 0.6,
                     transparent: isTransparent,
                     opacity: nodeOpacity
                 });
             } else {
+                // Spheres/circles/hexagons: shiny for specular highlights
+                // Stars/rects: matte flat look
+                var isShiny = (shape === 'circle' || shape === 'hexagon' || shape === 'diamond' || shape === '' || !shape);
                 material = new THREE.MeshStandardMaterial({
                     color: sphereColor,
                     emissive: emissiveColor,
                     emissiveIntensity: emissiveIntensity,
-                    metalness: 0.3,
-                    roughness: 0.4,
+                    metalness: isShiny ? 0.15 : 0.05,
+                    roughness: isShiny ? 0.35 : 0.6,
                     transparent: isTransparent,
                     opacity: nodeOpacity
                 });
@@ -540,6 +817,9 @@ const Galaxy3D = (function() {
 
             if (shape === 'star') {
                 geometry.center();
+            }
+            if (shape === 'hexagon') {
+                mesh.rotation.x = Math.PI / 2;
             }
 
             mesh.position.set(
@@ -648,21 +928,31 @@ const Galaxy3D = (function() {
         return sprite;
     }
 
+    function disposeMaterial(mat) {
+        if (!mat) return;
+        if (Array.isArray(mat)) {
+            mat.forEach(function(m) { if (m) m.dispose(); });
+        } else {
+            mat.dispose();
+        }
+    }
+
     function removeSphere(id) {
         const idx = spheres.findIndex(s => s.data.id === id);
         if (idx === -1) return;
         const s = spheres[idx];
         scene.remove(s.mesh);
         if (s.mesh.geometry) s.mesh.geometry.dispose();
-        if (s.mesh.material) s.mesh.material.dispose();
+        disposeMaterial(s.mesh.material);
         spheres.splice(idx, 1);
     }
 
     function clearAllSpheres() {
+        disposeNodeLights();
         spheres.forEach(s => {
             scene.remove(s.mesh);
             if (s.mesh.geometry) s.mesh.geometry.dispose();
-            if (s.mesh.material) s.mesh.material.dispose();
+            disposeMaterial(s.mesh.material);
         });
         spheres = [];
     }
@@ -823,9 +1113,25 @@ const Galaxy3D = (function() {
     }
 
     // === LOAD DATA ===
+    // Median-based size clamp: computed once per loadData, used by addSphere
+    var _sizeClamp = Infinity;
+
     function loadData(nodes, conns) {
         clearAllSpheres();
         clearAllConnections();
+
+        // Compute median node size → clamp outliers at 8x median
+        _sizeClamp = Infinity;
+        if (nodes && nodes.length > 2) {
+            var SCALE3D = 30;
+            var allSizes = nodes.map(function(n) {
+                var pxW = (n.metadata && n.metadata.pxW) || 80;
+                var pxH = (n.metadata && n.metadata.pxH) || 80;
+                return Math.max(pxW, pxH) / SCALE3D;
+            }).sort(function(a, b) { return a - b; });
+            var median = allSizes[Math.floor(allSizes.length / 2)];
+            _sizeClamp = median * 8;
+        }
 
         if (nodes && nodes.length > 0) {
             nodes.forEach(n => addSphere(n));
@@ -841,7 +1147,10 @@ const Galaxy3D = (function() {
             applyForceLayout(80);
         }
 
-        console.log('Galaxy3D: loaded', spheres.length, 'spheres,', connections.length, 'connections');
+        // Dynamic node lights (top 6 biggest spheres)
+        rebuildNodeLights();
+
+        console.log('Galaxy3D: loaded', spheres.length, 'spheres,', connections.length, 'connections,', nodeLights.length, 'node lights');
 
         // Auto-fit camera to show all nodes
         fitToView();
@@ -857,7 +1166,8 @@ const Galaxy3D = (function() {
                 _firstFrame = false;
             }
 
-            const time = clock.getElapsedTime();
+            const dt = clock.getDelta();
+            const time = clock.elapsedTime;
 
             // Subtle breathing + rotate stars
             spheres.forEach(s => {
@@ -876,11 +1186,20 @@ const Galaxy3D = (function() {
                 }
             });
 
-            // Rotate starfield slowly
-            if (starField) {
-                starField.rotation.y += 0.00005;
-                starField.rotation.x += 0.00002;
-            }
+            // Starfield: multi-layer parallax + twinkling
+            updateStarField(time);
+
+            // Node lights pulse
+            updateNodeLights(time);
+
+            // Comet
+            updateComet();
+
+            // Nebulae
+            updateNebulae(time, dt);
+
+            // Voyage mode
+            updateVoyage();
 
             // Raycaster hover
             updateHover();
@@ -900,6 +1219,7 @@ const Galaxy3D = (function() {
     function startAnimation() {
         if (!animationId) {
             animate();
+            scheduleComet();
         }
     }
 
@@ -984,6 +1304,12 @@ const Galaxy3D = (function() {
 
             // Focus camera on sphere
             focusOnSphere(hit);
+        }
+    }
+
+    function onUserInterrupt() {
+        if (voyageState && !voyageState.stopping) {
+            stopVoyage();
         }
     }
 
@@ -1224,20 +1550,453 @@ const Galaxy3D = (function() {
         if (controls) controls.update();
     }
 
+    // === COMET EFFECT ===
+    let cometObj = null;
+    let cometTimer = null;
+    const COMET_BASE_TRAIL = 32;
+
+    // Color palettes: 75% cyan, 25% violet
+    const COMET_PALETTES = [
+        { head: 0x44ddff, trail: [0.27, 0.87, 1.0] },  // cyan
+        { head: 0x44ddff, trail: [0.27, 0.87, 1.0] },  // cyan
+        { head: 0x44ddff, trail: [0.27, 0.87, 1.0] },  // cyan
+        { head: 0x9945ff, trail: [0.55, 0.22, 1.0] }   // violet
+    ];
+
+    function scheduleComet() {
+        if (cometTimer) clearTimeout(cometTimer);
+        var delay = (30 + Math.random() * 30) * 1000; // 30-60s
+        cometTimer = setTimeout(launchComet, delay);
+    }
+
+    function launchComet() {
+        if (!scene || cometObj) { scheduleComet(); return; }
+        var THREE = window.THREE;
+
+        // Pick random color
+        var palette = COMET_PALETTES[Math.floor(Math.random() * COMET_PALETTES.length)];
+
+        // Pick random size: small 40%, medium 35%, large 25%
+        var sizeRoll = Math.random();
+        var scale, trailLen;
+        if (sizeRoll < 0.40) {
+            scale = 1.0;                                    // small
+            trailLen = COMET_BASE_TRAIL;
+        } else if (sizeRoll < 0.75) {
+            scale = 1.5 + Math.random() * 0.5;             // medium: 1.5x-2x
+            trailLen = Math.round(COMET_BASE_TRAIL * 1.4);
+        } else {
+            scale = 2.5 + Math.random() * 0.5;             // large: 2.5x-3x
+            trailLen = Math.round(COMET_BASE_TRAIL * 2.0);
+        }
+
+        // Random start/end on a sphere far behind the nodes (z = -80 to -150)
+        var zDepth = -80 - Math.random() * 70;
+        var angle1 = Math.random() * Math.PI * 2;
+        var angle2 = angle1 + Math.PI + (Math.random() - 0.5) * 1.2;
+        var spread = 120 + Math.random() * 60;
+        var startPos = new THREE.Vector3(
+            Math.cos(angle1) * spread,
+            (Math.random() - 0.5) * spread * 0.6,
+            zDepth + (Math.random() - 0.5) * 30
+        );
+        var endPos = new THREE.Vector3(
+            Math.cos(angle2) * spread,
+            (Math.random() - 0.5) * spread * 0.6,
+            zDepth + (Math.random() - 0.5) * 30
+        );
+        var mid = startPos.clone().add(endPos).multiplyScalar(0.5);
+        mid.y += (Math.random() - 0.5) * 40;
+
+        var curve = new THREE.QuadraticBezierCurve3(startPos, mid, endPos);
+
+        // Head — bright sphere (always behind scene objects)
+        var headGeo = new THREE.SphereGeometry(0.4 * scale, 8, 8);
+        var headMat = new THREE.MeshBasicMaterial({ color: palette.head, transparent: true, opacity: 0.9, depthTest: false, depthWrite: false });
+        var head = new THREE.Mesh(headGeo, headMat);
+        head.position.copy(startPos);
+        head.renderOrder = -1000;
+        scene.add(head);
+
+        // Trail — line with RGB fade (AdditiveBlending: black = invisible)
+        var trailPositions = new Float32Array(trailLen * 3);
+        var trailColors = new Float32Array(trailLen * 3);
+        for (var i = 0; i < trailLen; i++) {
+            trailPositions[i * 3] = startPos.x;
+            trailPositions[i * 3 + 1] = startPos.y;
+            trailPositions[i * 3 + 2] = startPos.z;
+            var fade = 1.0 - (i / trailLen);
+            trailColors[i * 3]     = palette.trail[0] * fade * 0.8;
+            trailColors[i * 3 + 1] = palette.trail[1] * fade * 0.8;
+            trailColors[i * 3 + 2] = palette.trail[2] * fade * 0.8;
+        }
+        var trailGeo = new THREE.BufferGeometry();
+        trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+        trailGeo.setAttribute('color', new THREE.BufferAttribute(trailColors, 3));
+        var trailMat = new THREE.LineBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 1.0,
+            depthTest: false,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending
+        });
+        var trail = new THREE.Line(trailGeo, trailMat);
+        trail.renderOrder = -1000;
+        scene.add(trail);
+
+        cometObj = {
+            head: head,
+            trail: trail,
+            curve: curve,
+            trailLen: trailLen,
+            trailRGB: palette.trail,
+            history: [],
+            startTime: clock.getElapsedTime(),
+            duration: 3 + Math.random() * 1.5
+        };
+    }
+
+    function updateComet() {
+        if (!cometObj) return;
+        var elapsed = clock.getElapsedTime() - cometObj.startTime;
+        var t = elapsed / cometObj.duration;
+
+        if (t >= 1) {
+            // Done — clean up
+            scene.remove(cometObj.head);
+            scene.remove(cometObj.trail);
+            cometObj.head.geometry.dispose();
+            cometObj.head.material.dispose();
+            cometObj.trail.geometry.dispose();
+            cometObj.trail.material.dispose();
+            cometObj = null;
+            scheduleComet();
+            return;
+        }
+
+        // Fade envelope: 0→1 over first 10%, hold, 1→0 over last 25%
+        var fade;
+        if (t < 0.10) {
+            fade = t / 0.10;                       // 0→1
+        } else if (t > 0.75) {
+            fade = (1 - t) / 0.25;                 // 1→0
+        } else {
+            fade = 1;
+        }
+
+        // Move head along curve
+        var pos = cometObj.curve.getPoint(t);
+        cometObj.head.position.copy(pos);
+        cometObj.head.material.opacity = 0.9 * fade;
+        var headScale = 0.3 + 0.7 * fade;         // 1.0→0.3
+        cometObj.head.scale.setScalar(headScale);
+
+        // Update trail history
+        var fullLen = cometObj.trailLen;
+        var activeLen = Math.max(2, Math.round(fullLen * fade)); // trail shrinks with fade
+        cometObj.history.unshift(pos.clone());
+        if (cometObj.history.length > activeLen) {
+            cometObj.history.length = activeLen;
+        }
+
+        // Write trail positions + RGB fade (black = invisible with AdditiveBlending)
+        var posAttr = cometObj.trail.geometry.attributes.position;
+        var colAttr = cometObj.trail.geometry.attributes.color;
+        var rgb = cometObj.trailRGB;
+        for (var i = 0; i < fullLen; i++) {
+            if (i < cometObj.history.length) {
+                var p = cometObj.history[i];
+                posAttr.array[i * 3] = p.x;
+                posAttr.array[i * 3 + 1] = p.y;
+                posAttr.array[i * 3 + 2] = p.z;
+                var brightness = (1.0 - i / activeLen) * 0.8 * fade;
+                colAttr.array[i * 3]     = rgb[0] * brightness;
+                colAttr.array[i * 3 + 1] = rgb[1] * brightness;
+                colAttr.array[i * 3 + 2] = rgb[2] * brightness;
+            } else {
+                posAttr.array[i * 3] = pos.x;
+                posAttr.array[i * 3 + 1] = pos.y;
+                posAttr.array[i * 3 + 2] = pos.z;
+                colAttr.array[i * 3] = 0;
+                colAttr.array[i * 3 + 1] = 0;
+                colAttr.array[i * 3 + 2] = 0;
+            }
+        }
+        posAttr.needsUpdate = true;
+        colAttr.needsUpdate = true;
+    }
+
+    function disposeComet() {
+        if (cometTimer) { clearTimeout(cometTimer); cometTimer = null; }
+        if (cometObj) {
+            if (scene) {
+                scene.remove(cometObj.head);
+                scene.remove(cometObj.trail);
+            }
+            cometObj.head.geometry.dispose();
+            cometObj.head.material.dispose();
+            cometObj.trail.geometry.dispose();
+            cometObj.trail.material.dispose();
+            cometObj = null;
+        }
+    }
+
+    // === NEBULA EFFECT ===
+    let nebulae = [];         // [{ sprites[], baseOpacity[], driftDir[], center, palette, state, fadeT, fadeDur, targetOpacity }]
+    let nebulaTimer = null;
+    const NEBULA_MAX_VISIBLE = 4;
+    const NEBULA_MIN_VISIBLE = 1;
+    const NEBULA_POOL_SIZE = 5;
+
+    const NEBULA_PALETTES = [
+        // Blue-cyan (30%)
+        { inner: [10, 80, 180], outer: [0, 206, 209], weight: 30 },
+        // Violet-magenta (30%)
+        { inner: [80, 30, 140], outer: [200, 50, 255], weight: 30 },
+        // Rose-warm (25%)
+        { inner: [120, 10, 60], outer: [255, 107, 107], weight: 25 },
+        // Emerald-turquoise (15%)
+        { inner: [10, 80, 55], outer: [64, 224, 208], weight: 15 }
+    ];
+
+    function pickNebulaPalette() {
+        var roll = Math.random() * 100, acc = 0;
+        for (var i = 0; i < NEBULA_PALETTES.length; i++) {
+            acc += NEBULA_PALETTES[i].weight;
+            if (roll < acc) return NEBULA_PALETTES[i];
+        }
+        return NEBULA_PALETTES[0];
+    }
+
+    // Generate a procedural nebula texture on a shared canvas
+    var _nebulaCanvasCache = {};
+    function createNebulaTexture(palette, variant) {
+        var THREE = window.THREE;
+        var key = palette.inner.join(',') + '|' + variant;
+        if (_nebulaCanvasCache[key]) return _nebulaCanvasCache[key].clone();
+
+        var size = 128;
+        var canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        var ctx = canvas.getContext('2d');
+
+        var cx = size / 2 + (variant % 3 - 1) * 8;
+        var cy = size / 2 + (Math.floor(variant / 3) - 1) * 8;
+        var ri = palette.inner, ro = palette.outer;
+        // Blend inner/outer with per-variant randomness
+        var blend = 0.3 + (variant % 5) * 0.15;
+        var r1 = Math.round(ri[0] + (ro[0] - ri[0]) * blend);
+        var g1 = Math.round(ri[1] + (ro[1] - ri[1]) * blend);
+        var b1 = Math.round(ri[2] + (ro[2] - ri[2]) * blend);
+
+        var grad = ctx.createRadialGradient(cx, cy, 0, size / 2, size / 2, size / 2);
+        grad.addColorStop(0, 'rgba(' + r1 + ',' + g1 + ',' + b1 + ',0.6)');
+        grad.addColorStop(0.3, 'rgba(' + r1 + ',' + g1 + ',' + b1 + ',0.25)');
+        grad.addColorStop(0.7, 'rgba(' + ri[0] + ',' + ri[1] + ',' + ri[2] + ',0.08)');
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, size, size);
+
+        var tex = new THREE.CanvasTexture(canvas);
+        tex.needsUpdate = true;
+        _nebulaCanvasCache[key] = tex;
+        return tex;
+    }
+
+    function createNebula(visible) {
+        var THREE = window.THREE;
+        if (!scene) return null;
+
+        var palette = pickNebulaPalette();
+        var spriteCount = 5 + Math.floor(Math.random() * 6); // 5-10
+        var center = new THREE.Vector3(
+            (Math.random() - 0.5) * 4000,
+            (Math.random() - 0.5) * 2000,
+            -2000 - Math.random() * 3000
+        );
+
+        var sprites = [];
+        var baseOpacity = [];
+        var driftDir = [];
+        var pulsePhase = [];
+
+        for (var i = 0; i < spriteCount; i++) {
+            var tex = createNebulaTexture(palette, i);
+            var opacity = 0.03 + Math.random() * 0.05; // 0.03-0.08
+            var mat = new THREE.SpriteMaterial({
+                map: tex,
+                transparent: true,
+                opacity: visible ? opacity : 0,
+                depthTest: false,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending
+            });
+            var sprite = new THREE.Sprite(mat);
+
+            var diameter = 500 + Math.random() * 1500; // 500-2000
+            sprite.scale.set(diameter, diameter, 1);
+
+            sprite.position.set(
+                center.x + (Math.random() - 0.5) * diameter * 0.4,
+                center.y + (Math.random() - 0.5) * diameter * 0.4,
+                center.z + (Math.random() - 0.5) * diameter * 0.2
+            );
+            sprite.renderOrder = -1500;
+
+            scene.add(sprite);
+            sprites.push(sprite);
+            baseOpacity.push(opacity);
+            driftDir.push(new THREE.Vector3(
+                (Math.random() - 0.5) * 0.06,
+                (Math.random() - 0.5) * 0.06,
+                (Math.random() - 0.5) * 0.02
+            ));
+            pulsePhase.push(Math.random() * Math.PI * 2);
+        }
+
+        return {
+            sprites: sprites,
+            baseOpacity: baseOpacity,
+            driftDir: driftDir,
+            pulsePhase: pulsePhase,
+            pulsePeriod: 20 + Math.random() * 20, // 20-40s
+            center: center,
+            palette: palette,
+            state: visible ? 'visible' : 'hidden', // visible | fading_in | fading_out | hidden
+            fadeT: 0,
+            fadeDur: 10 // seconds
+        };
+    }
+
+    function initNebulae() {
+        for (var i = 0; i < NEBULA_POOL_SIZE; i++) {
+            var visible = i < 3; // first 2-3 visible
+            nebulae.push(createNebula(visible));
+        }
+        scheduleNebulaTransition();
+    }
+
+    function scheduleNebulaTransition() {
+        if (nebulaTimer) clearTimeout(nebulaTimer);
+        nebulaTimer = setTimeout(nebulaTransition, (30 + Math.random() * 30) * 1000);
+    }
+
+    function nebulaTransition() {
+        if (!scene) return;
+        var visibleCount = 0, hiddenIndices = [], visibleIndices = [];
+        for (var i = 0; i < nebulae.length; i++) {
+            var s = nebulae[i].state;
+            if (s === 'visible' || s === 'fading_in') { visibleCount++; visibleIndices.push(i); }
+            if (s === 'hidden') hiddenIndices.push(i);
+        }
+
+        // Decide: fade in or fade out
+        var canFadeIn = visibleCount < NEBULA_MAX_VISIBLE && hiddenIndices.length > 0;
+        var canFadeOut = visibleCount > NEBULA_MIN_VISIBLE && visibleIndices.length > 0;
+
+        if (canFadeIn && canFadeOut) {
+            if (Math.random() < 0.5) fadeInNebula(hiddenIndices); else fadeOutNebula(visibleIndices);
+        } else if (canFadeIn) {
+            fadeInNebula(hiddenIndices);
+        } else if (canFadeOut) {
+            fadeOutNebula(visibleIndices);
+        }
+        scheduleNebulaTransition();
+    }
+
+    function fadeInNebula(indices) {
+        var idx = indices[Math.floor(Math.random() * indices.length)];
+        var n = nebulae[idx];
+        // Reposition before fading in
+        n.center.set((Math.random() - 0.5) * 4000, (Math.random() - 0.5) * 2000, -2000 - Math.random() * 3000);
+        for (var i = 0; i < n.sprites.length; i++) {
+            var d = n.sprites[i].scale.x; // diameter
+            n.sprites[i].position.set(
+                n.center.x + (Math.random() - 0.5) * d * 0.4,
+                n.center.y + (Math.random() - 0.5) * d * 0.4,
+                n.center.z + (Math.random() - 0.5) * d * 0.2
+            );
+        }
+        n.state = 'fading_in';
+        n.fadeT = 0;
+    }
+
+    function fadeOutNebula(indices) {
+        var idx = indices[Math.floor(Math.random() * indices.length)];
+        nebulae[idx].state = 'fading_out';
+        nebulae[idx].fadeT = 0;
+    }
+
+    function updateNebulae(time, dt) {
+        for (var n = 0; n < nebulae.length; n++) {
+            var neb = nebulae[n];
+            if (neb.state === 'hidden') continue;
+
+            // Fade logic
+            var fadeMul = 1;
+            if (neb.state === 'fading_in') {
+                neb.fadeT += dt;
+                fadeMul = Math.min(neb.fadeT / neb.fadeDur, 1);
+                if (fadeMul >= 1) neb.state = 'visible';
+            } else if (neb.state === 'fading_out') {
+                neb.fadeT += dt;
+                fadeMul = 1 - Math.min(neb.fadeT / neb.fadeDur, 1);
+                if (fadeMul <= 0) {
+                    neb.state = 'hidden';
+                    for (var j = 0; j < neb.sprites.length; j++) neb.sprites[j].material.opacity = 0;
+                    continue;
+                }
+            }
+
+            for (var i = 0; i < neb.sprites.length; i++) {
+                // Drift
+                neb.sprites[i].position.add(neb.driftDir[i]);
+
+                // Pulse opacity
+                var pulse = 0.85 + 0.15 * Math.sin(time / neb.pulsePeriod * Math.PI * 2 + neb.pulsePhase[i]);
+                neb.sprites[i].material.opacity = neb.baseOpacity[i] * pulse * fadeMul;
+            }
+        }
+    }
+
+    function disposeNebulae() {
+        if (nebulaTimer) { clearTimeout(nebulaTimer); nebulaTimer = null; }
+        for (var n = 0; n < nebulae.length; n++) {
+            for (var i = 0; i < nebulae[n].sprites.length; i++) {
+                if (scene) scene.remove(nebulae[n].sprites[i]);
+                nebulae[n].sprites[i].material.map.dispose();
+                nebulae[n].sprites[i].material.dispose();
+            }
+        }
+        nebulae = [];
+        _nebulaCanvasCache = {};
+    }
+
     // === DISPOSE ===
     function dispose() {
+        voyageState = null;
+        disposeNebulae();
+        disposeComet();
         stopAnimation();
         clearAllSpheres();
         clearAllConnections();
-        if (starField && scene) {
-            scene.remove(starField);
-            if (starField.geometry) starField.geometry.dispose();
-            if (starField.material) starField.material.dispose();
-            starField = null;
-        }
+        _starLayers.forEach(function(layer) {
+            if (layer.points && scene) {
+                scene.remove(layer.points);
+                if (layer.points.geometry) layer.points.geometry.dispose();
+                if (layer.points.material) layer.points.material.dispose();
+            }
+        });
+        _starLayers = [];
+        starField = null;
         if (renderer && renderer.domElement) {
             renderer.domElement.removeEventListener('mousemove', onMouseMove);
             renderer.domElement.removeEventListener('click', onMouseClick);
+            renderer.domElement.removeEventListener('mousedown', onUserInterrupt);
+            renderer.domElement.removeEventListener('wheel', onUserInterrupt);
+            renderer.domElement.removeEventListener('touchstart', onUserInterrupt);
         }
         window.removeEventListener('resize', onResize);
         if (controls) { controls.dispose(); controls = null; }
@@ -1258,6 +2017,182 @@ const Galaxy3D = (function() {
         camera = null;
         initialized = false;
         console.log('Galaxy3D: disposed');
+    }
+
+    // === VOYAGE MODE ===
+    let voyageState = null; // null = inactive, object = active
+
+    function startVoyage() {
+        if (!camera || !controls || spheres.length === 0) return false;
+        if (voyageState) { stopVoyage(); return false; }
+        var THREE = window.THREE;
+
+        // Build path: nearest-neighbor ordering for smooth route
+        var waypoints = spheres
+            .slice()
+            .sort(function(a, b) { return b.size - a.size; })
+            .slice(0, 15); // max 15 nodes
+
+        // Nearest-neighbor from first (biggest) node
+        var ordered = [waypoints.shift()];
+        while (waypoints.length > 0) {
+            var last = ordered[ordered.length - 1].mesh.position;
+            var bestIdx = 0, bestDist = Infinity;
+            for (var i = 0; i < waypoints.length; i++) {
+                var d = last.distanceTo(waypoints[i].mesh.position);
+                if (d < bestDist) { bestDist = d; bestIdx = i; }
+            }
+            ordered.push(waypoints.splice(bestIdx, 1)[0]);
+        }
+
+        // Compute center for panoramic start/end
+        var center = new THREE.Vector3();
+        spheres.forEach(function(s) { center.add(s.mesh.position); });
+        center.divideScalar(spheres.length);
+        var fov = camera.fov * (Math.PI / 180);
+        var bbox = new THREE.Vector3();
+        var mn = new THREE.Vector3(Infinity, Infinity, Infinity);
+        var mx = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+        spheres.forEach(function(s) { mn.min(s.mesh.position); mx.max(s.mesh.position); });
+        bbox.subVectors(mx, mn);
+        var overviewDist = (Math.max(bbox.x, bbox.y, bbox.z, 5) * 0.5) / Math.tan(fov * 0.5) * 1.5;
+        var overviewPos = new THREE.Vector3(center.x, center.y, center.z + overviewDist);
+
+        // Build timeline segments
+        var segments = [];
+
+        // Phase 1: zoom out to panoramic
+        segments.push({
+            type: 'move',
+            targetPos: overviewPos.clone(),
+            targetLookAt: center.clone(),
+            duration: 2000
+        });
+
+        // Phase 2: visit each node
+        for (var n = 0; n < ordered.length; n++) {
+            var node = ordered[n];
+            var nodePos = node.mesh.position;
+            var approachDist = Math.max(node.size * 2.5, 4);
+
+            // Approach offset: come from above-side for cinematic angle
+            var angle = (n / ordered.length) * Math.PI * 2;
+            var offsetDir = new THREE.Vector3(
+                Math.cos(angle) * approachDist,
+                Math.sin(angle * 0.7) * approachDist * 0.4,
+                approachDist * 0.6
+            );
+            var camPos = nodePos.clone().add(offsetDir);
+
+            // Move to node
+            segments.push({
+                type: 'move',
+                targetPos: camPos,
+                targetLookAt: nodePos.clone(),
+                duration: 4500
+            });
+            // Pause at node
+            segments.push({
+                type: 'pause',
+                duration: 2500
+            });
+        }
+
+        // Phase 3: zoom back out
+        segments.push({
+            type: 'move',
+            targetPos: overviewPos.clone(),
+            targetLookAt: center.clone(),
+            duration: 3000
+        });
+
+        // Disable controls, start voyage
+        controls.enabled = false;
+
+        voyageState = {
+            segments: segments,
+            currentSeg: 0,
+            segStartTime: Date.now(),
+            startPos: camera.position.clone(),
+            startLookAt: controls.target.clone(),
+            stopping: false,
+            stopStartTime: 0
+        };
+
+        return true;
+    }
+
+    function stopVoyage() {
+        if (!voyageState || voyageState.stopping) return;
+        // Replace remaining segments with a single smooth return to panoramic view
+        voyageState.stopping = true;
+        voyageState.startPos = camera.position.clone();
+        voyageState.startLookAt = controls.target.clone();
+
+        // Compute panoramic position (same as fitToView)
+        var THREE = window.THREE;
+        var center = new THREE.Vector3();
+        spheres.forEach(function(s) { center.add(s.mesh.position); });
+        center.divideScalar(Math.max(spheres.length, 1));
+        var mn = new THREE.Vector3(Infinity, Infinity, Infinity);
+        var mx = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+        spheres.forEach(function(s) { mn.min(s.mesh.position); mx.max(s.mesh.position); });
+        var bbox = new THREE.Vector3().subVectors(mx, mn);
+        var fov = camera.fov * (Math.PI / 180);
+        var dist = (Math.max(bbox.x, bbox.y, bbox.z, 5) * 0.5) / Math.tan(fov * 0.5) * 1.3;
+
+        voyageState.returnPos = new THREE.Vector3(center.x, center.y, center.z + dist);
+        voyageState.returnLookAt = center.clone();
+        voyageState.stopStartTime = Date.now();
+    }
+
+    function updateVoyage() {
+        if (!voyageState || !camera || !controls) return;
+        var now = Date.now();
+
+        // Handle graceful stop: animate to panoramic over 1.5s
+        if (voyageState.stopping) {
+            var stopT = Math.min((now - voyageState.stopStartTime) / 1500, 1);
+            var ease = stopT < 0.5 ? 2 * stopT * stopT : 1 - Math.pow(-2 * stopT + 2, 2) / 2;
+            camera.position.lerpVectors(voyageState.startPos, voyageState.returnPos, ease);
+            controls.target.lerpVectors(voyageState.startLookAt, voyageState.returnLookAt, ease);
+            if (stopT >= 1) {
+                controls.enabled = true;
+                voyageState = null;
+            }
+            return;
+        }
+
+        var seg = voyageState.segments[voyageState.currentSeg];
+        if (!seg) {
+            // Voyage complete
+            controls.enabled = true;
+            voyageState = null;
+            return;
+        }
+
+        var elapsed = now - voyageState.segStartTime;
+        var t = Math.min(elapsed / seg.duration, 1);
+
+        if (seg.type === 'move') {
+            // Smooth ease: ease-in-out cubic
+            var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            camera.position.lerpVectors(voyageState.startPos, seg.targetPos, ease);
+            controls.target.lerpVectors(voyageState.startLookAt, seg.targetLookAt, ease);
+        }
+        // 'pause': camera stays put, controls.target stays put
+
+        if (t >= 1) {
+            // Advance to next segment
+            voyageState.currentSeg++;
+            voyageState.segStartTime = now;
+            voyageState.startPos = camera.position.clone();
+            voyageState.startLookAt = controls.target.clone();
+        }
+    }
+
+    function isVoyageActive() {
+        return voyageState !== null;
     }
 
     // === PUBLIC API ===
@@ -1283,6 +2218,9 @@ const Galaxy3D = (function() {
         restoreAppState,
         onResize,
         dispose,
+        startVoyage,
+        stopVoyage,
+        isVoyageActive,
         get spheres() { return spheres; },
         get connections() { return connections; },
         get isInitialized() { return initialized; }

@@ -9,8 +9,18 @@ const CosmicShapes = {
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, Math.PI * 2);
     },
-    rect(ctx, r) {
-        const w = r * 1.6, h = r * 1.2;
+    rect(ctx, r, node) {
+        // r is screen-space radius (node.radius * zoom)
+        // node.width/height are world-space, so scale by zoom = r / node.radius
+        var w, h;
+        if (node && node.width && node.radius) {
+            var zoom = r / node.radius;
+            w = node.width * zoom;
+            h = (node.height || node.width * 0.75) * zoom;
+        } else {
+            w = r * 1.6;
+            h = r * 1.2;
+        }
         ctx.beginPath();
         ctx.rect(-w / 2, -h / 2, w, h);
     },
@@ -52,12 +62,15 @@ function hitTestNode(node, wx, wy) {
     const r = Math.max(node.radius, minR) + margin;
     const dx = wx - node.x, dy = wy - node.y;
     switch (node.shape) {
-        case 'rect':
+        case 'rect': {
             if (node.isTextNode && node.textBoxWidth) {
                 return Math.abs(dx) <= node.textBoxWidth / 2 + margin &&
                        Math.abs(dy) <= node.textBoxHeight / 2 + margin;
             }
-            return Math.abs(dx) <= r * 0.8 && Math.abs(dy) <= r * 0.6;
+            const hw = node.width ? node.width / 2 : r * 0.8;
+            const hh = node.height ? node.height / 2 : r * 0.6;
+            return Math.abs(dx) <= hw + margin && Math.abs(dy) <= hh + margin;
+        }
         case 'diamond': return (Math.abs(dx) / r + Math.abs(dy) / r) <= 1;
         default: return (dx * dx + dy * dy) <= r * r;
     }
@@ -72,7 +85,8 @@ function getNodeAtWorld(wx, wy) {
 }
 
 // ── Resize Handles ──────────────────────────────────────────────────
-// Returns 4 corner handle descriptors in screen coordinates for a given node
+// Returns handle descriptors in screen coordinates for a given node
+// Rects get 8 handles (4 corners + 4 midpoints), others get 4 corners
 function getResizeHandles(node, camera, canvasW, canvasH) {
     const { x: camX, y: camY, zoom } = camera;
     const cx = (node.x - camX) * zoom + canvasW / 2;
@@ -84,16 +98,27 @@ function getResizeHandles(node, camera, canvasW, canvasH) {
         hw = node.textBoxWidth / 2 * zoom;
         hh = node.textBoxHeight / 2 * zoom;
     } else if (node.shape === 'rect') {
-        hw = r * 0.8; hh = r * 0.6;
+        hw = (node.width ? node.width / 2 : node.radius * 0.8) * zoom;
+        hh = (node.height ? node.height / 2 : node.radius * 0.6) * zoom;
     } else {
         hw = r; hh = r;
     }
-    return [
+    var handles = [
         { id: 'nw', sx: cx - hw, sy: cy - hh, cursor: 'nwse-resize' },
         { id: 'ne', sx: cx + hw, sy: cy - hh, cursor: 'nesw-resize' },
         { id: 'se', sx: cx + hw, sy: cy + hh, cursor: 'nwse-resize' },
         { id: 'sw', sx: cx - hw, sy: cy + hh, cursor: 'nesw-resize' }
     ];
+    // Rects: add 4 midpoint handles for independent width/height resize
+    if (node.shape === 'rect' && !node.isTextNode) {
+        handles.push(
+            { id: 'n',  sx: cx,      sy: cy - hh, cursor: 'ns-resize' },
+            { id: 's',  sx: cx,      sy: cy + hh, cursor: 'ns-resize' },
+            { id: 'w',  sx: cx - hw, sy: cy,      cursor: 'ew-resize' },
+            { id: 'e',  sx: cx + hw, sy: cy,      cursor: 'ew-resize' }
+        );
+    }
+    return handles;
 }
 
 // Hit-test a screen point against handles (returns handle or null)
@@ -260,6 +285,8 @@ class ShapeInteraction {
                     this.resizeNode = selNode;
                     this.resizeHandle = h.id;
                     this.resizeStartRadius = selNode.radius;
+                    this.resizeStartWidth = selNode.width || selNode.radius * 1.6;
+                    this.resizeStartHeight = selNode.height || selNode.radius * 1.2;
                     this.resizeStartFontSize = selNode.fontSize || 14;
                     this.resizeStartTextBoxW = selNode.textBoxWidth || 0;
                     this.resizeStartTextBoxH = selNode.textBoxHeight || 0;
@@ -372,25 +399,53 @@ class ShapeInteraction {
         if (this.isResizing && this.resizeNode) {
             const dx = CosmicState.mouse.worldX - this.resizeStartWorldX;
             const dy = CosmicState.mouse.worldY - this.resizeStartWorldY;
-            let delta = 0;
             const hid = this.resizeHandle;
-            if (hid === 'se') delta = (dx + dy) / 2;
-            else if (hid === 'nw') delta = (-dx - dy) / 2;
-            else if (hid === 'ne') delta = (dx - dy) / 2;
-            else if (hid === 'sw') delta = (-dx + dy) / 2;
-            const newRadius = Math.max(15, this.resizeStartRadius + delta);
-            this.resizeNode.radius = newRadius;
-            // Proportional (no Shift): scale fontSize with form
-            // Free (Shift): keep fontSize, text reflows via word-wrap
-            if (!this.resizeShiftKey) {
-                const ratio = newRadius / this.resizeStartRadius;
-                this.resizeNode.fontSize = Math.max(6, this.resizeStartFontSize * ratio);
-            }
-            // Scale textBox dimensions for text nodes
-            if (this.resizeNode.isTextNode && this.resizeStartTextBoxW) {
-                const ratio = newRadius / this.resizeStartRadius;
-                this.resizeNode.textBoxWidth = this.resizeStartTextBoxW * ratio;
-                this.resizeNode.textBoxHeight = this.resizeStartTextBoxH * ratio;
+            const node = this.resizeNode;
+
+            // Rects: independent width/height resize
+            if (node.shape === 'rect' && !node.isTextNode) {
+                let dw = 0, dh = 0;
+                // Corner handles: both dimensions
+                if (hid === 'se') { dw = dx; dh = dy; }
+                else if (hid === 'nw') { dw = -dx; dh = -dy; }
+                else if (hid === 'ne') { dw = dx; dh = -dy; }
+                else if (hid === 'sw') { dw = -dx; dh = dy; }
+                // Edge handles: single dimension
+                else if (hid === 'e') { dw = dx; }
+                else if (hid === 'w') { dw = -dx; }
+                else if (hid === 's') { dh = dy; }
+                else if (hid === 'n') { dh = -dy; }
+
+                const newW = Math.max(30, this.resizeStartWidth + dw * 2);
+                const newH = Math.max(30, this.resizeStartHeight + dh * 2);
+                node.width = newW;
+                node.height = newH;
+                // Keep radius in sync (use max dimension / 2 for compatibility)
+                node.radius = Math.max(newW, newH) / 2;
+                // Scale font proportionally to area change
+                if (!this.resizeShiftKey) {
+                    const areaRatio = Math.sqrt((newW * newH) / (this.resizeStartWidth * this.resizeStartHeight));
+                    node.fontSize = Math.max(6, this.resizeStartFontSize * areaRatio);
+                }
+            } else {
+                // All other shapes: uniform radius resize
+                let delta = 0;
+                if (hid === 'se') delta = (dx + dy) / 2;
+                else if (hid === 'nw') delta = (-dx - dy) / 2;
+                else if (hid === 'ne') delta = (dx - dy) / 2;
+                else if (hid === 'sw') delta = (-dx + dy) / 2;
+                const newRadius = Math.max(15, this.resizeStartRadius + delta);
+                node.radius = newRadius;
+                if (!this.resizeShiftKey) {
+                    const ratio = newRadius / this.resizeStartRadius;
+                    node.fontSize = Math.max(6, this.resizeStartFontSize * ratio);
+                }
+                // Scale textBox dimensions for text nodes
+                if (node.isTextNode && this.resizeStartTextBoxW) {
+                    const ratio = newRadius / this.resizeStartRadius;
+                    node.textBoxWidth = this.resizeStartTextBoxW * ratio;
+                    node.textBoxHeight = this.resizeStartTextBoxH * ratio;
+                }
             }
             return true;
         }
@@ -535,7 +590,7 @@ class ShapeInteraction {
         }
         if (this.isDrawing) {
             if (this.drawRadius >= 15) {
-                CosmicState.nodes.push({
+                var newNode = {
                     id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
                     type: 'shape',
                     shape: this.drawShape,
@@ -545,7 +600,13 @@ class ShapeInteraction {
                     color: CosmicState.currentColor || COSMIC_COLORS[Math.floor(Math.random() * COSMIC_COLORS.length)],
                     text: '',
                     createdAt: Date.now()
-                });
+                };
+                // Rects: initialize explicit width/height from radius
+                if (this.drawShape === 'rect') {
+                    newNode.width = this.drawRadius * 1.6;
+                    newNode.height = this.drawRadius * 1.2;
+                }
+                CosmicState.nodes.push(newNode);
                 if (window.CosmicHistory) window.CosmicHistory.save();
             }
             this._lastShape = this.drawShape;
