@@ -58,7 +58,7 @@
     <link rel="stylesheet" href="css/style-views.css?v=2400">
     <link rel="stylesheet" href="css/galaxy.css?v=1710">
     <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3585">
-    <link rel="stylesheet" href="css/galaxy-cosmic-projects.css?v=2">
+    <link rel="stylesheet" href="css/galaxy-cosmic-projects.css?v=5">
     <link rel="stylesheet" href="css/team-vision.css?v=1700">
     <link rel="stylesheet" href="css/projects.css?v=5600">
     <link rel="stylesheet" href="css/giri-vision.css?v=103">
@@ -78,7 +78,7 @@
     <link rel="stylesheet" href="css/journal.css?v=100">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
-    <link rel="stylesheet" href="css/style-overrides.css?v=2831">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2833">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -423,6 +423,16 @@
             <div class="task-column" data-status="done">
                 <div class="column-header">
                     <h2>✅ Terminé</h2>
+                    <div class="dpf-wrap" id="done-period-filter">
+                        <button class="dpf-trigger" type="button">Aujourd'hui<span class="dpf-arrow">&#x25BE;</span></button>
+                        <ul class="dpf-menu">
+                            <li class="dpf-opt selected" data-value="today">Aujourd'hui</li>
+                            <li class="dpf-opt" data-value="week">Cette semaine</li>
+                            <li class="dpf-opt" data-value="month">Ce mois</li>
+                            <li class="dpf-opt" data-value="year">Cette année</li>
+                            <li class="dpf-opt" data-value="all">Tout</li>
+                        </ul>
+                    </div>
                     <span class="column-count" id="done-count">0</span>
                 </div>
                 <div class="task-list" id="done-list"></div>
@@ -437,7 +447,19 @@
             </div>
             
             <div class="bubbles-column" data-status="done">
-                <h2>✅ Terminé <span class="hint">(clic = réouvrir)</span></h2>
+                <div class="bubbles-done-header">
+                    <h2>✅ Terminé <span class="hint">(clic = réouvrir)</span></h2>
+                    <div class="dpf-wrap" id="done-period-filter-bubbles">
+                        <button class="dpf-trigger" type="button">Aujourd'hui<span class="dpf-arrow">&#x25BE;</span></button>
+                        <ul class="dpf-menu">
+                            <li class="dpf-opt selected" data-value="today">Aujourd'hui</li>
+                            <li class="dpf-opt" data-value="week">Cette semaine</li>
+                            <li class="dpf-opt" data-value="month">Ce mois</li>
+                            <li class="dpf-opt" data-value="year">Cette année</li>
+                            <li class="dpf-opt" data-value="all">Tout</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="bubbles-list" id="bubbles-done"></div>
             </div>
         </main>
@@ -1089,7 +1111,7 @@
     <!-- MODULES (Architecture v3.0) - Ordre de chargement important -->
     <!-- 1. Configuration et utilitaires -->
     <script src="js/modules/config.js?v=6301"></script>
-    <script src="js/modules/state.js?v=1701"></script>
+    <script src="js/modules/state.js?v=1702"></script>
     <script src="js/modules/utils.js?v=1700"></script>
 
     <!-- 2. API Backend Modules (nouveau système) -->
@@ -1118,7 +1140,7 @@
     <script src="js/modules/auth/auth.js?v=1700"></script>
     <script src="js/modules/themes.js?v=2001"></script>
     <script src="js/modules/confirm-modal.js?v=1700"></script>
-    <script src="js/modules/tasks/tasks.js?v=1701"></script>
+    <script src="js/modules/tasks/tasks.js?v=1703"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
     <script src="js/modules/projects/projects.js?v=5102"></script>
     <script src="js/modules/notes/journal.js?v=10000"></script>
@@ -1283,11 +1305,11 @@
     <script src="js/modules/canvases/galaxie-view.js?v=3502"></script>
 
     <!-- GALAXY COSMIC v3.1 PHASE 2 - L'Univers Vivant - TOUT FONCTIONNEL -->
-    <script src="js/galaxy-cosmic.js?v=3592"></script>
-    <script src="js/galaxy-cosmic-persistence.js?v=5"></script>
-    <script src="js/galaxy-cosmic-projects-ui.js?v=6"></script>
+    <script src="js/galaxy-cosmic.js?v=3596"></script>
+    <script src="js/galaxy-cosmic-persistence.js?v=6"></script>
+    <script src="js/galaxy-cosmic-projects-ui.js?v=13"></script>
     <script src="js/galaxy-cosmic-history.js?v=3556"></script>
-    <script src="js/galaxy-cosmic-shapes.js?v=3588"></script>
+    <script src="js/galaxy-cosmic-shapes.js?v=3589"></script>
     <script src="js/galaxy-cosmic-ui.js?v=3621"></script>
     <script>
     // Auto-init Cosmic Projects

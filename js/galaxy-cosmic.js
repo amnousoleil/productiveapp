@@ -996,6 +996,7 @@ class CosmicRenderer {
                 const maxW = (node.isTextNode && node.textBoxWidth) ? node.textBoxWidth * zoom * 0.95
                            : (node.shape === 'rect' && node.width) ? node.width * zoom * 0.85
                            : node.isTextNode ? radius * 2.5
+                           : node.isTaskNode ? radius * 1.6
                            : radius * 1.4;
                 const words = node.text.split(' ');
                 const lines = [];
@@ -1025,8 +1026,31 @@ class CosmicRenderer {
                 lines.forEach((l, i) => ctx.fillText(l, 0, startY + i * lh));
             }
 
-            // Padlock icon on locked nodes
-            if (node.locked) {
+            // Task node: user avatar emoji in top-right
+            if (node.isTaskNode && node.taskUserAvatar) {
+                const eSz = Math.max(14, 18 * zoom);
+                const eX = radius * 0.55;
+                const eY = -radius * 0.55;
+                ctx.font = `${eSz}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(node.taskUserAvatar, eX, eY);
+            }
+
+            // Task node: priority indicator dot at bottom
+            if (node.isTaskNode && node.taskPriority === 1) {
+                const dotR = Math.max(4, 6 * zoom);
+                ctx.beginPath();
+                ctx.arc(0, radius * 0.7, dotR, 0, Math.PI * 2);
+                ctx.fillStyle = '#fbbf24';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Padlock icon on locked nodes (skip for task nodes)
+            if (node.locked && !node.isTaskNode) {
                 const sz = Math.max(12, 14 * zoom);
                 const px = radius * 0.6;
                 const py = radius * 0.5;
@@ -1122,6 +1146,87 @@ function initGalaxyCosmic() {
     // Projets Cosmic: init géré par auto-init dans galaxy-cosmic-projects-ui.js
 }
 
+// ───────────────────────────────────────────────
+// TASK NODE TOOLTIP
+// ───────────────────────────────────────────────
+
+let _taskTooltipEl = null;
+let _taskTooltipNode = null;
+
+function _getTaskTooltip() {
+    if (_taskTooltipEl) return _taskTooltipEl;
+    const el = document.createElement('div');
+    el.className = 'cosmic-task-tooltip';
+    document.body.appendChild(el);
+    _taskTooltipEl = el;
+    return el;
+}
+
+function _showTaskTooltip(node, clientX, clientY) {
+    const tip = _getTaskTooltip();
+    const m = node.metadata || {};
+
+    // Status badge color
+    const statusColors = {
+        'todo': '#6b7280', 'inprogress': '#f59e0b', 'in_progress': '#f59e0b',
+        'review': '#8b5cf6', 'blocked': '#ef4444', 'done': '#10b981'
+    };
+    const prioColors = { 1: '#ef4444', 2: '#3b82f6', 3: '#22c55e' };
+
+    let html = '<div class="ctt-title">' + _escHtml(m.fullTitle || node.text || '') + '</div>';
+
+    // Status + priority row
+    html += '<div class="ctt-badges">';
+    html += '<span class="ctt-badge" style="background:' + (statusColors[m.status] || '#6b7280') + '">' + _escHtml(m.statusLabel || '') + '</span>';
+    html += '<span class="ctt-badge" style="background:' + (prioColors[m.priority] || '#3b82f6') + '">' + _escHtml(m.priorityLabel || '') + '</span>';
+    html += '</div>';
+
+    // Assigned user
+    if (m.assignedName) {
+        html += '<div class="ctt-row">' + (m.assignedAvatar || '') + ' ' + _escHtml(m.assignedName) + '</div>';
+    }
+
+    // Due date
+    if (m.dueDate) {
+        html += '<div class="ctt-row ctt-date">\ud83d\udcc5 ' + _escHtml(m.dueDate) + '</div>';
+    }
+
+    // Description (truncate to 120 chars)
+    if (m.description) {
+        var desc = m.description.length > 120 ? m.description.substring(0, 117).trim() + '...' : m.description;
+        html += '<div class="ctt-desc">' + _escHtml(desc) + '</div>';
+    }
+
+    tip.innerHTML = html;
+    tip.classList.add('visible');
+
+    // Position near cursor, avoid screen overflow
+    const pad = 14;
+    let left = clientX + pad;
+    let top = clientY + pad;
+    const tw = tip.offsetWidth;
+    const th = tip.offsetHeight;
+    if (left + tw > window.innerWidth - 8) left = clientX - tw - pad;
+    if (top + th > window.innerHeight - 8) top = clientY - th - pad;
+    if (left < 4) left = 4;
+    if (top < 4) top = 4;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+}
+
+function _hideTaskTooltip() {
+    if (_taskTooltipEl) _taskTooltipEl.classList.remove('visible');
+    _taskTooltipNode = null;
+}
+
+function _escHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Track mousedown position for click detection
+let _taskClickStart = null;
+
 function setupEventListeners() {
     const canvas = CosmicState.canvas;
 
@@ -1139,6 +1244,30 @@ function setupEventListeners() {
         CosmicState.mouse.worldX = (CosmicState.mouse.x - canvas.width / 2) / zoom + camX;
         CosmicState.mouse.worldY = (CosmicState.mouse.y - canvas.height / 2) / zoom + camY;
 
+        // Task node tooltip + cursor (only in task project mode)
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+            const hoverNode = typeof getNodeAtWorld === 'function'
+                ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
+
+            if (hoverNode && hoverNode.isTaskNode) {
+                canvas.style.cursor = 'pointer';
+                if (_taskTooltipNode !== hoverNode) {
+                    _taskTooltipNode = hoverNode;
+                    _showTaskTooltip(hoverNode, e.clientX, e.clientY);
+                } else {
+                    // Update position while hovering same node
+                    _showTaskTooltip(hoverNode, e.clientX, e.clientY);
+                }
+            } else {
+                canvas.style.cursor = CosmicState.mouse.down ? 'grabbing' : 'grab';
+                if (_taskTooltipNode) _hideTaskTooltip();
+            }
+
+            // In task mode, still allow panning via CosmicShapeInteraction
+            if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseMove(e)) return;
+            return;
+        }
+
         // Resize handle cursor (only when not dragging)
         if (!CosmicState.mouse.down && CosmicState.selectedNodes.size === 1 && window.hitTestHandle) {
             const selNode = CosmicState.selectedNodes.values().next().value;
@@ -1153,8 +1282,16 @@ function setupEventListeners() {
         }
     });
 
+    // Hide tooltip when mouse leaves canvas
+    canvas.addEventListener('mouseleave', () => {
+        _hideTaskTooltip();
+    });
+
     // Double-clic : Créer pensée
     canvas.addEventListener('dblclick', (e) => {
+        // Block creation in task project mode
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) return;
+
         // Double-click on existing node → edit text
         const node = typeof getNodeAtWorld === 'function' ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
         if (node && window.RadialMenu) {
@@ -1183,6 +1320,9 @@ function setupEventListeners() {
         CosmicState.mouse.down = true;
         CosmicState.interaction.dragStart = { x: CosmicState.mouse.x, y: CosmicState.mouse.y };
 
+        // Track click start for task node click detection
+        _taskClickStart = { x: e.clientX, y: e.clientY };
+
         if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseDown(e)) return;
         if (window.IntentionSystem) {
             window.IntentionSystem.detectIntent(e, CosmicState);
@@ -1191,6 +1331,30 @@ function setupEventListeners() {
 
     canvas.addEventListener('mouseup', (e) => {
         CosmicState.mouse.down = false;
+
+        // Task node click: open task detail if it was a click (not a drag/pan)
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode && _taskClickStart) {
+            const dx = e.clientX - _taskClickStart.x;
+            const dy = e.clientY - _taskClickStart.y;
+            if (Math.abs(dx) < 6 && Math.abs(dy) < 6) {
+                const clickNode = typeof getNodeAtWorld === 'function'
+                    ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
+                if (clickNode && clickNode.isTaskNode && clickNode.taskId) {
+                    _hideTaskTooltip();
+                    // Open the existing task edit modal
+                    if (window.openEditTaskModal) {
+                        window.openEditTaskModal(clickNode.taskId);
+                    } else if (typeof Tasks !== 'undefined' && Tasks.openEditModal) {
+                        Tasks.openEditModal(clickNode.taskId);
+                    } else {
+                        console.log('Open task: ' + clickNode.taskId);
+                    }
+                    _taskClickStart = null;
+                    return;
+                }
+            }
+        }
+        _taskClickStart = null;
 
         if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseUp(e)) return;
         if (window.IntentionSystem) {

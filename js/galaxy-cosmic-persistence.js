@@ -223,6 +223,8 @@ const CosmicPersistence = (function () {
     // ───────────────────────────────────────────────
 
     function debouncedSave() {
+        // Don't save task-generated nodes (task project mode is read-only)
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) return;
         isDirty = true;
         _emitStatus('modified');
         if (_saveTimer) clearTimeout(_saveTimer);

@@ -41,7 +41,7 @@
     background: #faf6ee;
     border-radius: 16px;
     width: 92vw;
-    max-width: 460px;
+    max-width: 680px;
     max-height: 70vh;
     display: flex;
     flex-direction: column;
@@ -101,22 +101,88 @@
 }
 
 /* ───────────────────────────────────────────────
+   LIST CONTAINER (scrollable wrapper for both sections)
+   ─────────────────────────────────────────────── */
+
+.cpp-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ───────────────────────────────────────────────
+   SECTION HEADERS
+   ─────────────────────────────────────────────── */
+
+.cpp-section {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0 0 8px;
+}
+
+.cpp-section + .cpp-section {
+    border-left: 1px solid rgba(139, 115, 85, 0.15);
+}
+
+.cpp-section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px 6px;
+    position: sticky;
+    top: 0;
+    background: #faf6ee;
+    z-index: 1;
+}
+
+.cpp-section-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.cpp-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8b7355;
+}
+
+.cpp-section-badge {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    margin-left: auto;
+}
+
+/* ───────────────────────────────────────────────
    NEW PROJECT BUTTON
    ─────────────────────────────────────────────── */
 
 .cpp-new-btn {
-    margin: 14px 20px 10px;
-    padding: 9px 0;
+    margin: 8px 20px 6px;
+    padding: 7px 0;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     background: linear-gradient(135deg, #8b7355, #6b5a40);
     color: #faf6ee;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     letter-spacing: 0.02em;
     transition: transform 0.15s, box-shadow 0.15s;
     box-shadow: 0 2px 8px rgba(90, 74, 47, 0.18);
+    width: calc(100% - 40px);
 }
 
 .cpp-new-btn:hover {
@@ -133,9 +199,8 @@
    ─────────────────────────────────────────────── */
 
 .cpp-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 6px 12px 14px;
+    overflow-y: visible;
+    padding: 4px 12px 6px;
 }
 
 .cpp-loading,
@@ -365,4 +430,215 @@
 @keyframes cppPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
+}
+
+/* ───────────────────────────────────────────────
+   RESPONSIVE — stack on small screens
+   ─────────────────────────────────────────────── */
+
+@media (max-width: 500px) {
+    .cosmic-projects-panel {
+        max-width: 460px;
+    }
+
+    .cpp-list-container {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .cpp-section {
+        overflow-y: visible;
+    }
+
+    .cpp-section + .cpp-section {
+        border-left: none;
+        border-top: 1px solid rgba(139, 115, 85, 0.12);
+    }
+}
+
+/* ───────────────────────────────────────────────
+   TASK PROJECT ITEMS
+   ─────────────────────────────────────────────── */
+
+.cpp-item-task .cpp-item-info {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.cpp-item-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.cpp-btn-open-task {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 7px;
+    background: #3b6fc2;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.cpp-btn-open-task:hover {
+    background: #2d5aa0;
+    transform: translateY(-1px);
+}
+
+/* ───────────────────────────────────────────────
+   TASK PROJECT BANNER (displayed on canvas)
+   ─────────────────────────────────────────────── */
+
+.cpp-task-banner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 5;
+    pointer-events: none;
+    animation: cppBannerFadeIn 0.5s ease forwards;
+}
+
+.cpp-task-banner-icon {
+    font-size: 56px;
+    line-height: 1;
+    opacity: 0.25;
+}
+
+.cpp-task-banner-text {
+    text-align: center;
+}
+
+.cpp-task-banner-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+}
+
+.cpp-task-banner-hint {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.15);
+    font-style: italic;
+}
+
+@keyframes cppBannerFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -46%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* ───────────────────────────────────────────────
+   SCROLLBAR for sections (independent scroll)
+   ─────────────────────────────────────────────── */
+
+.cpp-section::-webkit-scrollbar {
+    width: 5px;
+}
+
+.cpp-section::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cpp-section::-webkit-scrollbar-thumb {
+    background: rgba(139, 115, 85, 0.2);
+    border-radius: 4px;
+}
+
+.cpp-section::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 115, 85, 0.35);
+}
+
+/* ───────────────────────────────────────────────
+   TASK NODE TOOLTIP
+   ─────────────────────────────────────────────── */
+
+.cosmic-task-tooltip {
+    position: fixed;
+    z-index: 20000;
+    background: rgba(20, 20, 30, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f0f0f5;
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-width: 300px;
+    min-width: 160px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45), 0 1px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cosmic-task-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ctt-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.ctt-badges {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.ctt-badge {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #ffffff;
+    line-height: 1.4;
+}
+
+.ctt-row {
+    font-size: 12px;
+    color: rgba(240, 240, 245, 0.8);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.ctt-date {
+    color: rgba(240, 240, 245, 0.6);
+    font-size: 11px;
+}
+
+.ctt-desc {
+    font-size: 11px;
+    color: rgba(240, 240, 245, 0.55);
+    line-height: 1.4;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
