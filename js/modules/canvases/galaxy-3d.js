@@ -815,7 +815,7 @@ const Galaxy3D = (function() {
                 });
             }
 
-            // Task nodes: force fully opaque so other labels don't bleed through
+            // Task nodes: force fully opaque
             if (data.isTaskNode) {
                 var mats = Array.isArray(material) ? material : [material];
                 for (var mi = 0; mi < mats.length; mi++) {
@@ -824,7 +824,6 @@ const Galaxy3D = (function() {
                     mats[mi].depthWrite = true;
                     mats[mi].depthTest = true;
                 }
-                console.log('[3D] task sphere material:', mats[0].transparent, 'opacity:', mats[0].opacity, 'depthWrite:', mats[0].depthWrite);
             }
 
             mesh = new THREE.Mesh(geometry, material);
@@ -881,21 +880,9 @@ const Galaxy3D = (function() {
             var fillHexForLabel = '#' + sphereColor.getHexString();
             if (shape === 'circle' || shape === 'hexagon' || shape === 'star') {
                 label = createSphereLabelSprite(data.label, size, fillHexForLabel, nodeTextColor);
+                label.position.set(0, 0, 0);
                 label.visible = showLabels;
-                if (data.isTaskNode) {
-                    // Task labels: add to scene (not mesh child) with depthTest
-                    // Position updated each frame in animate() to stay in front of sphere
-                    label.material.depthTest = true;
-                    label.material.depthWrite = false;
-                    label.position.copy(mesh.position);
-                    label.userData._taskLabel = true;
-                    label.userData._parentMesh = mesh;
-                    label.userData._parentSize = size;
-                    scene.add(label);
-                } else {
-                    label.position.set(0, 0, 0);
-                    mesh.add(label);
-                }
+                mesh.add(label);
             } else if (isTextNode) {
                 label = createTextSprite(data.label, sphereColor, nodeFontSize, size);
                 label.position.set(0, 0, 0);
@@ -904,16 +891,13 @@ const Galaxy3D = (function() {
             }
         }
 
-        // Task node: avatar emoji sprite above the sphere (scene-level, depthTest)
+        // Task node: avatar emoji sprite above the sphere (child of mesh)
         var avatarSprite = null;
         if (data.isTaskNode && data.taskUserAvatar) {
-            avatarSprite = _createEmojiSprite(data.taskUserAvatar, size, true);
+            avatarSprite = _createEmojiSprite(data.taskUserAvatar, size, false);
             if (avatarSprite) {
-                avatarSprite.userData._taskAvatar = true;
-                avatarSprite.userData._parentMesh = mesh;
-                avatarSprite.userData._parentSize = size;
-                avatarSprite.position.set(mesh.position.x, mesh.position.y + size + size * 0.4, mesh.position.z);
-                scene.add(avatarSprite);
+                avatarSprite.position.set(0, size + size * 0.4, 0);
+                mesh.add(avatarSprite);
             }
         }
 
@@ -1018,14 +1002,15 @@ const Galaxy3D = (function() {
     function clearAllSpheres() {
         disposeNodeLights();
         spheres.forEach(s => {
-            // Remove scene-level task label and avatar sprites
-            if (s.label && s.label.userData && s.label.userData._taskLabel) {
-                scene.remove(s.label);
-                if (s.label.material) { if (s.label.material.map) s.label.material.map.dispose(); s.label.material.dispose(); }
+            // Dispose label sprite material/texture (mesh child)
+            if (s.label && s.label.material) {
+                if (s.label.material.map) s.label.material.map.dispose();
+                s.label.material.dispose();
             }
-            if (s.avatarSprite && s.avatarSprite.userData && s.avatarSprite.userData._taskAvatar) {
-                scene.remove(s.avatarSprite);
-                if (s.avatarSprite.material) { if (s.avatarSprite.material.map) s.avatarSprite.material.map.dispose(); s.avatarSprite.material.dispose(); }
+            // Dispose avatar sprite material/texture (mesh child)
+            if (s.avatarSprite && s.avatarSprite.material) {
+                if (s.avatarSprite.material.map) s.avatarSprite.material.map.dispose();
+                s.avatarSprite.material.dispose();
             }
             scene.remove(s.mesh);
             if (s.mesh.geometry) s.mesh.geometry.dispose();
@@ -1263,28 +1248,22 @@ const Galaxy3D = (function() {
                 }
             });
 
-            // Task labels: keep in front of parent sphere, facing camera
-            if (camera) {
-                spheres.forEach(function(s) {
-                    if (!s.data || !s.data.isTaskNode) return;
-                    var mp = s.mesh.position;
-                    var sc = s.mesh.scale.x; // breathing scale
-                    // Label
-                    if (s.label && s.label.userData && s.label.userData._taskLabel) {
-                        var dir = camera.position.clone().sub(mp).normalize();
-                        s.label.position.set(
-                            mp.x + dir.x * s.size * sc * 1.05,
-                            mp.y + dir.y * s.size * sc * 1.05,
-                            mp.z + dir.z * s.size * sc * 1.05
-                        );
-                        s.label.scale.setScalar(sc);
+            // Task label/emoji distance fade — close = opaque, far = transparent
+            if (camera && window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+                for (var ti = 0; ti < spheres.length; ti++) {
+                    var ts = spheres[ti];
+                    if (!ts.mesh || !ts.mesh.userData || !ts.mesh.userData.isTaskNode) continue;
+                    var dist = ts.mesh.position.distanceTo(camera.position);
+                    var fade = 1.0 - Math.max(0, Math.min(1, (dist - 20) / (80 - 20)));
+                    if (ts.label && ts.label.material) {
+                        ts.label.material.opacity = fade;
+                        ts.label.visible = showLabels && fade > 0.02;
                     }
-                    // Avatar emoji
-                    if (s.avatarSprite && s.avatarSprite.userData && s.avatarSprite.userData._taskAvatar) {
-                        s.avatarSprite.position.set(mp.x, mp.y + (s.size + s.size * 0.4) * sc, mp.z);
-                        s.avatarSprite.scale.setScalar(sc);
+                    if (ts.avatarSprite && ts.avatarSprite.material) {
+                        ts.avatarSprite.material.opacity = fade;
+                        ts.avatarSprite.visible = fade > 0.02;
                     }
-                });
+                }
             }
 
             // Starfield: multi-layer parallax + twinkling
