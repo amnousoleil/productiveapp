@@ -676,13 +676,21 @@ class CosmicToolbar {
                 if (window.Galaxy3D && window.Galaxy3D.onResize) {
                     window.Galaxy3D.onResize();
                 }
+                // Ensure keyboard focus stays inside fullscreen
+                if (isFS) {
+                    var fsEl = document.fullscreenElement;
+                    if (fsEl) { fsEl.tabIndex = -1; fsEl.focus(); }
+                }
             }, 100);
         });
     }
 
     static _updateFullscreenLabel(isFS) {
         var existing = document.getElementById('galaxy-fs-project-label');
+        var sidebar = document.getElementById('app-sidebar');
         if (isFS) {
+            // Hide sidebar to reclaim full width
+            if (sidebar) sidebar.style.display = 'none';
             if (existing) existing.remove();
             var label = document.createElement('div');
             label.id = 'galaxy-fs-project-label';
@@ -697,8 +705,16 @@ class CosmicToolbar {
             label.textContent = projectName || 'Galaxy View';
             var container = document.getElementById('view-galaxy');
             if (container) container.appendChild(label);
+            // Move radial menu inside fullscreen element so it stays visible
+            var radial = document.querySelector('.cosmic-radial-menu');
+            if (radial && container) container.appendChild(radial);
         } else {
+            // Restore sidebar
+            if (sidebar) sidebar.style.display = '';
             if (existing) existing.remove();
+            // Move radial menu back to body
+            var radial = document.querySelector('.cosmic-radial-menu');
+            if (radial) document.body.appendChild(radial);
         }
     }
 }
@@ -779,6 +795,15 @@ class RadialMenu {
             const wx = (mx - canvas.width / 2) / zoom + camX;
             const wy = (my - canvas.height / 2) / zoom + camY;
             this.targetNode = typeof window.getNodeAtWorld === 'function' ? window.getNodeAtWorld(wx, wy) : null;
+
+            // If no node, check if a stroke is under cursor → select it for deletion via menu
+            if (!this.targetNode && typeof window.getStrokeAtWorld === 'function') {
+                const stroke = window.getStrokeAtWorld(wx, wy);
+                if (stroke) {
+                    CosmicState._selectedStrokeId = stroke.id;
+                    CosmicState.selectedNodes.clear();
+                }
+            }
 
             this.show(e.clientX, e.clientY);
         });
@@ -1123,7 +1148,9 @@ class RadialMenu {
             width:${inputW}px; max-width:${inputW}px;
             caret-color:${textCol};
         `;
-        document.body.appendChild(input);
+        // Append to fullscreen element if active, otherwise body
+        var fsParent = document.fullscreenElement || document.body;
+        fsParent.appendChild(input);
         input.focus();
         input.select();
 
@@ -1139,6 +1166,9 @@ class RadialMenu {
             delete node._editing;
             input.removeEventListener('input', onInput);
             input.remove();
+            // Restore focus inside fullscreen so keyboard shortcuts keep working
+            var focusTarget = document.fullscreenElement || canvas;
+            if (focusTarget && focusTarget.focus) focusTarget.focus();
         };
         const commit = () => {
             if (committed) return;
@@ -1197,6 +1227,19 @@ class RadialMenu {
 
     deleteTarget() {
         const node = this.targetNode;
+
+        // If no node targeted, try deleting selected stroke instead
+        if (!node && CosmicState._selectedStrokeId) {
+            CosmicState.strokes = CosmicState.strokes.filter(
+                s => s.id !== CosmicState._selectedStrokeId
+            );
+            CosmicState._selectedStrokeId = null;
+            if (window.CosmicHistory) window.CosmicHistory.save();
+            if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+            this.hide();
+            return;
+        }
+
         if (!node) return;
 
         // Remove connections linked to this node
@@ -2025,6 +2068,10 @@ setTimeout(function() {
                     Galaxy3D.onResize();
                 }
                 window.dispatchEvent(new Event('resize'));
+                if (isFS) {
+                    var fsEl = document.fullscreenElement;
+                    if (fsEl) { fsEl.tabIndex = -1; fsEl.focus(); }
+                }
             }, 100);
         });
 
@@ -2060,6 +2107,8 @@ setTimeout(function() {
             // Hide 2D canvas and toolbar
             canvas2D.style.display = 'none';
             if (toolbar) toolbar.style.display = 'none';
+            var viewGalaxy = document.getElementById('view-galaxy');
+            if (viewGalaxy) viewGalaxy.classList.add('mode-3d');
 
             // Show and size the 3D canvas BEFORE init
             canvas3D.style.display = 'block';
@@ -2125,6 +2174,8 @@ setTimeout(function() {
             canvas3D.style.display = 'none';
             canvas2D.style.display = 'block';
             if (toolbar) toolbar.style.display = '';
+            var viewGalaxy = document.getElementById('view-galaxy');
+            if (viewGalaxy) viewGalaxy.classList.remove('mode-3d');
 
             // Remove bottom bar
             if (bottomBar && bottomBar.parentNode) bottomBar.parentNode.removeChild(bottomBar);

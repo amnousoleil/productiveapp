@@ -539,14 +539,33 @@
 }
 
 #view-galaxy:fullscreen {
-    width: 100vw;
-    height: 100vh;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
     background: #030308;
+    z-index: 9999;
 }
 
 /* Hide toolbar in fullscreen for immersion */
 #view-galaxy:fullscreen #galaxy-toolbar {
     display: none !important;
+}
+
+/* Hide 2D drawing toolbar only when in 3D mode (fullscreen or not) */
+#view-galaxy.mode-3d .cosmic-toolbar {
+    display: none !important;
+}
+
+/* 3D container fills all available space in fullscreen */
+#view-galaxy:fullscreen #galaxy-3d-container {
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 /* Floating project name in fullscreen */

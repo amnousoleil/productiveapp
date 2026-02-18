@@ -662,6 +662,11 @@ class CosmicRenderer {
             window.renderMarqueeRect(ctx, camera);
         }
 
+        // Selected stroke highlight (bounding box)
+        if (window.renderSelectedStrokes) {
+            window.renderSelectedStrokes(ctx, camera);
+        }
+
         // UI Fantôme
         if (!CosmicState.prefs.zenMode) {
             this.renderUI(ctx, now);

@@ -84,6 +84,43 @@ function getNodeAtWorld(wx, wy) {
     return null;
 }
 
+// ── Stroke hit-testing (pen/freehand drawings) ─────────────────────
+// Distance from point (px,py) to segment (ax,ay)-(bx,by)
+function _distToSegment(px, py, ax, ay, bx, by) {
+    const dx = bx - ax, dy = by - ay;
+    const lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.hypot(px - ax, py - ay);
+    let t = ((px - ax) * dx + (py - ay) * dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+function getStrokeAtWorld(wx, wy) {
+    const zoom = (CosmicState && CosmicState.camera) ? CosmicState.camera.zoom : 1;
+    const tolerance = 8 / zoom; // 8px hit margin in screen space
+    for (let i = CosmicState.strokes.length - 1; i >= 0; i--) {
+        const s = CosmicState.strokes[i];
+        if (!s.points || s.points.length < 2) continue;
+        const halfW = (s.width || 4) / 2 / zoom + tolerance;
+        for (let j = 0; j < s.points.length - 1; j++) {
+            const d = _distToSegment(wx, wy, s.points[j].x, s.points[j].y, s.points[j + 1].x, s.points[j + 1].y);
+            if (d <= halfW) return s;
+        }
+    }
+    return null;
+}
+
+function getStrokeBounds(s) {
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of s.points) {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+    }
+    return { minX, minY, maxX, maxY };
+}
+
 // ── Resize Handles ──────────────────────────────────────────────────
 // Returns handle descriptors in screen coordinates for a given node
 // Rects get 8 handles (4 corners + 4 midpoints), others get 4 corners
@@ -250,7 +287,7 @@ class ShapeInteraction {
             }
             // Start marquee rectangle
             CosmicState.selectedNodes.clear();
-            CosmicState._selectedConnId = null;
+            CosmicState._selectedConnId = null; CosmicState._selectedStrokeId = null;
             this.isMarquee = true;
             this.marqueeOrigin = { x: wX, y: wY };
             this.marqueeCurrent = { x: wX, y: wY };
@@ -301,7 +338,7 @@ class ShapeInteraction {
         // Any tool: click on node → select/drag
         const node = getNodeAtWorld(wX, wY);
         if (node) {
-            CosmicState._selectedConnId = null;
+            CosmicState._selectedConnId = null; CosmicState._selectedStrokeId = null;
             if (!CosmicState.selectedNodes.has(node)) {
                 CosmicState.selectedNodes.clear();
                 CosmicState.selectedNodes.add(node);
@@ -346,6 +383,15 @@ class ShapeInteraction {
             return true;
         }
 
+        // Click on stroke (pen drawing) → select it
+        const stroke = getStrokeAtWorld(wX, wY);
+        if (stroke) {
+            CosmicState.selectedNodes.clear();
+            CosmicState._selectedConnId = null;
+            CosmicState._selectedStrokeId = stroke.id;
+            return true;
+        }
+
         // Click on connection → select it
         if (CosmicState._hoveredConnIdx != null && CosmicState._hoveredConnIdx >= 0) {
             const conn = CosmicState.connections[CosmicState._hoveredConnIdx];
@@ -358,7 +404,7 @@ class ShapeInteraction {
 
         // Empty space with shape tool → draw new shape
         CosmicState.selectedNodes.clear();
-        CosmicState._selectedConnId = null;
+        CosmicState._selectedConnId = null; CosmicState._selectedStrokeId = null;
 
         // Text tool: start drawing text zone (click-drag like Figma)
         if (tool === 'text') {
@@ -560,9 +606,20 @@ class ShapeInteraction {
             const x1 = Math.min(o.x, c.x), x2 = Math.max(o.x, c.x);
             const y1 = Math.min(o.y, c.y), y2 = Math.max(o.y, c.y);
             CosmicState.selectedNodes.clear();
+            CosmicState._selectedStrokeId = null;
+            if (!CosmicState._selectedStrokeIds) CosmicState._selectedStrokeIds = new Set();
+            CosmicState._selectedStrokeIds.clear();
             for (const node of CosmicState.nodes) {
                 if (node.x >= x1 && node.x <= x2 && node.y >= y1 && node.y <= y2) {
                     CosmicState.selectedNodes.add(node);
+                }
+            }
+            // Also select strokes whose bounding box overlaps the marquee
+            for (const s of CosmicState.strokes) {
+                if (!s.points || s.points.length < 2) continue;
+                const b = getStrokeBounds(s);
+                if (b.maxX >= x1 && b.minX <= x2 && b.maxY >= y1 && b.minY <= y2) {
+                    CosmicState._selectedStrokeIds.add(s.id);
                 }
             }
             this.isMarquee = false;
@@ -676,18 +733,33 @@ document.addEventListener('keydown', (e) => {
         CosmicState.connections = CosmicState.connections.filter(
             c => c.id !== CosmicState._selectedConnId
         );
-        CosmicState._selectedConnId = null;
+        CosmicState._selectedConnId = null; CosmicState._selectedStrokeId = null;
         if (window.CosmicHistory) window.CosmicHistory.save();
         if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
         return;
     }
 
-    const selected = Array.from(CosmicState.selectedNodes);
-    if (selected.length === 0) return;
+    // Delete selected stroke (pen drawing)
+    if (CosmicState._selectedStrokeId) {
+        e.preventDefault();
+        CosmicState.strokes = CosmicState.strokes.filter(
+            s => s.id !== CosmicState._selectedStrokeId
+        );
+        CosmicState._selectedStrokeId = null;
+        if (window.CosmicHistory) window.CosmicHistory.save();
+        if (typeof CosmicPersistence !== 'undefined') CosmicPersistence.debouncedSave();
+        return;
+    }
+
+    // Delete marquee-selected strokes alongside nodes
+    const multiStrokes = CosmicState._selectedStrokeIds;
+    const hasNodes = CosmicState.selectedNodes.size > 0;
+    const hasStrokes = (multiStrokes && multiStrokes.size > 0);
+    if (!hasNodes && !hasStrokes) return;
 
     e.preventDefault();
     let deleted = 0;
-    for (const node of selected) {
+    for (const node of Array.from(CosmicState.selectedNodes)) {
         if (node.locked) continue;
         CosmicState.connections = CosmicState.connections.filter(
             c => c.fromId !== node.id && c.toId !== node.id
@@ -695,6 +767,11 @@ document.addEventListener('keydown', (e) => {
         CosmicState.nodes = CosmicState.nodes.filter(n => n.id !== node.id);
         CosmicState.selectedNodes.delete(node);
         deleted++;
+    }
+    if (hasStrokes) {
+        CosmicState.strokes = CosmicState.strokes.filter(s => !multiStrokes.has(s.id));
+        deleted += multiStrokes.size;
+        multiStrokes.clear();
     }
     if (deleted > 0) {
         if (window.CosmicHistory) window.CosmicHistory.save();
@@ -776,12 +853,43 @@ function renderTextPreview(ctx, camera) {
     ctx.restore();
 }
 
+// Render bounding box around selected strokes
+function renderSelectedStrokes(ctx, camera) {
+    const { x: camX, y: camY, zoom } = camera;
+    const toSx = wx => (wx - camX) * zoom + ctx.canvas.width / 2;
+    const toSy = wy => (wy - camY) * zoom + ctx.canvas.height / 2;
+    // Collect all selected stroke IDs
+    const ids = new Set();
+    if (CosmicState._selectedStrokeId) ids.add(CosmicState._selectedStrokeId);
+    if (CosmicState._selectedStrokeIds) {
+        CosmicState._selectedStrokeIds.forEach(id => ids.add(id));
+    }
+    if (ids.size === 0) return;
+    ctx.save();
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 3]);
+    for (const s of CosmicState.strokes) {
+        if (!ids.has(s.id)) continue;
+        const b = getStrokeBounds(s);
+        const pad = (s.width || 4) / 2 + 4;
+        const sx = toSx(b.minX - pad), sy = toSy(b.minY - pad);
+        const sw = (b.maxX - b.minX + pad * 2) * zoom;
+        const sh = (b.maxY - b.minY + pad * 2) * zoom;
+        ctx.strokeRect(sx, sy, sw, sh);
+    }
+    ctx.setLineDash([]);
+    ctx.restore();
+}
+
 window.CosmicShapes = CosmicShapes;
 window.CosmicShapeInteraction = new ShapeInteraction();
 window.renderShapePreview = renderShapePreview;
 window.renderTextPreview = renderTextPreview;
 window.renderMarqueeRect = renderMarqueeRect;
+window.renderSelectedStrokes = renderSelectedStrokes;
 window.getNodeAtWorld = getNodeAtWorld;
+window.getStrokeAtWorld = getStrokeAtWorld;
 window.getResizeHandles = getResizeHandles;
 window.hitTestHandle = hitTestHandle;
 
