@@ -603,114 +603,206 @@ const CosmicProjectsUI = (function () {
     }
 
     function _generateTaskNodes(tasks) {
-        // Priority mapping: level → { radius, color, maxChars }
+        // Priority mapping keyed on raw backend string (urgent/high/medium/low)
         var priorityMap = {
-            1: { radius: 75, color: '#e74c3c', maxChars: 60 },  // Urgent — red
-            2: { radius: 50, color: '#3498db', maxChars: 40 },   // Normal — blue
-            3: { radius: 35, color: '#2ecc71', maxChars: 25 }    // Zen — green
+            'urgent': { radius: 75, color: '#e74c3c', maxChars: 60, label: 'Urgent',    sortOrder: 1 },
+            'high':   { radius: 60, color: '#f39c12', maxChars: 50, label: 'Important',  sortOrder: 2 },
+            'medium': { radius: 50, color: '#3498db', maxChars: 40, label: 'Normal',     sortOrder: 3 },
+            'low':    { radius: 35, color: '#f0f0f0', maxChars: 25, label: 'Zen', textColor: '#222222', sortOrder: 4 }
         };
+        var defaultPrio = priorityMap['medium'];
 
-        // Sort: urgent first (level 1), then normal (2), then zen (3)
-        var sorted = tasks.slice().sort(function (a, b) {
-            var la = (a.priority && a.priority.level) || 2;
-            var lb = (b.priority && b.priority.level) || 2;
-            return la - lb;
-        });
-
-        // Spiral layout — golden angle for even distribution
-        var goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
-        var spacingFactor = 1.6;
-        var nodes = [];
-
-        for (var i = 0; i < sorted.length; i++) {
-            var task = sorted[i];
-            var level = (task.priority && task.priority.level) || 2;
-            var prio = priorityMap[level] || priorityMap[2];
-
-            // Spiral position: angle increases by golden angle, radius grows with sqrt
-            var angle = i * goldenAngle;
-            var dist = (i === 0) ? 0 : spacingFactor * prio.radius * Math.sqrt(i);
-            var x = Math.cos(angle) * dist;
-            var y = Math.sin(angle) * dist;
-
-            var uid = task.userId || task.assigned_to;
-            var avatar = _getUserAvatar(uid);
-            var userName = _getUserName(uid);
-            var fullText = task.text || task.title || '';
-
-            var statusLabels = {
-                'todo': '\u00c0 faire', 'inprogress': 'En cours',
-                'in_progress': 'En cours', 'review': 'En revue',
-                'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
-            };
-            var priorityLabels = { 1: 'Urgent', 2: 'Normal', 3: 'Zen' };
-
-            var node = {
-                id: 'task_' + task.id,
-                type: 'thought',
-                shape: 'circle',
-                x: x,
-                y: y,
-                radius: prio.radius,
-                color: prio.color,
-                text: _smartShorten(fullText, prio.maxChars),
-                fontSize: level === 1 ? 14 : level === 2 ? 12 : 11,
-                createdAt: Date.now(),
-                breathing: true,
-                glowIntensity: level === 1 ? 0.6 : 0.2,
-                locked: true,
-                isTaskNode: true,
-                taskId: task.id,
-                taskStatus: task.status,
-                taskPriority: level,
-                taskUserAvatar: avatar,
-                metadata: {
-                    taskId: task.id,
-                    projectId: task.project || task.project_id,
-                    fullTitle: fullText,
-                    description: task.description || '',
-                    status: task.status,
-                    statusLabel: statusLabels[task.status] || task.status,
-                    priority: level,
-                    priorityLabel: priorityLabels[level] || 'Normal',
-                    assignedName: userName,
-                    assignedAvatar: avatar,
-                    dueDate: _formatDueDate(task.due_date || task.dueDate)
-                }
-            };
-
-            nodes.push(node);
+        // Resolve raw priority string from task
+        function _getRaw(task) {
+            if (task.priority && task.priority.raw) return task.priority.raw;
+            // Fallback: match label (strip emojis from labels like "🔥 Urgent")
+            if (task.priority && task.priority.label) {
+                var clean = task.priority.label.replace(/[^\w\sÀ-ÿ]/g, '').trim();
+                var byLabel = { 'Urgent': 'urgent', 'Important': 'high', 'Normal': 'medium', 'Zen': 'low' };
+                return byLabel[clean] || 'medium';
+            }
+            // Fallback: numeric level → raw string (UI dropdown values 1-4)
+            if (task.priority && typeof task.priority.level === 'number') {
+                var byLevel = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
+                return byLevel[task.priority.level] || 'medium';
+            }
+            if (typeof task.priority === 'string') return task.priority.toLowerCase();
+            return 'medium';
         }
 
-        // Push all nodes into CosmicState
+        // ── Group tasks by priority ring, then sub-sort by assigned user ──
+        var ringOrder = ['urgent', 'high', 'medium', 'low'];
+        var rings = { 'urgent': [], 'high': [], 'medium': [], 'low': [] };
+        for (var t = 0; t < tasks.length; t++) {
+            var raw0 = _getRaw(tasks[t]);
+            (rings[raw0] || rings['medium']).push(tasks[t]);
+        }
+        // Within each ring, group by assigned user so same-person tasks cluster
+        for (var ri = 0; ri < ringOrder.length; ri++) {
+            var rk = ringOrder[ri];
+            rings[rk].sort(function (a, b) {
+                var ua = a.userId || a.assigned_to || '';
+                var ub = b.userId || b.assigned_to || '';
+                return ua < ub ? -1 : ua > ub ? 1 : 0;
+            });
+        }
+
+        var MARGIN = 25; // min gap between node edges
+        var RING_GAP = 20; // extra gap between rings beyond clearance
+
+        var statusLabels = {
+            'todo': '\u00c0 faire', 'inprogress': 'En cours',
+            'in_progress': 'En cours', 'review': 'En revue',
+            'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
+        };
+
+        var nodes = [];
+        var prevRingOuter = 0; // tracks outermost edge of previous ring
+        var isFirstRing = true;
+
+        for (var ri2 = 0; ri2 < ringOrder.length; ri2++) {
+            var ringKey = ringOrder[ri2];
+            var ringTasks = rings[ringKey];
+            if (ringTasks.length === 0) continue; // skip empty → next ring packs tighter
+
+            var prio = priorityMap[ringKey] || defaultPrio;
+            var nodeRadius = prio.radius;
+            var n = ringTasks.length;
+
+            // ── Compute ring radius ──
+            var ringR;
+            if (isFirstRing && n === 1) {
+                // Single task in first populated ring → dead centre
+                ringR = 0;
+            } else if (isFirstRing && n > 1) {
+                // First ring with multiple tasks — tight circle just big enough
+                var itemSpan0 = (nodeRadius * 2) + MARGIN;
+                ringR = Math.max(nodeRadius + MARGIN, (n * itemSpan0) / (2 * Math.PI));
+            } else {
+                // Subsequent rings — just clear the previous ring
+                var itemSpan = (nodeRadius * 2) + MARGIN;
+                var minRingR = (n * itemSpan) / (2 * Math.PI);
+                var clearance = prevRingOuter + nodeRadius + RING_GAP;
+                ringR = Math.max(minRingR, clearance);
+            }
+
+            // ── Place nodes evenly around the ring ──
+            var angleStep = (2 * Math.PI) / n;
+            var startAngle = -Math.PI / 2; // start at top (12 o'clock)
+
+            for (var j = 0; j < n; j++) {
+                var task = ringTasks[j];
+                var angle = startAngle + j * angleStep;
+                var x = (ringR === 0) ? 0 : Math.cos(angle) * ringR;
+                var y = (ringR === 0) ? 0 : Math.sin(angle) * ringR;
+
+                var uid = task.userId || task.assigned_to;
+                var avatar = _getUserAvatar(uid);
+                var userName = _getUserName(uid);
+                var fullText = task.text || task.title || '';
+                var rawP = _getRaw(task);
+                var isUrgent = (rawP === 'urgent');
+                var fontSize = rawP === 'urgent' ? 14 : rawP === 'high' ? 13 : rawP === 'medium' ? 12 : 11;
+
+                nodes.push({
+                    id: 'task_' + task.id,
+                    type: 'thought',
+                    shape: 'circle',
+                    x: x,
+                    y: y,
+                    radius: nodeRadius,
+                    color: prio.color,
+                    textColor: prio.textColor || '#ffffff',
+                    text: _smartShorten(fullText, prio.maxChars),
+                    fontSize: fontSize,
+                    createdAt: Date.now(),
+                    breathing: true,
+                    glowIntensity: isUrgent ? 0.6 : 0.2,
+                    locked: true,
+                    isTaskNode: true,
+                    taskId: task.id,
+                    taskStatus: task.status,
+                    taskPriority: prio.sortOrder,
+                    taskPriorityRaw: rawP,
+                    taskUserAvatar: avatar,
+                    metadata: {
+                        taskId: task.id,
+                        projectId: task.project || task.project_id,
+                        fullTitle: fullText,
+                        description: task.description || '',
+                        status: task.status,
+                        statusLabel: statusLabels[task.status] || task.status,
+                        priority: prio.sortOrder,
+                        priorityRaw: rawP,
+                        priorityLabel: prio.label,
+                        assignedName: userName,
+                        assignedAvatar: avatar,
+                        dueDate: _formatDueDate(task.due_date || task.dueDate)
+                    }
+                });
+            }
+
+            // Track outermost edge for next ring clearance
+            prevRingOuter = ringR + nodeRadius;
+            isFirstRing = false;
+        }
+
+        // ── Anti-overlap pass: push outward any overlapping nodes ──
+        for (var a = 0; a < nodes.length; a++) {
+            for (var b = a + 1; b < nodes.length; b++) {
+                var dx = nodes[b].x - nodes[a].x;
+                var dy = nodes[b].y - nodes[a].y;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                var minDist = nodes[a].radius + nodes[b].radius + MARGIN;
+                if (dist < minDist && dist > 0) {
+                    var overlap = (minDist - dist) / 2;
+                    var nx = dx / dist;
+                    var ny = dy / dist;
+                    nodes[a].x -= nx * overlap;
+                    nodes[a].y -= ny * overlap;
+                    nodes[b].x += nx * overlap;
+                    nodes[b].y += ny * overlap;
+                }
+            }
+        }
+
+        // ── Push into CosmicState ──
         CosmicState.nodes = nodes;
 
-        // Center camera on the cluster
+        // ── Auto-zoom to fit all nodes with margin ──
         if (nodes.length > 0) {
-            var sumX = 0, sumY = 0;
-            for (var j = 0; j < nodes.length; j++) {
-                sumX += nodes[j].x;
-                sumY += nodes[j].y;
+            // Bounding box
+            var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for (var ni = 0; ni < nodes.length; ni++) {
+                var nd = nodes[ni];
+                var left = nd.x - nd.radius;
+                var right = nd.x + nd.radius;
+                var top = nd.y - nd.radius;
+                var bottom = nd.y + nd.radius;
+                if (left < minX) minX = left;
+                if (right > maxX) maxX = right;
+                if (top < minY) minY = top;
+                if (bottom > maxY) maxY = bottom;
             }
-            CosmicState.camera.x = sumX / nodes.length;
-            CosmicState.camera.y = sumY / nodes.length;
+            // Centre camera on bounding-box centre
+            CosmicState.camera.x = (minX + maxX) / 2;
+            CosmicState.camera.y = (minY + maxY) / 2;
 
-            // Adjust zoom based on spread
-            var maxDist = 0;
-            for (var k = 0; k < nodes.length; k++) {
-                var d = Math.hypot(nodes[k].x - CosmicState.camera.x, nodes[k].y - CosmicState.camera.y) + nodes[k].radius;
-                if (d > maxDist) maxDist = d;
-            }
+            // Zoom so the full bounding box fits with 15% margin
             var canvas = CosmicState.canvas;
-            if (canvas && maxDist > 0) {
-                var viewSize = Math.min(canvas.width, canvas.height) / 2;
-                var targetZoom = Math.min(1.2, Math.max(0.3, viewSize / (maxDist * 1.3)));
+            if (canvas) {
+                var bboxW = (maxX - minX) * 1.15;
+                var bboxH = (maxY - minY) * 1.15;
+                var zoomX = canvas.width / (bboxW || 1);
+                var zoomY = canvas.height / (bboxH || 1);
+                var targetZoom = Math.min(zoomX, zoomY);
+                targetZoom = Math.min(1.5, Math.max(0.15, targetZoom));
                 CosmicState.camera.zoom = targetZoom;
                 CosmicState.camera.targetZoom = targetZoom;
             }
         }
 
-        console.log('\u2705 Generated ' + nodes.length + ' task nodes for project');
+        console.log('\u2705 Generated ' + nodes.length + ' task nodes (concentric rings)');
     }
 
     // ───────────────────────────────────────────────

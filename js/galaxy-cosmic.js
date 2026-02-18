@@ -1026,27 +1026,13 @@ class CosmicRenderer {
                 lines.forEach((l, i) => ctx.fillText(l, 0, startY + i * lh));
             }
 
-            // Task node: user avatar emoji in top-right
+            // Task node: user avatar emoji on top border (badge style)
             if (node.isTaskNode && node.taskUserAvatar) {
-                const eSz = Math.max(14, 18 * zoom);
-                const eX = radius * 0.55;
-                const eY = -radius * 0.55;
+                const eSz = Math.max(20, radius * 0.35);
                 ctx.font = `${eSz}px sans-serif`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(node.taskUserAvatar, eX, eY);
-            }
-
-            // Task node: priority indicator dot at bottom
-            if (node.isTaskNode && node.taskPriority === 1) {
-                const dotR = Math.max(4, 6 * zoom);
-                ctx.beginPath();
-                ctx.arc(0, radius * 0.7, dotR, 0, Math.PI * 2);
-                ctx.fillStyle = '#fbbf24';
-                ctx.fill();
-                ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                ctx.fillText(node.taskUserAvatar, 0, -radius);
             }
 
             // Padlock icon on locked nodes (skip for task nodes)
@@ -1171,7 +1157,7 @@ function _showTaskTooltip(node, clientX, clientY) {
         'todo': '#6b7280', 'inprogress': '#f59e0b', 'in_progress': '#f59e0b',
         'review': '#8b5cf6', 'blocked': '#ef4444', 'done': '#10b981'
     };
-    const prioColors = { 1: '#ef4444', 2: '#3b82f6', 3: '#22c55e' };
+    const prioColors = { 1: '#e74c3c', 2: '#f39c12', 3: '#3498db', 4: '#9ca3af' };
 
     let html = '<div class="ctt-title">' + _escHtml(m.fullTitle || node.text || '') + '</div>';
 
@@ -1337,8 +1323,18 @@ function setupEventListeners() {
             const dx = e.clientX - _taskClickStart.x;
             const dy = e.clientY - _taskClickStart.y;
             if (Math.abs(dx) < 6 && Math.abs(dy) < 6) {
+                // Recalculate world coords from mouseup position for accurate hit test
+                const rect = canvas.getBoundingClientRect();
+                const sx = canvas.width / rect.width;
+                const sy = canvas.height / rect.height;
+                const mx = (e.clientX - rect.left) * sx;
+                const my = (e.clientY - rect.top) * sy;
+                const { x: cx, y: cy, zoom: z } = CosmicState.camera;
+                const wX = (mx - canvas.width / 2) / z + cx;
+                const wY = (my - canvas.height / 2) / z + cy;
+
                 const clickNode = typeof getNodeAtWorld === 'function'
-                    ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
+                    ? getNodeAtWorld(wX, wY) : null;
                 if (clickNode && clickNode.isTaskNode && clickNode.taskId) {
                     _hideTaskTooltip();
                     // Open the existing task edit modal

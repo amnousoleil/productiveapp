@@ -482,11 +482,48 @@ const Tasks = {
     /**
      * Render les tâches selon le mode de vue
      */
+    /**
+     * Filtre les tâches terminées par période
+     */
+    _filterDoneByPeriod(doneTasks) {
+        const period = AppState.filters.donePeriod || 'today';
+        if (period === 'all') return doneTasks;
+
+        const now = new Date();
+        let cutoff;
+
+        switch (period) {
+            case 'today':
+                cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                break;
+            case 'week': {
+                const day = now.getDay();
+                const diff = day === 0 ? 6 : day - 1; // lundi = début de semaine
+                cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
+                break;
+            }
+            case 'month':
+                cutoff = new Date(now.getFullYear(), now.getMonth(), 1);
+                break;
+            case 'year':
+                cutoff = new Date(now.getFullYear(), 0, 1);
+                break;
+            default:
+                return doneTasks;
+        }
+
+        return doneTasks.filter(t => {
+            if (!t.completedAt) return false;
+            return new Date(t.completedAt) >= cutoff;
+        });
+    },
+
     render() {
         const filtered = AppState.getFilteredTasks();
         const todo = filtered.filter(t => t.status === 'todo');
         const inprogress = filtered.filter(t => t.status === 'inprogress');
-        const done = filtered.filter(t => t.status === 'done').slice(0, 20);
+        const allDone = filtered.filter(t => t.status === 'done');
+        const done = this._filterDoneByPeriod(allDone);
 
         if (AppState.ui.viewMode === 'columns') {
             this.renderColumnsView(todo, inprogress, done);
@@ -692,6 +729,76 @@ const Tasks = {
     },
 
     /**
+     * Custom dropdown logic for done-period filters
+     */
+    _initDonePeriodDropdowns() {
+        const wraps = [
+            document.getElementById('done-period-filter'),
+            document.getElementById('done-period-filter-bubbles')
+        ].filter(Boolean);
+        if (!wraps.length) return;
+
+        const saved = localStorage.getItem('donePeriodFilter') || 'today';
+        AppState.filters.donePeriod = saved;
+
+        // Labels map
+        const labels = { today: "Aujourd'hui", week: 'Cette semaine', month: 'Ce mois', year: "Cette année", all: 'Tout' };
+
+        // Sync all wraps to saved value
+        const syncAll = (val) => {
+            wraps.forEach(w => {
+                const trig = w.querySelector('.dpf-trigger');
+                if (trig) trig.firstChild.textContent = labels[val] || val;
+                w.querySelectorAll('.dpf-opt').forEach(o => {
+                    o.classList.toggle('selected', o.dataset.value === val);
+                });
+            });
+        };
+        syncAll(saved);
+
+        // Toggle open/close
+        const openWrap = (wrap) => {
+            // Close others first
+            wraps.forEach(w => { if (w !== wrap) w.classList.remove('open'); });
+            wrap.classList.add('open');
+            const menu = wrap.querySelector('.dpf-menu');
+            if (menu) requestAnimationFrame(() => menu.classList.add('visible'));
+        };
+        const closeAll = () => {
+            wraps.forEach(w => {
+                w.classList.remove('open');
+                const m = w.querySelector('.dpf-menu');
+                if (m) m.classList.remove('visible');
+            });
+        };
+
+        wraps.forEach(wrap => {
+            const trigger = wrap.querySelector('.dpf-trigger');
+            if (trigger) {
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (wrap.classList.contains('open')) { closeAll(); }
+                    else { openWrap(wrap); }
+                });
+            }
+            wrap.querySelectorAll('.dpf-opt').forEach(opt => {
+                opt.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const val = opt.dataset.value;
+                    AppState.filters.donePeriod = val;
+                    localStorage.setItem('donePeriodFilter', val);
+                    syncAll(val);
+                    closeAll();
+                    this.render();
+                });
+            });
+        });
+
+        // Close on outside click
+        document.addEventListener('click', closeAll);
+    },
+
+    /**
      * Initialise les événements
      */
     initEvents() {
@@ -714,6 +821,11 @@ const Tasks = {
 
         if (cancelEditBtn) {
             cancelEditBtn.addEventListener('click', () => this.closeEditModal());
+        }
+
+        const closeXBtn = Utils.$('close-edit-task-x');
+        if (closeXBtn) {
+            closeXBtn.addEventListener('click', () => this.closeEditModal());
         }
 
         if (confirmEditBtn) {
@@ -756,6 +868,9 @@ const Tasks = {
                 textarea.style.opacity = '1';
             });
         }
+
+        // Done period filter — custom dropdown logic
+        this._initDonePeriodDropdowns();
     }
 };
 

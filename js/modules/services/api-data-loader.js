@@ -189,17 +189,19 @@ const ApiDataLoader = (function() {
     function normalizeTaskPriority(priority) {
         const priorityMap = {
             'urgent': 1,
-            'high': 1,
+            'high': 2,
             'medium': 2,
             'low': 3
         };
         const labelMap = {
-            1: 'Urgent',
-            2: 'Normal',
-            3: 'Zen'
+            'urgent': 'Urgent',
+            'high': 'Important',
+            'medium': 'Normal',
+            'low': 'Zen'
         };
-        const level = priorityMap[priority] || 2;
-        return { level, label: labelMap[level] || 'Normal' };
+        const raw = (typeof priority === 'string') ? priority.toLowerCase() : 'medium';
+        const level = priorityMap[raw] || 2;
+        return { level, label: labelMap[raw] || 'Normal', raw: raw };
     }
 
     /**

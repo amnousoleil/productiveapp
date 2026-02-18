@@ -78,7 +78,7 @@
     <link rel="stylesheet" href="css/journal.css?v=100">
 
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
-    <link rel="stylesheet" href="css/style-overrides.css?v=2833">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2835">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1017,37 +1017,48 @@
     <!-- Modal Éditer Tâche - Grande et complète -->
     <div id="edit-task-modal" class="modal hidden" style="display:none">
         <div class="modal-box modal-box-large">
-            <h3>✏️ Éditer la tâche</h3>
-            
-            <input type="text" id="edit-task-title" class="modal-input" placeholder="Titre de la tâche...">
-            
-            <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes, sous-tâches..." rows="8"></textarea>
-            
-            <div class="modal-selects-row">
-                <div class="modal-select-group">
-                    <label>📁 Projet</label>
-                    <select id="edit-task-project" class="modal-select"></select>
-                </div>
-                <div class="modal-select-group">
-                    <label>⚡ Priorité</label>
-                    <select id="edit-task-priority" class="modal-select">
-                        <option value="1">🔥 Urgent</option>
-                        <option value="2">⚡ Important</option>
-                        <option value="3">Normal</option>
-                        <option value="4">💤 Zen</option>
-                    </select>
-                </div>
-                <div class="modal-select-group">
-                    <label>👤 Assigné à</label>
-                    <select id="edit-task-user" class="modal-select"></select>
-                </div>
+            <!-- HEADER fixe -->
+            <div class="modal-header-fixed">
+                <h3>✏️ Éditer la tâche</h3>
+                <button class="modal-close-x" id="close-edit-task-x" title="Fermer">&times;</button>
             </div>
-            
-            <input type="hidden" id="edit-task-id">
-            <div class="modal-status-actions" id="modal-status-actions"></div>
-            <div class="modal-actions">
-                <button id="cancel-edit-task" class="btn-secondary">Fermer</button>
-                <button id="confirm-edit-task" class="btn-primary">💾 Enregistrer</button>
+
+            <!-- BODY scrollable -->
+            <div class="modal-body-scroll">
+                <input type="text" id="edit-task-title" class="modal-input" placeholder="Titre de la tâche...">
+
+                <textarea id="edit-task-description" class="modal-textarea" placeholder="Ajouter des détails, précisions, notes, sous-tâches..." rows="3"></textarea>
+
+                <div class="modal-selects-row">
+                    <div class="modal-select-group">
+                        <label>📁 Projet</label>
+                        <select id="edit-task-project" class="modal-select"></select>
+                    </div>
+                    <div class="modal-select-group">
+                        <label>⚡ Priorité</label>
+                        <select id="edit-task-priority" class="modal-select">
+                            <option value="1">🔥 Urgent</option>
+                            <option value="2">⚡ Important</option>
+                            <option value="3">Normal</option>
+                            <option value="4">💤 Zen</option>
+                        </select>
+                    </div>
+                    <div class="modal-select-group">
+                        <label>👤 Assigné à</label>
+                        <select id="edit-task-user" class="modal-select"></select>
+                    </div>
+                </div>
+
+                <input type="hidden" id="edit-task-id">
+            </div>
+
+            <!-- FOOTER fixe -->
+            <div class="modal-footer-fixed">
+                <div class="modal-status-actions" id="modal-status-actions"></div>
+                <div class="modal-actions">
+                    <button id="cancel-edit-task" class="btn-secondary">Fermer</button>
+                    <button id="confirm-edit-task" class="btn-primary">💾 Enregistrer</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1126,7 +1137,7 @@
     <script src="js/modules/services/api-journal.js?v=300"></script>
     <script src="js/modules/services/api-ai.js?v=1701"></script>
     <script src="js/modules/services/api-galaxy.js?v=1700"></script>
-    <script src="js/modules/services/api-data-loader.js?v=1700"></script>
+    <script src="js/modules/services/api-data-loader.js?v=1701"></script>
     <script src="js/modules/services/websocket.js?v=1801"></script>
     <script src="js/modules/services/api-monitoring.js?v=2100"></script>
     <script src="js/modules/error-tracker.js?v=2100"></script>
@@ -1140,7 +1151,7 @@
     <script src="js/modules/auth/auth.js?v=1700"></script>
     <script src="js/modules/themes.js?v=2001"></script>
     <script src="js/modules/confirm-modal.js?v=1700"></script>
-    <script src="js/modules/tasks/tasks.js?v=1703"></script>
+    <script src="js/modules/tasks/tasks.js?v=1704"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
     <script src="js/modules/projects/projects.js?v=5102"></script>
     <script src="js/modules/notes/journal.js?v=10000"></script>
@@ -1305,9 +1316,9 @@
     <script src="js/modules/canvases/galaxie-view.js?v=3502"></script>
 
     <!-- GALAXY COSMIC v3.1 PHASE 2 - L'Univers Vivant - TOUT FONCTIONNEL -->
-    <script src="js/galaxy-cosmic.js?v=3596"></script>
+    <script src="js/galaxy-cosmic.js?v=3601"></script>
     <script src="js/galaxy-cosmic-persistence.js?v=6"></script>
-    <script src="js/galaxy-cosmic-projects-ui.js?v=13"></script>
+    <script src="js/galaxy-cosmic-projects-ui.js?v=17"></script>
     <script src="js/galaxy-cosmic-history.js?v=3556"></script>
     <script src="js/galaxy-cosmic-shapes.js?v=3589"></script>
     <script src="js/galaxy-cosmic-ui.js?v=3621"></script>
