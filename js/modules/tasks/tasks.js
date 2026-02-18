@@ -269,6 +269,11 @@ const Tasks = {
                 break;
         }
 
+        // Sync Galaxy View node if in task project mode
+        if (typeof CosmicProjectsUI !== 'undefined' && CosmicProjectsUI.isTaskProjectMode) {
+            CosmicProjectsUI.syncTaskNode(taskId);
+        }
+
         this.render();
         Projects.renderFilter();
     },
@@ -443,6 +448,11 @@ const Tasks = {
             task.updatedAt = new Date().toISOString();
 
             window.tasks = AppState.tasks;
+
+            // Sync Galaxy View node if in task project mode
+            if (typeof CosmicProjectsUI !== 'undefined' && CosmicProjectsUI.isTaskProjectMode) {
+                CosmicProjectsUI.syncTaskNode(taskId);
+            }
 
             this.closeEditModal();
             this.render();
