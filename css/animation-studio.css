@@ -1,0 +1,427 @@
+/* ═══════════════════════════════════════════════════════════════
+   Animation Studio v1.0 — Sélecteur d'animations intégré aux thèmes
+   Design 10/10 : glassmorphism, cards animées, ultra-ergonomique
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Tabs ────────────────────────────────────────────────────── */
+.astudio-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 14px;
+    margin: 12px 0 18px;
+    width: fit-content;
+}
+
+.astudio-tab {
+    padding: 9px 22px;
+    border: none;
+    border-radius: 10px;
+    background: transparent;
+    color: rgba(255,255,255,0.45);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    letter-spacing: 0.01em;
+}
+
+.astudio-tab:hover {
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.06);
+}
+
+.astudio-tab.active {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+}
+
+/* ── Animation Panel Container ───────────────────────────────── */
+.astudio-anim-panel {
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.astudio-anim-panel[style*="display: none"] { display: none !important; }
+.astudio-anim-panel:not([style*="display: none"]) { display: flex; }
+
+/* ── Current Theme Bar ────────────────────────────────────────── */
+.astudio-current-theme {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    border-radius: 14px;
+    flex-shrink: 0;
+}
+
+.astudio-theme-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.astudio-theme-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 0 8px rgba(124, 58, 237, 0.5));
+}
+
+.astudio-theme-name {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+}
+
+.astudio-theme-anim-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.astudio-anim-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.astudio-anim-badge.custom {
+    background: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.astudio-anim-badge.default {
+    background: rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.astudio-reset-btn {
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.astudio-reset-btn:hover {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #f87171;
+}
+
+/* ── Toolbar ──────────────────────────────────────────────────── */
+.astudio-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.astudio-search-wrap {
+    position: relative;
+}
+
+.astudio-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    pointer-events: none;
+}
+
+.astudio-search {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 11px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.18s ease, background 0.18s ease;
+    box-sizing: border-box;
+}
+
+.astudio-search:focus {
+    border-color: rgba(124, 58, 237, 0.5);
+    background: rgba(124, 58, 237, 0.06);
+}
+
+.astudio-search::placeholder { color: rgba(255,255,255,0.28); }
+
+.astudio-cat-tabs {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+
+.astudio-cat {
+    padding: 5px 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    color: rgba(255,255,255,0.45);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    white-space: nowrap;
+}
+
+.astudio-cat:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.75);
+}
+
+.astudio-cat.active {
+    background: rgba(124, 58, 237, 0.2);
+    border-color: rgba(124, 58, 237, 0.4);
+    color: #a78bfa;
+}
+
+/* ── Grid ─────────────────────────────────────────────────────── */
+.astudio-grid-wrap {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.3) transparent;
+    padding-right: 4px;
+}
+
+.astudio-grid-wrap::-webkit-scrollbar { width: 4px; }
+.astudio-grid-wrap::-webkit-scrollbar-track { background: transparent; }
+.astudio-grid-wrap::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 4px;
+}
+
+.astudio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+    padding: 4px 2px;
+}
+
+.astudio-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    color: rgba(255,255,255,0.3);
+    font-size: 14px;
+}
+
+/* ── Animation Card ───────────────────────────────────────────── */
+.astudio-card {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.18s ease,
+                box-shadow 0.18s ease;
+    aspect-ratio: 4/3;
+}
+
+.astudio-card:hover {
+    transform: scale(1.06) translateY(-2px);
+    border-color: rgba(255,255,255,0.3);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 2;
+}
+
+.astudio-card.active {
+    border-color: var(--acc, #7c3aed);
+    box-shadow: 0 0 0 1px var(--acc, #7c3aed),
+                0 8px 24px rgba(0,0,0,0.5),
+                0 0 20px rgba(124, 58, 237, 0.25);
+}
+
+.astudio-card-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* ── Animated Dots ────────────────────────────────────────────── */
+.astudio-dots {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 0 8px;
+}
+
+.astudio-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--acc, #fff);
+    opacity: 0.7;
+    animation-duration: 1.6s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    flex-shrink: 0;
+}
+
+/* Per-type animation keyframes */
+@keyframes astudio-rain {
+    0%, 100% { transform: translateY(-8px); opacity: 0.8; }
+    50% { transform: translateY(16px); opacity: 0.15; }
+}
+@keyframes astudio-float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.8; }
+    33% { transform: translateY(-10px) translateX(4px); opacity: 0.5; }
+    66% { transform: translateY(4px) translateX(-3px); opacity: 0.7; }
+}
+@keyframes astudio-drift {
+    0%, 100% { transform: translateX(0); opacity: 0.7; }
+    50% { transform: translateX(14px); opacity: 0.25; }
+}
+@keyframes astudio-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(2.2); opacity: 0.05; }
+}
+@keyframes astudio-wave {
+    0%, 100% { transform: translateY(0); opacity: 0.8; }
+    25% { transform: translateY(-9px); opacity: 0.6; }
+    75% { transform: translateY(9px); opacity: 0.6; }
+}
+@keyframes astudio-twinkle {
+    0%, 100% { opacity: 0.9; transform: scale(1); }
+    50% { opacity: 0.05; transform: scale(0.3); }
+}
+@keyframes astudio-rise {
+    0% { transform: translateY(12px); opacity: 0.9; }
+    100% { transform: translateY(-16px); opacity: 0; }
+}
+
+/* ── Card Info ────────────────────────────────────────────────── */
+.astudio-card-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 6px 7px 5px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.astudio-card-icon { font-size: 13px; flex-shrink: 0; }
+
+.astudio-card-name {
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+}
+
+/* ── Badges ───────────────────────────────────────────────────── */
+.astudio-active-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    background: var(--acc, #7c3aed);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    z-index: 3;
+}
+
+.astudio-default-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    font-size: 11px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 6px;
+    padding: 1px 5px;
+    color: #ffd700;
+    z-index: 3;
+    line-height: 1.4;
+}
+
+/* ── Footer ───────────────────────────────────────────────────── */
+.astudio-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    flex-shrink: 0;
+    gap: 12px;
+}
+
+.astudio-no-anim-btn {
+    padding: 9px 18px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-radius: 10px;
+    color: #f87171;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.astudio-no-anim-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.45);
+}
+
+.astudio-footer-hint {
+    font-size: 12px;
+    color: rgba(255,255,255,0.25);
+    text-align: right;
+    font-style: italic;
+}
+
+/* ── Theme Content Wrapper ────────────────────────────────────── */
+.astudio-theme-content-wrapper {
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* ── Responsive ───────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .astudio-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 8px;
+    }
+    .astudio-tab { padding: 8px 14px; font-size: 13px; }
+    .astudio-footer-hint { display: none; }
+}

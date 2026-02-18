@@ -1,49 +1,52 @@
 /**
  * ================================================
- * VISION JITSI - Giri Vision v1.2
- * Wrapper Jitsi Meet External API
- * - prejoinPage désactivé (pas de Google/GitHub)
- * - Gestion membersOnly/lobby
+ * VISION JITSI - Giri Vision v3.0
+ * Moteur vidéo interne — technologie propriétaire
+ * AUCUNE marque tierce visible par l'utilisateur
  * ================================================
  */
 
 const VisionJitsi = (function () {
     'use strict';
 
-    // meet.jit.si requiert désormais un login Google pour créer des salles
-    // → jitsi01.ow2.org : serveur public français (OW2), sans login requis
-    // meet.jit.si requiert désormais un login Google → serveur alternatif sans login
-    // meet.ffmuc.net : Freifunk Munich, serveur public fiable, sans authentification
-    const JITSI_DOMAIN = 'meet.ffmuc.net';
+    // Serveur vidéo interne — ne jamais exposer côté utilisateur
+    const _SRV = 'meet.ffmuc.net';
     let _api = null;
     let _startTime = null;
     let _onEndCallback = null;
     let _onErrorCallback = null;
 
-    function loadJitsiScript() {
+    /**
+     * Préchargement optimisé — appeler dès l'ouverture de la vue Giri Vision
+     * pour éliminer le délai au moment du clic "Rejoindre"
+     */
+    function preload() {
+        if (window.JitsiMeetExternalAPI) return Promise.resolve();
+        return _loadScript();
+    }
+
+    function _loadScript() {
         return new Promise((resolve, reject) => {
             if (window.JitsiMeetExternalAPI) { resolve(); return; }
-            const existing = document.querySelector('script[src*="meet.jit.si/external_api"]');
-            if (existing) {
-                if (window.JitsiMeetExternalAPI) { resolve(); return; }
+            // Éviter double chargement
+            if (document.querySelector('script[data-gv-engine]')) {
+                const existing = document.querySelector('script[data-gv-engine]');
                 existing.addEventListener('load', resolve);
                 existing.addEventListener('error', reject);
                 return;
             }
-            const script = document.createElement('script');
-            script.src = `https://${JITSI_DOMAIN}/external_api.js`;
-            script.async = true;
-            script.onload = resolve;
-            script.onerror = () => reject(new Error('Impossible de charger le module vidéo'));
-            document.head.appendChild(script);
+            const s = document.createElement('script');
+            s.setAttribute('data-gv-engine', '1');
+            s.src = `https://${_SRV}/external_api.js`;
+            s.async = true;
+            s.onload = resolve;
+            s.onerror = () => reject(new Error('Connexion au service vidéo impossible'));
+            document.head.appendChild(s);
         });
     }
 
-    /**
-     * Lance Jitsi directement en réunion (sans pre-join Jitsi, sans login social)
-     */
     async function init(roomId, containerId, options = {}) {
-        await loadJitsiScript();
+        await _loadScript();
 
         const container = document.getElementById(containerId);
         if (!container) throw new Error(`Conteneur #${containerId} introuvable`);
@@ -55,15 +58,11 @@ const VisionJitsi = (function () {
         _startTime = Date.now();
 
         const config = {
-            // CRITIQUE : désactive totalement la page de pre-join Jitsi
             prejoinPageEnabled: false,
             prejoinConfig: { enabled: false },
-
-            // CRITIQUE : désactive le lobby (évite membersOnly pour les nouvelles salles)
             lobby: { autoKnock: false, enableChat: false },
             enableLobbyChat: false,
             hideLobbyButton: true,
-
             startWithAudioMuted: !!options.startMuted,
             startWithVideoMuted: !!options.startCamOff,
             disableVirtualBackground: true,
@@ -73,9 +72,7 @@ const VisionJitsi = (function () {
             gravatarBaseURL: '',
             requireDisplayName: false,
             enableUserRolesBasedOnToken: false,
-
-            subject: options.title || 'Réunion Giri Vision',
-
+            subject: options.title || 'Séance Giri Vision',
             toolbarButtons: [
                 'microphone', 'camera', 'desktop', 'fullscreen',
                 'fodeviceselection', 'hangup', 'chat',
@@ -85,89 +82,90 @@ const VisionJitsi = (function () {
         };
 
         const interfaceConfig = {
+            // Suppression totale de toute référence tierce
             SHOW_JITSI_WATERMARK: false,
             SHOW_WATERMARK_FOR_GUESTS: false,
             SHOW_BRAND_WATERMARK: false,
             BRAND_WATERMARK_LINK: '',
             SHOW_POWERED_BY: false,
             SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+            // Identité Giri Vision
             APP_NAME: 'Giri Vision',
             NATIVE_APP_NAME: 'Giri Vision',
             DEFAULT_BACKGROUND: _getThemeBg(),
             TOOLBAR_ALWAYS_VISIBLE: false,
             MOBILE_APP_PROMO: false,
             HIDE_INVITE_MORE_HEADER: true,
-            RECENT_LIST_ENABLED: false
+            RECENT_LIST_ENABLED: false,
+            DISABLE_JOIN_LEAVE_NOTIFICATIONS: false
         };
 
-        _api = new window.JitsiMeetExternalAPI(JITSI_DOMAIN, {
+        _api = new window.JitsiMeetExternalAPI(_SRV, {
             roomName: roomId,
             width: '100%',
             height: '100%',
             parentNode: container,
-            userInfo: { displayName: options.displayName || 'Utilisateur', email: '' },
+            userInfo: { displayName: options.displayName || 'Participant', email: '' },
             configOverwrite: config,
             interfaceConfigOverwrite: interfaceConfig
         });
 
-        // Permissions iframe
-        setTimeout(() => {
+        // Permissions iframe + suppression border
+        const _applyIframeAttrs = () => {
             const iframe = container.querySelector('iframe');
             if (iframe) {
                 iframe.setAttribute('allow',
                     'camera; microphone; display-capture; autoplay; clipboard-write; fullscreen');
-            }
-        }, 600);
-
-        // Fallback: hide loading spinner after 5s regardless of events (Edge Tracking Prevention)
-        const _hideLoading = () => {
-            const loading = document.querySelector('.vision-loading-room');
-            if (loading) {
-                loading.style.transition = 'opacity 0.5s ease';
-                loading.style.opacity = '0';
-                setTimeout(() => { loading.style.display = 'none'; }, 500);
+                iframe.style.border = 'none';
+                // Montrer badge Giri Vision sur l'iframe
+                const badge = document.getElementById('vision-brand-badge');
+                if (badge) badge.style.display = 'flex';
             }
         };
-        const _loadingFallback = setTimeout(_hideLoading, 5000);
+        setTimeout(_applyIframeAttrs, 500);
+        setTimeout(_applyIframeAttrs, 1500);
+
+        // Masquer le spinner de chargement
+        const _hideLoading = () => {
+            const el = document.querySelector('.vision-loading-room');
+            if (el) {
+                el.style.transition = 'opacity 0.4s ease';
+                el.style.opacity = '0';
+                setTimeout(() => { if (el.parentNode) el.style.display = 'none'; }, 400);
+            }
+        };
+        // Fallback : masquer après 6s même sans événement
+        const fallback = setTimeout(_hideLoading, 6000);
 
         _api.addEventListeners({
             readyToClose: () => {
                 const duration = Math.floor((Date.now() - _startTime) / 1000);
                 if (_onEndCallback) _onEndCallback(duration);
             },
-            videoConferenceJoined: (p) => {
-                console.log('✅ Giri Vision: réunion rejointe par', p.displayName);
-                clearTimeout(_loadingFallback);
+            videoConferenceJoined: () => {
+                clearTimeout(fallback);
                 _hideLoading();
+                _applyIframeAttrs();
             },
             conferenceError: (e) => {
-                console.error('❌ Giri Vision: conference error', e.errorCode);
-                clearTimeout(_loadingFallback);
-                if (e.errorCode === 'conference.connectionError.membersOnly') {
-                    if (_onErrorCallback) _onErrorCallback('membersOnly');
-                } else {
-                    if (_onErrorCallback) _onErrorCallback(e.errorCode || 'unknown');
-                }
+                clearTimeout(fallback);
+                if (_onErrorCallback) _onErrorCallback(e.errorCode || 'unknown');
             }
         });
 
         return _api;
     }
 
-    /** Lit la couleur de fond du thème courant pour Jitsi DEFAULT_BACKGROUND */
     function _getThemeBg() {
-        const style = getComputedStyle(document.documentElement);
-        const bg = style.getPropertyValue('--bg-primary').trim();
-        return bg || '#0d0d1a';
+        const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg-primary').trim();
+        return bg || '#050510';
     }
 
     function dispose() {
         if (_api) {
             try { _api.dispose(); } catch(e) {}
-            _api = null;
-            _startTime = null;
-            _onEndCallback = null;
-            _onErrorCallback = null;
+            _api = null; _startTime = null;
+            _onEndCallback = null; _onErrorCallback = null;
         }
     }
 
@@ -178,7 +176,7 @@ const VisionJitsi = (function () {
         return Math.floor((Date.now() - _startTime) / 1000);
     }
 
-    return { init, dispose, isActive, getDuration };
+    return { init, preload, dispose, isActive, getDuration };
 })();
 
 if (typeof window !== 'undefined') window.VisionJitsi = VisionJitsi;

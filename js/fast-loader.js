@@ -156,11 +156,11 @@ const FastLoader = {
             'css/animations.css?v=5100'
         ],
         'admin': [
-            'js/modules/admin/admin-api.js',
-            'js/modules/admin/admin-view.js',
-            'js/modules/admin/admin-errors.js',
-            'js/modules/admin/admin-enhanced.js',
-            'css/admin.css'
+            'js/modules/admin/admin-api.js?v=2601',
+            'js/modules/admin/admin-view.js?v=3001',
+            'js/modules/admin/admin-errors.js?v=3001',
+            'js/modules/admin/admin-enhanced.js?v=3001',
+            'css/admin.css?v=3001'
         ],
         'configDev': [
             'js/modules/config-dev/config-dev-api.js',

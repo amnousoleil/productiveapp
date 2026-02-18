@@ -1,7 +1,8 @@
 /**
  * ================================================
- * GIRI VISION CSS v1.0
- * Styles pour le module vidéo conférence
+ * GIRI VISION CSS v3.0 — Design Premium 15/10
+ * Plateforme de consultation vidéo professionnelle
+ * AUCUNE référence Jitsi/ffmuc — 100% marque Giri
  * ================================================
  */
 
@@ -11,920 +12,599 @@
     flex-direction: column;
     height: 100%;
     overflow: hidden;
+    background: var(--bg-primary, #0d0d1a);
 }
-#view-giri-vision.active {
-    display: flex;
-}
+#view-giri-vision.active { display: flex; }
 
-/* ---- HOME ---- */
+/* ═══════════════════════════════════════════════
+   HOME — DASHBOARD PROFESSIONNEL
+═══════════════════════════════════════════════ */
 .vision-home-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-    min-height: 100vh;
+    height: 100%;
     overflow-y: auto;
-    gap: 32px;
+    padding: 28px 32px;
+    gap: 24px;
+    scrollbar-width: thin;
 }
 
-.vision-home-header {
-    text-align: center;
-    margin-bottom: 8px;
-}
-
-.vision-home-logo {
-    font-size: 56px;
-    margin-bottom: 12px;
-    display: block;
-    animation: visionPulse 2s ease-in-out infinite;
-}
-
-@keyframes visionPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.06); }
-}
-
-.vision-home-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary, #fff);
-    margin: 0 0 8px;
-}
-
-.vision-home-subtitle {
-    color: var(--text-muted, rgba(255,255,255,0.5));
-    font-size: 0.95rem;
-    margin: 0;
-}
-
-/* ---- Actions cards ---- */
-.vision-home-actions {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    width: 100%;
-    max-width: 960px;
-    background: var(--card-bg, rgba(255,255,255,0.05));
-    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-.vision-action-card {
-    flex: 1;
-    padding: 32px 28px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 12px;
-    transition: background 0.2s;
-}
-
-.vision-action-card:hover {
-    background: rgba(255,255,255,0.04);
-}
-
-.vision-action-icon {
-    font-size: 36px;
-}
-
-.vision-action-card h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary, #fff);
-}
-
-.vision-action-card p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--text-muted, rgba(255,255,255,0.5));
-}
-
-.vision-action-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 16px;
-    color: var(--text-muted, rgba(255,255,255,0.3));
-    font-size: 0.85rem;
-    background: var(--border-color, rgba(255,255,255,0.08));
-    min-width: 40px;
-}
-
-/* ---- Join form ---- */
-.vision-join-form {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    max-width: 340px;
-}
-
-/* ---- Recent/Scheduled ---- */
-.vision-home-recent {
-    width: 100%;
-    max-width: 800px;
-}
-
-.vision-home-section-header {
+/* ---- Header Pro ---- */
+.vision-pro-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
-}
-
-.vision-home-section-header h2 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary, #fff);
-}
-
-.vision-scheduled-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.vision-scheduled-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    background: var(--card-bg, rgba(255,255,255,0.04));
-    border: 1px solid var(--border-color, rgba(255,255,255,0.08));
-    border-radius: 10px;
-    gap: 12px;
-}
-
-.vision-scheduled-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-}
-
-.vision-scheduled-title {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--text-primary, #fff);
-}
-
-.vision-scheduled-date {
-    font-size: 0.8rem;
-    color: var(--text-muted, rgba(255,255,255,0.5));
-}
-
-/* ============================================================
-   PRÉ-REJOINDRE - Écran branded Giri Vision avant Jitsi
-   ============================================================ */
-
-.vision-prejoin-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 50%, #0d1a2e 100%);
-    color: #fff;
-}
-
-/* Header pré-rejoindre */
-.vision-prejoin-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    backdrop-filter: blur(10px);
-    flex-shrink: 0;
-}
-
-.vision-prejoin-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.vision-prejoin-logo { font-size: 22px; }
-.vision-prejoin-brand-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    letter-spacing: 0.02em;
-}
-
-/* Corps principal */
-.vision-prejoin-body {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 48px;
-    padding: 40px 24px;
-    flex-wrap: wrap;
-}
-
-/* Colonne caméra */
-.vision-prejoin-camera-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
-}
-
-.vision-camera-preview {
-    width: 340px;
-    height: 255px;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #0a0a14;
-    border: 2px solid rgba(167,139,250,0.3);
-    position: relative;
-    box-shadow: 0 0 40px rgba(124,58,237,0.2), inset 0 0 60px rgba(0,0,0,0.5);
-}
-
-.vision-camera-preview video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1); /* miroir naturel */
-}
-
-.vision-camera-off-overlay {
-    position: absolute;
-    inset: 0;
-    background: #0a0a14;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: rgba(255,255,255,0.4);
-    font-size: 0.9rem;
-}
-
-.vision-cam-off-icon { font-size: 36px; opacity: 0.4; }
-
-.vision-no-camera {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: rgba(255,255,255,0.3);
-}
-.vision-no-camera span { font-size: 36px; }
-.vision-no-camera p { margin: 0; font-size: 0.85rem; }
-.vision-no-camera small { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
-
-/* Badges état (micro/caméra) */
-.vision-preview-badges {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    display: flex;
-    gap: 6px;
-}
-
-.vision-preview-badge {
-    background: rgba(0,0,0,0.6);
-    border-radius: 20px;
-    padding: 3px 8px;
-    font-size: 0.85rem;
-    backdrop-filter: blur(4px);
-    transition: all 0.2s;
-}
-
-.vision-preview-badge.off {
-    background: rgba(239,68,68,0.4);
-    border: 1px solid rgba(239,68,68,0.5);
-}
-
-/* Boutons toggle micro/caméra */
-.vision-prejoin-controls {
-    display: flex;
-    gap: 12px;
-}
-
-.vision-ctrl-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 12px 20px;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.2s;
-    min-width: 80px;
-    font-size: 0.8rem;
-}
-
-.vision-ctrl-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
-.vision-ctrl-btn span:first-child { font-size: 1.4rem; }
-
-.vision-ctrl-btn.vision-ctrl-off {
-    background: rgba(239,68,68,0.12);
-    border-color: rgba(239,68,68,0.3);
-    color: #f87171;
-}
-
-/* Colonne infos + rejoindre */
-.vision-prejoin-info-col {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    width: 100%;
-    max-width: 360px;
-}
-
-.vision-prejoin-meeting-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(167,139,250,0.2);
-    border-radius: 14px;
-}
-
-.vision-prejoin-meeting-icon { font-size: 28px; flex-shrink: 0; }
-
-.vision-prejoin-meeting-title {
-    margin: 0 0 4px;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #fff;
-}
-
-.vision-prejoin-meeting-code {
-    margin: 0;
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.35);
-    font-family: monospace;
-    letter-spacing: 0.05em;
-}
-
-.vision-prejoin-form { display: flex; flex-direction: column; gap: 6px; }
-
-.vision-prejoin-label {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.55);
-    font-weight: 500;
-}
-
-.vision-prejoin-name-input {
-    font-size: 1rem !important;
-    padding: 12px 16px !important;
-    background: rgba(255,255,255,0.07) !important;
-    border-color: rgba(167,139,250,0.25) !important;
-}
-.vision-prejoin-name-input:focus { border-color: #7c3aed !important; }
-
-/* Bouton principal rejoindre */
-.vision-btn-join {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.25s;
-    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
-    letter-spacing: 0.01em;
-}
-
-.vision-btn-join:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(124,58,237,0.6);
-    background: linear-gradient(135deg, #8b5cf6, #6366f1);
-}
-
-.vision-btn-join:active { transform: translateY(0); }
-.vision-btn-join:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-
-.vision-prejoin-hint {
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.3);
-    text-align: center;
-    margin: 0;
-    line-height: 1.4;
-}
-
-/* ---- MEETING VIEW (Phase 2 — Jitsi actif, thème intégré) ---- */
-.vision-meeting-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    /* Suit le thème de l'app */
-    background: var(--meeting-bg, var(--bg-primary, #0d0d1a));
-}
-
-.vision-meeting-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 20px;
-    /* Fond semi-transparent sur la couleur du thème */
-    background: color-mix(in srgb, var(--meeting-bg, var(--bg-primary, #0d0d1a)) 85%, transparent);
+    padding: 20px 28px;
+    background: linear-gradient(135deg,
+        rgba(124,58,237,0.15) 0%,
+        rgba(37,99,235,0.10) 100%);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 18px;
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid color-mix(in srgb, var(--meeting-accent, #7c3aed) 40%, transparent);
     flex-shrink: 0;
-    z-index: 10;
 }
-
-.vision-meeting-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #fff;
-}
-
-.vision-meeting-brand {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.vision-meeting-logo { font-size: 18px; }
-.vision-meeting-brand-name {
-    font-size: 0.9rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.vision-meeting-sep { color: rgba(255,255,255,0.2); font-size: 0.9rem; }
-
-.vision-meeting-title {
-    font-weight: 500;
-    font-size: 0.9rem;
-    max-width: 280px;
+.vision-pro-header-left { display: flex; align-items: center; gap: 16px; }
+.vision-pro-logo {
+    width: 52px; height: 52px;
+    border-radius: 14px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: rgba(255,255,255,0.85);
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
 }
-
-.vision-meeting-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.vision-pro-logo svg { width: 100%; height: 100%; display: block; }
+.vision-pro-title {
+    font-size: 1.5rem; font-weight: 800;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0; line-height: 1.2;
+    letter-spacing: -0.5px;
 }
-
-.vision-meeting-timer-wrap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(255,255,255,0.07);
-    padding: 4px 12px;
-    border-radius: 20px;
-}
-
-.vision-meeting-timer-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #22c55e;
-    animation: visionTimerPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes visionTimerPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-.vision-meeting-timer {
+.vision-pro-greeting {
     font-size: 0.85rem;
-    font-family: monospace;
-    color: rgba(255,255,255,0.8);
+    color: var(--text-muted, rgba(255,255,255,0.5));
+    margin: 2px 0 0;
 }
+.vision-pro-header-actions { display: flex; gap: 10px; align-items: center; }
 
-/* Loading room */
-.vision-loading-room {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+/* ---- Stats Row ---- */
+.vision-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    color: rgba(255,255,255,0.5);
-    font-size: 0.9rem;
-    background: var(--meeting-bg, var(--bg-primary, #0d0d1a));
-    z-index: 5;
-    pointer-events: none;
+    flex-shrink: 0;
+}
+.vision-stat-card {
+    padding: 20px 22px;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: var(--card-bg, rgba(255,255,255,0.04));
+    display: flex; flex-direction: column; gap: 6px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative; overflow: hidden;
+}
+.vision-stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    border-radius: 16px 16px 0 0;
+}
+.vision-stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.vision-stat-revenue::before { background: linear-gradient(90deg, #10b981, #059669); }
+.vision-stat-sessions::before { background: linear-gradient(90deg, #7c3aed, #4f46e5); }
+.vision-stat-clients::before { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+.vision-stat-time::before { background: linear-gradient(90deg, #f59e0b, #d97706); }
+.vision-stat-icon { font-size: 1.3rem; }
+.vision-stat-value {
+    font-size: 1.8rem; font-weight: 800;
+    color: var(--text-primary, #fff); line-height: 1;
+}
+.vision-stat-label {
+    font-size: 0.78rem; font-weight: 500;
+    color: var(--text-muted, rgba(255,255,255,0.45));
+    text-transform: uppercase; letter-spacing: 0.5px;
 }
 
+/* ---- Main Grid ---- */
+.vision-main-grid {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+.vision-actions-col, .vision-schedule-col {
+    display: flex; flex-direction: column; gap: 16px;
+}
+.vision-col-title {
+    font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted, rgba(255,255,255,0.4));
+    margin: 0 0 4px;
+}
+
+/* ---- Action Buttons ---- */
+.vision-action-btn {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 20px;
+    border-radius: 14px; border: 1px solid rgba(255,255,255,0.08);
+    background: var(--card-bg, rgba(255,255,255,0.04));
+    cursor: pointer; text-align: left; width: 100%;
+    transition: all 0.2s ease;
+    color: var(--text-primary, #fff);
+}
+.vision-action-btn:hover {
+    transform: translateX(4px);
+    border-color: rgba(124,58,237,0.4);
+    background: rgba(124,58,237,0.08);
+}
+.vision-action-instant:hover { border-color: rgba(124,58,237,0.5); background: rgba(124,58,237,0.1); }
+.vision-action-schedule:hover { border-color: rgba(59,130,246,0.5); background: rgba(59,130,246,0.08); }
+.vision-action-btn-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+}
+.vision-action-instant .vision-action-btn-icon { background: linear-gradient(135deg, #7c3aed, #4f46e5); }
+.vision-action-schedule .vision-action-btn-icon { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.vision-action-btn-text { display: flex; flex-direction: column; gap: 2px; }
+.vision-action-btn-text strong { font-size: 0.95rem; font-weight: 600; }
+.vision-action-btn-text span { font-size: 0.78rem; color: var(--text-muted, rgba(255,255,255,0.4)); }
+
+/* ---- Join Section ---- */
+.vision-join-section { margin-top: 4px; }
+.vision-join-title { font-size: 0.8rem; color: var(--text-muted, rgba(255,255,255,0.45)); margin: 0 0 8px; font-weight: 600; }
+.vision-join-input-row { display: flex; gap: 8px; }
+.vision-btn-join-small {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff; border: none; cursor: pointer;
+    font-size: 1.1rem; flex-shrink: 0;
+    transition: opacity 0.2s ease;
+}
+.vision-btn-join-small:hover { opacity: 0.85; }
+
+/* ---- Package Card ---- */
+.vision-package-card {
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(5,150,105,0.05));
+    border: 1px solid rgba(16,185,129,0.2);
+    margin-top: auto;
+}
+.vision-package-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.vision-package-icon { font-size: 1.1rem; }
+.vision-package-title { font-size: 0.9rem; font-weight: 700; color: #10b981; }
+.vision-package-desc { font-size: 0.78rem; color: var(--text-muted, rgba(255,255,255,0.5)); margin: 0 0 12px; line-height: 1.5; }
+.vision-btn-packages {
+    font-size: 0.8rem; font-weight: 600;
+    color: #10b981; background: none; border: none;
+    cursor: pointer; padding: 0;
+    transition: opacity 0.2s ease;
+}
+.vision-btn-packages:hover { opacity: 0.75; }
+
+/* ---- Schedule / Recent Lists ---- */
+.vision-schedule-col { overflow-y: auto; scrollbar-width: thin; }
+.vision-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.vision-section-count {
+    font-size: 0.75rem; font-weight: 700;
+    background: rgba(124,58,237,0.15);
+    color: #a78bfa; padding: 2px 8px; border-radius: 20px;
+}
+.vision-scheduled-list, .vision-recent-list { display: flex; flex-direction: column; gap: 8px; }
+.vision-scheduled-item, .vision-recent-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--card-bg, rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.2s ease;
+}
+.vision-scheduled-item:hover, .vision-recent-item:hover { background: rgba(255,255,255,0.07); }
+.vision-scheduled-info, .vision-recent-info { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.vision-scheduled-title, .vision-recent-title {
+    font-size: 0.88rem; font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+.vision-scheduled-date, .vision-recent-meta {
+    font-size: 0.75rem; color: var(--text-muted, rgba(255,255,255,0.4));
+    display: flex; align-items: center; gap: 8px;
+}
+.vision-recent-duration { font-size: 0.72rem; color: rgba(255,255,255,0.3); font-family: monospace; }
+
+/* ═══════════════════════════════════════════════
+   PREJOIN SCREEN — PREMIUM
+═══════════════════════════════════════════════ */
+.vision-prejoin-wrapper {
+    display: flex; flex-direction: column;
+    height: 100%; overflow: hidden;
+    background: linear-gradient(160deg, rgba(124,58,237,0.08) 0%, var(--bg-primary,#0d0d1a) 40%);
+}
+.vision-prejoin-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0;
+}
+.vision-prejoin-brand { display: flex; align-items: center; gap: 10px; }
+.vision-prejoin-logo { font-size: 1.3rem; }
+.vision-prejoin-brand-name { font-weight: 700; font-size: 1rem; color: var(--text-primary,#fff); letter-spacing: -0.3px; }
+.vision-prejoin-body {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 32px; padding: 32px 48px;
+    flex: 1; overflow-y: auto; align-items: center;
+    max-width: 1100px; margin: 0 auto; width: 100%;
+}
+.vision-camera-preview {
+    position: relative; border-radius: 18px; overflow: hidden;
+    background: #0a0a12;
+    aspect-ratio: 16/9;
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.vision-camera-preview video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.vision-camera-off-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.7); gap: 8px;
+}
+.vision-cam-off-icon { font-size: 2rem; }
+.vision-no-camera { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 8px; color: rgba(255,255,255,0.5); }
+.vision-preview-badges { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
+.vision-preview-badge {
+    font-size: 0.75rem; background: rgba(0,0,0,0.6);
+    border-radius: 20px; padding: 4px 8px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.2s ease;
+}
+.vision-preview-badge.off { background: rgba(220,38,38,0.4); border-color: rgba(220,38,38,0.3); }
+.vision-prejoin-controls { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
+.vision-ctrl-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 12px 20px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary,#fff); cursor: pointer;
+    font-size: 0.8rem; transition: all 0.2s ease;
+    flex: 1; max-width: 120px;
+}
+.vision-ctrl-btn:hover { background: rgba(255,255,255,0.10); }
+.vision-ctrl-btn span:first-child { font-size: 1.3rem; }
+.vision-ctrl-off { border-color: rgba(220,38,38,0.4); background: rgba(220,38,38,0.1); }
+.vision-prejoin-info-col { display: flex; flex-direction: column; gap: 24px; }
+.vision-prejoin-meeting-card {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 22px;
+    background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 16px;
+}
+.vision-prejoin-meeting-icon { font-size: 2rem; }
+.vision-prejoin-meeting-title { font-size: 1.2rem; font-weight: 700; color: var(--text-primary,#fff); margin: 0 0 4px; }
+.vision-prejoin-meeting-code { font-size: 0.75rem; color: rgba(255,255,255,0.35); font-family: monospace; margin: 0; }
+.vision-prejoin-form { display: flex; flex-direction: column; gap: 6px; }
+.vision-prejoin-label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted,rgba(255,255,255,0.5)); }
+.vision-btn-join {
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff; border: none; border-radius: 14px;
+    font-size: 1rem; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+}
+.vision-btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,58,237,0.5); }
+.vision-btn-join:disabled { opacity: 0.6; transform: none; cursor: not-allowed; }
+.vision-prejoin-hint { font-size: 0.75rem; color: var(--text-muted,rgba(255,255,255,0.3)); text-align: center; margin: 0; }
+
+/* ═══════════════════════════════════════════════
+   MEETING ACTIVE — GIRI VISION BRANDED
+═══════════════════════════════════════════════ */
+.vision-meeting-wrapper {
+    display: flex; flex-direction: column; height: 100%;
+    background: #050510;
+}
+.vision-meeting-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    flex-shrink: 0; z-index: 10;
+}
+.vision-meeting-info { display: flex; align-items: center; gap: 12px; }
+.vision-meeting-brand { display: flex; align-items: center; gap: 8px; }
+.vision-meeting-logo { font-size: 1.1rem; }
+.vision-meeting-brand-name { font-weight: 800; font-size: 0.95rem; color: #fff; letter-spacing: -0.3px; }
+.vision-meeting-brand-badge {
+    font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff; padding: 2px 6px; border-radius: 4px;
+}
+.vision-meeting-sep { color: rgba(255,255,255,0.2); font-size: 1.2rem; }
+.vision-meeting-title { font-size: 0.85rem; color: rgba(255,255,255,0.6); font-weight: 500; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vision-meeting-controls { display: flex; align-items: center; gap: 10px; }
+.vision-meeting-timer-wrap { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(0,0,0,0.3); border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); }
+.vision-meeting-timer-dot { width: 8px; height: 8px; border-radius: 50%; background: #ef4444; animation: visionTimerPulse 1s ease-in-out infinite; }
+@keyframes visionTimerPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.vision-meeting-timer { font-size: 0.9rem; font-weight: 700; color: #fff; font-family: 'Courier New', monospace; min-width: 52px; }
+.vision-jitsi-container {
+    flex: 1; position: relative; overflow: hidden;
+}
+.vision-jitsi-container iframe { border: none !important; }
+/* Overlay marque pour couvrir tout watermark résiduel */
+.vision-brand-badge {
+    position: absolute; bottom: 14px; left: 14px;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(124,58,237,0.3);
+    color: #fff; padding: 5px 12px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 700;
+    pointer-events: none; z-index: 100;
+    display: flex; align-items: center; gap: 6px;
+    letter-spacing: 0.3px;
+}
+.vision-brand-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; }
+.vision-loading-room {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #050510; gap: 16px; z-index: 5;
+}
 .vision-loading-spinner {
-    width: 40px;
-    height: 40px;
+    width: 40px; height: 40px;
     border: 3px solid rgba(124,58,237,0.2);
     border-top-color: #7c3aed;
     border-radius: 50%;
     animation: visionSpin 0.8s linear infinite;
 }
-
 @keyframes visionSpin { to { transform: rotate(360deg); } }
+.vision-loading-room p { color: rgba(255,255,255,0.5); font-size: 0.9rem; }
 
-.vision-jitsi-container {
-    flex: 1;
-    position: relative;
+/* ═══════════════════════════════════════════════
+   POST-SESSION NOTES MODAL
+═══════════════════════════════════════════════ */
+.vision-postsession-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.75);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px);
+    animation: visionFadeIn 0.2s ease;
+}
+@keyframes visionFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.vision-postsession-modal {
+    background: var(--bg-secondary, #13141f);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 20px; padding: 28px;
+    width: 480px; max-width: 95vw;
+    animation: visionSlideUp 0.25s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+@keyframes visionSlideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.vision-postsession-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.vision-postsession-icon { font-size: 1.8rem; }
+.vision-postsession-title { font-size: 1.1rem; font-weight: 700; color: var(--text-primary,#fff); margin: 0 0 2px; }
+.vision-postsession-sub { font-size: 0.8rem; color: var(--text-muted,rgba(255,255,255,0.4)); margin: 0; }
+.vision-postsession-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.vision-postsession-stat { padding: 12px 14px; background: rgba(255,255,255,0.04); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+.vision-postsession-stat-val { font-size: 1.2rem; font-weight: 800; color: var(--text-primary,#fff); }
+.vision-postsession-stat-lbl { font-size: 0.72rem; color: var(--text-muted,rgba(255,255,255,0.4)); margin-top: 2px; }
+.vision-postsession-notes-label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted,rgba(255,255,255,0.5)); margin-bottom: 8px; }
+.vision-postsession-textarea {
+    width: 100%; min-height: 90px;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 12px; color: var(--text-primary,#fff);
+    font-size: 0.88rem; resize: vertical; font-family: inherit;
+    box-sizing: border-box;
+}
+.vision-postsession-textarea:focus { outline: none; border-color: rgba(124,58,237,0.4); }
+.vision-postsession-rating { display: flex; gap: 6px; margin: 12px 0; }
+.vision-rating-star {
+    font-size: 1.4rem; cursor: pointer; transition: transform 0.15s ease;
+    filter: grayscale(1) opacity(0.4);
+}
+.vision-rating-star.active { filter: none; }
+.vision-rating-star:hover { transform: scale(1.2); }
+.vision-postsession-footer { display: flex; gap: 10px; margin-top: 16px; }
+
+/* ═══════════════════════════════════════════════
+   HISTORY VIEW
+═══════════════════════════════════════════════ */
+.vision-history-wrapper {
+    display: flex; flex-direction: column; height: 100%;
+    padding: 24px 32px; gap: 20px; overflow-y: auto;
+}
+.vision-history-header { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+.vision-history-title { font-size: 1.2rem; font-weight: 700; color: var(--text-primary,#fff); margin: 0; }
+.vision-history-list { display: flex; flex-direction: column; gap: 10px; }
+.vision-history-item {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 18px; border-radius: 14px;
+    background: var(--card-bg,rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: background 0.2s ease;
+}
+.vision-history-item:hover { background: rgba(255,255,255,0.07); }
+.vision-history-item-icon {
+    width: 42px; height: 42px; border-radius: 12px;
+    background: rgba(124,58,237,0.15); display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+.vision-history-item-info { flex: 1; min-width: 0; }
+.vision-history-item-title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary,#fff); }
+.vision-history-item-meta { display: flex; gap: 12px; font-size: 0.75rem; color: var(--text-muted,rgba(255,255,255,0.4)); margin-top: 4px; flex-wrap: wrap; }
+.vision-history-item-room { font-size: 0.7rem; color: rgba(255,255,255,0.2); font-family: monospace; margin-top: 4px; }
+.vision-history-item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ═══════════════════════════════════════════════
+   FORFAITS PRO — MODULE CASH FLOW
+═══════════════════════════════════════════════ */
+.vision-pro-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+    animation: visionFadeIn 0.2s ease;
+}
+.vision-pro-modal {
+    background: var(--bg-secondary,#13141f);
+    border: 1px solid rgba(16,185,129,0.2);
+    border-radius: 20px; padding: 28px;
+    width: 640px; max-width: 95vw; max-height: 85vh; overflow-y: auto;
+    animation: visionSlideUp 0.25s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+.vision-pro-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.vision-pro-modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text-primary,#fff); margin: 0; }
+.vision-packages-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+.vision-pkg-card {
+    padding: 20px 16px; border-radius: 16px; text-align: center;
+    border: 2px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.03);
+    cursor: pointer; transition: all 0.2s ease;
+}
+.vision-pkg-card:hover { border-color: #10b981; transform: translateY(-3px); background: rgba(16,185,129,0.06); }
+.vision-pkg-card.selected { border-color: #10b981; background: rgba(16,185,129,0.1); }
+.vision-pkg-name { font-size: 0.85rem; font-weight: 700; color: var(--text-muted,rgba(255,255,255,0.5)); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.vision-pkg-sessions { font-size: 2rem; font-weight: 900; color: var(--text-primary,#fff); line-height: 1; }
+.vision-pkg-label { font-size: 0.75rem; color: var(--text-muted,rgba(255,255,255,0.4)); }
+.vision-pkg-price { font-size: 1.4rem; font-weight: 800; color: #10b981; margin: 10px 0 4px; }
+.vision-pkg-per { font-size: 0.72rem; color: rgba(255,255,255,0.3); }
+.vision-revenue-bar { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; }
+.vision-revenue-bar-header { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted,rgba(255,255,255,0.5)); margin-bottom: 8px; }
+.vision-revenue-progress { height: 8px; border-radius: 8px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.vision-revenue-fill { height: 100%; background: linear-gradient(90deg,#10b981,#059669); border-radius: 8px; transition: width 0.8s cubic-bezier(0.34,1.56,0.64,1); }
+
+/* ═══════════════════════════════════════════════
+   COMMUNS
+═══════════════════════════════════════════════ */
+.vision-btn-primary {
+    padding: 10px 20px; border-radius: 10px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff; border: none; cursor: pointer;
+    font-size: 0.88rem; font-weight: 700;
+    transition: all 0.2s ease; white-space: nowrap;
+}
+.vision-btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+.vision-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.vision-btn-secondary {
+    padding: 10px 20px; border-radius: 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-primary,#fff); cursor: pointer;
+    font-size: 0.88rem; font-weight: 600;
+    transition: all 0.2s ease; white-space: nowrap;
+}
+.vision-btn-secondary:hover { background: rgba(255,255,255,0.12); }
+.vision-btn-history {
+    padding: 9px 16px; border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-muted,rgba(255,255,255,0.6)); cursor: pointer;
+    font-size: 0.82rem; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.2s ease;
+}
+.vision-btn-history:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.vision-btn-new { display: flex; align-items: center; gap: 8px; }
+.vision-btn-share {
+    padding: 8px 16px; border-radius: 10px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff; cursor: pointer;
+    font-size: 0.82rem; font-weight: 600;
+    transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
+}
+.vision-btn-share:hover { background: rgba(255,255,255,0.14); }
+.vision-btn-end {
+    padding: 8px 16px; border-radius: 10px;
+    background: rgba(220,38,38,0.2);
+    border: 1px solid rgba(220,38,38,0.3);
+    color: #fca5a5; cursor: pointer;
+    font-size: 0.82rem; font-weight: 700;
+    transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;
+}
+.vision-btn-end:hover { background: rgba(220,38,38,0.35); color: #fff; }
+.vision-btn-back {
+    padding: 8px 16px; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; color: var(--text-muted,rgba(255,255,255,0.6));
+    cursor: pointer; font-size: 0.85rem; font-weight: 600;
+    transition: all 0.2s ease;
+}
+.vision-btn-back:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.vision-btn-sm { width: 34px; height: 34px; border-radius: 8px; border: none; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
+.vision-btn-sm.vision-btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.6); }
+.vision-btn-sm.vision-btn-secondary:hover { background: rgba(255,255,255,0.14); }
+.vision-btn-sm.vision-btn-danger { background: rgba(220,38,38,0.1); color: rgba(220,38,38,0.7); }
+.vision-btn-sm.vision-btn-danger:hover { background: rgba(220,38,38,0.2); color: #f87171; }
+.vision-input {
+    width: 100%; padding: 11px 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; color: var(--text-primary,#fff);
+    font-size: 0.9rem; box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+.vision-input:focus { outline: none; border-color: rgba(124,58,237,0.5); background: rgba(124,58,237,0.05); }
+.vision-input::placeholder { color: rgba(255,255,255,0.2); }
+.vision-form-group { display: flex; flex-direction: column; gap: 6px; }
+.vision-form-group label { font-size: 0.82rem; font-weight: 600; color: var(--text-muted,rgba(255,255,255,0.5)); }
+.vision-optional { color: rgba(255,255,255,0.3); font-weight: 400; font-size: 0.78rem; }
+.vision-required { color: #f87171; font-size: 0.78rem; }
+.vision-form-hint { font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+.vision-modal-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(0,0,0,0.7);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px);
+}
+.vision-modal {
+    background: var(--bg-secondary,#13141f);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; width: 440px; max-width: 95vw;
+    animation: visionSlideUp 0.25s ease;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     overflow: hidden;
 }
+.vision-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 22px 16px; }
+.vision-modal-header h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary,#fff); margin: 0; }
+.vision-modal-close { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 1.1rem; padding: 4px 8px; border-radius: 6px; transition: all 0.2s ease; }
+.vision-modal-close:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.vision-modal-tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 22px; }
+.vision-tab { padding: 10px 16px; background: none; border: none; border-bottom: 2px solid transparent; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 0.85rem; font-weight: 600; transition: all 0.2s ease; }
+.vision-tab.active { color: var(--text-primary,#fff); border-bottom-color: #7c3aed; }
+.vision-modal-body { padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; }
+.vision-modal-footer { display: flex; gap: 10px; justify-content: flex-end; padding: 16px 22px; border-top: 1px solid rgba(255,255,255,0.07); }
+.vision-link { background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 0.82rem; padding: 0; transition: color 0.2s ease; }
+.vision-link:hover { color: #fff; }
+.vision-empty-state { text-align: center; padding: 32px 20px; }
+.vision-empty-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+.vision-empty-state h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary,#fff); margin: 0 0 6px; }
+.vision-empty-state p { font-size: 0.82rem; color: var(--text-muted,rgba(255,255,255,0.4)); margin: 0 0 16px; }
+.vision-empty-small { padding: 16px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+.vision-loading-small { padding: 12px; text-align: center; font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+.vision-error-state { text-align: center; padding: 32px 20px; }
+.vision-error-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.vision-error-state h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary,#fff); margin: 0 0 8px; }
+.vision-error-state p { font-size: 0.85rem; color: var(--text-muted,rgba(255,255,255,0.4)); margin: 0 0 6px; }
+.vision-error-tip { font-size: 0.8rem; color: rgba(255,255,255,0.3); }
+.vision-error-actions { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+.vision-error-small { font-size: 0.78rem; color: rgba(220,38,38,0.6); padding: 8px; text-align: center; }
+.vision-loading { text-align: center; padding: 20px; color: rgba(255,255,255,0.3); font-size: 0.85rem; }
 
-.vision-jitsi-container iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+    .vision-main-grid { grid-template-columns: 1fr; }
+    .vision-stats-row { grid-template-columns: repeat(2,1fr); }
+    .vision-prejoin-body { grid-template-columns: 1fr; padding: 20px; }
+    .vision-home-wrapper { padding: 16px; }
+    .vision-packages-grid { grid-template-columns: 1fr; }
 }
-
-/* ---- HISTORY ---- */
-.vision-history-wrapper {
-    padding: 24px;
-    overflow-y: auto;
-    max-height: 100vh;
-}
-
-.vision-history-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-}
-
-.vision-history-title {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary, #fff);
-}
-
-.vision-history-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    max-width: 900px;
-}
-
-.vision-history-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 16px;
-    background: var(--card-bg, rgba(255,255,255,0.04));
-    border: 1px solid var(--border-color, rgba(255,255,255,0.08));
-    border-radius: 12px;
-    transition: background 0.2s;
-}
-
-.vision-history-item:hover {
-    background: rgba(255,255,255,0.07);
-}
-
-.vision-history-item-icon { font-size: 24px; flex-shrink: 0; }
-
-.vision-history-item-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.vision-history-item-title {
-    font-weight: 500;
-    color: var(--text-primary, #fff);
-    font-size: 0.95rem;
-}
-
-.vision-history-item-meta {
-    display: flex;
-    gap: 16px;
-    font-size: 0.8rem;
-    color: var(--text-muted, rgba(255,255,255,0.5));
-}
-
-.vision-history-item-room {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.3);
-    font-family: monospace;
-}
-
-.vision-history-item-actions {
-    display: flex;
-    gap: 6px;
-}
-
-/* ---- BOUTONS ---- */
-.vision-btn-primary {
-    background: linear-gradient(135deg, #7c3aed, #4f46e5);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-.vision-btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(124,58,237,0.4);
-}
-.vision-btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.vision-btn-secondary {
-    background: rgba(255,255,255,0.08);
-    color: var(--text-primary, #fff);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-.vision-btn-secondary:hover {
-    background: rgba(255,255,255,0.12);
-}
-
-.vision-btn-back {
-    background: transparent;
-    color: var(--text-muted, rgba(255,255,255,0.6));
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 8px 14px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-.vision-btn-back:hover {
-    color: var(--text-primary, #fff);
-    border-color: rgba(255,255,255,0.25);
-}
-
-.vision-btn-share {
-    background: color-mix(in srgb, var(--meeting-accent, #7c3aed) 12%, transparent);
-    color: #fff;
-    border: 1px solid color-mix(in srgb, var(--meeting-accent, #7c3aed) 30%, transparent);
-    border-radius: 8px;
-    padding: 7px 14px;
-    font-size: 0.82rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 500;
-}
-.vision-btn-share:hover {
-    background: color-mix(in srgb, var(--meeting-accent, #7c3aed) 22%, transparent);
-}
-
-.vision-btn-end {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 7px 16px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 12px rgba(220,38,38,0.3);
-}
-.vision-btn-end:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(220,38,38,0.45); }
-
-.vision-btn-sm {
-    padding: 5px 10px;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.05);
-    color: var(--text-primary, #fff);
-    transition: all 0.15s;
-}
-.vision-btn-sm:hover { background: rgba(255,255,255,0.12); }
-.vision-btn-sm.vision-btn-danger { color: #f87171; border-color: rgba(248,113,113,0.3); }
-.vision-btn-sm.vision-btn-danger:hover { background: rgba(248,113,113,0.1); }
-
-.vision-link {
-    background: none;
-    border: none;
-    color: var(--accent-color, #7c3aed);
-    font-size: 0.85rem;
-    cursor: pointer;
-    padding: 0;
-    text-decoration: none;
-    transition: opacity 0.2s;
-}
-.vision-link:hover { opacity: 0.7; }
-
-/* ---- INPUT ---- */
-.vision-input {
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    color: var(--text-primary, #fff);
-    padding: 10px 14px;
-    font-size: 0.9rem;
-    outline: none;
-    width: 100%;
-    transition: border-color 0.2s;
-}
-.vision-input:focus {
-    border-color: var(--accent-color, #7c3aed);
-    background: rgba(255,255,255,0.08);
-}
-.vision-input::placeholder { color: rgba(255,255,255,0.3); }
-
-/* ---- MODAL ---- */
-.vision-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(4px);
-}
-
-.vision-modal {
-    background: var(--card-bg, #1e1e2e);
-    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
-    border-radius: 16px;
-    width: 100%;
-    max-width: 480px;
-    margin: 20px;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
-    animation: visionModalIn 0.2s ease-out;
-}
-
-@keyframes visionModalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.vision-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 24px 0;
-}
-
-.vision-modal-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary, #fff);
-}
-
-.vision-modal-close {
-    background: none;
-    border: none;
-    color: rgba(255,255,255,0.5);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 4px;
-    transition: color 0.2s;
-}
-.vision-modal-close:hover { color: #fff; }
-
-/* ---- MODAL TABS ---- */
-.vision-modal-tabs {
-    display: flex;
-    padding: 12px 24px 0;
-    gap: 4px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-
-.vision-tab {
-    flex: 1;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 10px 12px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: rgba(255,255,255,0.45);
-    cursor: pointer;
-    transition: all 0.2s;
-    border-radius: 6px 6px 0 0;
-    margin-bottom: -1px;
-}
-
-.vision-tab:hover {
-    color: rgba(255,255,255,0.75);
-    background: rgba(255,255,255,0.05);
-}
-
-.vision-tab.active {
-    color: var(--accent-color, #7c3aed);
-    border-bottom-color: var(--accent-color, #7c3aed);
-    background: rgba(124,58,237,0.06);
-}
-
-/* ---- MODAL BODY ---- */
-.vision-modal-body {
-    padding: 20px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.vision-form-hint {
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.35);
-    margin-top: 2px;
-}
-
-.vision-modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    padding: 0 24px 20px;
-}
-
-.vision-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.vision-form-group label {
-    font-size: 0.85rem;
-    color: rgba(255,255,255,0.6);
-    font-weight: 500;
-}
-
-/* ---- ÉTATS ---- */
-.vision-loading {
-    text-align: center;
-    padding: 20px;
-    color: rgba(255,255,255,0.4);
-    font-size: 0.85rem;
-}
-
-.vision-empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted, rgba(255,255,255,0.5));
-}
-
-.vision-empty-state .vision-empty-icon { font-size: 48px; margin-bottom: 16px; display: block; }
-.vision-empty-state h3 { margin: 0 0 8px; color: var(--text-primary, #fff); }
-.vision-empty-state p { margin: 0 0 20px; font-size: 0.9rem; }
-
-.vision-empty-small {
-    padding: 16px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 10px;
-    border: 1px dashed rgba(255,255,255,0.1);
-}
-
-.vision-error-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-muted, rgba(255,255,255,0.5));
-}
-
-.vision-error-icon { font-size: 40px; margin-bottom: 12px; display: block; }
-.vision-error-state h3 { color: #f87171; margin: 0 0 8px; }
-.vision-error-state p { font-size: 0.85rem; margin: 0 0 8px; color: rgba(255,255,255,0.55); }
-.vision-error-tip { color: rgba(255,255,255,0.7) !important; background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); border-radius: 8px; padding: 10px 14px !important; margin-top: 8px !important; }
-.vision-error-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-.vision-error-small { padding: 12px; color: #f87171; font-size: 0.85rem; }
-
-/* ---- RESPONSIVE ---- */
-@media (max-width: 640px) {
-    .vision-home-actions {
-        flex-direction: column;
-    }
-    .vision-action-divider {
-        padding: 12px;
-        min-width: auto;
-    }
-    .vision-meeting-title { max-width: 160px; }
-    .vision-history-item-meta { flex-direction: column; gap: 4px; }
+@media (max-width: 600px) {
+    .vision-stats-row { grid-template-columns: 1fr 1fr; }
+    .vision-pro-header { flex-direction: column; gap: 12px; align-items: flex-start; }
 }

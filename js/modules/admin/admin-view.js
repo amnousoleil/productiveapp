@@ -307,6 +307,9 @@ const AdminView = {
           <button class="admin-tab" onclick="AdminView.switchTab('users', event)">
             👥 Utilisateurs
           </button>
+          <button class="admin-tab admin-tab-ai" onclick="AdminView.switchTab('ai-doctor', event)">
+            🤖 IA Docteur
+          </button>
         </div>
 
         <!-- Tab Contents -->
@@ -334,6 +337,10 @@ const AdminView = {
           <div id="admin-users-content">
             <div class="loading">Chargement utilisateurs...</div>
           </div>
+        </div>
+
+        <div class="admin-tab-content" data-tab="ai-doctor">
+          ${this.renderAIDoctor()}
         </div>
       </div>
     `;
@@ -1593,6 +1600,269 @@ const AdminView = {
 
   exportDiagnostic() {
     AdminSentinel.exportDiagnosticReport();
+  },
+
+  // ===== IA DOCTEUR =====
+
+  renderAIDoctor() {
+    return `
+      <div class="ai-doctor-panel">
+        <div class="ai-doctor-header">
+          <div class="ai-doctor-title">
+            <span class="ai-doctor-icon">🤖</span>
+            <div>
+              <h2>IA Docteur Admin</h2>
+              <p>Analyse ton rapport, diagnostique les bugs, propose un plan de guérison</p>
+            </div>
+          </div>
+          <button class="ai-doctor-btn-context" onclick="AdminView.injectContextAndAnalyze()" title="Envoie tout le rapport actuel à l'IA">
+            🔬 Analyser le rapport complet
+          </button>
+        </div>
+
+        <!-- Quick action pills -->
+        <div class="ai-doctor-quick-actions">
+          <button class="ai-quick-pill" onclick="AdminView.aiQuickAction('heal')">🩺 Plan de guérison complet</button>
+          <button class="ai-quick-pill" onclick="AdminView.aiQuickAction('bugs')">🐛 Expliquer les erreurs JS</button>
+          <button class="ai-quick-pill" onclick="AdminView.aiQuickAction('perf')">⚡ Analyser les perfs</button>
+          <button class="ai-quick-pill" onclick="AdminView.aiQuickAction('security')">🔒 Audit sécurité</button>
+          <button class="ai-quick-pill" onclick="AdminView.aiQuickAction('missing')">📁 Fichiers manquants</button>
+        </div>
+
+        <!-- Chat messages -->
+        <div class="ai-doctor-messages" id="ai-doctor-messages">
+          <div class="ai-doctor-welcome">
+            <div class="ai-welcome-icon">🤖</div>
+            <h3>Bonjour, je suis ton IA Docteur Admin</h3>
+            <p>Clique sur <strong>"Analyser le rapport complet"</strong> pour que j'examine tous tes logs, erreurs et métriques — ou pose-moi directement une question.</p>
+          </div>
+        </div>
+
+        <!-- Input area -->
+        <div class="ai-doctor-input-area">
+          <textarea
+            id="ai-doctor-input"
+            class="ai-doctor-textarea"
+            placeholder="Pose une question sur ton infra, les bugs, les perfs… (Entrée pour envoyer)"
+            rows="2"
+            onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();AdminView.sendAIMessage();}"
+          ></textarea>
+          <button class="ai-doctor-send-btn" onclick="AdminView.sendAIMessage()" id="ai-doctor-send-btn">
+            <span>Envoyer</span> ➤
+          </button>
+        </div>
+        <p class="ai-doctor-hint">Shift+Entrée pour saut de ligne • L'IA voit automatiquement tous tes logs admin</p>
+      </div>
+    `;
+  },
+
+  // Build a rich context string from all current admin data
+  buildAdminContext() {
+    const d = this.data;
+    const lines = ['=== RAPPORT ADMIN PRODUCTIVEAPP ===\n'];
+
+    // Health
+    if (d.health) {
+      const h = d.health;
+      lines.push(`## SANTÉ SYSTÈME`);
+      lines.push(`Status: ${h.status || 'unknown'}`);
+      lines.push(`Uptime: ${h.uptime ? Math.round(h.uptime/3600) + 'h' : 'N/A'}`);
+      lines.push(`DB: ${h.database?.status || 'N/A'}`);
+      lines.push(`Mémoire utilisée: ${h.memory?.used || 'N/A'}MB / ${h.memory?.total || 'N/A'}MB\n`);
+    }
+
+    // Stats
+    if (d.stats) {
+      const s = d.stats;
+      lines.push(`## STATISTIQUES`);
+      lines.push(`Utilisateurs: ${s.totalUsers || 0}, Actifs: ${s.activeUsers || 0}`);
+      lines.push(`Tâches: ${s.totalTasks || 0}, Notes: ${s.totalNotes || 0}`);
+      lines.push(`Requêtes API aujourd'hui: ${s.requestsToday || 0}\n`);
+    }
+
+    // Frontend errors
+    if (d.frontendErrorStats) {
+      const fe = d.frontendErrorStats;
+      lines.push(`## ERREURS FRONTEND`);
+      lines.push(`Total: ${fe.total || 0}, Non résolues: ${fe.unresolved || 0}`);
+      lines.push(`Critiques: ${fe.bySeverity?.critical || 0}, Erreurs: ${fe.bySeverity?.error || 0}, Warnings: ${fe.bySeverity?.warning || 0}\n`);
+    }
+
+    if (d.frontendErrors?.errors?.length > 0) {
+      lines.push(`## DERNIÈRES ERREURS JS (${Math.min(d.frontendErrors.errors.length, 10)} premières)`);
+      d.frontendErrors.errors.slice(0, 10).forEach((e, i) => {
+        lines.push(`${i+1}. [${e.severity?.toUpperCase() || 'ERROR'}] ${e.message || 'N/A'}`);
+        if (e.source) lines.push(`   → ${e.source}${e.line ? ':' + e.line : ''}`);
+        if (e.user_agent) lines.push(`   Browser: ${e.user_agent.substring(0, 80)}`);
+        if (e.count > 1) lines.push(`   Occurrences: ${e.count}x`);
+      });
+      lines.push('');
+    }
+
+    // API Metrics
+    if (d.apiMetrics) {
+      const m = d.apiMetrics;
+      lines.push(`## MÉTRIQUES API`);
+      lines.push(`Requêtes totales: ${m.totalRequests || 0}`);
+      lines.push(`Taux d'erreur: ${m.errorRate || '0'}%`);
+      lines.push(`Latence moyenne: ${m.avgLatency || 0}ms`);
+      lines.push(`Endpoints lents: ${m.slowEndpoints?.length || 0}\n`);
+    }
+
+    if (d.topEndpoints?.length > 0) {
+      lines.push(`## TOP ENDPOINTS (par usage)`);
+      d.topEndpoints.slice(0, 8).forEach(ep => {
+        lines.push(`  ${ep.method || 'GET'} ${ep.endpoint} — ${ep.count || 0} req, ${ep.avgLatency || 0}ms avg`);
+      });
+      lines.push('');
+    }
+
+    // Sentinel data
+    const sentinel = AdminSentinel?.getLastReport?.();
+    if (sentinel) {
+      lines.push(`## SENTINEL SCAN`);
+      if (sentinel.memoryUsage) lines.push(`Memory: ${sentinel.memoryUsage.used}MB / ${sentinel.memoryUsage.total}MB (${sentinel.memoryUsage.percentage}%)`);
+      if (sentinel.criticalFiles) lines.push(`Fichiers critiques: ${sentinel.criticalFiles.ok}/${sentinel.criticalFiles.total} OK (${sentinel.criticalFiles.missing?.join(', ') || 'aucun manquant'})`);
+      if (sentinel.cssConflicts) lines.push(`CSS Conflicts: ${sentinel.cssConflicts.count || 0}`);
+      if (sentinel.apiTests) lines.push(`API Tests: ${sentinel.apiTests.passed}/${sentinel.apiTests.total} passés (avg ${sentinel.apiTests.avgResponseTime}ms)`);
+      lines.push('');
+    }
+
+    // Analytics
+    if (d.analyticsPages?.length > 0) {
+      lines.push(`## PAGES LES PLUS VISITÉES`);
+      d.analyticsPages.slice(0, 5).forEach(p => lines.push(`  ${p.page}: ${p.visits} visites`));
+      lines.push('');
+    }
+
+    // Members
+    if (d.members?.length > 0) {
+      lines.push(`## ACTIVITÉ MEMBRES`);
+      d.members.slice(0, 5).forEach(m => {
+        lines.push(`  ${m.name || m.email}: dernière action ${m.lastActivity || 'N/A'}`);
+      });
+    }
+
+    return lines.join('\n');
+  },
+
+  aiChatHistory: [],
+
+  async sendAIMessage(customMessage) {
+    const input = document.getElementById('ai-doctor-input');
+    const message = customMessage || (input ? input.value.trim() : '');
+    if (!message) return;
+
+    // Clear input
+    if (input && !customMessage) input.value = '';
+
+    // Show user message
+    this.appendAIMessage('user', message);
+
+    // Disable send button
+    const sendBtn = document.getElementById('ai-doctor-send-btn');
+    if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<span>…</span>'; }
+
+    // Show typing indicator
+    const typingId = 'ai-typing-' + Date.now();
+    this.appendAIMessage('typing', '', typingId);
+
+    try {
+      const context = this.buildAdminContext();
+      const systemPrompt = `Tu es l'IA Docteur Admin de ProductiveApp, une application SaaS web.
+Tu as accès au rapport complet de monitoring ci-dessous.
+Tu dois analyser, diagnostiquer et proposer des solutions concrètes et actionnables.
+Sois précis, technique, et utilise des émojis pour structurer tes réponses.
+Réponds TOUJOURS en français.
+
+${context}`;
+
+      const fullMessage = message;
+      this.aiChatHistory.push({ role: 'user', content: fullMessage });
+
+      const result = await ApiAi.generate(fullMessage, systemPrompt);
+      const reply = typeof result === 'string' ? result : (result?.content || result?.text || JSON.stringify(result));
+
+      this.aiChatHistory.push({ role: 'assistant', content: reply });
+
+      // Remove typing indicator and show response
+      const typingEl = document.getElementById(typingId);
+      if (typingEl) typingEl.remove();
+      this.appendAIMessage('assistant', reply);
+
+    } catch (err) {
+      const typingEl = document.getElementById(typingId);
+      if (typingEl) typingEl.remove();
+      this.appendAIMessage('error', `Erreur IA : ${err.message}`);
+    }
+
+    // Re-enable send button
+    if (sendBtn) { sendBtn.disabled = false; sendBtn.innerHTML = '<span>Envoyer</span> ➤'; }
+  },
+
+  aiQuickAction(type) {
+    const prompts = {
+      heal: `🩺 Génère un PLAN DE GUÉRISON COMPLET pour cette application. Analyse tous les problèmes identifiés dans le rapport, priorise-les (Critique > Haute > Moyenne > Basse), et pour chacun donne : (1) explication claire du problème, (2) cause probable, (3) solution concrète avec les fichiers et lignes à modifier si possible.`,
+      bugs: `🐛 Analyse en détail toutes les erreurs JavaScript listées dans le rapport. Pour chaque erreur : explique ce qu'elle signifie en langage clair, identifie le fichier source et la cause probable, et propose le fix exact.`,
+      perf: `⚡ Analyse les métriques de performance : endpoints lents, latences API, usage mémoire. Identifie les goulots d'étranglement et propose des optimisations concrètes classées par impact.`,
+      security: `🔒 Fais un audit de sécurité à partir de ces métriques. Y a-t-il des endpoints sursolicités (tentatives brute force) ? Des erreurs qui révèlent de l'info sensible ? Des patterns suspects dans les logs ?`,
+      missing: `📁 Des fichiers critiques sont manquants selon le Sentinel. Explique l'impact de chaque fichier manquant et donne les commandes exactes pour les recréer ou les restaurer.`
+    };
+    this.sendAIMessage(prompts[type] || 'Analyse ce rapport admin.');
+  },
+
+  injectContextAndAnalyze() {
+    const msg = `📋 Voici le rapport complet de l'application. Fais-moi un résumé exécutif en 5 points : ce qui va bien ✅, ce qui est problématique ⚠️, les bugs critiques 🔴, les recommandations prioritaires 🎯, et une note de santé globale de 0 à 10 avec justification.`;
+    this.sendAIMessage(msg);
+    // Switch to AI doctor tab
+    this.switchTab('ai-doctor', null);
+  },
+
+  appendAIMessage(role, content, id) {
+    const container = document.getElementById('ai-doctor-messages');
+    if (!container) return;
+
+    // Remove welcome message on first real message
+    const welcome = container.querySelector('.ai-doctor-welcome');
+    if (welcome && role !== 'typing') welcome.remove();
+
+    const el = document.createElement('div');
+    el.className = `ai-msg ai-msg-${role}`;
+    if (id) el.id = id;
+
+    if (role === 'typing') {
+      el.innerHTML = `<div class="ai-msg-bubble"><span class="ai-typing-dots"><span></span><span></span><span></span></span></div>`;
+    } else if (role === 'user') {
+      el.innerHTML = `<div class="ai-msg-bubble">${this.escapeHtml(content)}</div>`;
+    } else if (role === 'assistant') {
+      // Convert markdown-style formatting to HTML
+      const formatted = this.formatAIResponse(content);
+      el.innerHTML = `<div class="ai-msg-avatar">🤖</div><div class="ai-msg-bubble">${formatted}</div>`;
+    } else if (role === 'error') {
+      el.innerHTML = `<div class="ai-msg-bubble ai-msg-error-bubble">⚠️ ${this.escapeHtml(content)}</div>`;
+    }
+
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+  },
+
+  formatAIResponse(text) {
+    return text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/^#{1,3}\s+(.+)$/gm, '<h4>$1</h4>')
+      .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+      .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/gs, '<ul>$&</ul>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/^(?!<[hupb])(.+)/, '<p>$1')
+      .replace(/([^>])$/, '$1</p>');
+  },
+
+  escapeHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 };
 

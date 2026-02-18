@@ -186,7 +186,7 @@ const Perf = {
 // SECTION 5: ENGINE
 // ==========================================================
 let canvas, ctx, W, H;
-let running = false, time = 0, lastTime = 0;
+let running = false, time = 0, lastTime = 0, lastLoopTs = 0;
 let quality = 'high';
 let state = {}, fadeIn = 0;
 let canvasScale = 1;
@@ -578,19 +578,26 @@ AT.sterling = {
     }
 };
 
-// --- DIPLOMAT: Rubans rouges ondulants type drapeau diplomatique ---
-// --- DIPLOMAT: Colonnes de devises qui tombent, lentes et majestueuses ---
-// Symboles monétaires + clin d'oeil "MAITRE MAHA GIRI" de temps en temps
+// --- DIPLOMAT: Colonnes de devises + mur de pensées positives et divines ---
+// Symboles monétaires qui tombent + mots d'amour qui montent subtilement
 AT.diplomat = {
     init(cfg) {
+        const DIP_LOVE = [
+            'amour', 'paix', 'lumière', 'joie', 'gratitude', 'sérénité',
+            'tendresse', 'confiance', 'humilité', 'douceur', 'compassion',
+            'présence', 'grâce', 'bienveillance', 'éveil', 'harmonie',
+            'beauté', 'coeur', 'âme', 'essence', 'plénitude', 'divin',
+            'soi divin', 'affection', 'clarté', 'infini', 'silence',
+            'abondance', 'espoir', 'sagesse', 'unité', 'foi', 'légèreté',
+            'vérité', 'liberté', 'conscience', 'rayonnement', 'bénédiction'
+        ];
         const COLS = quality === 'low' ? 14 : 22;
+        const SLOTS = quality === 'low' ? 8 : 16;
         const colW = W / COLS;
         const CURRENCY_CHARS = ['$', '€', '£', '¥', '₿', '₣', '₹', '฿', '₩', '₫', '₲', '₴'];
         state.dipCols = [];
-        state.dipMahaTimer = rand(20, 40);
-        state.dipMahaActive = false;
-        state.dipMahaChars = [];
-        state.dipMahaColIdx = 0;
+        state.dipLove = [];
+        state.dipLovePool = DIP_LOVE;
 
         for (let i = 0; i < COLS; i++) {
             const col = { x: i * colW + colW / 2, chars: [], speed: rand(28, 70) };
@@ -600,10 +607,28 @@ AT.diplomat = {
                     y: rand(-H, H),
                     char: CURRENCY_CHARS[Math.floor(rand(0, CURRENCY_CHARS.length))],
                     alpha: rand(0.15, 0.70),
-                    gldPct: Math.random()   // probabilité de teinte or
+                    gldPct: Math.random()
                 });
             }
             state.dipCols.push(col);
+        }
+
+        // Mots d'amour flottants — staggered pour remplir progressivement l'écran
+        for (let i = 0; i < SLOTS; i++) {
+            state.dipLove.push({
+                word: DIP_LOVE[Math.floor(Math.random() * DIP_LOVE.length)],
+                x: rand(W * 0.05, W * 0.95),
+                y: rand(H * 0.5, H * 0.95),
+                alpha: 0,
+                targetAlpha: rand(0.28, 0.55),
+                vy: rand(-6, -14),
+                vx: rand(-2.5, 2.5),
+                timer: i * rand(1.5, 3.5),  // staggered start
+                life: 0,
+                maxLife: rand(14, 28),
+                size: rand(14, 21),
+                phase: 'wait'
+            });
         }
     },
     render(dt, cfg) {
@@ -615,20 +640,7 @@ AT.diplomat = {
         ctx.font = `${fSize}px 'Courier New', monospace`;
         ctx.textAlign = 'center';
 
-        // Minuterie pour "MAITRE MAHA GIRI"
-        state.dipMahaTimer -= dt;
-        if (state.dipMahaTimer <= 0 && !state.dipMahaActive) {
-            state.dipMahaTimer = rand(22, 45);
-            state.dipMahaActive = true;
-            const mahaText = 'MAITRE MAHA GIRI';
-            state.dipMahaColIdx = Math.floor(rand(2, state.dipCols.length - 2));
-            state.dipMahaChars = [];
-            for (let i = 0; i < mahaText.length; i++) {
-                state.dipMahaChars.push({ char: mahaText[i], y: H + 30 + i * 26 });
-            }
-        }
-
-        // Colonnes de devises
+        // Colonnes de devises qui tombent
         if (state.dipCols) for (const col of state.dipCols) {
             for (const c of col.chars) {
                 c.y -= col.speed * dt;
@@ -640,34 +652,61 @@ AT.diplomat = {
                 }
                 if (c.y >= 0 && c.y <= H + fSize) {
                     ctx.globalAlpha = fadeIn * c.alpha * intensityFactor;
-                    // Quelques caractères ont une teinte or plus prononcée
                     ctx.fillStyle = c.gldPct > 0.75 ? '#ffd700' : cfg.c[0];
                     ctx.fillText(c.char, col.x, c.y);
                 }
             }
         }
 
-        // "MAITRE MAHA GIRI" — tombe lettre par lettre, plus grand et lumineux
-        if (state.dipMahaActive && state.dipMahaChars) {
-            const col = state.dipCols[state.dipMahaColIdx] || state.dipCols[0];
-            ctx.font = `bold ${fSize + 5}px 'Courier New', monospace`;
-            glow(10, '#ffd700');
-            for (const c of state.dipMahaChars) {
-                c.y -= (col.speed * 0.9) * dt;
-                if (c.y <= H) allAbove = false;
-                if (c.y >= -fSize && c.y <= H + fSize) {
-                    ctx.globalAlpha = fadeIn * 0.95 * intensityFactor;
+        // Mots d'amour positifs — flottent subtilement vers le haut
+        if (state.dipLove) {
+            const pool = state.dipLovePool;
+            for (const w of state.dipLove) {
+                if (w.phase === 'wait') {
+                    w.timer -= dt;
+                    if (w.timer <= 0) { w.phase = 'fadein'; w.life = 0; }
+                    continue;
+                }
+                w.life += dt;
+                w.x += w.vx * dt;
+                w.y += w.vy * dt;
+
+                if (w.phase === 'fadein') {
+                    w.alpha = Math.min(w.targetAlpha, w.alpha + dt * 0.35);
+                    if (w.alpha >= w.targetAlpha * 0.95) w.phase = 'live';
+                } else if (w.phase === 'live') {
+                    if (w.life >= w.maxLife) w.phase = 'fadeout';
+                } else if (w.phase === 'fadeout') {
+                    w.alpha = Math.max(0, w.alpha - dt * 0.22);
+                    if (w.alpha <= 0.005) {
+                        // Réinitialiser le slot avec un nouveau mot
+                        w.word = pool[Math.floor(Math.random() * pool.length)];
+                        w.x = rand(W * 0.05, W * 0.95);
+                        w.y = rand(H * 0.55, H * 0.95);
+                        w.alpha = 0;
+                        w.targetAlpha = rand(0.28, 0.55);
+                        w.vy = rand(-6, -14);
+                        w.vx = rand(-2.5, 2.5);
+                        w.timer = rand(3, 16);
+                        w.life = 0;
+                        w.maxLife = rand(14, 28);
+                        w.size = rand(14, 21);
+                        w.phase = 'wait';
+                    }
+                }
+
+                if (w.alpha > 0.01) {
+                    ctx.font = `italic ${w.size}px Georgia, 'Times New Roman', serif`;
+                    glow(10, '#ffd700');
+                    ctx.globalAlpha = fadeIn * w.alpha * intensityFactor;
                     ctx.fillStyle = '#ffd700';
-                    ctx.fillText(c.char, col.x, c.y);
+                    ctx.fillText(w.word, w.x, w.y);
+                    noGlow();
+                    ctx.font = `${fSize}px 'Courier New', monospace`;
                 }
             }
-            if (state.dipMahaChars.every(c => c.y < -fSize)) {
-                state.dipMahaActive = false;
-            }
-            ctx.font = `${fSize}px 'Courier New', monospace`;
         }
 
-        noGlow();
         ctx.globalCompositeOperation = 'source-over';
         ctx.textAlign = 'left';
         ctx.globalAlpha = fadeIn;
@@ -4087,6 +4126,7 @@ function getCurrentTheme() {
 
 function loop(ts) {
     if (!running) return;
+    lastLoopTs = ts;
 
     try {
         const dt = Math.min((ts - lastTime) / 1000, 0.05);
@@ -4111,8 +4151,11 @@ function loop(ts) {
         const theme = getCurrentTheme();
         const cfg = TC[theme];
         if (cfg) {
-            const anim = AT[cfg.type];
+            const customType = localStorage.getItem('as_anim_' + theme);
+            const animType = (customType && customType !== 'none' && AT[customType]) ? customType : cfg.type;
+            const anim = AT[animType];
             if (anim && anim.render) anim.render(dt, cfg);
+            else if (ctx) ctx.clearRect(0, 0, W, H);
         } else {
             if (ctx) ctx.clearRect(0, 0, W, H);
         }
@@ -4177,9 +4220,25 @@ function engineInit() {
             } catch(e) { console.error('Animation resize error:', e); }
         });
         document.addEventListener('visibilitychange', () => {
-            if (document.hidden) { running = false; }
-            else if (canvas) { running = true; lastTime = performance.now(); Perf.warmup = 30; requestAnimationFrame(loop); }
+            if (document.hidden) {
+                running = false;
+            } else {
+                // Page visible again — always restart, no condition on canvas
+                running = true; lastTime = performance.now(); Perf.warmup = 30;
+                requestAnimationFrame(loop);
+            }
         });
+
+        // Watchdog: every 4 seconds, check if the loop is alive and restart if dead
+        setInterval(function() {
+            if (!running || document.hidden) return;
+            const now = performance.now();
+            if (now - lastLoopTs > 4000) {
+                // Loop has been silent for >4s while page is visible — restart it
+                lastTime = now; lastLoopTs = now;
+                requestAnimationFrame(loop);
+            }
+        }, 4000);
 
         initTheme();
         if (!running) { running = true; lastTime = performance.now(); requestAnimationFrame(loop); }
@@ -4207,7 +4266,20 @@ window.AnimEngine = {
     getIntensity: function() { return intensityRaw; },
     getIntensityFactor: function() { return intensityFactor; },
     getQuality: function() { return quality; },
-    reinit: function() { applyResolution(); initTheme(); }
+    reinit: function() { applyResolution(); initTheme(); },
+    setThemeAnimation: function(theme, animId) {
+        if (animId && animId !== 'none') {
+            localStorage.setItem('as_anim_' + theme, animId);
+        } else if (animId === 'none') {
+            localStorage.setItem('as_anim_' + theme, 'none');
+        } else {
+            localStorage.removeItem('as_anim_' + theme);
+        }
+        applyResolution(); initTheme();
+    },
+    getDefaultType: function(theme) { return TC[theme] ? TC[theme].type : null; },
+    getCustomType: function(theme) { return localStorage.getItem('as_anim_' + theme) || null; },
+    TC: TC
 };
 
 })();

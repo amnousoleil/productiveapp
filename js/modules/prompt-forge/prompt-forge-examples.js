@@ -126,11 +126,138 @@ const PromptForgeExamples = (function() {
         { id:'ph10', cat:'philosophie', title:'Gratitude et appreciation profonde', prompt:'Tu es Robert Emmons + philosophe de la grace. Je veux cultiver gratitude reelle (pas superficielle).\n(1) Neuroscience de la gratitude. (2) Difference appréciation vs gratitude performative. (3) Pratique journaliere qui marche vraiment. (4) Gratitude dans ladversite. (5) Exprimer gratitude aux autres. (6) Beauté cachee du quotidien. (7) Transformer lamarture en grace. Pratique radicale.' },
     ]; // end EXAMPLES
 
+    // Impact statements — ce que chaque prompt permet d'obtenir concrètement
+    var DESCS = {
+        'b1':  '→ Pitch + stack de valeur + séquence email 7 jours + prix psychologique optimal.',
+        'b2':  '→ Carte complète du marché + 3 angles morts inexploités + plan d\'attaque 90 jours.',
+        'b3':  '→ Business model qui résiste aux crises — 3 scénarios catastrophe transformés en avantages.',
+        'b4':  '→ Pitch complet hook→TAM→traction→ask — validé par le format des 10 000 meilleurs VCs.',
+        'b5':  '→ 3 leviers de croissance exponentiels + stratégie distribution cachée + recrutement 10 clés.',
+        'b6':  '→ Analyse TAM/CAC/risques/avantages + verdict GO/NO-GO/GO SI avec conditions précises.',
+        'b7':  '→ Funnel 5 étapes + séquence nurturing + page de vente + relances + upsell. Clé en main.',
+        'b8':  '→ Plan de survie 72h + restructuration + communication équipe + signaux de redressement.',
+        'b9':  '→ 5 valeurs non-négociables + rituel onboarding + culture auto-portante qui attire les meilleurs.',
+        'b10': '→ Valorisation × multiples + 5 éléments qui tuent le prix + préparation due diligence.',
+
+        'm1':  '→ Page de vente complète : headline → agitation → preuve → stack → CTA → PS. 8 éléments.',
+        'm2':  '→ Concept viral + 5 formats de contenu + calendrier + 10 piliers + repurposing + métriques.',
+        'm3':  '→ Email complet : objet + histoire + CTA + PS + 3 variantes de sujet à fort taux d\'ouverture.',
+        'm4':  '→ Position de marque unique + mot à posséder + territoire sémantique + test de positionnement.',
+        'm5':  '→ Onboarding 7 jours : 4 emails avec objets, contenus, CTAs + KPIs de succès à chaque étape.',
+        'm6':  '→ Archétype + héros + guide + problème 3 niveaux + script 200 mots + appel à l\'action.',
+        'm7':  '→ 20 keywords prioritaires + architecture site + 5 articles piliers + projection trafic 18 mois.',
+        'm8':  '→ Canal sous-exploité + contenu d\'acheteur + programme referral naturel + communauté à bâtir.',
+        'm9':  '→ Plan 4 semaines (teasing → éducation → révélation → ouverture) avec formats et métriques.',
+        'm10': '→ 5 points de fuite + micro-copy + checkout + abandonnistes + upsell + liste de tests prioritaires.',
+
+        'p1':  '→ Croyances sous-jacentes + origine + coût réel + 3 exercices cognitifs + protocole de mesure.',
+        'p2':  '→ Analyse de croyance + 5 preuves contradictoires + exercice 15 min/j + mantra + protocole 21j.',
+        'p3':  '→ Identités limitantes identifiées + identité choisie + 3 pratiques d\'observateur intérieur.',
+        'p4':  '→ Anatomie de la peur + scénario catastrophe désacralisé + exposition graduée 5 étapes + mantra.',
+        'p5':  '→ Interview de l\'ombre en 5 questions + intégration (pas élimination) + cadeau caché révélé.',
+        'p6':  '→ 4 compétences IE + granularité émotionnelle + régulation en stress + plan 6 semaines.',
+        'p7':  '→ Identité cible + preuves à accumuler + environnement à modifier + plan 90 jours complet.',
+        'p8':  '→ Sens sans minimiser + 5 domaines de croissance + renarration puissante + utilité pour les autres.',
+        'p9':  '→ Vie idéale en 10 ans + 3 vies alternatives + test sans tout quitter + plan de migration.',
+        'p10': '→ État de pic-performance reproductible en 5 min + ancres physiques + routine matinale optimale.',
+
+        'pr1': '→ Capture + organisation + revue hebdo 20 min + deep work protégé + rituels entrée/sortie.',
+        'pr2': '→ 4 sources de distraction internes + architecture physique + numérique + protocole de récupération.',
+        'pr3': '→ Question unique de priorisation + matrice adaptée + ONE thing 90 jours + comment dire non.',
+        'pr4': '→ Conditions de flow + calibrage challenge/compétence + pré-rituels + durée optimale + plan type.',
+        'pr5': '→ Audit 4 énergies + oscillateurs + rituels de recharge + chronotype + programme 4 semaines.',
+        'pr6': '→ Déconstruction 20/80 + séquençage + pratique délibérée + test de compétence + plan heure/heure.',
+        'pr7': '→ Revue 45 min : backlogs + métriques + victoires + 3 priorités + AAR + énergie pour la semaine.',
+        'pr8': '→ Objectifs résultats/processus/identité + obstacles anticipés + métriques hebdo + revue mensuelle.',
+        'pr9': '→ Heure optimale + 5 premières minutes + sport + nutrition + intention + 1er bloc protégé.',
+        'pr10':'→ Équation procrastination + vraie cause + technique 2 min + contrat public + protocole 7 jours.',
+
+        'l1':  '→ 5 décisions 24h + communication incertitude + structure haute pression + sortir plus fort.',
+        'l2':  '→ Préparation CNV + 4 niveaux de feedback + gestion résistance + suivi + script mot pour mot.',
+        'l3':  '→ Scorecard poste + 5 questions révélatrices + détection BS-artists + reference checks vrais.',
+        'l4':  '→ 5 niveaux de délégation + briefing pour réussir + contrôle sans micro-management + règle 70%.',
+        'l5':  '→ Type désengagement + 3 besoins non satisfaits + 5 conversations + autonomie/maîtrise/mission.',
+        'l6':  '→ Biais cognitifs + scénarios futurs + pré-mortem + test du regret 80 ans + conditions de révision.',
+        'l7':  '→ Positions vs intérêts + médiation 5 étapes + solution gagnant-gagnant + prévention rechute.',
+        'l8':  '→ WHY profond + BHAG + core ideology + traduction trimestrielle + culture carriers identifiés.',
+        'l9':  '→ Diagnostic Lencioni + sécurité psychologique + normes explicites + AAR + challenge/support.',
+        'l10': '→ Systèmes documentés + successeur 24 mois + capital relationnel transféré + culture auto-portante.',
+
+        'c1':  '→ Type de blocage identifié + 6 chapeaux + contrainte libératrice + connexions 5 domaines + SCAMPER.',
+        'c2':  '→ Hypothèses déconstruites + 5 analogies inter-secteurs + prototype mental de l\'idée la plus folle.',
+        'c3':  '→ Voyage du héros adapté + structure 3 actes + 5 émotions dans l\'ordre + plan scène par scène.',
+        'c4':  '→ 30 idées sans jugement + idées sacrilèges + sélection pondérée + prototype 48h + action directe.',
+        'c5':  '→ Voix unique + vol intelligent + gap Ira Glass + contrainte d\'originalité + titre et opening.',
+        'c6':  '→ 5 insights utilisateur + HMW + concepts inattendus + prototype simple + questions de test.',
+        'c7':  '→ Angle contre-intuitif + ouverture magnétique + structure de conviction + plan complet rédactionnel.',
+        'c8':  '→ JTBD 3 niveaux + frictions cachées + principe less is more + métriques adoption + plan itération.',
+        'c9':  '→ 3 nouvelles métaphores + mots à bannir + question qui oblige à penser différemment + propagation.',
+        'c10': '→ Influences profondes + obsession centrale + biographie comme source + projet-manifeste de style.',
+
+        'co1': '→ BATNA + ZOPA + accusation audit + calibrated question + script ouverture + 5 objections répondues.',
+        'co2': '→ Ouverture à tension + structure narrative + présence physique + 5 erreurs fatales + script 2 min.',
+        'co3': '→ OSBD complet + ouverture sans défensivité + reformulations d\'empathie + plan B si ça dérape.',
+        'co4': '→ Principe Cialdini optimal + S1/S2 + ancrage + framing + preuve sociale + réciprocité préalable.',
+        'co5': '→ 5 niveaux d\'écoute + mirroring/labeling + silence outil + 70/30 + détecter le non-dit + 30 jours.',
+        'co6': '→ Email <200 mots : objet parfait + ouverture directe + demande claire + CTA unique. 3 versions.',
+        'co7': '→ Syllogisme + 5 objections + attaque des prémisses + steelmanning + conclusion qui fait changer d\'avis.',
+        'co8': '→ Type de personnalité + ce que tu fais qui l\'alimente + limites + désescalade + documentation.',
+        'co9': '→ 4 dimensions du charisme + micro-comportements + voix + espace + authenticité vs performance. 21j.',
+        'co10':'→ 3 types de personnes clés + règle valeur d\'abord + approche \'hors de portée\' + CRM + plan 90 jours.',
+
+        'f1':  '→ Pitch 3 phrases + slides indispensables + valorisation argumentée + cold email VCs + termsheet.',
+        'f2':  '→ Unit economics + P&L 3 ans + cash flow + break-even + 3 scénarios + dashboard investisseur.',
+        'f3':  '→ Structure optimale + charges oubliées + holding IS + dividendes vs salaire + simulation chiffrée.',
+        'f4':  '→ Allocation stratégique + diversification réelle + portefeuille résilient + rebalancement auto.',
+        'f5':  '→ Ancrage optimal + 3 tiers psychologiques + test prix + freemium vs premium + stratégie complète.',
+        'f6':  '→ Diagnostic cash flow + levier BFR + délais fournisseurs + encaissements + dashboard 13 semaines.',
+        'f7':  '→ 3 méthodes valorisation + multiples sectoriels + actifs cachés + process de vente optimal.',
+        'f8':  '→ Audit dépenses + automatisation + ratio épargne + premier investissement + habitudes des riches.',
+
+        'bpe1':'→ Hygiène sommeil + chronotype + environnement chambre + routine 60 min + protocole 21 jours.',
+        'bpe2':'→ Timing repas + aliments cognitifs + saboteurs énergétiques + suppléments validés + plan semaine.',
+        'bpe3':'→ Stress aigu/chronique/toxique + 5 techniques immédiates + récupération active + protocole détox.',
+        'bpe4':'→ Style méditation adapté + construction progressive + obstacles + roadmap 90 jours + retraite.',
+        'bpe5':'→ Type entraînement + fréquence + progression sans blessure + récupération + programme 12 semaines.',
+        'bpe6':'→ Carte relationnelle + style attachement + relations toxiques vs nourrissantes + plan social.',
+        'bpe7':'→ Diagnostic énergétique + circadien + killers cachés + boosts durables + stack supplémentation.',
+        'bpe8':'→ Exercice-médecine + nutrition anti-aging + sommeil + biomarqueurs + playbook longevité complet.',
+
+        'ph1': '→ Valeurs réelles + vie idéale 10 ans + écart actuel/voulu + premier pas ce soir + engagement.',
+        'ph2': '→ Dichotomie du contrôle + obstacle-voie + memento mori + amor fati + pratique quotidienne.',
+        'ph3': '→ 3 sources de sens Frankl + ikigai + mission personnelle en une phrase + exploration profonde.',
+        'ph4': '→ 3 écoles éthiques + parties prenantes + test du journal + cadre éthique + paix intérieure.',
+        'ph5': '→ Impermanence + lâcher prise sans renoncer + pleine conscience + acceptation vs résignation.',
+        'ph6': '→ Métaphysique + épistémologie + éthique + rapport mort + credo 7 principes sur mesure.',
+        'ph7': '→ Fragile/robuste/antifragile + expositions calculées + barbell strategy + skin in the game.',
+        'ph8': '→ Mauvaise foi + liberté-responsabilité + premier acte libre + vivre authentique malgré contraintes.',
+        'ph9': '→ Désirs naturels/vains + plaisirs simples + ataraxie + équilibre plaisir-santé + art de vivre.',
+        'ph10':'→ Neuroscience gratitude + pratique quotidienne + gratitude dans l\'adversité + transformer l\'amertume.'
+    };
+
+    // Taglines des catégories — slogan percutant affiché sous les filtres
+    var CAT_TAGLINES = {
+        '':            '10 domaines · 96 prompts · résultats garantis dès la première utilisation',
+        'business':    'Pense comme McKinsey · Vends comme Hormozi · Bâtis comme Bezos',
+        'marketing':   'Des mots qui font agir · Des systèmes qui vendent · Du contenu qui convertit',
+        'psycho':      'Reprogramme ton cerveau à la racine · Libère ta version la plus puissante',
+        'productivite':'Le système des top performers · Moins d\'effort · 10× plus de résultats',
+        'leadership':  'Dirige des équipes qui changent le monde · Décisions, vision, impact',
+        'creativite':  'Brise les règles · Casse les conventions · Crée ce qui n\'existe pas encore',
+        'communication':'L\'art de faire agir les autres · Négociation · Présence · Influence',
+        'finance':     'L\'argent est un jeu — maîtrise les règles avant tout le monde',
+        'bienetre':    'Un corps et un esprit de champion · Performance durable · Longévité',
+        'philosophie': 'Pense plus profond · Vis plus vrai · Sois plus libre'
+    };
+
     var openId = null;
     var filterCat = null;
 
     function getCatInfo(catId) {
-        return CATEGORIES.find(function(c) { return c.id === catId; }) || { label: catId, color: '#6366f1', icon: '\ud83d\udcdd' };
+        var found = CATEGORIES.find(function(c) { return c.id === catId; });
+        if (!found) return { label: catId, color: '#6366f1', icon: '📝' };
+        // Nettoie les guillemets parasites dans l'icône
+        return { label: found.label, color: found.color, icon: found.icon.replace(/"/g, '') };
     }
 
     function escH(s) {
@@ -141,26 +268,75 @@ const PromptForgeExamples = (function() {
         r = r.split('"').join('&quot;');
         return r;
     }
+
+    // Calcule une couleur RGBA précise (la syntaxe rgba(var(--x),.y) ne marche PAS en CSS)
+    function hexToRgba(hex, a) {
+        var res = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        if (!res) return 'rgba(99,102,241,' + a + ')';
+        return 'rgba(' + parseInt(res[1],16) + ',' + parseInt(res[2],16) + ',' + parseInt(res[3],16) + ',' + a + ')';
+    }
+
+    // Génère les variables CSS précalculées pour une couleur
+    function makeVars(hex) {
+        return '--cat-c:' + hex +
+            ';--c-lo:'  + hexToRgba(hex, .08) +   /* fond très subtil */
+            ';--c-md:'  + hexToRgba(hex, .15) +   /* fond médium : badges, bg actif */
+            ';--c-hi:'  + hexToRgba(hex, .30) +   /* borders, accent */
+            ';--c-xh:'  + hexToRgba(hex, .52) +   /* card open, toggle shadow */
+            ';--c-shd:' + hexToRgba(hex, .22);    /* box-shadow glow */
+    }
+
     function renderCard(ex) {
         var cat = getCatInfo(ex.cat);
-        var isOpen = openId === ex.id;
         var promptText = escH(ex.prompt || '');
-        var promptLines = promptText.split('\\n').join('<br>');
-        var html = '<div class="pfe-card' + (isOpen ? ' pfe-card--open' : '') + '" data-id="' + escH(ex.id) + '" style="--cat-c:' + cat.color + '">';
-        html += '<div class="pfe-card__head">';
-        html += '<span class="pfe-cat-badge" style="background:' + cat.color + '20;color:' + cat.color + '">' + cat.icon + ' ' + escH(cat.label) + '</span>';
-        html += '<h3 class="pfe-card__title">' + escH(ex.title) + '</h3>';
-        html += '<button class="pfe-card__toggle" aria-label="toggle">' + (isOpen ? '\u25b2' : '\u25bc') + '</button>';
-        html += '</div>';
-        if (isOpen) {
-            html += '<div class="pfe-card__body">';
-            html += '<p class="pfe-prompt-text">' + promptLines + '</p>';
-            html += '<button class="pfe-copy-btn" data-copy="' + escH(ex.prompt) + '">\ud83d\udccb Copier le prompt</button>';
-            html += '</div>';
-        }
-        html += '</div>';
-        return html;
+        // Formatage du prompt : newlines → sauts de ligne, numéros en gras visuel
+        var promptLines = promptText
+            .split('\\n')
+            .map(function(line) {
+                // Mettre en évidence les sous-points numérotés
+                return line.replace(/^(\(\d+\)|\d+\))/, '<span class="pfe-step">$1</span>');
+            })
+            .join('<br>');
+
+        var charCount = (ex.prompt || '').length;
+        var desc = DESCS[ex.id] || '';
+
+        return '<div class="pfe-card" data-id="' + escH(ex.id) + '" style="' + makeVars(cat.color) + '">' +
+            '<div class="pfe-card-head">' +
+                '<div class="pfe-card-accent"></div>' +
+                '<div class="pfe-card-left">' +
+                    '<span class="pfe-cat-badge">' + cat.icon + ' ' + escH(cat.label) + '</span>' +
+                    '<h3 class="pfe-card-title">' + escH(ex.title) + '</h3>' +
+                    (desc ? '<p class="pfe-card-desc">' + escH(desc) + '</p>' : '') +
+                '</div>' +
+                '<button class="pfe-card-toggle" aria-label="Déplier">' +
+                    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' +
+                '</button>' +
+            '</div>' +
+            '<div class="pfe-card-body">' +
+                '<div class="pfe-card-body-inner">' +
+                    '<div class="pfe-prompt-box">' +
+                        '<div class="pfe-prompt-box-header">' +
+                            '<span class="pfe-prompt-box-label">📋 Prompt</span>' +
+                            '<span class="pfe-prompt-char-count">' + charCount + ' chars</span>' +
+                        '</div>' +
+                        '<div class="pfe-prompt-text">' + promptLines + '</div>' +
+                    '</div>' +
+                    '<div class="pfe-card-actions">' +
+                        '<button class="pfe-btn-copy" data-copy="' + escH(ex.prompt) + '">' +
+                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>' +
+                            'Copier' +
+                        '</button>' +
+                        '<button class="pfe-btn-forge" data-prompt="' + escH(ex.prompt) + '" data-cat="' + escH(ex.cat) + '">' +
+                            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>' +
+                            'Forger' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
     }
+
     function renderView() {
         var filtered = filterCat
             ? EXAMPLES.filter(function(e) { return e.cat === filterCat; })
@@ -168,51 +344,103 @@ const PromptForgeExamples = (function() {
         var total = EXAMPLES.length;
         var showing = filtered.length;
 
-        var catBtns = '<button class="pfe-filter-btn ' + (!filterCat ? 'active' : '') + '" data-cat="">\ud83d\udcd6 Touts (' + total + ')</button>';
+        var catBtns = '<button class="pfe-filter-btn' + (!filterCat ? ' active' : '') + '" data-cat="">' +
+            '<span class="pfe-filter-icon">📖</span>Tous <span class="pfe-filter-count">' + total + '</span></button>';
+
         CATEGORIES.forEach(function(cat) {
+            var icon = cat.icon.replace(/"/g, '');
             var n = EXAMPLES.filter(function(e) { return e.cat === cat.id; }).length;
             var activeCls = filterCat === cat.id ? ' active' : '';
-            catBtns += '<button class="pfe-filter-btn' + activeCls + '" data-cat="' + cat.id + '" style="--cat-c:' + cat.color + '">' + cat.icon + ' ' + cat.label + ' <span class="pfe-filter-count">' + n + '</span></button>';
+            catBtns += '<button class="pfe-filter-btn' + activeCls + '" data-cat="' + cat.id + '" style="' + makeVars(cat.color) + '">' +
+                '<span class="pfe-filter-icon">' + icon + '</span>' + escH(cat.label) +
+                ' <span class="pfe-filter-count">' + n + '</span></button>';
         });
 
         var cards = filtered.map(function(ex) { return renderCard(ex); }).join('');
 
+        var tagline = CAT_TAGLINES[filterCat || ''] || '';
+        var activeCat = filterCat ? CATEGORIES.find(function(c) { return c.id === filterCat; }) : null;
+        var taglineStyle = activeCat ? makeVars(activeCat.color) : '';
+
         return '<div class="pfe-root">' +
             '<div class="pfe-header">' +
-            '<h2 class="pfe-title">\ud83e\uddb5 Prompt Forge Elite</h2>' +
-            '<p class="pfe-subtitle">' + showing + ' prompts e\u00E9lites \u2212 actionnables imm\u00E9diatement</p>' +
+                '<div class="pfe-header-glow"></div>' +
+                '<h2 class="pfe-title">✦ Bibliothèque Elite</h2>' +
+                '<p class="pfe-subtitle"><span class="pfe-subtitle-count">' + showing + '</span> prompts actionnables — top 1% mondial</p>' +
             '</div>' +
-            '<div class="pfe-filters">' + catBtns + '</div>' +
+            '<div class="pfe-filters-wrap"><div class="pfe-filters">' + catBtns + '</div></div>' +
+            (tagline ? '<div class="pfe-cat-tagline" style="' + taglineStyle + '">' +
+                (activeCat ? '<span class="pfe-cat-tagline-icon">' + activeCat.icon.replace(/"/g,'') + '</span>' : '') +
+                '<span class="pfe-cat-tagline-text">' + escH(tagline) + '</span>' +
+            '</div>' : '') +
             '<div class="pfe-grid">' + cards + '</div>' +
-            '</div>';
+        '</div>';
     }
+
     function attachEvents(renderCb) {
-        document.addEventListener('click', function(e) {
-            var btn = e.target.closest('.pfe-filter-btn');
-            if (btn) {
-                var cat = btn.getAttribute('data-cat');
-                filterCat = cat || null;
+        // On attache sur .pfe-root (élément fraîchement créé = pas de doublons)
+        // Les filtres nécessitent un re-render ; les toggles de cartes sont purement DOM.
+        var root = document.querySelector('.pfe-root');
+        if (!root) return;
+
+        root.addEventListener('click', function(e) {
+            // ── Filtre catégorie ──
+            var filterBtn = e.target.closest('.pfe-filter-btn');
+            if (filterBtn) {
+                filterCat = filterBtn.getAttribute('data-cat') || null;
                 openId = null;
                 if (renderCb) renderCb();
                 return;
             }
-            var card = e.target.closest('.pfe-card');
-            if (card && !e.target.closest('.pfe-copy-btn')) {
-                var id = card.getAttribute('data-id');
-                openId = openId === id ? null : id;
-                if (renderCb) renderCb();
-                return;
-            }
-            var copyBtn = e.target.closest('.pfe-copy-btn');
+
+            // ── Bouton Copier ──
+            var copyBtn = e.target.closest('.pfe-btn-copy');
             if (copyBtn) {
+                e.stopPropagation();
                 var text = copyBtn.getAttribute('data-copy');
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(text).then(function() {
-                        copyBtn.textContent = '\u2713 Copi\u00E9 !'
-                        setTimeout(function() { copyBtn.textContent = '\ud83d\udccb Copier le prompt'; }, 1500);
+                        copyBtn.classList.add('pfe-btn-copied');
+                        copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>Copié !';
+                        setTimeout(function() {
+                            copyBtn.classList.remove('pfe-btn-copied');
+                            copyBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copier';
+                        }, 1800);
                     });
                 }
                 return;
+            }
+
+            // ── Bouton Forger ──
+            var forgeBtn = e.target.closest('.pfe-btn-forge');
+            if (forgeBtn) {
+                e.stopPropagation();
+                var prompt = forgeBtn.getAttribute('data-prompt');
+                var catId = forgeBtn.getAttribute('data-cat');
+                if (typeof PromptForgeCore !== 'undefined') {
+                    PromptForgeCore.state.generatedPrompt = prompt;
+                    PromptForgeCore.state.detectedCategory = catId || '';
+                }
+                if (typeof PromptForgeUI !== 'undefined') {
+                    PromptForgeUI.switchView('forge');
+                }
+                return;
+            }
+
+            // ── Toggle card (sans re-render, manipulation DOM directe) ──
+            var card = e.target.closest('.pfe-card');
+            if (card) {
+                var wasOpen = card.classList.contains('pfe-card--open');
+                // Fermer toutes les cartes ouvertes
+                root.querySelectorAll('.pfe-card--open').forEach(function(c) {
+                    c.classList.remove('pfe-card--open');
+                });
+                if (!wasOpen) {
+                    card.classList.add('pfe-card--open');
+                    openId = card.getAttribute('data-id');
+                } else {
+                    openId = null;
+                }
             }
         });
     }

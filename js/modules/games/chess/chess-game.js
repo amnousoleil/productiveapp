@@ -9,7 +9,7 @@ const ChessGame = (function() {
     let aiLevel = 2, gameOver = false, listeners = [];
     let whiteTime = 600, blackTime = 600, clockInterval = null;
 
-    const PIECE_PATH = 'assets/chess/';
+    const PIECE_PATH = '/assets/chess/';
     const FILES = ['a','b','c','d','e','f','g','h'];
 
     function mount(el) {

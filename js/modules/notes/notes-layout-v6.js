@@ -19,7 +19,7 @@ const NotesLayoutV6 = (function() {
         sidebarWidth: 280,
         backlinksWidth: 320,
         sidebarCollapsed: false,
-        backlinksCollapsed: false,
+        backlinksCollapsed: true,
         splitMode: null, // null | 'vertical' | 'horizontal'
         openTabs: [],
         activeTabId: null,

@@ -1,36 +1,32 @@
 /**
  * ================================================
- * VISION MAIN - Giri Vision v1.0
- * Orchestrateur principal du module
+ * VISION MAIN - Giri Vision v3.0
+ * Orchestrateur — preload optimisé + init
  * ================================================
  */
 
 const VisionMain = (function () {
     'use strict';
 
-    let _initialized = false;
     let _currentView = 'home';
 
     function init() {
         if (!_checkDeps()) {
-            console.error('❌ VisionMain: dépendances manquantes');
+            console.warn('⚠️ VisionMain: dépendances manquantes, réessai dans 500ms');
+            setTimeout(init, 500);
             return;
         }
-        _initialized = true;
         _currentView = 'home';
+        // Précharger le moteur vidéo en arrière-plan pour éliminer le délai
+        if (typeof VisionJitsi !== 'undefined' && VisionJitsi.preload) {
+            VisionJitsi.preload().catch(() => {});
+        }
         showHome();
-        console.log('✅ VisionMain: initialized');
     }
 
     function _checkDeps() {
         const deps = ['VisionUtils', 'VisionApi', 'VisionJitsi', 'VisionMeeting', 'VisionHome', 'VisionHistory'];
-        for (const dep of deps) {
-            if (typeof window[dep] === 'undefined') {
-                console.warn(`⚠️ VisionMain: ${dep} non chargé`);
-                return false;
-            }
-        }
-        return true;
+        return deps.every(d => typeof window[d] !== 'undefined');
     }
 
     function showHome() {

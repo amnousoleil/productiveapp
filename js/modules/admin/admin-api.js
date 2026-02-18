@@ -4,12 +4,15 @@
  */
 
 const AdminAPI = {
+  // Use the correct API base URL from config
+  get BASE() { return AppConfig.API ? AppConfig.API.BASE : '/api/v1'; },
+
   /**
    * Get system health status
    * @returns {Promise<Object>}
    */
   async getHealth() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/health`, {
+    const response = await fetch(`${this.BASE}/admin/health`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -29,7 +32,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async getStats() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/stats`, {
+    const response = await fetch(`${this.BASE}/admin/stats`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -49,7 +52,7 @@ const AdminAPI = {
    * @returns {Promise<Array>}
    */
   async getMemberActivity() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/members/activity`, {
+    const response = await fetch(`${this.BASE}/admin/members/activity`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -70,7 +73,7 @@ const AdminAPI = {
    * @returns {Promise<Array>}
    */
   async getRecentActivity(limit = 20) {
-    const url = `${AppConfig.API_URL}/admin/activity/recent?limit=${limit}`;
+    const url = `${this.BASE}/admin/activity/recent?limit=${limit}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -104,7 +107,7 @@ const AdminAPI = {
     if (userId) queryParams.set('userId', userId);
     if (resolved !== undefined) queryParams.set('resolved', resolved);
 
-    const response = await fetch(`${AppConfig.API_URL}/admin/frontend-errors?${queryParams}`, {
+    const response = await fetch(`${this.BASE}/admin/frontend-errors?${queryParams}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -124,7 +127,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async getFrontendErrorStats() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/frontend-errors/stats`, {
+    const response = await fetch(`${this.BASE}/admin/frontend-errors/stats`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -145,7 +148,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async resolveFrontendError(errorId) {
-    const response = await fetch(`${AppConfig.API_URL}/admin/frontend-errors/${errorId}/resolve`, {
+    const response = await fetch(`${this.BASE}/admin/frontend-errors/${errorId}/resolve`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -166,7 +169,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async deleteFrontendError(errorId) {
-    const response = await fetch(`${AppConfig.API_URL}/admin/frontend-errors/${errorId}`, {
+    const response = await fetch(`${this.BASE}/admin/frontend-errors/${errorId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -194,7 +197,7 @@ const AdminAPI = {
     if (startDate) queryParams.set('startDate', startDate);
     if (endDate) queryParams.set('endDate', endDate);
 
-    const response = await fetch(`${AppConfig.API_URL}/admin/frontend-errors/export?${queryParams}`, {
+    const response = await fetch(`${this.BASE}/admin/frontend-errors/export?${queryParams}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${ApiTokens.getAccessToken() || localStorage.getItem('accessToken')}`
@@ -216,7 +219,7 @@ const AdminAPI = {
    * @returns {Promise<Array>}
    */
   async getAnalyticsPages(limit = 10) {
-    const response = await fetch(`${AppConfig.API_URL}/admin/analytics/pages?limit=${limit}`, {
+    const response = await fetch(`${this.BASE}/admin/analytics/pages?limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -237,7 +240,7 @@ const AdminAPI = {
    * @returns {Promise<Array>}
    */
   async getAnalyticsFeatures(limit = 10) {
-    const response = await fetch(`${AppConfig.API_URL}/admin/analytics/features?limit=${limit}`, {
+    const response = await fetch(`${this.BASE}/admin/analytics/features?limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -257,7 +260,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async getUserActivity() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/analytics/user-activity`, {
+    const response = await fetch(`${this.BASE}/admin/analytics/user-activity`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -277,7 +280,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async getFeatureEngagement() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/analytics/feature-engagement`, {
+    const response = await fetch(`${this.BASE}/admin/analytics/feature-engagement`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -299,7 +302,7 @@ const AdminAPI = {
    * @returns {Promise<Object>}
    */
   async getAPIMetrics() {
-    const response = await fetch(`${AppConfig.API_URL}/admin/metrics/api`, {
+    const response = await fetch(`${this.BASE}/admin/metrics/api`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -320,7 +323,7 @@ const AdminAPI = {
    * @returns {Promise<Array>}
    */
   async getTopEndpoints(limit = 10) {
-    const response = await fetch(`${AppConfig.API_URL}/admin/metrics/top-endpoints?limit=${limit}`, {
+    const response = await fetch(`${this.BASE}/admin/metrics/top-endpoints?limit=${limit}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

@@ -1,10 +1,16 @@
 /**
- * GIRI MEMORY v1.0
+ * GIRI MEMORY v2.0 — Fix emojis 6×6, design premium, intégration GIRIS
  */
 const MemoryGame = (function() {
     'use strict';
 
-    const EMOJIS = ['🐶','🐱','🦊','🐻','🐼','🦁','🐸','🦋','🌺','🎸','🍕','🎮','🚀','⭐','🎯','🌈','🏆','💎','🌙','🔥','❄️','🎨','🎭','🎪','🌊','🦄','🍀','🎲','🦉','🐧','🐬','🦀'];
+    const EMOJIS = [
+        '🐶','🐱','🦊','🐻','🐼','🦁','🐸','🦋','🌺','🎸',
+        '🍕','🎮','🚀','⭐','🎯','🌈','🏆','💎','🌙','🔥',
+        '❄️','🎨','🎭','🎪','🌊','🦄','🍀','🎲','🦉','🐧',
+        '🐬','🦀','🌸','🍦','🎵','🏄','🦋','🌵','🍄','🦚',
+        '🐙','🎃','🌻','🦜','🐳','🍓','🎈','🦊'
+    ]; // 48 emojis — suffisant pour 6×6 (36 paires)
 
     let container = null, cards = [], flipped = [], matched = [];
     let moves = 0, locked = false, size = 4, timer = null, elapsed = 0;
@@ -30,7 +36,14 @@ const MemoryGame = (function() {
         render();
     }
 
-    function shuffle(arr) { const a = [...arr]; for (let i = a.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; }
+    function shuffle(arr) {
+        const a = [...arr];
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
 
     function flipCard(i) {
         if (locked || flipped.includes(i) || matched.includes(i)) return;
@@ -40,26 +53,63 @@ const MemoryGame = (function() {
 
     function checkMatch() {
         const [a, b] = flipped;
-        if (cards[a] === cards[b]) { matched.push(a, b); if (matched.length === cards.length) setTimeout(handleWin, 300); }
+        if (cards[a] === cards[b]) {
+            matched.push(a, b);
+            if (matched.length === cards.length) setTimeout(handleWin, 300);
+        }
         flipped = []; locked = false; renderCards();
     }
 
     function handleWin() {
         if (timer) clearInterval(timer);
         const score = Math.max(100, 2000 - moves * 20 - elapsed * 2);
-        if (typeof GamesState !== 'undefined') GamesState.addScore('memory', score);
+        let girisEarned = 0;
+        if (typeof GamesState !== 'undefined') {
+            const res = GamesState.addScore('memory', score, true);
+            girisEarned = res ? res.girisEarned : 0;
+        }
         if (typeof GamesApi !== 'undefined') GamesApi.saveScore('memory', score, { won: true, duration: elapsed });
-        if (size === 8 && typeof GamesAchievements !== 'undefined') GamesAchievements.unlock('memory_perfect');
+        if (size === 6 && typeof GamesAchievements !== 'undefined') GamesAchievements.unlock('memory_perfect');
+        if (typeof XpFeedback !== 'undefined') XpFeedback.trigger('game_win', { el: container });
+
         const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999;';
-        overlay.innerHTML = `<div style="background:var(--bg-primary);border-radius:16px;padding:32px;text-align:center;max-width:320px;"><div style="font-size:48px;margin-bottom:12px">🎉</div><h2 style="color:var(--text-primary);margin-bottom:8px">Terminé !</h2><p style="color:var(--text-secondary);margin-bottom:8px">${moves} coups · ${elapsed}s</p><div style="font-size:24px;font-weight:700;color:var(--accent-primary,#7c3aed);margin-bottom:20px">+${score} pts</div><div style="display:flex;gap:10px;justify-content:center;"><button onclick="this.closest('[style*=fixed]').remove();MemoryGame.restart()" style="padding:10px 20px;background:#7c3aed;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600;">🔄 Rejouer</button><button onclick="this.closest('[style*=fixed]').remove();GiriGames.showHome()" style="padding:10px 20px;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);border-radius:8px;cursor:pointer;">🏠 Accueil</button></div></div>`;
-        document.body.appendChild(overlay);
+        overlay.className = 'games-finish-overlay';
+        overlay.innerHTML = `<div class="games-finish-box">
+            <div class="finish-icon">🎉</div>
+            <h2 class="finish-title">Toutes les paires !</h2>
+            <div class="finish-stats-row">
+                <div class="finish-stat"><div class="finish-val">${moves}</div><div class="finish-lbl">Coups</div></div>
+                <div class="finish-stat"><div class="finish-val">${elapsed}s</div><div class="finish-lbl">Temps</div></div>
+                <div class="finish-stat"><div class="finish-val">${score}</div><div class="finish-lbl">Score</div></div>
+            </div>
+            <div class="finish-giris">+${girisEarned} <span class="giri-coin">GIRIS</span></div>
+            <div class="finish-actions">
+                <button class="games-btn-primary" onclick="this.closest('.games-finish-overlay').remove();MemoryGame.restart()">🔄 Rejouer</button>
+                <button class="games-btn" onclick="this.closest('.games-finish-overlay').remove();GiriGames.showHome()">🏠 Accueil</button>
+            </div>
+        </div>`;
+        if (container) container.appendChild(overlay);
+        else document.body.appendChild(overlay);
     }
 
     function render() {
         if (!container) return;
-        const cardSize = Math.min(80, Math.floor((window.innerWidth * 0.7) / size) - 12);
-        container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:16px;"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;">${[4,6].map(s=>`<button class="games-btn" onclick="MemoryGame.changeSize(${s})" style="${s===size?'background:var(--accent-primary,#7c3aed);color:white;':''}">${s}×${s}</button>`).join('')}<button class="games-btn" onclick="MemoryGame.restart()">🔄 Nouveau</button><div style="font-size:13px;color:var(--text-secondary)">🎯 <strong id="mem-moves">0</strong> coups · ⏱ <span id="mem-timer">0:00</span></div></div><div class="memory-grid" id="memory-grid" style="grid-template-columns:repeat(${size},${cardSize}px);width:fit-content;"></div></div>`;
+        const maxCardSize = size === 6 ? 65 : 80;
+        const cardSize = Math.min(maxCardSize, Math.floor(container.offsetWidth * 0.9 / size) - 10);
+        container.innerHTML = `
+        <div class="memory-wrapper">
+            <div class="memory-toolbar">
+                <div class="memory-size-btns">
+                    ${[4, 6].map(s => `<button class="games-btn ${s===size?'active':''}" onclick="MemoryGame.changeSize(${s})">${s}×${s}</button>`).join('')}
+                </div>
+                <button class="games-btn" onclick="MemoryGame.restart()">🔄 Nouveau</button>
+                <div class="memory-live-stats">
+                    🎯 <strong id="mem-moves">0</strong> coups &nbsp;·&nbsp; ⏱ <span id="mem-timer">0:00</span>
+                </div>
+            </div>
+            <div class="memory-grid" id="memory-grid"
+                style="grid-template-columns:repeat(${size},${cardSize}px)"></div>
+        </div>`;
         renderCards();
     }
 
@@ -72,14 +122,23 @@ const MemoryGame = (function() {
             card.className = 'memory-card';
             if (flipped.includes(i) || matched.includes(i)) card.classList.add('flipped');
             if (matched.includes(i)) card.classList.add('matched');
-            card.innerHTML = `<div class="memory-card-face memory-card-back">🎮</div><div class="memory-card-face memory-card-front">${emoji}</div>`;
+            card.innerHTML = `<div class="memory-card-face memory-card-back">🎮</div>
+                              <div class="memory-card-face memory-card-front">${emoji}</div>`;
             card.addEventListener('click', () => flipCard(i));
             grid.appendChild(card);
         });
     }
 
-    function updateStats() { const m = document.getElementById('mem-moves'); if (m) m.textContent = moves; }
-    function updateTimer() { const el = document.getElementById('mem-timer'); if (!el) return; const m = Math.floor(elapsed/60), s = elapsed%60; el.textContent = `${m}:${s.toString().padStart(2,'0')}`; }
+    function updateStats() {
+        const m = document.getElementById('mem-moves');
+        if (m) m.textContent = moves;
+    }
+    function updateTimer() {
+        const el = document.getElementById('mem-timer');
+        if (!el) return;
+        const m = Math.floor(elapsed / 60), s = elapsed % 60;
+        el.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+    }
     function changeSize(s) { startGame(s); }
     function restart() { startGame(size); }
 

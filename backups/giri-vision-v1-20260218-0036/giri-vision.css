@@ -1,0 +1,930 @@
+/**
+ * ================================================
+ * GIRI VISION CSS v1.0
+ * Styles pour le module vidéo conférence
+ * ================================================
+ */
+
+/* ---- Conteneur principal ---- */
+#view-giri-vision {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+#view-giri-vision.active {
+    display: flex;
+}
+
+/* ---- HOME ---- */
+.vision-home-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+    overflow-y: auto;
+    gap: 32px;
+}
+
+.vision-home-header {
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.vision-home-logo {
+    font-size: 56px;
+    margin-bottom: 12px;
+    display: block;
+    animation: visionPulse 2s ease-in-out infinite;
+}
+
+@keyframes visionPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+}
+
+.vision-home-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    margin: 0 0 8px;
+}
+
+.vision-home-subtitle {
+    color: var(--text-muted, rgba(255,255,255,0.5));
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* ---- Actions cards ---- */
+.vision-home-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    width: 100%;
+    max-width: 960px;
+    background: var(--card-bg, rgba(255,255,255,0.05));
+    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.vision-action-card {
+    flex: 1;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    transition: background 0.2s;
+}
+
+.vision-action-card:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+.vision-action-icon {
+    font-size: 36px;
+}
+
+.vision-action-card h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+
+.vision-action-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-muted, rgba(255,255,255,0.5));
+}
+
+.vision-action-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    color: var(--text-muted, rgba(255,255,255,0.3));
+    font-size: 0.85rem;
+    background: var(--border-color, rgba(255,255,255,0.08));
+    min-width: 40px;
+}
+
+/* ---- Join form ---- */
+.vision-join-form {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    max-width: 340px;
+}
+
+/* ---- Recent/Scheduled ---- */
+.vision-home-recent {
+    width: 100%;
+    max-width: 800px;
+}
+
+.vision-home-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.vision-home-section-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+
+.vision-scheduled-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.vision-scheduled-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--card-bg, rgba(255,255,255,0.04));
+    border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+    border-radius: 10px;
+    gap: 12px;
+}
+
+.vision-scheduled-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.vision-scheduled-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary, #fff);
+}
+
+.vision-scheduled-date {
+    font-size: 0.8rem;
+    color: var(--text-muted, rgba(255,255,255,0.5));
+}
+
+/* ============================================================
+   PRÉ-REJOINDRE - Écran branded Giri Vision avant Jitsi
+   ============================================================ */
+
+.vision-prejoin-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0d0d1a 0%, #1a0a2e 50%, #0d1a2e 100%);
+    color: #fff;
+}
+
+/* Header pré-rejoindre */
+.vision-prejoin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+}
+
+.vision-prejoin-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vision-prejoin-logo { font-size: 22px; }
+.vision-prejoin-brand-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.02em;
+}
+
+/* Corps principal */
+.vision-prejoin-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 40px 24px;
+    flex-wrap: wrap;
+}
+
+/* Colonne caméra */
+.vision-prejoin-camera-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.vision-camera-preview {
+    width: 340px;
+    height: 255px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #0a0a14;
+    border: 2px solid rgba(167,139,250,0.3);
+    position: relative;
+    box-shadow: 0 0 40px rgba(124,58,237,0.2), inset 0 0 60px rgba(0,0,0,0.5);
+}
+
+.vision-camera-preview video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* miroir naturel */
+}
+
+.vision-camera-off-overlay {
+    position: absolute;
+    inset: 0;
+    background: #0a0a14;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.9rem;
+}
+
+.vision-cam-off-icon { font-size: 36px; opacity: 0.4; }
+
+.vision-no-camera {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.3);
+}
+.vision-no-camera span { font-size: 36px; }
+.vision-no-camera p { margin: 0; font-size: 0.85rem; }
+.vision-no-camera small { font-size: 0.75rem; color: rgba(255,255,255,0.2); }
+
+/* Badges état (micro/caméra) */
+.vision-preview-badges {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    display: flex;
+    gap: 6px;
+}
+
+.vision-preview-badge {
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    padding: 3px 8px;
+    font-size: 0.85rem;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s;
+}
+
+.vision-preview-badge.off {
+    background: rgba(239,68,68,0.4);
+    border: 1px solid rgba(239,68,68,0.5);
+}
+
+/* Boutons toggle micro/caméra */
+.vision-prejoin-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.vision-ctrl-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 80px;
+    font-size: 0.8rem;
+}
+
+.vision-ctrl-btn:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+.vision-ctrl-btn span:first-child { font-size: 1.4rem; }
+
+.vision-ctrl-btn.vision-ctrl-off {
+    background: rgba(239,68,68,0.12);
+    border-color: rgba(239,68,68,0.3);
+    color: #f87171;
+}
+
+/* Colonne infos + rejoindre */
+.vision-prejoin-info-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 360px;
+}
+
+.vision-prejoin-meeting-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(167,139,250,0.2);
+    border-radius: 14px;
+}
+
+.vision-prejoin-meeting-icon { font-size: 28px; flex-shrink: 0; }
+
+.vision-prejoin-meeting-title {
+    margin: 0 0 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.vision-prejoin-meeting-code {
+    margin: 0;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.35);
+    font-family: monospace;
+    letter-spacing: 0.05em;
+}
+
+.vision-prejoin-form { display: flex; flex-direction: column; gap: 6px; }
+
+.vision-prejoin-label {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.55);
+    font-weight: 500;
+}
+
+.vision-prejoin-name-input {
+    font-size: 1rem !important;
+    padding: 12px 16px !important;
+    background: rgba(255,255,255,0.07) !important;
+    border-color: rgba(167,139,250,0.25) !important;
+}
+.vision-prejoin-name-input:focus { border-color: #7c3aed !important; }
+
+/* Bouton principal rejoindre */
+.vision-btn-join {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    letter-spacing: 0.01em;
+}
+
+.vision-btn-join:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(124,58,237,0.6);
+    background: linear-gradient(135deg, #8b5cf6, #6366f1);
+}
+
+.vision-btn-join:active { transform: translateY(0); }
+.vision-btn-join:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.vision-prejoin-hint {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ---- MEETING VIEW (Phase 2 — Jitsi actif, thème intégré) ---- */
+.vision-meeting-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* Suit le thème de l'app */
+    background: var(--meeting-bg, var(--bg-primary, #0d0d1a));
+}
+
+.vision-meeting-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    /* Fond semi-transparent sur la couleur du thème */
+    background: color-mix(in srgb, var(--meeting-bg, var(--bg-primary, #0d0d1a)) 85%, transparent);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid color-mix(in srgb, var(--meeting-accent, #7c3aed) 40%, transparent);
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+.vision-meeting-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+}
+
+.vision-meeting-brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.vision-meeting-logo { font-size: 18px; }
+.vision-meeting-brand-name {
+    font-size: 0.9rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.vision-meeting-sep { color: rgba(255,255,255,0.2); font-size: 0.9rem; }
+
+.vision-meeting-title {
+    font-weight: 500;
+    font-size: 0.9rem;
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.85);
+}
+
+.vision-meeting-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.vision-meeting-timer-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.07);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.vision-meeting-timer-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: visionTimerPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes visionTimerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.vision-meeting-timer {
+    font-size: 0.85rem;
+    font-family: monospace;
+    color: rgba(255,255,255,0.8);
+}
+
+/* Loading room */
+.vision-loading-room {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
+    background: var(--meeting-bg, var(--bg-primary, #0d0d1a));
+    z-index: 5;
+    pointer-events: none;
+}
+
+.vision-loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(124,58,237,0.2);
+    border-top-color: #7c3aed;
+    border-radius: 50%;
+    animation: visionSpin 0.8s linear infinite;
+}
+
+@keyframes visionSpin { to { transform: rotate(360deg); } }
+
+.vision-jitsi-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.vision-jitsi-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* ---- HISTORY ---- */
+.vision-history-wrapper {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: 100vh;
+}
+
+.vision-history-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.vision-history-title {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+
+.vision-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 900px;
+}
+
+.vision-history-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--card-bg, rgba(255,255,255,0.04));
+    border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    transition: background 0.2s;
+}
+
+.vision-history-item:hover {
+    background: rgba(255,255,255,0.07);
+}
+
+.vision-history-item-icon { font-size: 24px; flex-shrink: 0; }
+
+.vision-history-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vision-history-item-title {
+    font-weight: 500;
+    color: var(--text-primary, #fff);
+    font-size: 0.95rem;
+}
+
+.vision-history-item-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: var(--text-muted, rgba(255,255,255,0.5));
+}
+
+.vision-history-item-room {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.3);
+    font-family: monospace;
+}
+
+.vision-history-item-actions {
+    display: flex;
+    gap: 6px;
+}
+
+/* ---- BOUTONS ---- */
+.vision-btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #4f46e5);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.vision-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+}
+.vision-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.vision-btn-secondary {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary, #fff);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+.vision-btn-secondary:hover {
+    background: rgba(255,255,255,0.12);
+}
+
+.vision-btn-back {
+    background: transparent;
+    color: var(--text-muted, rgba(255,255,255,0.6));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.vision-btn-back:hover {
+    color: var(--text-primary, #fff);
+    border-color: rgba(255,255,255,0.25);
+}
+
+.vision-btn-share {
+    background: color-mix(in srgb, var(--meeting-accent, #7c3aed) 12%, transparent);
+    color: #fff;
+    border: 1px solid color-mix(in srgb, var(--meeting-accent, #7c3aed) 30%, transparent);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+.vision-btn-share:hover {
+    background: color-mix(in srgb, var(--meeting-accent, #7c3aed) 22%, transparent);
+}
+
+.vision-btn-end {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(220,38,38,0.3);
+}
+.vision-btn-end:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(220,38,38,0.45); }
+
+.vision-btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-primary, #fff);
+    transition: all 0.15s;
+}
+.vision-btn-sm:hover { background: rgba(255,255,255,0.12); }
+.vision-btn-sm.vision-btn-danger { color: #f87171; border-color: rgba(248,113,113,0.3); }
+.vision-btn-sm.vision-btn-danger:hover { background: rgba(248,113,113,0.1); }
+
+.vision-link {
+    background: none;
+    border: none;
+    color: var(--accent-color, #7c3aed);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+.vision-link:hover { opacity: 0.7; }
+
+/* ---- INPUT ---- */
+.vision-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: var(--text-primary, #fff);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+.vision-input:focus {
+    border-color: var(--accent-color, #7c3aed);
+    background: rgba(255,255,255,0.08);
+}
+.vision-input::placeholder { color: rgba(255,255,255,0.3); }
+
+/* ---- MODAL ---- */
+.vision-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+
+.vision-modal {
+    background: var(--card-bg, #1e1e2e);
+    border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+    border-radius: 16px;
+    width: 100%;
+    max-width: 480px;
+    margin: 20px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+    animation: visionModalIn 0.2s ease-out;
+}
+
+@keyframes visionModalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vision-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 0;
+}
+
+.vision-modal-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+
+.vision-modal-close {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.2s;
+}
+.vision-modal-close:hover { color: #fff; }
+
+/* ---- MODAL TABS ---- */
+.vision-modal-tabs {
+    display: flex;
+    padding: 12px 24px 0;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.vision-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 10px 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 6px 6px 0 0;
+    margin-bottom: -1px;
+}
+
+.vision-tab:hover {
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.05);
+}
+
+.vision-tab.active {
+    color: var(--accent-color, #7c3aed);
+    border-bottom-color: var(--accent-color, #7c3aed);
+    background: rgba(124,58,237,0.06);
+}
+
+/* ---- MODAL BODY ---- */
+.vision-modal-body {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.vision-form-hint {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+}
+
+.vision-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 24px 20px;
+}
+
+.vision-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.vision-form-group label {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.6);
+    font-weight: 500;
+}
+
+/* ---- ÉTATS ---- */
+.vision-loading {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.85rem;
+}
+
+.vision-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted, rgba(255,255,255,0.5));
+}
+
+.vision-empty-state .vision-empty-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+.vision-empty-state h3 { margin: 0 0 8px; color: var(--text-primary, #fff); }
+.vision-empty-state p { margin: 0 0 20px; font-size: 0.9rem; }
+
+.vision-empty-small {
+    padding: 16px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border: 1px dashed rgba(255,255,255,0.1);
+}
+
+.vision-error-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted, rgba(255,255,255,0.5));
+}
+
+.vision-error-icon { font-size: 40px; margin-bottom: 12px; display: block; }
+.vision-error-state h3 { color: #f87171; margin: 0 0 8px; }
+.vision-error-state p { font-size: 0.85rem; margin: 0 0 8px; color: rgba(255,255,255,0.55); }
+.vision-error-tip { color: rgba(255,255,255,0.7) !important; background: rgba(124,58,237,0.1); border: 1px solid rgba(124,58,237,0.2); border-radius: 8px; padding: 10px 14px !important; margin-top: 8px !important; }
+.vision-error-actions { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+.vision-error-small { padding: 12px; color: #f87171; font-size: 0.85rem; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 640px) {
+    .vision-home-actions {
+        flex-direction: column;
+    }
+    .vision-action-divider {
+        padding: 12px;
+        min-width: auto;
+    }
+    .vision-meeting-title { max-width: 160px; }
+    .vision-history-item-meta { flex-direction: column; gap: 4px; }
+}
