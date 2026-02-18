@@ -28,8 +28,6 @@ const Galaxy3D = (function() {
     let containerEl, canvasEl, tooltipEl;
     let hoveredSphere = null;
     let selectedSphere = null;
-    let _mouseClientX = 0, _mouseClientY = 0;
-    let _taskTooltipEl3D = null;
     let showLabels = true;
     let showOrbits = true;
     let autoRotate = true;
@@ -815,18 +813,6 @@ const Galaxy3D = (function() {
                 });
             }
 
-            // Task nodes: force fully opaque so other labels don't bleed through
-            if (data.isTaskNode) {
-                var mats = Array.isArray(material) ? material : [material];
-                for (var mi = 0; mi < mats.length; mi++) {
-                    mats[mi].transparent = false;
-                    mats[mi].opacity = 1;
-                    mats[mi].depthWrite = true;
-                    mats[mi].depthTest = true;
-                }
-                console.log('[3D] task sphere material:', mats[0].transparent, 'opacity:', mats[0].opacity, 'depthWrite:', mats[0].depthWrite);
-            }
-
             mesh = new THREE.Mesh(geometry, material);
 
             if (shape === 'star') {
@@ -863,11 +849,7 @@ const Galaxy3D = (function() {
             pulseSpeed: pulseSpeed,
             pulsePhase: Math.random() * Math.PI * 2,
             isStar: isStar,
-            shapeType: shape,
-            isTaskNode: !!data.isTaskNode,
-            taskId: data.taskId || null,
-            taskUserAvatar: data.taskUserAvatar || '',
-            taskMetadata: data.taskMetadata || null
+            shapeType: shape
         };
 
         scene.add(mesh);
@@ -880,23 +862,13 @@ const Galaxy3D = (function() {
         if (data.label && data.label.trim() && !hasSurfaceText) {
             var fillHexForLabel = '#' + sphereColor.getHexString();
             if (shape === 'circle' || shape === 'hexagon' || shape === 'star') {
+                // "Universal" face label — sits at center, faces camera
                 label = createSphereLabelSprite(data.label, size, fillHexForLabel, nodeTextColor);
+                label.position.set(0, 0, 0);
                 label.visible = showLabels;
-                if (data.isTaskNode) {
-                    // Task labels: add to scene (not mesh child) with depthTest
-                    // Position updated each frame in animate() to stay in front of sphere
-                    label.material.depthTest = true;
-                    label.material.depthWrite = false;
-                    label.position.copy(mesh.position);
-                    label.userData._taskLabel = true;
-                    label.userData._parentMesh = mesh;
-                    label.userData._parentSize = size;
-                    scene.add(label);
-                } else {
-                    label.position.set(0, 0, 0);
-                    mesh.add(label);
-                }
+                mesh.add(label);
             } else if (isTextNode) {
+                // Text-only node — floating billboard at center
                 label = createTextSprite(data.label, sphereColor, nodeFontSize, size);
                 label.position.set(0, 0, 0);
                 label.visible = showLabels;
@@ -904,49 +876,9 @@ const Galaxy3D = (function() {
             }
         }
 
-        // Task node: avatar emoji sprite above the sphere (scene-level, depthTest)
-        var avatarSprite = null;
-        if (data.isTaskNode && data.taskUserAvatar) {
-            avatarSprite = _createEmojiSprite(data.taskUserAvatar, size, true);
-            if (avatarSprite) {
-                avatarSprite.userData._taskAvatar = true;
-                avatarSprite.userData._parentMesh = mesh;
-                avatarSprite.userData._parentSize = size;
-                avatarSprite.position.set(mesh.position.x, mesh.position.y + size + size * 0.4, mesh.position.z);
-                scene.add(avatarSprite);
-            }
-        }
-
-        var sphereObj = { mesh, data, label, size, avatarSprite };
+        var sphereObj = { mesh, data, label, size };
         spheres.push(sphereObj);
         return sphereObj;
-    }
-
-    function _createEmojiSprite(emoji, sphereSize, useDepthTest) {
-        var THREE = window.THREE;
-        if (!THREE) return null;
-        var res = 128;
-        var canvas = document.createElement('canvas');
-        canvas.width = res;
-        canvas.height = res;
-        var ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, res, res);
-        ctx.font = '80px serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(emoji, res / 2, res / 2);
-        var texture = new THREE.CanvasTexture(canvas);
-        texture.minFilter = THREE.LinearFilter;
-        var material = new THREE.SpriteMaterial({
-            map: texture,
-            transparent: true,
-            depthTest: !!useDepthTest,
-            sizeAttenuation: true
-        });
-        var sprite = new THREE.Sprite(material);
-        var d = sphereSize * 0.6;
-        sprite.scale.set(d, d, 1);
-        return sprite;
     }
 
     // fontSizeHint: the node's 2D fontSize (default 16)
@@ -1018,15 +950,6 @@ const Galaxy3D = (function() {
     function clearAllSpheres() {
         disposeNodeLights();
         spheres.forEach(s => {
-            // Remove scene-level task label and avatar sprites
-            if (s.label && s.label.userData && s.label.userData._taskLabel) {
-                scene.remove(s.label);
-                if (s.label.material) { if (s.label.material.map) s.label.material.map.dispose(); s.label.material.dispose(); }
-            }
-            if (s.avatarSprite && s.avatarSprite.userData && s.avatarSprite.userData._taskAvatar) {
-                scene.remove(s.avatarSprite);
-                if (s.avatarSprite.material) { if (s.avatarSprite.material.map) s.avatarSprite.material.map.dispose(); s.avatarSprite.material.dispose(); }
-            }
             scene.remove(s.mesh);
             if (s.mesh.geometry) s.mesh.geometry.dispose();
             disposeMaterial(s.mesh.material);
@@ -1263,30 +1186,6 @@ const Galaxy3D = (function() {
                 }
             });
 
-            // Task labels: keep in front of parent sphere, facing camera
-            if (camera) {
-                spheres.forEach(function(s) {
-                    if (!s.data || !s.data.isTaskNode) return;
-                    var mp = s.mesh.position;
-                    var sc = s.mesh.scale.x; // breathing scale
-                    // Label
-                    if (s.label && s.label.userData && s.label.userData._taskLabel) {
-                        var dir = camera.position.clone().sub(mp).normalize();
-                        s.label.position.set(
-                            mp.x + dir.x * s.size * sc * 1.05,
-                            mp.y + dir.y * s.size * sc * 1.05,
-                            mp.z + dir.z * s.size * sc * 1.05
-                        );
-                        s.label.scale.setScalar(sc);
-                    }
-                    // Avatar emoji
-                    if (s.avatarSprite && s.avatarSprite.userData && s.avatarSprite.userData._taskAvatar) {
-                        s.avatarSprite.position.set(mp.x, mp.y + (s.size + s.size * 0.4) * sc, mp.z);
-                        s.avatarSprite.scale.setScalar(sc);
-                    }
-                });
-            }
-
             // Starfield: multi-layer parallax + twinkling
             updateStarField(time);
 
@@ -1336,17 +1235,11 @@ const Galaxy3D = (function() {
         const rect = renderer.domElement.getBoundingClientRect();
         mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        _mouseClientX = event.clientX;
-        _mouseClientY = event.clientY;
 
         // Update tooltip position
         if (tooltipEl && hoveredSphere) {
-            if (hoveredSphere.userData && hoveredSphere.userData.isTaskNode) {
-                _positionTaskTooltip3D(event.clientX, event.clientY);
-            } else {
-                tooltipEl.style.left = (event.clientX - rect.left + 15) + 'px';
-                tooltipEl.style.top = (event.clientY - rect.top - 10) + 'px';
-            }
+            tooltipEl.style.left = (event.clientX - rect.left + 15) + 'px';
+            tooltipEl.style.top = (event.clientY - rect.top - 10) + 'px';
         }
     }
 
@@ -1363,15 +1256,10 @@ const Galaxy3D = (function() {
                 // Unhover previous
                 if (hoveredSphere) {
                     resetSphereHighlight(hoveredSphere);
-                    _hideTaskTooltip3D();
                 }
                 hoveredSphere = hit;
                 highlightSphere(hit);
-                if (hit.userData && hit.userData.isTaskNode) {
-                    _showTaskTooltip3D(hit.userData, _mouseClientX, _mouseClientY);
-                } else {
-                    showTooltip(hit.userData);
-                }
+                showTooltip(hit.userData);
             }
             renderer.domElement.style.cursor = 'pointer';
         } else {
@@ -1379,7 +1267,6 @@ const Galaxy3D = (function() {
                 resetSphereHighlight(hoveredSphere);
                 hoveredSphere = null;
                 hideTooltip();
-                _hideTaskTooltip3D();
             }
             renderer.domElement.style.cursor = 'grab';
         }
@@ -1411,10 +1298,6 @@ const Galaxy3D = (function() {
         if (intersects.length > 0) {
             const hit = intersects[0].object;
             selectedSphere = hit;
-
-            // Task nodes: 3D is view-only, skip click action
-            if (hit.userData && hit.userData.isTaskNode) return;
-
             // Emit custom event
             const detail = { ...hit.userData };
             renderer.domElement.dispatchEvent(new CustomEvent('galaxy-sphere-click', { detail, bubbles: true }));
@@ -1488,83 +1371,6 @@ const Galaxy3D = (function() {
         if (tooltipEl) {
             tooltipEl.style.display = 'none';
         }
-    }
-
-    // === TASK TOOLTIP (rich, reuses 2D CSS class) ===
-
-    function _getTaskTooltipEl() {
-        if (_taskTooltipEl3D) return _taskTooltipEl3D;
-        _taskTooltipEl3D = document.querySelector('.cosmic-task-tooltip');
-        if (!_taskTooltipEl3D) {
-            _taskTooltipEl3D = document.createElement('div');
-            _taskTooltipEl3D.className = 'cosmic-task-tooltip';
-            document.body.appendChild(_taskTooltipEl3D);
-        }
-        return _taskTooltipEl3D;
-    }
-
-    function _escHtml3D(s) {
-        var d = document.createElement('div');
-        d.textContent = s || '';
-        return d.innerHTML;
-    }
-
-    function _showTaskTooltip3D(ud, clientX, clientY) {
-        var el = _getTaskTooltipEl();
-        var m = ud.taskMetadata || {};
-
-        // Status badge color
-        var statusColors = {
-            'todo': '#6b7280', 'inprogress': '#3b82f6', 'in_progress': '#3b82f6',
-            'review': '#8b5cf6', 'blocked': '#ef4444', 'done': '#22c55e'
-        };
-        var statusLabels = {
-            'todo': '\u00c0 faire', 'inprogress': 'En cours', 'in_progress': 'En cours',
-            'review': 'En revue', 'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
-        };
-        // Priority badge color
-        var prioColors = { 'urgent': '#e74c3c', 'high': '#f39c12', 'medium': '#3498db', 'low': '#6b7280' };
-        var prioLabels = { 'urgent': 'Urgent', 'high': 'Important', 'medium': 'Normal', 'low': 'Zen' };
-
-        var status = m.status || ud.taskStatus || 'todo';
-        var prioRaw = m.priorityRaw || ud.taskPriorityRaw || 'medium';
-
-        var html = '<div class="ctt-title">' + _escHtml3D(m.fullTitle || ud.label || '') + '</div>';
-        html += '<div class="ctt-badges">';
-        html += '<span class="ctt-badge" style="background:' + (statusColors[status] || '#6b7280') + '">' + (statusLabels[status] || status) + '</span>';
-        html += '<span class="ctt-badge" style="background:' + (prioColors[prioRaw] || '#3498db') + '">' + (prioLabels[prioRaw] || prioRaw) + '</span>';
-        html += '</div>';
-        if (m.assignedName) {
-            html += '<div class="ctt-row">' + (m.assignedAvatar || '') + ' ' + _escHtml3D(m.assignedName) + '</div>';
-        }
-        if (m.dueDate) {
-            html += '<div class="ctt-row ctt-date">\ud83d\udcc5 ' + _escHtml3D(m.dueDate) + '</div>';
-        }
-        if (m.description) {
-            var desc = m.description.length > 120 ? m.description.substring(0, 120) + '...' : m.description;
-            html += '<div class="ctt-desc">' + _escHtml3D(desc) + '</div>';
-        }
-
-        el.innerHTML = html;
-        _positionTaskTooltip3D(clientX, clientY);
-        el.classList.add('visible');
-    }
-
-    function _positionTaskTooltip3D(clientX, clientY) {
-        var el = _taskTooltipEl3D;
-        if (!el) return;
-        var x = clientX + 14;
-        var y = clientY + 14;
-        var w = el.offsetWidth || 200;
-        var h = el.offsetHeight || 100;
-        if (x + w > window.innerWidth - 10) x = clientX - w - 10;
-        if (y + h > window.innerHeight - 10) y = clientY - h - 10;
-        el.style.left = x + 'px';
-        el.style.top = y + 'px';
-    }
-
-    function _hideTaskTooltip3D() {
-        if (_taskTooltipEl3D) _taskTooltipEl3D.classList.remove('visible');
     }
 
     // === CONTROLS ===
@@ -2210,8 +2016,6 @@ const Galaxy3D = (function() {
         }
         camera = null;
         initialized = false;
-        _hideTaskTooltip3D();
-        _taskTooltipEl3D = null;
         console.log('Galaxy3D: disposed');
     }
 

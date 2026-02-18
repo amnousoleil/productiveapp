@@ -16,8 +16,7 @@ const AppState = {
     filters: {
         project: 'all',
         user: 'all',
-        priority: 'off', // off -> urgent -> normal -> zen -> off
-        donePeriod: 'today' // today, week, month, year, all
+        priority: 'off' // off -> urgent -> normal -> zen -> off
     },
 
     // === UI ===

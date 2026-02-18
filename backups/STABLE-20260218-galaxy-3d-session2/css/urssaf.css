@@ -1,0 +1,192 @@
+/* =============================================
+   PRODUCTIVEAPP - URSSAF MODULE
+   Simulation charges, Declarations, Bilan annuel
+   v1.0 - 2026-02-07
+   ============================================= */
+
+.urssaf-wrapper {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.urssaf-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.urssaf-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+}
+
+/* Tabs */
+.urssaf-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.urssaf-tab {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #333);
+    background: var(--bg-secondary, #1a1a2e);
+    color: var(--text-primary, #fff);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.urssaf-tab.active {
+    background: var(--accent-color, #d4af37);
+    color: #fff;
+    border-color: transparent;
+}
+
+/* Simulator */
+.urssaf-simulator {
+    background: var(--bg-secondary, #1a1a2e);
+    border: 1px solid var(--border-color, #333);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.urssaf-sim-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.urssaf-sim-input label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: var(--text-primary, #fff);
+    font-size: 0.9rem;
+}
+
+.urssaf-sim-input input,
+.urssaf-sim-input select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color, #333);
+    background: var(--bg-primary, #0d0d1a);
+    color: var(--text-primary, #fff);
+    font-size: 1rem;
+}
+
+.urssaf-sim-result {
+    background: var(--bg-primary, #0d0d1a);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.urssaf-sim-total {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-color, #d4af37);
+}
+
+.urssaf-sim-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.urssaf-sim-item {
+    padding: 8px;
+    border-radius: 8px;
+    background: var(--bg-secondary, #1a1a2e);
+}
+
+.urssaf-sim-item-label { color: var(--text-secondary, #888); font-size: 0.8rem; }
+.urssaf-sim-item-value { font-weight: 600; color: var(--text-primary, #fff); margin-top: 4px; }
+
+/* Declarations Table */
+.urssaf-declarations {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.urssaf-declaration-card {
+    background: var(--bg-secondary, #1a1a2e);
+    border: 1px solid var(--border-color, #333);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.urssaf-decl-period {
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+}
+
+.urssaf-decl-amount {
+    font-weight: 700;
+    color: var(--accent-color, #d4af37);
+    font-size: 1.1rem;
+}
+
+.urssaf-decl-status {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.urssaf-decl-status.draft { background: rgba(107,114,128,0.2); color: #9CA3AF; }
+.urssaf-decl-status.submitted { background: rgba(59,130,246,0.2); color: #60A5FA; }
+.urssaf-decl-status.paid { background: rgba(16,185,129,0.2); color: #34D399; }
+
+/* Annual Summary */
+.urssaf-annual {
+    background: var(--bg-secondary, #1a1a2e);
+    border: 1px solid var(--border-color, #333);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.urssaf-annual-total {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent-color, #d4af37);
+    padding: 20px 0;
+}
+
+.urssaf-annual-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.urssaf-quarter {
+    background: var(--bg-primary, #0d0d1a);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+}
+
+.urssaf-quarter-label { color: var(--text-secondary, #888); font-size: 0.85rem; }
+.urssaf-quarter-value { font-weight: 700; color: var(--text-primary, #fff); font-size: 1.2rem; margin-top: 8px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .urssaf-wrapper { padding: 12px; }
+    .urssaf-sim-row { grid-template-columns: 1fr; }
+    .urssaf-annual-grid { grid-template-columns: repeat(2, 1fr); }
+    .urssaf-declaration-card { flex-direction: column; gap: 8px; align-items: flex-start; }
+}

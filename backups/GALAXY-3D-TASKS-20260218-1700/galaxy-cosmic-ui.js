@@ -1934,12 +1934,6 @@ setTimeout(function() {
                     z: (Math.random() - 0.5) * 30
                 },
                 tags: [],
-                isTaskNode: !!n.isTaskNode,
-                taskId: n.taskId || null,
-                taskUserAvatar: n.taskUserAvatar || '',
-                taskPriorityRaw: n.taskPriorityRaw || null,
-                taskStatus: n.taskStatus || null,
-                taskMetadata: n.metadata || null,
                 metadata: {
                     shape: n.shape || 'circle',
                     isTextNode: !!n.isTextNode,
@@ -2179,8 +2173,7 @@ setTimeout(function() {
 
             canvas3D.style.display = 'none';
             canvas2D.style.display = 'block';
-            var inTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
-            if (toolbar) toolbar.style.display = inTaskMode ? 'none' : '';
+            if (toolbar) toolbar.style.display = '';
             var viewGalaxy = document.getElementById('view-galaxy');
             if (viewGalaxy) viewGalaxy.classList.remove('mode-3d');
 

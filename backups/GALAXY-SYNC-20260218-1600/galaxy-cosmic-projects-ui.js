@@ -10,9 +10,6 @@ const CosmicProjectsUI = (function () {
     let _panel = null;
     let _isOpen = false;
     let _isTaskProjectMode = false; // true = canvas lié à un projet tâches
-    let _currentTaskProjectId = null;
-    let _currentTaskProjectName = null;
-    let _currentTaskProjectIcon = null;
 
     // ───────────────────────────────────────────────
     // HELPERS
@@ -809,9 +806,6 @@ const CosmicProjectsUI = (function () {
 
     function _enterTaskProjectMode(projectId, projectName, projectIcon) {
         _isTaskProjectMode = true;
-        _currentTaskProjectId = projectId;
-        _currentTaskProjectName = projectName;
-        _currentTaskProjectIcon = projectIcon;
 
         var viewGalaxy = document.getElementById('view-galaxy');
         if (viewGalaxy) viewGalaxy.classList.add('task-project-mode');
@@ -819,6 +813,14 @@ const CosmicProjectsUI = (function () {
         // Hide the drawing toolbar
         var cosmicToolbar = document.querySelector('.cosmic-toolbar');
         if (cosmicToolbar) cosmicToolbar.style.display = 'none';
+
+        // Disable 3D button
+        var btn3d = document.getElementById('galaxy-toggle-3d');
+        if (btn3d) {
+            btn3d.disabled = true;
+            btn3d.style.opacity = '0.3';
+            btn3d.style.pointerEvents = 'none';
+        }
 
         // Update toolbar project name indicator
         var nameEl = document.querySelector('.cosmic-project-name');
@@ -836,9 +838,6 @@ const CosmicProjectsUI = (function () {
     function _exitTaskProjectMode() {
         if (!_isTaskProjectMode) return;
         _isTaskProjectMode = false;
-        _currentTaskProjectId = null;
-        _currentTaskProjectName = null;
-        _currentTaskProjectIcon = null;
 
         var viewGalaxy = document.getElementById('view-galaxy');
         if (viewGalaxy) viewGalaxy.classList.remove('task-project-mode');
@@ -846,6 +845,14 @@ const CosmicProjectsUI = (function () {
         // Show the drawing toolbar again
         var cosmicToolbar = document.querySelector('.cosmic-toolbar');
         if (cosmicToolbar) cosmicToolbar.style.display = '';
+
+        // Re-enable 3D button
+        var btn3d = document.getElementById('galaxy-toggle-3d');
+        if (btn3d) {
+            btn3d.disabled = false;
+            btn3d.style.opacity = '';
+            btn3d.style.pointerEvents = '';
+        }
 
         // Remove task project banner
         _removeTaskProjectBanner();
@@ -1005,93 +1012,6 @@ const CosmicProjectsUI = (function () {
         node.metadata.assignedName = _getUserName(uid);
         node.metadata.assignedAvatar = _getUserAvatar(uid);
     }
-
-    // ───────────────────────────────────────────────
-    // REFRESH ON VIEW ACTIVATION
-    // ───────────────────────────────────────────────
-
-    /**
-     * Called when Galaxy View becomes visible again (e.g. user navigated away
-     * to Tasks, made changes, then came back). Detects if tasks in the current
-     * project have changed (added, removed, or modified) and regenerates nodes.
-     */
-    function _onGalaxyViewActivated() {
-        if (!_isTaskProjectMode || !_currentTaskProjectId) return;
-
-        var currentTasks = _getTasksForProject(_currentTaskProjectId);
-        var taskNodes = [];
-        for (var i = 0; i < CosmicState.nodes.length; i++) {
-            if (CosmicState.nodes[i].isTaskNode) taskNodes.push(CosmicState.nodes[i]);
-        }
-
-        var currentNodeTaskIds = [];
-        for (var ni = 0; ni < taskNodes.length; ni++) {
-            currentNodeTaskIds.push(taskNodes[ni].taskId);
-        }
-        var taskIds = [];
-        for (var ti = 0; ti < currentTasks.length; ti++) {
-            taskIds.push(currentTasks[ti].id);
-        }
-
-        // Check structural changes (added or removed tasks)
-        var hasChanged = currentNodeTaskIds.length !== taskIds.length;
-        if (!hasChanged) {
-            for (var a = 0; a < currentNodeTaskIds.length; a++) {
-                if (taskIds.indexOf(currentNodeTaskIds[a]) === -1) { hasChanged = true; break; }
-            }
-        }
-        if (!hasChanged) {
-            for (var b = 0; b < taskIds.length; b++) {
-                if (currentNodeTaskIds.indexOf(taskIds[b]) === -1) { hasChanged = true; break; }
-            }
-        }
-
-        // Check property changes (priority, title, assignment, status)
-        if (!hasChanged) {
-            for (var c = 0; c < currentTasks.length; c++) {
-                var t = currentTasks[c];
-                var node = null;
-                for (var nj = 0; nj < taskNodes.length; nj++) {
-                    if (taskNodes[nj].taskId === t.id) { node = taskNodes[nj]; break; }
-                }
-                if (!node) { hasChanged = true; break; }
-
-                var raw = _getRawPriority(t);
-                if (node.taskPriorityRaw !== raw) { hasChanged = true; break; }
-
-                var fullText = t.text || t.title || '';
-                if (node.metadata && node.metadata.fullTitle !== fullText) { hasChanged = true; break; }
-
-                var uid = t.userId || t.assigned_to;
-                var avatar = _getUserAvatar(uid);
-                if (node.taskUserAvatar !== avatar) { hasChanged = true; break; }
-
-                if (node.taskStatus !== t.status) { hasChanged = true; break; }
-            }
-        }
-
-        if (hasChanged) {
-            console.log('🔄 Galaxy: task data changed, regenerating nodes');
-            // Keep non-task nodes intact, regenerate task nodes only
-            var nonTaskNodes = [];
-            for (var k = 0; k < CosmicState.nodes.length; k++) {
-                if (!CosmicState.nodes[k].isTaskNode) nonTaskNodes.push(CosmicState.nodes[k]);
-            }
-            _generateTaskNodes(currentTasks);
-            // _generateTaskNodes sets CosmicState.nodes = task nodes only
-            // Prepend any non-task nodes that might exist
-            if (nonTaskNodes.length > 0) {
-                CosmicState.nodes = nonTaskNodes.concat(CosmicState.nodes);
-            }
-        }
-    }
-
-    // Listen for view changes — refresh task nodes when Galaxy View becomes active
-    document.addEventListener('viewchange', function (e) {
-        if (e.detail && e.detail.view === 'galaxy') {
-            _onGalaxyViewActivated();
-        }
-    });
 
     // ───────────────────────────────────────────────
     // PUBLIC API

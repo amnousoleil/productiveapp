@@ -1,0 +1,222 @@
+/**
+ * PWA Styles - Toasts, Install Prompt, Offline indicator
+ * ProductiveApp v4.0
+ */
+
+/* XP Toast */
+.xp-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #d4af37, #f4d03f);
+    color: #1a1a1f;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+    animation: toastSlideIn 0.3s ease, toastFadeOut 0.3s ease 2.7s forwards;
+    z-index: 10000;
+}
+
+.xp-toast span {
+    font-size: 20px;
+}
+
+/* Achievement Toast */
+.achievement-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1a1a1f, #2d2d35);
+    border: 2px solid #d4af37;
+    color: #fff;
+    padding: 16px 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    animation: toastSlideIn 0.4s ease, toastFadeOut 0.3s ease 4.7s forwards;
+    z-index: 10000;
+    max-width: 350px;
+}
+
+.achievement-toast span {
+    font-size: 32px;
+}
+
+.achievement-toast div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.achievement-toast strong {
+    font-size: 16px;
+    color: #d4af37;
+}
+
+.achievement-toast small {
+    font-size: 13px;
+    color: #999;
+}
+
+/* Animations */
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+/* Install Prompt */
+.pwa-install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1a1a1f, #2d2d35);
+    border: 1px solid #d4af37;
+    color: #fff;
+    padding: 16px 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    z-index: 10000;
+    animation: slideUp 0.4s ease;
+}
+
+.pwa-install-prompt img {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+}
+
+.pwa-install-prompt .text {
+    flex: 1;
+}
+
+.pwa-install-prompt .text strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.pwa-install-prompt .text small {
+    color: #999;
+    font-size: 13px;
+}
+
+.pwa-install-prompt .actions {
+    display: flex;
+    gap: 8px;
+}
+
+.pwa-install-prompt button {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.pwa-install-prompt .install-btn {
+    background: #d4af37;
+    color: #1a1a1f;
+}
+
+.pwa-install-prompt .install-btn:hover {
+    background: #f4d03f;
+}
+
+.pwa-install-prompt .dismiss-btn {
+    background: transparent;
+    color: #999;
+    border: 1px solid #444;
+}
+
+.pwa-install-prompt .dismiss-btn:hover {
+    border-color: #666;
+    color: #fff;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Offline Indicator */
+.offline-indicator {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #ef4444;
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 10001;
+    animation: slideDown 0.3s ease;
+}
+
+.offline-indicator.online {
+    background: #22c55e;
+    animation: slideDown 0.3s ease, fadeOut 0.3s ease 2s forwards;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+
+/* Standalone mode adjustments */
+@media (display-mode: standalone) {
+    .app-header {
+        padding-top: env(safe-area-inset-top, 0);
+    }
+
+    body {
+        padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+}

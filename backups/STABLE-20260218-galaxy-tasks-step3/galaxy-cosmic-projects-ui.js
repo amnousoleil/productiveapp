@@ -10,9 +10,6 @@ const CosmicProjectsUI = (function () {
     let _panel = null;
     let _isOpen = false;
     let _isTaskProjectMode = false; // true = canvas lié à un projet tâches
-    let _currentTaskProjectId = null;
-    let _currentTaskProjectName = null;
-    let _currentTaskProjectIcon = null;
 
     // ───────────────────────────────────────────────
     // HELPERS
@@ -605,178 +602,68 @@ const CosmicProjectsUI = (function () {
         return result.substring(0, maxChars - 3).trim() + '...';
     }
 
-    // ── Shared priority config (used by _generateTaskNodes + _syncTaskNode) ──
-    var _priorityMap = {
-        'urgent': { radius: 75, color: '#e74c3c', maxChars: 60, label: 'Urgent',    sortOrder: 1 },
-        'high':   { radius: 60, color: '#f39c12', maxChars: 50, label: 'Important',  sortOrder: 2 },
-        'medium': { radius: 50, color: '#3498db', maxChars: 40, label: 'Normal',     sortOrder: 3 },
-        'low':    { radius: 35, color: '#f0f0f0', maxChars: 25, label: 'Zen', textColor: '#222222', sortOrder: 4 }
-    };
-    var _defaultPrio = _priorityMap['medium'];
-
-    function _getRawPriority(task) {
-        if (task.priority && task.priority.raw) return task.priority.raw;
-        if (task.priority && task.priority.label) {
-            var clean = task.priority.label.replace(/[^\w\sÀ-ÿ]/g, '').trim();
-            var byLabel = { 'Urgent': 'urgent', 'Important': 'high', 'Normal': 'medium', 'Zen': 'low' };
-            return byLabel[clean] || 'medium';
-        }
-        if (task.priority && typeof task.priority.level === 'number') {
-            var byLevel = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
-            return byLevel[task.priority.level] || 'medium';
-        }
-        if (typeof task.priority === 'string') return task.priority.toLowerCase();
-        return 'medium';
-    }
-
-    // ───────────────────────────────────────────────
-    // LAYOUT: concentric rings (shared by generate + sync)
-    // ───────────────────────────────────────────────
-
-    /**
-     * Positions an array of task nodes in concentric rings by priority.
-     * Mutates each node's x/y in place. Also runs anti-overlap + auto-zoom.
-     */
-    function _layoutTaskNodes(nodes) {
-        if (!nodes || nodes.length === 0) return;
-
-        var MARGIN = 25;
-        var RING_GAP = 20;
-        var ringOrder = ['urgent', 'high', 'medium', 'low'];
-
-        // Group nodes by priority ring, sub-sort by assigned user
-        var rings = { 'urgent': [], 'high': [], 'medium': [], 'low': [] };
-        for (var i = 0; i < nodes.length; i++) {
-            var rk = nodes[i].taskPriorityRaw || 'medium';
-            (rings[rk] || rings['medium']).push(nodes[i]);
-        }
-        for (var ri = 0; ri < ringOrder.length; ri++) {
-            var k = ringOrder[ri];
-            rings[k].sort(function (a, b) {
-                var ua = a.taskUserAvatar || '';
-                var ub = b.taskUserAvatar || '';
-                return ua < ub ? -1 : ua > ub ? 1 : 0;
-            });
-        }
-
-        // Place each ring
-        var prevRingOuter = 0;
-        var isFirstRing = true;
-
-        for (var ri2 = 0; ri2 < ringOrder.length; ri2++) {
-            var ringKey = ringOrder[ri2];
-            var ringNodes = rings[ringKey];
-            if (ringNodes.length === 0) continue;
-
-            var nodeRadius = (_priorityMap[ringKey] || _defaultPrio).radius;
-            var n = ringNodes.length;
-
-            var ringR;
-            if (isFirstRing && n === 1) {
-                ringR = 0;
-            } else if (isFirstRing) {
-                var span0 = nodeRadius * 2 + MARGIN;
-                ringR = Math.max(nodeRadius + MARGIN, (n * span0) / (2 * Math.PI));
-            } else {
-                var span = nodeRadius * 2 + MARGIN;
-                ringR = Math.max((n * span) / (2 * Math.PI), prevRingOuter + nodeRadius + RING_GAP);
-            }
-
-            var angleStep = (2 * Math.PI) / n;
-            var startAngle = -Math.PI / 2;
-
-            for (var j = 0; j < n; j++) {
-                var angle = startAngle + j * angleStep;
-                ringNodes[j].x = (ringR === 0) ? 0 : Math.cos(angle) * ringR;
-                ringNodes[j].y = (ringR === 0) ? 0 : Math.sin(angle) * ringR;
-            }
-
-            prevRingOuter = ringR + nodeRadius;
-            isFirstRing = false;
-        }
-
-        // Anti-overlap pass
-        for (var a = 0; a < nodes.length; a++) {
-            for (var b = a + 1; b < nodes.length; b++) {
-                var dx = nodes[b].x - nodes[a].x;
-                var dy = nodes[b].y - nodes[a].y;
-                var dist = Math.sqrt(dx * dx + dy * dy);
-                var minDist = nodes[a].radius + nodes[b].radius + MARGIN;
-                if (dist < minDist && dist > 0) {
-                    var overlap = (minDist - dist) / 2;
-                    var nx = dx / dist;
-                    var ny = dy / dist;
-                    nodes[a].x -= nx * overlap;
-                    nodes[a].y -= ny * overlap;
-                    nodes[b].x += nx * overlap;
-                    nodes[b].y += ny * overlap;
-                }
-            }
-        }
-
-        // Auto-zoom to fit bounding box
-        var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-        for (var ni = 0; ni < nodes.length; ni++) {
-            var nd = nodes[ni];
-            if (nd.x - nd.radius < minX) minX = nd.x - nd.radius;
-            if (nd.x + nd.radius > maxX) maxX = nd.x + nd.radius;
-            if (nd.y - nd.radius < minY) minY = nd.y - nd.radius;
-            if (nd.y + nd.radius > maxY) maxY = nd.y + nd.radius;
-        }
-        CosmicState.camera.x = (minX + maxX) / 2;
-        CosmicState.camera.y = (minY + maxY) / 2;
-
-        var canvas = CosmicState.canvas;
-        if (canvas) {
-            var bboxW = (maxX - minX) * 1.15;
-            var bboxH = (maxY - minY) * 1.15;
-            var zoomX = canvas.width / (bboxW || 1);
-            var zoomY = canvas.height / (bboxH || 1);
-            var targetZoom = Math.min(1.5, Math.max(0.15, Math.min(zoomX, zoomY)));
-            CosmicState.camera.zoom = targetZoom;
-            CosmicState.camera.targetZoom = targetZoom;
-        }
-    }
-
-    // ───────────────────────────────────────────────
-    // GENERATE: create task nodes from task data
-    // ───────────────────────────────────────────────
-
     function _generateTaskNodes(tasks) {
-        var statusLabels = {
-            'todo': '\u00c0 faire', 'inprogress': 'En cours',
-            'in_progress': 'En cours', 'review': 'En revue',
-            'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
+        // Priority mapping: level → { radius, color, maxChars }
+        var priorityMap = {
+            1: { radius: 75, color: '#e74c3c', maxChars: 60 },  // Urgent — red
+            2: { radius: 50, color: '#3498db', maxChars: 40 },   // Normal — blue
+            3: { radius: 35, color: '#2ecc71', maxChars: 25 }    // Zen — green
         };
 
+        // Sort: urgent first (level 1), then normal (2), then zen (3)
+        var sorted = tasks.slice().sort(function (a, b) {
+            var la = (a.priority && a.priority.level) || 2;
+            var lb = (b.priority && b.priority.level) || 2;
+            return la - lb;
+        });
+
+        // Spiral layout — golden angle for even distribution
+        var goldenAngle = Math.PI * (3 - Math.sqrt(5)); // ~137.5°
+        var spacingFactor = 1.6;
         var nodes = [];
-        for (var i = 0; i < tasks.length; i++) {
-            var task = tasks[i];
-            var raw = _getRawPriority(task);
-            var prio = _priorityMap[raw] || _defaultPrio;
+
+        for (var i = 0; i < sorted.length; i++) {
+            var task = sorted[i];
+            var level = (task.priority && task.priority.level) || 2;
+            var prio = priorityMap[level] || priorityMap[2];
+
+            // Spiral position: angle increases by golden angle, radius grows with sqrt
+            var angle = i * goldenAngle;
+            var dist = (i === 0) ? 0 : spacingFactor * prio.radius * Math.sqrt(i);
+            var x = Math.cos(angle) * dist;
+            var y = Math.sin(angle) * dist;
+
             var uid = task.userId || task.assigned_to;
+            var avatar = _getUserAvatar(uid);
+            var userName = _getUserName(uid);
             var fullText = task.text || task.title || '';
 
-            nodes.push({
+            var statusLabels = {
+                'todo': '\u00c0 faire', 'inprogress': 'En cours',
+                'in_progress': 'En cours', 'review': 'En revue',
+                'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
+            };
+            var priorityLabels = { 1: 'Urgent', 2: 'Normal', 3: 'Zen' };
+
+            var node = {
                 id: 'task_' + task.id,
                 type: 'thought',
                 shape: 'circle',
-                x: 0, y: 0, // placed by _layoutTaskNodes
+                x: x,
+                y: y,
                 radius: prio.radius,
                 color: prio.color,
-                textColor: prio.textColor || '#ffffff',
                 text: _smartShorten(fullText, prio.maxChars),
-                fontSize: raw === 'urgent' ? 14 : raw === 'high' ? 13 : raw === 'medium' ? 12 : 11,
+                fontSize: level === 1 ? 14 : level === 2 ? 12 : 11,
                 createdAt: Date.now(),
                 breathing: true,
-                glowIntensity: (raw === 'urgent') ? 0.6 : 0.2,
+                glowIntensity: level === 1 ? 0.6 : 0.2,
                 locked: true,
                 isTaskNode: true,
                 taskId: task.id,
                 taskStatus: task.status,
-                taskPriority: prio.sortOrder,
-                taskPriorityRaw: raw,
-                taskUserAvatar: _getUserAvatar(uid),
+                taskPriority: level,
+                taskUserAvatar: avatar,
                 metadata: {
                     taskId: task.id,
                     projectId: task.project || task.project_id,
@@ -784,23 +671,46 @@ const CosmicProjectsUI = (function () {
                     description: task.description || '',
                     status: task.status,
                     statusLabel: statusLabels[task.status] || task.status,
-                    priority: prio.sortOrder,
-                    priorityRaw: raw,
-                    priorityLabel: prio.label,
-                    assignedName: _getUserName(uid),
-                    assignedAvatar: _getUserAvatar(uid),
+                    priority: level,
+                    priorityLabel: priorityLabels[level] || 'Normal',
+                    assignedName: userName,
+                    assignedAvatar: avatar,
                     dueDate: _formatDueDate(task.due_date || task.dueDate)
                 }
-            });
+            };
+
+            nodes.push(node);
         }
 
-        // Layout in concentric rings
-        _layoutTaskNodes(nodes);
-
-        // Push into CosmicState
+        // Push all nodes into CosmicState
         CosmicState.nodes = nodes;
 
-        console.log('\u2705 Generated ' + nodes.length + ' task nodes (concentric rings)');
+        // Center camera on the cluster
+        if (nodes.length > 0) {
+            var sumX = 0, sumY = 0;
+            for (var j = 0; j < nodes.length; j++) {
+                sumX += nodes[j].x;
+                sumY += nodes[j].y;
+            }
+            CosmicState.camera.x = sumX / nodes.length;
+            CosmicState.camera.y = sumY / nodes.length;
+
+            // Adjust zoom based on spread
+            var maxDist = 0;
+            for (var k = 0; k < nodes.length; k++) {
+                var d = Math.hypot(nodes[k].x - CosmicState.camera.x, nodes[k].y - CosmicState.camera.y) + nodes[k].radius;
+                if (d > maxDist) maxDist = d;
+            }
+            var canvas = CosmicState.canvas;
+            if (canvas && maxDist > 0) {
+                var viewSize = Math.min(canvas.width, canvas.height) / 2;
+                var targetZoom = Math.min(1.2, Math.max(0.3, viewSize / (maxDist * 1.3)));
+                CosmicState.camera.zoom = targetZoom;
+                CosmicState.camera.targetZoom = targetZoom;
+            }
+        }
+
+        console.log('\u2705 Generated ' + nodes.length + ' task nodes for project');
     }
 
     // ───────────────────────────────────────────────
@@ -809,9 +719,6 @@ const CosmicProjectsUI = (function () {
 
     function _enterTaskProjectMode(projectId, projectName, projectIcon) {
         _isTaskProjectMode = true;
-        _currentTaskProjectId = projectId;
-        _currentTaskProjectName = projectName;
-        _currentTaskProjectIcon = projectIcon;
 
         var viewGalaxy = document.getElementById('view-galaxy');
         if (viewGalaxy) viewGalaxy.classList.add('task-project-mode');
@@ -819,6 +726,14 @@ const CosmicProjectsUI = (function () {
         // Hide the drawing toolbar
         var cosmicToolbar = document.querySelector('.cosmic-toolbar');
         if (cosmicToolbar) cosmicToolbar.style.display = 'none';
+
+        // Disable 3D button
+        var btn3d = document.getElementById('galaxy-toggle-3d');
+        if (btn3d) {
+            btn3d.disabled = true;
+            btn3d.style.opacity = '0.3';
+            btn3d.style.pointerEvents = 'none';
+        }
 
         // Update toolbar project name indicator
         var nameEl = document.querySelector('.cosmic-project-name');
@@ -836,9 +751,6 @@ const CosmicProjectsUI = (function () {
     function _exitTaskProjectMode() {
         if (!_isTaskProjectMode) return;
         _isTaskProjectMode = false;
-        _currentTaskProjectId = null;
-        _currentTaskProjectName = null;
-        _currentTaskProjectIcon = null;
 
         var viewGalaxy = document.getElementById('view-galaxy');
         if (viewGalaxy) viewGalaxy.classList.remove('task-project-mode');
@@ -846,6 +758,14 @@ const CosmicProjectsUI = (function () {
         // Show the drawing toolbar again
         var cosmicToolbar = document.querySelector('.cosmic-toolbar');
         if (cosmicToolbar) cosmicToolbar.style.display = '';
+
+        // Re-enable 3D button
+        var btn3d = document.getElementById('galaxy-toggle-3d');
+        if (btn3d) {
+            btn3d.disabled = false;
+            btn3d.style.opacity = '';
+            btn3d.style.pointerEvents = '';
+        }
 
         // Remove task project banner
         _removeTaskProjectBanner();
@@ -914,186 +834,6 @@ const CosmicProjectsUI = (function () {
     }
 
     // ───────────────────────────────────────────────
-    // SYNC: update a single task node from AppState
-    // ───────────────────────────────────────────────
-
-    /**
-     * Called after a task is saved/modified/completed/deleted from the edit panel.
-     * Updates (or removes) the matching node in CosmicState without re-laying-out everything.
-     */
-    function _syncTaskNode(taskId) {
-        if (!_isTaskProjectMode) return;
-        if (!CosmicState || !CosmicState.nodes) return;
-
-        var nodeId = 'task_' + taskId;
-        var nodeIdx = -1;
-        for (var i = 0; i < CosmicState.nodes.length; i++) {
-            if (CosmicState.nodes[i].taskId === taskId || CosmicState.nodes[i].id === nodeId) {
-                nodeIdx = i;
-                break;
-            }
-        }
-        if (nodeIdx === -1) return; // node not on canvas
-
-        var node = CosmicState.nodes[nodeIdx];
-        var task = (typeof AppState !== 'undefined') ? AppState.findTask(taskId) : null;
-
-        // ── Task deleted or marked done → animate out & remove ──
-        if (!task || task.status === 'done') {
-            node._fadeOut = true;
-            node._fadeStart = Date.now();
-            node._origRadius = node.radius;
-            // Animate: shrink + fade over 500ms, then remove
-            var fadeInterval = setInterval(function () {
-                var elapsed = Date.now() - node._fadeStart;
-                var progress = Math.min(1, elapsed / 500);
-                node.radius = node._origRadius * (1 - progress);
-                node.glowIntensity = (1 - progress) * 0.5;
-                if (progress >= 1) {
-                    clearInterval(fadeInterval);
-                    var idx = CosmicState.nodes.indexOf(node);
-                    if (idx !== -1) CosmicState.nodes.splice(idx, 1);
-                }
-            }, 16);
-            return;
-        }
-
-        // ── Task still active → update node properties in-place ──
-        var oldRaw = node.taskPriorityRaw;
-        var raw = _getRawPriority(task);
-        var prio = _priorityMap[raw] || _defaultPrio;
-
-        // Update visuals
-        node.color = prio.color;
-        node.textColor = prio.textColor || '#ffffff';
-        node.radius = prio.radius;
-        node.taskPriority = prio.sortOrder;
-        node.taskPriorityRaw = raw;
-        node.glowIntensity = (raw === 'urgent') ? 0.6 : 0.2;
-        node.fontSize = raw === 'urgent' ? 14 : raw === 'high' ? 13 : raw === 'medium' ? 12 : 11;
-
-        // ── Re-layout ALL task nodes if priority changed ──
-        if (oldRaw && oldRaw !== raw) {
-            var taskNodes = [];
-            for (var ti = 0; ti < CosmicState.nodes.length; ti++) {
-                if (CosmicState.nodes[ti].isTaskNode) taskNodes.push(CosmicState.nodes[ti]);
-            }
-            _layoutTaskNodes(taskNodes);
-        }
-
-        // Update text
-        var fullText = task.text || task.title || '';
-        node.text = _smartShorten(fullText, prio.maxChars);
-
-        // Update avatar
-        var uid = task.userId || task.assigned_to;
-        node.taskUserAvatar = _getUserAvatar(uid);
-
-        // Update metadata
-        var statusLabels = {
-            'todo': '\u00c0 faire', 'inprogress': 'En cours',
-            'in_progress': 'En cours', 'review': 'En revue',
-            'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
-        };
-        node.metadata.fullTitle = fullText;
-        node.metadata.description = task.description || '';
-        node.metadata.status = task.status;
-        node.metadata.statusLabel = statusLabels[task.status] || task.status;
-        node.metadata.priority = prio.sortOrder;
-        node.metadata.priorityRaw = raw;
-        node.metadata.priorityLabel = prio.label;
-        node.metadata.assignedName = _getUserName(uid);
-        node.metadata.assignedAvatar = _getUserAvatar(uid);
-    }
-
-    // ───────────────────────────────────────────────
-    // REFRESH ON VIEW ACTIVATION
-    // ───────────────────────────────────────────────
-
-    /**
-     * Called when Galaxy View becomes visible again (e.g. user navigated away
-     * to Tasks, made changes, then came back). Detects if tasks in the current
-     * project have changed (added, removed, or modified) and regenerates nodes.
-     */
-    function _onGalaxyViewActivated() {
-        if (!_isTaskProjectMode || !_currentTaskProjectId) return;
-
-        var currentTasks = _getTasksForProject(_currentTaskProjectId);
-        var taskNodes = [];
-        for (var i = 0; i < CosmicState.nodes.length; i++) {
-            if (CosmicState.nodes[i].isTaskNode) taskNodes.push(CosmicState.nodes[i]);
-        }
-
-        var currentNodeTaskIds = [];
-        for (var ni = 0; ni < taskNodes.length; ni++) {
-            currentNodeTaskIds.push(taskNodes[ni].taskId);
-        }
-        var taskIds = [];
-        for (var ti = 0; ti < currentTasks.length; ti++) {
-            taskIds.push(currentTasks[ti].id);
-        }
-
-        // Check structural changes (added or removed tasks)
-        var hasChanged = currentNodeTaskIds.length !== taskIds.length;
-        if (!hasChanged) {
-            for (var a = 0; a < currentNodeTaskIds.length; a++) {
-                if (taskIds.indexOf(currentNodeTaskIds[a]) === -1) { hasChanged = true; break; }
-            }
-        }
-        if (!hasChanged) {
-            for (var b = 0; b < taskIds.length; b++) {
-                if (currentNodeTaskIds.indexOf(taskIds[b]) === -1) { hasChanged = true; break; }
-            }
-        }
-
-        // Check property changes (priority, title, assignment, status)
-        if (!hasChanged) {
-            for (var c = 0; c < currentTasks.length; c++) {
-                var t = currentTasks[c];
-                var node = null;
-                for (var nj = 0; nj < taskNodes.length; nj++) {
-                    if (taskNodes[nj].taskId === t.id) { node = taskNodes[nj]; break; }
-                }
-                if (!node) { hasChanged = true; break; }
-
-                var raw = _getRawPriority(t);
-                if (node.taskPriorityRaw !== raw) { hasChanged = true; break; }
-
-                var fullText = t.text || t.title || '';
-                if (node.metadata && node.metadata.fullTitle !== fullText) { hasChanged = true; break; }
-
-                var uid = t.userId || t.assigned_to;
-                var avatar = _getUserAvatar(uid);
-                if (node.taskUserAvatar !== avatar) { hasChanged = true; break; }
-
-                if (node.taskStatus !== t.status) { hasChanged = true; break; }
-            }
-        }
-
-        if (hasChanged) {
-            console.log('🔄 Galaxy: task data changed, regenerating nodes');
-            // Keep non-task nodes intact, regenerate task nodes only
-            var nonTaskNodes = [];
-            for (var k = 0; k < CosmicState.nodes.length; k++) {
-                if (!CosmicState.nodes[k].isTaskNode) nonTaskNodes.push(CosmicState.nodes[k]);
-            }
-            _generateTaskNodes(currentTasks);
-            // _generateTaskNodes sets CosmicState.nodes = task nodes only
-            // Prepend any non-task nodes that might exist
-            if (nonTaskNodes.length > 0) {
-                CosmicState.nodes = nonTaskNodes.concat(CosmicState.nodes);
-            }
-        }
-    }
-
-    // Listen for view changes — refresh task nodes when Galaxy View becomes active
-    document.addEventListener('viewchange', function (e) {
-        if (e.detail && e.detail.view === 'galaxy') {
-            _onGalaxyViewActivated();
-        }
-    });
-
-    // ───────────────────────────────────────────────
     // PUBLIC API
     // ───────────────────────────────────────────────
 
@@ -1104,7 +844,6 @@ const CosmicProjectsUI = (function () {
         toggle: toggle,
         createProject: _handleCreate,
         exitTaskProjectMode: _exitTaskProjectMode,
-        syncTaskNode: _syncTaskNode,
         get isTaskProjectMode() { return _isTaskProjectMode; }
     };
 

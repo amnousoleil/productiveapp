@@ -1,0 +1,428 @@
+/* =============================================
+   MAHAYAWEN VOICE INTERFACE - CSS
+   Interface vocale avec indicateurs visuels
+   Version 1.0
+   ============================================= */
+
+/* ===================
+   Bouton Vocal Principal
+   =================== */
+
+#mahayawen-voice-btn {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 9999;
+    color: white;
+    font-size: 24px;
+}
+
+#mahayawen-voice-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+}
+
+#mahayawen-voice-btn:active {
+    transform: scale(0.95);
+}
+
+/* États du bouton */
+#mahayawen-voice-btn.voice-idle {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+#mahayawen-voice-btn.voice-listening {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    animation: voicePulse 1.5s ease-in-out infinite;
+}
+
+#mahayawen-voice-btn.voice-processing {
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    animation: voiceSpin 1s linear infinite;
+}
+
+#mahayawen-voice-btn.voice-error {
+    background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%);
+    animation: voiceShake 0.5s ease-in-out;
+}
+
+/* Animations */
+@keyframes voicePulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(240, 147, 251, 0.4);
+    }
+    50% {
+        transform: scale(1.15);
+        box-shadow: 0 8px 40px rgba(240, 147, 251, 0.8);
+    }
+}
+
+@keyframes voiceSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes voiceShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* ===================
+   Indicateurs Vocaux
+   =================== */
+
+.mahayawen-indicator {
+    position: fixed;
+    top: 80px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: indicatorSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes indicatorSlideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.mahayawen-indicator-listening {
+    background: linear-gradient(135deg, rgba(240, 147, 251, 0.9) 0%, rgba(245, 87, 108, 0.9) 100%);
+}
+
+.mahayawen-indicator-listening::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+    animation: indicatorBlink 1s ease-in-out infinite;
+}
+
+.mahayawen-indicator-processing {
+    background: linear-gradient(135deg, rgba(255, 216, 155, 0.9) 0%, rgba(25, 84, 123, 0.9) 100%);
+}
+
+.mahayawen-indicator-processing::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: indicatorSpinner 0.8s linear infinite;
+}
+
+.mahayawen-indicator-success {
+    background: linear-gradient(135deg, rgba(81, 191, 116, 0.9) 0%, rgba(29, 209, 161, 0.9) 100%);
+}
+
+.mahayawen-indicator-error {
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.9) 0%, rgba(201, 42, 42, 0.9) 100%);
+}
+
+.mahayawen-indicator-waiting {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.9) 0%, rgba(255, 152, 0, 0.9) 100%);
+}
+
+@keyframes indicatorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes indicatorSpinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ===================
+   Transcript en Temps Réel
+   =================== */
+
+#mahayawen-transcript {
+    position: fixed;
+    bottom: 170px;
+    right: 30px;
+    left: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #2d3748;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    z-index: 9998;
+    display: none;
+    animation: transcriptFadeIn 0.3s ease-out;
+}
+
+#mahayawen-transcript:not(:empty) {
+    display: block;
+}
+
+#mahayawen-transcript.final {
+    border-color: rgba(81, 191, 116, 0.5);
+    background: rgba(81, 191, 116, 0.1);
+}
+
+@keyframes transcriptFadeIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* ===================
+   Panel Vocal dans Chatbot
+   =================== */
+
+.mahayawen-voice-panel {
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.mahayawen-voice-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.mahayawen-voice-mode-toggle {
+    display: flex;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 4px;
+    border-radius: 20px;
+}
+
+.mahayawen-voice-mode-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 16px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.mahayawen-voice-mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.mahayawen-voice-mode-btn:hover:not(.active) {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+/* Waveform Visualizer */
+.mahayawen-waveform {
+    width: 100%;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 0 20px;
+}
+
+.mahayawen-waveform-bar {
+    width: 4px;
+    height: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 2px;
+    transition: height 0.1s ease;
+}
+
+.mahayawen-waveform.active .mahayawen-waveform-bar {
+    animation: waveformPulse 0.8s ease-in-out infinite;
+}
+
+.mahayawen-waveform.active .mahayawen-waveform-bar:nth-child(2n) {
+    animation-delay: 0.1s;
+}
+
+.mahayawen-waveform.active .mahayawen-waveform-bar:nth-child(3n) {
+    animation-delay: 0.2s;
+}
+
+@keyframes waveformPulse {
+    0%, 100% { height: 20px; }
+    50% { height: 40px; }
+}
+
+/* ===================
+   Hotword Badge
+   =================== */
+
+.mahayawen-hotword-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #667eea;
+}
+
+.mahayawen-hotword-badge::before {
+    content: '🎤';
+    font-size: 14px;
+}
+
+/* ===================
+   Mode Conduite (Driving Mode)
+   =================== */
+
+.mahayawen-driving-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+    backdrop-filter: blur(10px);
+    padding: 12px 20px;
+    color: white;
+    text-align: center;
+    font-weight: 500;
+    z-index: 10001;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: drivingModeSlideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes drivingModeSlideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.mahayawen-driving-mode::before {
+    content: '🚗';
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* ===================
+   Responsive Mobile
+   =================== */
+
+@media (max-width: 768px) {
+    #mahayawen-voice-btn {
+        bottom: 80px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        font-size: 22px;
+    }
+
+    .mahayawen-indicator {
+        top: 70px;
+        right: 20px;
+        left: 20px;
+        max-width: calc(100% - 40px);
+    }
+
+    #mahayawen-transcript {
+        bottom: 150px;
+        right: 20px;
+        left: 20px;
+        font-size: 14px;
+    }
+
+    .mahayawen-voice-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* ===================
+   Accessibilité
+   =================== */
+
+@media (prefers-reduced-motion: reduce) {
+    #mahayawen-voice-btn,
+    .mahayawen-indicator,
+    #mahayawen-transcript,
+    .mahayawen-waveform-bar {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* Focus visible pour clavier */
+#mahayawen-voice-btn:focus-visible {
+    outline: 3px solid rgba(102, 126, 234, 0.5);
+    outline-offset: 4px;
+}
+
+/* Thème sombre */
+@media (prefers-color-scheme: dark) {
+    #mahayawen-transcript {
+        background: rgba(30, 41, 59, 0.95);
+        color: #e2e8f0;
+        border-color: rgba(102, 126, 234, 0.4);
+    }
+
+    #mahayawen-transcript.final {
+        background: rgba(81, 191, 116, 0.2);
+        border-color: rgba(81, 191, 116, 0.6);
+    }
+
+    .mahayawen-voice-panel {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    }
+
+    .mahayawen-waveform {
+        background: rgba(255, 255, 255, 0.05);
+    }
+}

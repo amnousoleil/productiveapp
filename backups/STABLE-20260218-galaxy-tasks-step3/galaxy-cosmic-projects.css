@@ -1,0 +1,644 @@
+/* ═══════════════════════════════════════════════════════════════════
+   GALAXY COSMIC PROJECTS v1.0
+   Panneau de gestion des projets — esthetique creme/desert
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ───────────────────────────────────────────────
+   OVERLAY
+   ─────────────────────────────────────────────── */
+
+.cosmic-projects-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+    pointer-events: none;
+    transition: background 0.25s ease, backdrop-filter 0.25s ease, opacity 0.25s ease;
+}
+
+.cosmic-projects-overlay.visible {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.cosmic-projects-overlay.closing {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ───────────────────────────────────────────────
+   PANEL
+   ─────────────────────────────────────────────── */
+
+.cosmic-projects-panel {
+    background: #faf6ee;
+    border-radius: 16px;
+    width: 92vw;
+    max-width: 680px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+        0 8px 32px rgba(90, 74, 47, 0.22),
+        0 1px 4px rgba(90, 74, 47, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    transform: translateY(20px) scale(0.97);
+    opacity: 0;
+    animation: cppSlideUp 0.3s ease forwards;
+    overflow: hidden;
+}
+
+.cosmic-projects-overlay.closing .cosmic-projects-panel {
+    animation: cppSlideDown 0.25s ease forwards;
+}
+
+/* ───────────────────────────────────────────────
+   HEADER
+   ─────────────────────────────────────────────── */
+
+.cpp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid rgba(139, 115, 85, 0.15);
+}
+
+.cpp-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: #3a2e1e;
+    letter-spacing: 0.01em;
+}
+
+.cpp-close {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: transparent;
+    color: #8b7355;
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cpp-close:hover {
+    background: rgba(139, 115, 85, 0.12);
+    color: #5a4a2f;
+}
+
+/* ───────────────────────────────────────────────
+   LIST CONTAINER (scrollable wrapper for both sections)
+   ─────────────────────────────────────────────── */
+
+.cpp-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ───────────────────────────────────────────────
+   SECTION HEADERS
+   ─────────────────────────────────────────────── */
+
+.cpp-section {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 0 0 8px;
+}
+
+.cpp-section + .cpp-section {
+    border-left: 1px solid rgba(139, 115, 85, 0.15);
+}
+
+.cpp-section-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px 6px;
+    position: sticky;
+    top: 0;
+    background: #faf6ee;
+    z-index: 1;
+}
+
+.cpp-section-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.cpp-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #8b7355;
+}
+
+.cpp-section-badge {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    margin-left: auto;
+}
+
+/* ───────────────────────────────────────────────
+   NEW PROJECT BUTTON
+   ─────────────────────────────────────────────── */
+
+.cpp-new-btn {
+    margin: 8px 20px 6px;
+    padding: 7px 0;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #8b7355, #6b5a40);
+    color: #faf6ee;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 8px rgba(90, 74, 47, 0.18);
+    width: calc(100% - 40px);
+}
+
+.cpp-new-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(90, 74, 47, 0.28);
+}
+
+.cpp-new-btn:active {
+    transform: translateY(0);
+}
+
+/* ───────────────────────────────────────────────
+   LIST
+   ─────────────────────────────────────────────── */
+
+.cpp-list {
+    overflow-y: visible;
+    padding: 4px 12px 6px;
+}
+
+.cpp-loading,
+.cpp-empty {
+    padding: 28px 0;
+    text-align: center;
+    color: #9a8a6a;
+    font-size: 14px;
+}
+
+/* ───────────────────────────────────────────────
+   PROJECT ITEM
+   ─────────────────────────────────────────────── */
+
+.cpp-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    transition: background 0.15s;
+    cursor: default;
+}
+
+.cpp-item:hover {
+    background: rgba(139, 115, 85, 0.07);
+}
+
+.cpp-item.current {
+    border-left: 3px solid #8b7355;
+    padding-left: 9px;
+    background: rgba(139, 115, 85, 0.05);
+}
+
+.cpp-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    flex: 1;
+}
+
+.cpp-item-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #3a2e1e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cpp-item-meta {
+    font-size: 12px;
+    color: #9a8a6a;
+}
+
+/* ───────────────────────────────────────────────
+   ITEM ACTIONS
+   ─────────────────────────────────────────────── */
+
+.cpp-item-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.cpp-btn-open {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 7px;
+    background: #8b7355;
+    color: #faf6ee;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.cpp-btn-open:hover {
+    background: #6b5a40;
+    transform: translateY(-1px);
+}
+
+.cpp-badge-active {
+    padding: 3px 10px;
+    border-radius: 7px;
+    background: rgba(74, 140, 80, 0.12);
+    color: #3a7340;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.cpp-btn-rename,
+.cpp-btn-delete {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    opacity: 0.35;
+    transition: opacity 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cpp-item:hover .cpp-btn-rename,
+.cpp-item:hover .cpp-btn-delete {
+    opacity: 0.7;
+}
+
+.cpp-btn-rename:hover,
+.cpp-btn-delete:hover {
+    opacity: 1 !important;
+    background: rgba(139, 115, 85, 0.1);
+}
+
+.cpp-btn-delete:hover {
+    background: rgba(200, 60, 60, 0.1);
+}
+
+/* ───────────────────────────────────────────────
+   STATUS INDICATOR (dans la toolbar)
+   ─────────────────────────────────────────────── */
+
+.cosmic-project-indicator {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: 12px;
+    padding-right: 8px;
+}
+
+.cosmic-project-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 160px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cosmic-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background 0.3s;
+}
+
+.cosmic-status-dot[data-status="saved"] {
+    background: #4a8c50;
+}
+
+.cosmic-status-dot[data-status="saving"] {
+    background: #d4940a;
+    animation: cppPulse 1s ease-in-out infinite;
+}
+
+.cosmic-status-dot[data-status="modified"] {
+    background: #d4940a;
+}
+
+.cosmic-status-dot[data-status="loading"],
+.cosmic-status-dot[data-status="loaded"] {
+    background: #4a7ec5;
+    animation: cppPulse 0.8s ease-in-out infinite;
+}
+
+.cosmic-status-dot[data-status="error"] {
+    background: #c53a3a;
+}
+
+/* ───────────────────────────────────────────────
+   SCROLLBAR
+   ─────────────────────────────────────────────── */
+
+.cpp-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.cpp-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cpp-list::-webkit-scrollbar-thumb {
+    background: rgba(139, 115, 85, 0.2);
+    border-radius: 4px;
+}
+
+.cpp-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 115, 85, 0.35);
+}
+
+/* ───────────────────────────────────────────────
+   ANIMATIONS
+   ─────────────────────────────────────────────── */
+
+@keyframes cppSlideUp {
+    from {
+        transform: translateY(20px) scale(0.97);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes cppSlideDown {
+    from {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(14px) scale(0.98);
+        opacity: 0;
+    }
+}
+
+@keyframes cppPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ───────────────────────────────────────────────
+   RESPONSIVE — stack on small screens
+   ─────────────────────────────────────────────── */
+
+@media (max-width: 500px) {
+    .cosmic-projects-panel {
+        max-width: 460px;
+    }
+
+    .cpp-list-container {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .cpp-section {
+        overflow-y: visible;
+    }
+
+    .cpp-section + .cpp-section {
+        border-left: none;
+        border-top: 1px solid rgba(139, 115, 85, 0.12);
+    }
+}
+
+/* ───────────────────────────────────────────────
+   TASK PROJECT ITEMS
+   ─────────────────────────────────────────────── */
+
+.cpp-item-task .cpp-item-info {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+}
+
+.cpp-item-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.cpp-btn-open-task {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 7px;
+    background: #3b6fc2;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+}
+
+.cpp-btn-open-task:hover {
+    background: #2d5aa0;
+    transform: translateY(-1px);
+}
+
+/* ───────────────────────────────────────────────
+   TASK PROJECT BANNER (displayed on canvas)
+   ─────────────────────────────────────────────── */
+
+.cpp-task-banner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    z-index: 5;
+    pointer-events: none;
+    animation: cppBannerFadeIn 0.5s ease forwards;
+}
+
+.cpp-task-banner-icon {
+    font-size: 56px;
+    line-height: 1;
+    opacity: 0.25;
+}
+
+.cpp-task-banner-text {
+    text-align: center;
+}
+
+.cpp-task-banner-name {
+    font-size: 22px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.02em;
+    margin-bottom: 8px;
+}
+
+.cpp-task-banner-hint {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.15);
+    font-style: italic;
+}
+
+@keyframes cppBannerFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -46%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* ───────────────────────────────────────────────
+   SCROLLBAR for sections (independent scroll)
+   ─────────────────────────────────────────────── */
+
+.cpp-section::-webkit-scrollbar {
+    width: 5px;
+}
+
+.cpp-section::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.cpp-section::-webkit-scrollbar-thumb {
+    background: rgba(139, 115, 85, 0.2);
+    border-radius: 4px;
+}
+
+.cpp-section::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 115, 85, 0.35);
+}
+
+/* ───────────────────────────────────────────────
+   TASK NODE TOOLTIP
+   ─────────────────────────────────────────────── */
+
+.cosmic-task-tooltip {
+    position: fixed;
+    z-index: 20000;
+    background: rgba(20, 20, 30, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f0f0f5;
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-width: 300px;
+    min-width: 160px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45), 0 1px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cosmic-task-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ctt-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 8px;
+    color: #ffffff;
+}
+
+.ctt-badges {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.ctt-badge {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #ffffff;
+    line-height: 1.4;
+}
+
+.ctt-row {
+    font-size: 12px;
+    color: rgba(240, 240, 245, 0.8);
+    margin-bottom: 4px;
+    line-height: 1.3;
+}
+
+.ctt-date {
+    color: rgba(240, 240, 245, 0.6);
+    font-size: 11px;
+}
+
+.ctt-desc {
+    font-size: 11px;
+    color: rgba(240, 240, 245, 0.55);
+    line-height: 1.4;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
