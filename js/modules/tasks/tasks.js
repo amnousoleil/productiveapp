@@ -246,14 +246,16 @@ const Tasks = {
                 Journal.add('task', `🔄 Commencé: ${task.text}`, 2);
                 break;
 
-            case 'done':
+            case 'done': {
+                const now = new Date().toISOString();
                 if (useExpress) {
-                    await ApiTasks.update(taskId, { status: 'done' });
+                    await ApiTasks.update(taskId, { status: 'done', completed_at: now });
                 } else {
                     await ApiService.updateTask(taskId, 'done', task.priority.level);
                 }
                 task.status = 'done';
-                task.completedAt = new Date().toISOString();
+                task.completedAt = now;
+                task.completed_at = now;
                 task.updatedAt = new Date().toISOString();
                 Journal.add('win', `✅ Terminé: ${task.text}`, 3);
 
@@ -263,15 +265,17 @@ const Tasks = {
                         .catch(err => console.warn('XP Feedback failed:', err));
                 }
                 break;
+            }
 
             case 'reopen':
                 if (useExpress) {
-                    await ApiTasks.update(taskId, { status: 'todo' });
+                    await ApiTasks.update(taskId, { status: 'todo', completed_at: null });
                 } else {
                     await ApiService.updateTask(taskId, 'todo', task.priority.level);
                 }
                 task.status = 'todo';
                 task.completedAt = null;
+                task.completed_at = null;
                 task.updatedAt = new Date().toISOString();
                 Journal.add('task', `🔄 Réouvert: ${task.text}`, 2);
                 break;
@@ -552,8 +556,9 @@ const Tasks = {
         }
 
         return doneTasks.filter(t => {
-            if (!t.completedAt) return false;
-            return new Date(t.completedAt) >= cutoff;
+            const d = t.completedAt || t.completed_at || t.updated_at || t.updatedAt;
+            if (!d) return false;
+            return new Date(d) >= cutoff;
         });
     },
 

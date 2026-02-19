@@ -149,7 +149,8 @@ const ApiDataLoader = (function() {
             due_date: t.due_date,
             created_at: t.created_at,
             updated_at: t.updated_at,
-            completed_at: t.completed_at
+            completed_at: t.completed_at,
+            completedAt: t.completed_at || null
         }));
     }
 
