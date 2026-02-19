@@ -820,14 +820,6 @@ const CosmicProjectsUI = (function () {
         var cosmicToolbar = document.querySelector('.cosmic-toolbar');
         if (cosmicToolbar) cosmicToolbar.style.display = 'none';
 
-        // Disable 3D button
-        var btn3d = document.getElementById('galaxy-toggle-3d');
-        if (btn3d) {
-            btn3d.disabled = true;
-            btn3d.style.opacity = '0.3';
-            btn3d.style.pointerEvents = 'none';
-        }
-
         // Update toolbar project name indicator
         var nameEl = document.querySelector('.cosmic-project-name');
         if (nameEl) nameEl.textContent = (projectIcon || '') + ' ' + (projectName || '');
@@ -854,14 +846,6 @@ const CosmicProjectsUI = (function () {
         // Show the drawing toolbar again
         var cosmicToolbar = document.querySelector('.cosmic-toolbar');
         if (cosmicToolbar) cosmicToolbar.style.display = '';
-
-        // Re-enable 3D button
-        var btn3d = document.getElementById('galaxy-toggle-3d');
-        if (btn3d) {
-            btn3d.disabled = false;
-            btn3d.style.opacity = '';
-            btn3d.style.pointerEvents = '';
-        }
 
         // Remove task project banner
         _removeTaskProjectBanner();
