@@ -14,6 +14,10 @@ const CosmicProjectsUI = (function () {
     let _currentTaskProjectName = null;
     let _currentTaskProjectIcon = null;
 
+    // localStorage keys for refresh restore
+    var LAST_VIEW_TYPE_KEY = 'galaxy-last-view-type';
+    var LAST_TASK_PROJECT_KEY = 'galaxy-last-task-project';
+
     // ───────────────────────────────────────────────
     // HELPERS
     // ───────────────────────────────────────────────
@@ -33,6 +37,62 @@ const CosmicProjectsUI = (function () {
         if (hours < 24) return 'il y a ' + hours + ' h';
         if (days < 7) return 'il y a ' + days + ' j';
         return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // ───────────────────────────────────────────────
+    // REFRESH RESTORE — localStorage persistence
+    // ───────────────────────────────────────────────
+
+    function _saveLastViewTask(projectId, projectName, projectIcon) {
+        try {
+            localStorage.setItem(LAST_VIEW_TYPE_KEY, 'task');
+            localStorage.setItem(LAST_TASK_PROJECT_KEY, JSON.stringify({
+                id: projectId, name: projectName, icon: projectIcon
+            }));
+        } catch (_) {}
+    }
+
+    function _saveLastViewCanvas() {
+        try {
+            localStorage.setItem(LAST_VIEW_TYPE_KEY, 'canvas');
+            localStorage.removeItem(LAST_TASK_PROJECT_KEY);
+        } catch (_) {}
+    }
+
+    async function _restoreTaskProject() {
+        try {
+            var type = localStorage.getItem(LAST_VIEW_TYPE_KEY);
+            if (type !== 'task') return false;
+
+            var raw = localStorage.getItem(LAST_TASK_PROJECT_KEY);
+            if (!raw) return false;
+
+            var project = JSON.parse(raw);
+            if (!project || !project.id) return false;
+
+            // Wait for tasks to be available (up to 5 s)
+            var waited = 0;
+            while (waited < 5000) {
+                if (typeof AppState !== 'undefined' && Array.isArray(AppState.tasks) && AppState.tasks.length > 0) break;
+                await new Promise(function (r) { setTimeout(r, 300); });
+                waited += 300;
+            }
+
+            _clearCosmicState();
+            _enterTaskProjectMode(project.id, project.name, project.icon);
+
+            var tasks = _getTasksForProject(project.id);
+            if (tasks.length > 0) {
+                _generateTaskNodes(tasks);
+                _removeTaskProjectBanner();
+            }
+
+            console.log('🔄 Restored task project: ' + project.name);
+            return true;
+        } catch (e) {
+            console.warn('⚠️ Failed to restore task project:', e);
+            return false;
+        }
     }
 
     function _clearCosmicState() {
@@ -392,6 +452,7 @@ const CosmicProjectsUI = (function () {
         _clearCosmicState();
         _exitTaskProjectMode();
         await CosmicPersistence.load(id);
+        _saveLastViewCanvas();
 
         if (window.CosmicHistory) window.CosmicHistory.save();
         close();
@@ -409,6 +470,7 @@ const CosmicProjectsUI = (function () {
 
         _clearCosmicState();
         _enterTaskProjectMode(projectId, projectName, projectIcon);
+        _saveLastViewTask(projectId, projectName, projectIcon);
         close();
 
         // Load tasks and generate nodes
@@ -640,8 +702,8 @@ const CosmicProjectsUI = (function () {
     function _layoutTaskNodes(nodes) {
         if (!nodes || nodes.length === 0) return;
 
-        var MARGIN = 25;
-        var RING_GAP = 20;
+        var MARGIN = 50;
+        var RING_GAP = 40;
         var ringOrder = ['urgent', 'high', 'medium', 'low'];
 
         // Group nodes by priority ring, sub-sort by assigned user
@@ -1105,7 +1167,10 @@ const CosmicProjectsUI = (function () {
         createProject: _handleCreate,
         exitTaskProjectMode: _exitTaskProjectMode,
         syncTaskNode: _syncTaskNode,
-        get isTaskProjectMode() { return _isTaskProjectMode; }
+        restoreTaskProject: _restoreTaskProject,
+        get isTaskProjectMode() { return _isTaskProjectMode; },
+        get taskProjectName() { return _currentTaskProjectName; },
+        get taskProjectIcon() { return _currentTaskProjectIcon; }
     };
 
 })();
@@ -1132,12 +1197,33 @@ console.log('CosmicProjectsUI loaded');
             console.error('❌ CosmicProjectsUI.init() error:', e);
         }
 
-        if (!CosmicPersistence.currentProjectId) {
-            CosmicPersistence.init().then(result => {
-                console.log('🚀 Cosmic Projects:', result.action, result.name || '');
-            }).catch(err => {
-                console.warn('⚠️ Cosmic Projects init failed:', err);
+        // Check if last session was a task project → restore it
+        var lastViewType = null;
+        try { lastViewType = localStorage.getItem('galaxy-last-view-type'); } catch (_) {}
+
+        if (lastViewType === 'task') {
+            CosmicProjectsUI.restoreTaskProject().then(function(restored) {
+                if (restored) {
+                    console.log('🔄 Task project restored after refresh');
+                } else {
+                    // Fallback: load normal free canvas
+                    _initFreeCanvas();
+                }
+            }).catch(function() {
+                _initFreeCanvas();
             });
+        } else {
+            _initFreeCanvas();
+        }
+
+        function _initFreeCanvas() {
+            if (!CosmicPersistence.currentProjectId) {
+                CosmicPersistence.init().then(result => {
+                    console.log('🚀 Cosmic Projects:', result.action, result.name || '');
+                }).catch(err => {
+                    console.warn('⚠️ Cosmic Projects init failed:', err);
+                });
+            }
         }
     }
 

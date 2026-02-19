@@ -694,13 +694,21 @@ class CosmicToolbar {
             if (existing) existing.remove();
             var label = document.createElement('div');
             label.id = 'galaxy-fs-project-label';
-            // Get project name from persistence or toolbar
+            // In task project mode, show the task project name instead of the canvas name
+            var inTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
             var projectName = '';
-            if (typeof CosmicPersistence !== 'undefined' && CosmicPersistence.currentProjectName) {
-                projectName = CosmicPersistence.currentProjectName;
+            if (inTaskMode) {
+                var icon = window.CosmicProjectsUI.taskProjectIcon || '';
+                var name = window.CosmicProjectsUI.taskProjectName || '';
+                projectName = (icon ? icon + ' ' : '') + name;
+                label.classList.add('task-project-mode');
             } else {
-                var nameEl = document.querySelector('.cosmic-project-name');
-                if (nameEl) projectName = nameEl.textContent.trim();
+                if (typeof CosmicPersistence !== 'undefined' && CosmicPersistence.currentProjectName) {
+                    projectName = CosmicPersistence.currentProjectName;
+                } else {
+                    var nameEl = document.querySelector('.cosmic-project-name');
+                    if (nameEl) projectName = nameEl.textContent.trim();
+                }
             }
             label.textContent = projectName || 'Galaxy View';
             var container = document.getElementById('view-galaxy');
@@ -2113,6 +2121,11 @@ setTimeout(function() {
             // Hide 2D canvas and toolbar
             canvas2D.style.display = 'none';
             if (toolbar) toolbar.style.display = 'none';
+            // Hide header project buttons in 3D
+            var projBtn = document.getElementById('filter-projects');
+            var newProjBtn = document.getElementById('galaxy-new-project-btn');
+            if (projBtn) projBtn.style.display = 'none';
+            if (newProjBtn) newProjBtn.style.display = 'none';
             var viewGalaxy = document.getElementById('view-galaxy');
             if (viewGalaxy) viewGalaxy.classList.add('mode-3d');
 
@@ -2181,6 +2194,11 @@ setTimeout(function() {
             canvas2D.style.display = 'block';
             var inTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
             if (toolbar) toolbar.style.display = inTaskMode ? 'none' : '';
+            // Restore header project buttons
+            var projBtn = document.getElementById('filter-projects');
+            var newProjBtn = document.getElementById('galaxy-new-project-btn');
+            if (projBtn) projBtn.style.display = '';
+            if (newProjBtn) newProjBtn.style.display = '';
             var viewGalaxy = document.getElementById('view-galaxy');
             if (viewGalaxy) viewGalaxy.classList.remove('mode-3d');
 

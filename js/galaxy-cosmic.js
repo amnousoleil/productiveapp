@@ -1106,8 +1106,9 @@ function initGalaxyCosmic() {
         return;
     }
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    const container = canvas.parentElement;
+    canvas.width = container.clientWidth || window.innerWidth;
+    canvas.height = container.clientHeight || window.innerHeight;
 
     CosmicState.canvas = canvas;
     CosmicState.ctx = canvas.getContext('2d');
@@ -1177,10 +1178,9 @@ function _showTaskTooltip(node, clientX, clientY) {
         html += '<div class="ctt-row ctt-date">\ud83d\udcc5 ' + _escHtml(m.dueDate) + '</div>';
     }
 
-    // Description (truncate to 120 chars)
+    // Description (full text, scrollable via CSS)
     if (m.description) {
-        var desc = m.description.length > 120 ? m.description.substring(0, 117).trim() + '...' : m.description;
-        html += '<div class="ctt-desc">' + _escHtml(desc) + '</div>';
+        html += '<div class="ctt-desc">' + _escHtml(m.description) + '</div>';
     }
 
     tip.innerHTML = html;
@@ -1376,10 +1376,22 @@ function setupEventListeners() {
         }
     });
 
-    // Resize
+    // Resize — observe le conteneur (pas window) pour réagir au sidebar toggle
+    const _container = canvas.parentElement;
+    if (_container && typeof ResizeObserver !== 'undefined') {
+        new ResizeObserver(() => {
+            const w = _container.clientWidth;
+            const h = _container.clientHeight;
+            if (w && h && (canvas.width !== w || canvas.height !== h)) {
+                canvas.width = w;
+                canvas.height = h;
+            }
+        }).observe(_container);
+    }
     window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const c = canvas.parentElement;
+        canvas.width = (c && c.clientWidth) || window.innerWidth;
+        canvas.height = (c && c.clientHeight) || window.innerHeight;
     });
 }
 

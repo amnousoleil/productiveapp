@@ -419,7 +419,7 @@ const Galaxy3D = (function() {
             2500,   // count
             800,    // spread
             0.8,    // size (small points)
-            -2000,  // renderOrder (deepest)
+            -20,    // renderOrder (deepest background)
             0.00003, // drift speed (very slow)
             1.0     // follows camera fully
         ));
@@ -429,7 +429,7 @@ const Galaxy3D = (function() {
             1200,   // count
             600,    // spread
             1.5,    // size (medium points)
-            -1800,  // renderOrder (between far and nodes)
+            -15,    // renderOrder (between far stars and comets)
             0.0001,  // drift speed (slow)
             0.95    // follows camera almost fully (slight parallax)
         ));
@@ -866,9 +866,17 @@ const Galaxy3D = (function() {
             isTaskNode: !!data.isTaskNode,
             taskId: data.taskId || null,
             taskUserAvatar: data.taskUserAvatar || '',
-            taskMetadata: data.taskMetadata || null
+            taskPriorityRaw: data.taskPriorityRaw || null,
+            taskMetadata: data.taskMetadata || null,
+            // Keplerian orbit params (initialized in _initTaskOrbits)
+            orbitRadius: 0,
+            orbitAngle: 0,
+            orbitInclination: 0,
+            orbitBaseY: 0,
+            orbitIsAnchor: false
         };
 
+        mesh.renderOrder = 1;
         scene.add(mesh);
 
         // Labels — different strategy per shape:
@@ -881,11 +889,13 @@ const Galaxy3D = (function() {
             if (shape === 'circle' || shape === 'hexagon' || shape === 'star') {
                 label = createSphereLabelSprite(data.label, size, fillHexForLabel, nodeTextColor);
                 label.position.set(0, 0, 0);
+                label.renderOrder = 2;
                 label.visible = showLabels;
                 mesh.add(label);
             } else if (isTextNode) {
                 label = createTextSprite(data.label, sphereColor, nodeFontSize, size);
                 label.position.set(0, 0, 0);
+                label.renderOrder = 2;
                 label.visible = showLabels;
                 mesh.add(label);
             }
@@ -897,6 +907,7 @@ const Galaxy3D = (function() {
             avatarSprite = _createEmojiSprite(data.taskUserAvatar, size, false);
             if (avatarSprite) {
                 avatarSprite.position.set(0, size + size * 0.4, 0);
+                avatarSprite.renderOrder = 2;
                 mesh.add(avatarSprite);
             }
         }
@@ -1000,6 +1011,8 @@ const Galaxy3D = (function() {
     }
 
     function clearAllSpheres() {
+        _orbitsInitialized = false;
+        _disposeProjectSun();
         disposeNodeLights();
         spheres.forEach(s => {
             // Dispose label sprite material/texture (mesh child)
@@ -1069,6 +1082,357 @@ const Galaxy3D = (function() {
             if (c.line.material) c.line.material.dispose();
         });
         connections = [];
+    }
+
+    // === KEPLERIAN ORBIT SYSTEM (task nodes only) ===
+    var _orbitsInitialized = false;
+    var _orbitCenter = { x: 0, y: 0, z: 0 }; // barycenter of urgent nodes
+    var ORBIT_K = 6.0; // global speed constant — contemplative pace (8 * 0.75)
+    var ORBIT_COLLISION_DIST = 3.0; // minimum distance before repulsion
+    var ORBIT_COLLISION_FORCE = 0.5; // repulsion strength
+
+    // === PROJECT SUN (task project mode only) ===
+    var _sunMesh = null;
+    var _sunGlow = null;
+    var _sunLabel = null;
+    var _sunLight = null;
+    var _sunRadius = 0;
+
+    function _createProjectSun(projectName, projectIcon) {
+        var THREE = window.THREE;
+        if (!THREE || !scene) return;
+
+        _disposeProjectSun(); // cleanup any previous sun
+
+        // Find max task sphere size to scale the sun
+        var maxTaskSize = 1;
+        for (var i = 0; i < spheres.length; i++) {
+            if (spheres[i].mesh && spheres[i].mesh.userData && spheres[i].mesh.userData.isTaskNode) {
+                if (spheres[i].size > maxTaskSize) maxTaskSize = spheres[i].size;
+            }
+        }
+        var sunRadius = maxTaskSize * 1.8 * 1.5;
+        if (sunRadius < 3) sunRadius = 3;
+        _sunRadius = sunRadius;
+
+        // Sun sphere — white luminous material
+        var sunGeo = new THREE.SphereGeometry(sunRadius, 48, 48);
+        var sunMat = new THREE.MeshStandardMaterial({
+            color: 0xFFFFFF,
+            emissive: 0xFFF5E0,
+            emissiveIntensity: 0.6,
+            metalness: 0.1,
+            roughness: 0.3,
+            transparent: false,
+            depthWrite: true,
+            depthTest: true
+        });
+        _sunMesh = new THREE.Mesh(sunGeo, sunMat);
+        _sunMesh.position.set(0, 0, 0);
+        _sunMesh.renderOrder = 1;
+        _sunMesh.userData = {
+            id: '__project_sun__',
+            isProjectSun: true,
+            label: projectName || 'Projet',
+            projectIcon: projectIcon || '',
+            taskCount: 0
+        };
+        // Count tasks for tooltip
+        for (var tc = 0; tc < spheres.length; tc++) {
+            if (spheres[tc].mesh && spheres[tc].mesh.userData && spheres[tc].mesh.userData.isTaskNode) {
+                _sunMesh.userData.taskCount++;
+            }
+        }
+        scene.add(_sunMesh);
+
+        // Atmospheric layers — 25 fine concentric shells, quadratic falloff
+        var nbLayers = 25;
+        for (var ai = 0; ai < nbLayers; ai++) {
+            var t = ai / nbLayers;
+            var aScale = 1.02 + t * 0.6;
+            var aOpacity = 0.3 * (1 - t) * (1 - t);
+            var layerGeo = new THREE.SphereGeometry(sunRadius * aScale, 32, 32);
+            var layerMat = new THREE.MeshBasicMaterial({
+                color: 0xFFFFFF,
+                transparent: true,
+                opacity: aOpacity,
+                depthWrite: false
+            });
+            var layerMesh = new THREE.Mesh(layerGeo, layerMat);
+            layerMesh.raycast = function() {};
+            _sunMesh.add(layerMesh);
+        }
+
+        // Soft edge glow — single additive sprite to blur the sphere border
+        var sunDiameter = sunRadius * 2;
+        var glowCanvas = document.createElement('canvas');
+        glowCanvas.width = 256;
+        glowCanvas.height = 256;
+        var gCtx = glowCanvas.getContext('2d');
+        var gradient = gCtx.createRadialGradient(128, 128, 0, 128, 128, 128);
+        gradient.addColorStop(0, 'rgba(255,255,245,0.5)');
+        gradient.addColorStop(0.5, 'rgba(255,255,240,0.2)');
+        gradient.addColorStop(1, 'rgba(255,255,240,0)');
+        gCtx.fillStyle = gradient;
+        gCtx.fillRect(0, 0, 256, 256);
+        var glowTex = new THREE.CanvasTexture(glowCanvas);
+        var glowMat = new THREE.SpriteMaterial({
+            map: glowTex,
+            transparent: true,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            depthWrite: false
+        });
+        _sunGlow = new THREE.Sprite(glowMat);
+        var gs = sunDiameter * 1.8;
+        _sunGlow.scale.set(gs, gs, 1);
+        _sunGlow.renderOrder = 0;
+        _sunMesh.add(_sunGlow);
+
+        // Face-camera label sprite — wide canvas for full text visibility
+        var name = projectName || 'Projet';
+        var lCanvas = document.createElement('canvas');
+        var lCtx = lCanvas.getContext('2d');
+        // Start with a generous font size, shrink to fit
+        var lFontSize = 120;
+        lCtx.font = 'bold ' + lFontSize + 'px Inter, Arial, sans-serif';
+        var tw = lCtx.measureText(name).width;
+        // Canvas width = text width + padding, height = font height + padding
+        var pad = 40;
+        lCanvas.width = Math.ceil(tw + pad * 2);
+        lCanvas.height = Math.ceil(lFontSize * 1.4 + pad);
+        // Redraw after resize (canvas reset clears context state)
+        lCtx.clearRect(0, 0, lCanvas.width, lCanvas.height);
+        lCtx.font = 'bold ' + lFontSize + 'px Inter, Arial, sans-serif';
+        lCtx.textAlign = 'center';
+        lCtx.textBaseline = 'middle';
+        lCtx.fillStyle = '#2A1500';
+        lCtx.shadowColor = 'rgba(255, 255, 255, 0.5)';
+        lCtx.shadowBlur = 8;
+        lCtx.fillText(name, lCanvas.width / 2, lCanvas.height / 2);
+        var labelTex = new THREE.CanvasTexture(lCanvas);
+        labelTex.minFilter = THREE.LinearFilter;
+        var labelMat = new THREE.SpriteMaterial({
+            map: labelTex,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true
+        });
+        _sunLabel = new THREE.Sprite(labelMat);
+        // Scale: fit text width to ~70% of sun diameter, preserve aspect ratio
+        var sunDiam = sunRadius * 2;
+        var targetW = sunDiam * 0.7;
+        var aspect = lCanvas.width / lCanvas.height;
+        var spriteH = targetW / aspect;
+        _sunLabel.scale.set(targetW, spriteH, 1);
+        _sunLabel.position.set(0, 0, 0);
+        _sunLabel.renderOrder = 2;
+        _sunMesh.add(_sunLabel);
+
+        // Point light — warm subtle illumination
+        _sunLight = new THREE.PointLight(0xFFCC66, 0.4, 500, 1.5);
+        _sunLight.position.set(0, 0, 0);
+        scene.add(_sunLight);
+    }
+
+    function _disposeProjectSun() {
+        if (_sunMesh) {
+            // Dispose all children (glow layers + label)
+            var children = _sunMesh.children.slice();
+            for (var ci = 0; ci < children.length; ci++) {
+                var child = children[ci];
+                if (child.material) {
+                    if (child.material.map) child.material.map.dispose();
+                    child.material.dispose();
+                }
+                _sunMesh.remove(child);
+            }
+            scene.remove(_sunMesh);
+            if (_sunMesh.geometry) _sunMesh.geometry.dispose();
+            if (_sunMesh.material) _sunMesh.material.dispose();
+            _sunMesh = null;
+            _sunGlow = null;
+            _sunLabel = null;
+            _sunRadius = 0;
+        }
+        if (_sunLight) {
+            scene.remove(_sunLight);
+            _sunLight.dispose();
+            _sunLight = null;
+        }
+    }
+
+    function _updateProjectSun(time) {
+        if (!_sunMesh) return;
+        // Slow Y rotation
+        _sunMesh.rotation.y += 0.003;
+        // Gentle emissive pulse
+        if (_sunMesh.material) {
+            _sunMesh.material.emissiveIntensity = 0.5 + 0.15 * Math.sin(time * 0.5);
+        }
+    }
+
+    function _initTaskOrbits() {
+        _orbitsInitialized = false;
+        // Gather only task spheres
+        var taskSpheres = [];
+        for (var i = 0; i < spheres.length; i++) {
+            if (spheres[i].mesh && spheres[i].mesh.userData && spheres[i].mesh.userData.isTaskNode) {
+                taskSpheres.push(spheres[i]);
+            }
+        }
+        if (taskSpheres.length < 2) return; // need at least 2 to orbit
+
+        // Find anchors (urgent = center of gravity)
+        var anchors = [];
+        var orbiters = [];
+        for (var j = 0; j < taskSpheres.length; j++) {
+            var pRaw = taskSpheres[j].mesh.userData.taskPriorityRaw;
+            if (pRaw === 'urgent') {
+                anchors.push(taskSpheres[j]);
+                taskSpheres[j].mesh.userData.orbitIsAnchor = true;
+            } else {
+                orbiters.push(taskSpheres[j]);
+                taskSpheres[j].mesh.userData.orbitIsAnchor = false;
+            }
+        }
+
+        // If no urgents, use center (0,0,0) as gravity center
+        if (anchors.length > 0) {
+            var cx = 0, cy = 0, cz = 0;
+            for (var a = 0; a < anchors.length; a++) {
+                cx += anchors[a].mesh.position.x;
+                cy += anchors[a].mesh.position.y;
+                cz += anchors[a].mesh.position.z;
+            }
+            _orbitCenter.x = cx / anchors.length;
+            _orbitCenter.y = cy / anchors.length;
+            _orbitCenter.z = cz / anchors.length;
+        } else {
+            _orbitCenter.x = 0;
+            _orbitCenter.y = 0;
+            _orbitCenter.z = 0;
+        }
+
+        // Initialize orbit parameters for each orbiter
+        for (var k = 0; k < orbiters.length; k++) {
+            var s = orbiters[k];
+            var dx = s.mesh.position.x - _orbitCenter.x;
+            var dz = s.mesh.position.z - _orbitCenter.z;
+            var r = Math.sqrt(dx * dx + dz * dz);
+            var minOrbit = _sunRadius > 0 ? _sunRadius + (s.size || 1) + 5 : 2;
+            if (r < minOrbit) r = minOrbit + Math.random() * 5; // stay outside sun
+            s.mesh.userData.orbitRadius = r;
+            s.mesh.userData.orbitAngle = Math.atan2(dz, dx);
+            s.mesh.userData.orbitBaseY = s.mesh.position.y;
+            s.mesh.userData.orbitInclination = (Math.random() - 0.5) * 0.3; // ±15°
+        }
+
+        // Anchors orbit very slowly around center (subtle drift)
+        for (var m = 0; m < anchors.length; m++) {
+            var sa = anchors[m];
+            var adx = sa.mesh.position.x - _orbitCenter.x;
+            var adz = sa.mesh.position.z - _orbitCenter.z;
+            var ar = Math.sqrt(adx * adx + adz * adz);
+            sa.mesh.userData.orbitRadius = ar < 1 ? 0 : ar;
+            sa.mesh.userData.orbitAngle = Math.atan2(adz, adx);
+            sa.mesh.userData.orbitBaseY = sa.mesh.position.y;
+            sa.mesh.userData.orbitInclination = (Math.random() - 0.5) * 0.1; // very subtle
+        }
+
+        _orbitsInitialized = true;
+    }
+
+    function _updateTaskOrbits(dt) {
+        if (!_orbitsInitialized) return;
+
+        var taskSpheres = [];
+        for (var i = 0; i < spheres.length; i++) {
+            if (spheres[i].mesh && spheres[i].mesh.userData && spheres[i].mesh.userData.isTaskNode) {
+                taskSpheres.push(spheres[i]);
+            }
+        }
+        if (taskSpheres.length < 2) return;
+
+        // Phase 1: advance orbital angles (Kepler: omega = k / (r * sqrt(r)))
+        for (var j = 0; j < taskSpheres.length; j++) {
+            var s = taskSpheres[j];
+            var ud = s.mesh.userData;
+            var r = ud.orbitRadius;
+            if (r < 0.5) continue; // sphere at center, skip
+
+            var omega;
+            if (ud.orbitIsAnchor) {
+                // Anchors (urgent): drift 10x slower than Kepler would give
+                omega = (ORBIT_K * 0.1) / (r * Math.sqrt(r));
+            } else {
+                // Normal Kepler: T² ∝ r³ → omega = k / (r * sqrt(r))
+                omega = ORBIT_K / (r * Math.sqrt(r));
+            }
+
+            ud.orbitAngle += omega * dt;
+
+            // New position (circular orbit in XZ plane around center)
+            s.mesh.position.x = _orbitCenter.x + Math.cos(ud.orbitAngle) * r;
+            s.mesh.position.z = _orbitCenter.z + Math.sin(ud.orbitAngle) * r;
+            // Y oscillation from inclination — gentle tilt
+            s.mesh.position.y = ud.orbitBaseY + Math.sin(ud.orbitAngle) * r * ud.orbitInclination;
+        }
+
+        // Phase 1b: sun exclusion zone — push spheres out of the sun
+        if (_sunRadius > 0) {
+            for (var si = 0; si < taskSpheres.length; si++) {
+                var sm = taskSpheres[si].mesh;
+                var sr = taskSpheres[si].size || 1;
+                var distToSun = sm.position.length();
+                var minSunDist = _sunRadius + sr + 2;
+                if (distToSun < minSunDist && distToSun > 0.01) {
+                    var nx = sm.position.x / distToSun;
+                    var ny = sm.position.y / distToSun;
+                    var nz = sm.position.z / distToSun;
+                    sm.position.x = nx * minSunDist;
+                    sm.position.y = ny * minSunDist;
+                    sm.position.z = nz * minSunDist;
+                }
+            }
+        }
+
+        // Phase 2: soft collision repulsion (prevent overlap)
+        for (var a = 0; a < taskSpheres.length; a++) {
+            for (var b = a + 1; b < taskSpheres.length; b++) {
+                var ma = taskSpheres[a].mesh;
+                var mb = taskSpheres[b].mesh;
+                var dx = mb.position.x - ma.position.x;
+                var dy = mb.position.y - ma.position.y;
+                var dz = mb.position.z - ma.position.z;
+                var dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                var sizeA = taskSpheres[a].size || 1;
+                var sizeB = taskSpheres[b].size || 1;
+                var minDist = (sizeA + sizeB) + ORBIT_COLLISION_DIST;
+                if (dist < minDist && dist > 0.01) {
+                    var overlap = (minDist - dist) / dist * ORBIT_COLLISION_FORCE;
+                    var pushX = dx * overlap;
+                    var pushY = dy * overlap * 0.3; // less vertical push
+                    var pushZ = dz * overlap;
+                    // Push both apart (unless anchor, then push only orbiter)
+                    if (!ma.userData.orbitIsAnchor) {
+                        ma.position.x -= pushX * 0.5;
+                        ma.position.y -= pushY * 0.5;
+                        ma.position.z -= pushZ * 0.5;
+                    }
+                    if (!mb.userData.orbitIsAnchor) {
+                        mb.position.x += pushX * 0.5;
+                        mb.position.y += pushY * 0.5;
+                        mb.position.z += pushZ * 0.5;
+                    }
+                }
+            }
+        }
+
+        // Phase 3: update connections to follow moved spheres
+        if (connections.length > 0) {
+            updateConnectionPositions();
+        }
     }
 
     function updateConnectionPositions() {
@@ -1216,6 +1580,14 @@ const Galaxy3D = (function() {
 
         // Auto-fit camera to show all nodes
         fitToView();
+
+        // Task project mode: create project sun + initialize orbits
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+            var pName = window.CosmicProjectsUI.taskProjectName || 'Projet';
+            var pIcon = window.CosmicProjectsUI.taskProjectIcon || '';
+            _createProjectSun(pName, pIcon);
+            _initTaskOrbits();
+        }
     }
 
     // === ANIMATION LOOP ===
@@ -1241,6 +1613,12 @@ const Galaxy3D = (function() {
                 // Star rotation removed — label sprite is a child, rotation would spin it
             });
 
+            // Keplerian task orbits + project sun (only in task project mode)
+            if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+                _updateTaskOrbits(dt);
+                _updateProjectSun(time);
+            }
+
             // Connection glow animation
             connections.forEach(c => {
                 if (c.line && c.line.material) {
@@ -1248,20 +1626,41 @@ const Galaxy3D = (function() {
                 }
             });
 
-            // Task label/emoji distance fade — close = opaque, far = transparent
+            // Task label/emoji distance fade + sun occlusion
             if (camera && window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+                // Pre-compute sun screen position for occlusion
+                var _sunScreenX = 0, _sunScreenY = 0, _sunScreenR = 0, _hasSun = false;
+                var _camDist2Sun = 0;
+                if (_sunMesh && _sunRadius > 0) {
+                    var _sp = _sunMesh.position.clone().project(camera);
+                    _sunScreenX = _sp.x;
+                    _sunScreenY = _sp.y;
+                    _camDist2Sun = camera.position.distanceTo(_sunMesh.position);
+                    _sunScreenR = (_sunRadius * 1.1) / _camDist2Sun * 2;
+                    _hasSun = true;
+                }
+
                 for (var ti = 0; ti < spheres.length; ti++) {
                     var ts = spheres[ti];
                     if (!ts.mesh || !ts.mesh.userData || !ts.mesh.userData.isTaskNode) continue;
                     var dist = ts.mesh.position.distanceTo(camera.position);
                     var fade = 1.0 - Math.max(0, Math.min(1, (dist - 20) / (80 - 20)));
+
+                    // Sun occlusion: hide label/emoji if behind sun disk
+                    var occluded = false;
+                    if (_hasSun && dist > _camDist2Sun) {
+                        var _np = ts.mesh.position.clone().project(camera);
+                        var _sd = Math.hypot(_np.x - _sunScreenX, _np.y - _sunScreenY);
+                        if (_sd < _sunScreenR) occluded = true;
+                    }
+
                     if (ts.label && ts.label.material) {
                         ts.label.material.opacity = fade;
-                        ts.label.visible = showLabels && fade > 0.02;
+                        ts.label.visible = !occluded && showLabels && fade > 0.02;
                     }
                     if (ts.avatarSprite && ts.avatarSprite.material) {
                         ts.avatarSprite.material.opacity = fade;
-                        ts.avatarSprite.visible = fade > 0.02;
+                        ts.avatarSprite.visible = !occluded && fade > 0.02;
                     }
                 }
             }
@@ -1320,7 +1719,7 @@ const Galaxy3D = (function() {
 
         // Update tooltip position
         if (tooltipEl && hoveredSphere) {
-            if (hoveredSphere.userData && hoveredSphere.userData.isTaskNode) {
+            if (hoveredSphere.userData && (hoveredSphere.userData.isTaskNode || hoveredSphere.userData.isProjectSun)) {
                 _positionTaskTooltip3D(event.clientX, event.clientY);
             } else {
                 tooltipEl.style.left = (event.clientX - rect.left + 15) + 'px';
@@ -1334,6 +1733,7 @@ const Galaxy3D = (function() {
         raycaster.setFromCamera(mouse, camera);
 
         const meshes = spheres.map(s => s.mesh);
+        if (_sunMesh) meshes.push(_sunMesh);
         const intersects = raycaster.intersectObjects(meshes, false);
 
         if (intersects.length > 0) {
@@ -1346,7 +1746,9 @@ const Galaxy3D = (function() {
                 }
                 hoveredSphere = hit;
                 highlightSphere(hit);
-                if (hit.userData && hit.userData.isTaskNode) {
+                if (hit.userData && hit.userData.isProjectSun) {
+                    _showSunTooltip(hit.userData, _mouseClientX, _mouseClientY);
+                } else if (hit.userData && hit.userData.isTaskNode) {
                     _showTaskTooltip3D(hit.userData, _mouseClientX, _mouseClientY);
                 } else {
                     showTooltip(hit.userData);
@@ -1385,14 +1787,24 @@ const Galaxy3D = (function() {
         raycaster.setFromCamera(mouse, camera);
 
         const meshes = spheres.map(s => s.mesh);
+        if (_sunMesh) meshes.push(_sunMesh);
         const intersects = raycaster.intersectObjects(meshes, false);
 
         if (intersects.length > 0) {
             const hit = intersects[0].object;
             selectedSphere = hit;
 
-            // Task nodes: 3D is view-only, skip click action
-            if (hit.userData && hit.userData.isTaskNode) return;
+            // Sun click: do nothing (just absorb the click)
+            if (hit.userData && hit.userData.isProjectSun) {
+                return;
+            }
+
+            // Task nodes: open read-only info panel
+            if (hit.userData && hit.userData.isTaskNode && hit.userData.taskId) {
+                _hideTaskTooltip3D();
+                _showTaskInfoPanel(hit.userData);
+                return;
+            }
 
             // Emit custom event
             const detail = { ...hit.userData };
@@ -1516,13 +1928,6 @@ const Galaxy3D = (function() {
         if (m.assignedName) {
             html += '<div class="ctt-row">' + (m.assignedAvatar || '') + ' ' + _escHtml3D(m.assignedName) + '</div>';
         }
-        if (m.dueDate) {
-            html += '<div class="ctt-row ctt-date">\ud83d\udcc5 ' + _escHtml3D(m.dueDate) + '</div>';
-        }
-        if (m.description) {
-            var desc = m.description.length > 120 ? m.description.substring(0, 120) + '...' : m.description;
-            html += '<div class="ctt-desc">' + _escHtml3D(desc) + '</div>';
-        }
 
         el.innerHTML = html;
         _positionTaskTooltip3D(clientX, clientY);
@@ -1544,6 +1949,99 @@ const Galaxy3D = (function() {
 
     function _hideTaskTooltip3D() {
         if (_taskTooltipEl3D) _taskTooltipEl3D.classList.remove('visible');
+    }
+
+    function _showSunTooltip(ud, clientX, clientY) {
+        var el = _getTaskTooltipEl();
+        var icon = ud.projectIcon || '';
+        var name = ud.label || 'Projet';
+        var count = ud.taskCount || 0;
+        var html = '<div class="ctt-title" style="color:#FFD700">' + _escHtml3D(icon + ' ' + name) + '</div>';
+        html += '<div class="ctt-row" style="opacity:0.8">' + count + ' tâche' + (count > 1 ? 's' : '') + '</div>';
+        el.innerHTML = html;
+        _positionTaskTooltip3D(clientX, clientY);
+        el.classList.add('visible');
+    }
+
+    // === TASK INFO PANEL (read-only, click on task sphere in 3D) ===
+    var _taskInfoPanelEl = null;
+
+    function _showTaskInfoPanel(ud) {
+        var m = ud.taskMetadata || {};
+
+        // Status / priority maps
+        var statusColors = {
+            'todo': '#6b7280', 'inprogress': '#3b82f6', 'in_progress': '#3b82f6',
+            'review': '#8b5cf6', 'blocked': '#ef4444', 'done': '#22c55e'
+        };
+        var statusLabels = {
+            'todo': '\u00c0 faire', 'inprogress': 'En cours', 'in_progress': 'En cours',
+            'review': 'En revue', 'blocked': 'Bloqu\u00e9', 'done': 'Termin\u00e9'
+        };
+        var prioColors = { 'urgent': '#e74c3c', 'high': '#f39c12', 'medium': '#3498db', 'low': '#6b7280' };
+        var prioLabels = { 'urgent': 'Urgent', 'high': 'Important', 'medium': 'Normal', 'low': 'Zen' };
+
+        var status = m.status || 'todo';
+        var prioRaw = m.priorityRaw || 'medium';
+
+        // Build HTML
+        var html = '<button class="tip-close" aria-label="Fermer">&times;</button>';
+        html += '<div class="tip-title">' + _escHtml3D(m.fullTitle || ud.label || '') + '</div>';
+        html += '<div class="tip-meta">';
+        html += '<span class="ctt-badge" style="background:' + (prioColors[prioRaw] || '#3498db') + '">' + (prioLabels[prioRaw] || prioRaw) + '</span>';
+        html += '<span class="ctt-badge" style="background:' + (statusColors[status] || '#6b7280') + '">' + (statusLabels[status] || status) + '</span>';
+        if (m.projectId) {
+            var projName = '';
+            if (typeof AppState !== 'undefined' && AppState.projects) {
+                var proj = AppState.projects.find(function(p) { return p.id === m.projectId; });
+                if (proj) projName = proj.name || proj.title || '';
+            }
+            if (projName) html += '<span class="tip-project">' + _escHtml3D(projName) + '</span>';
+        }
+        html += '</div>';
+        if (m.assignedName) {
+            html += '<div class="tip-assigned">' + (m.assignedAvatar || '') + ' ' + _escHtml3D(m.assignedName) + '</div>';
+        }
+        if (m.dueDate) {
+            html += '<div class="tip-date">\ud83d\udcc5 ' + _escHtml3D(m.dueDate) + '</div>';
+        }
+        html += '<div class="tip-sep"></div>';
+        var desc = m.description || '';
+        html += '<div class="tip-desc">' + (desc ? _escHtml3D(desc) : '<span class="tip-empty">Aucune note</span>') + '</div>';
+
+        // Create or reuse panel element
+        if (!_taskInfoPanelEl) {
+            _taskInfoPanelEl = document.createElement('div');
+            _taskInfoPanelEl.className = 'task-info-panel-3d';
+            document.body.appendChild(_taskInfoPanelEl);
+        }
+        _taskInfoPanelEl.innerHTML = html;
+        _taskInfoPanelEl.classList.add('visible');
+
+        // Close button
+        _taskInfoPanelEl.querySelector('.tip-close').addEventListener('click', _hideTaskInfoPanel);
+
+        // Click outside to close
+        setTimeout(function() {
+            document.addEventListener('mousedown', _onInfoPanelOutsideClick);
+            document.addEventListener('keydown', _onInfoPanelEscape);
+        }, 10);
+    }
+
+    function _hideTaskInfoPanel() {
+        if (_taskInfoPanelEl) _taskInfoPanelEl.classList.remove('visible');
+        document.removeEventListener('mousedown', _onInfoPanelOutsideClick);
+        document.removeEventListener('keydown', _onInfoPanelEscape);
+    }
+
+    function _onInfoPanelOutsideClick(e) {
+        if (_taskInfoPanelEl && !_taskInfoPanelEl.contains(e.target)) {
+            _hideTaskInfoPanel();
+        }
+    }
+
+    function _onInfoPanelEscape(e) {
+        if (e.key === 'Escape') _hideTaskInfoPanel();
     }
 
     // === CONTROLS ===
@@ -1785,10 +2283,10 @@ const Galaxy3D = (function() {
 
         // Head — bright sphere (always behind scene objects)
         var headGeo = new THREE.SphereGeometry(0.4 * scale, 8, 8);
-        var headMat = new THREE.MeshBasicMaterial({ color: palette.head, transparent: true, opacity: 0.9, depthTest: false, depthWrite: false });
+        var headMat = new THREE.MeshBasicMaterial({ color: palette.head, transparent: true, opacity: 0.9, depthTest: true, depthWrite: false });
         var head = new THREE.Mesh(headGeo, headMat);
         head.position.copy(startPos);
-        head.renderOrder = -1000;
+        head.renderOrder = -10;
         scene.add(head);
 
         // Trail — line with RGB fade (AdditiveBlending: black = invisible)
@@ -1810,12 +2308,12 @@ const Galaxy3D = (function() {
             vertexColors: true,
             transparent: true,
             opacity: 1.0,
-            depthTest: false,
+            depthTest: true,
             depthWrite: false,
             blending: THREE.AdditiveBlending
         });
         var trail = new THREE.Line(trailGeo, trailMat);
-        trail.renderOrder = -1000;
+        trail.renderOrder = -10;
         scene.add(trail);
 
         cometObj = {
@@ -2191,6 +2689,8 @@ const Galaxy3D = (function() {
         initialized = false;
         _hideTaskTooltip3D();
         _taskTooltipEl3D = null;
+        _hideTaskInfoPanel();
+        _taskInfoPanelEl = null;
         console.log('Galaxy3D: disposed');
     }
 
