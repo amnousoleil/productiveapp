@@ -1,1 +1,0 @@
-{"version":3,"file":"pool.js","sourceRoot":"","sources":["../../../src/modules/mail/pool.ts"],"names":[],"mappings":";AAAA;;;GAGG;;AAEH,2BAA0B;AAC1B,gDAA0C;AAE1C,gDAAgD;AAChD,MAAM,IAAI,GAAG,IAAI,SAAI,CAAC;IACpB,gBAAgB,EAAE,YAAG,CAAC,YAAY;IAClC,GAAG,EAAE,EAAE;IACP,iBAAiB,EAAE,KAAK;IACxB,uBAAuB,EAAE,KAAK;CAC/B,CAAC,CAAC;AAEH,kBAAe,IAAI,CAAC"}

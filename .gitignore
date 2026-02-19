@@ -1,0 +1,30 @@
+# Environnement
+.env
+.env.*
+*.env
+
+# Backups (trop lourds pour GitHub)
+backups/
+*.bak
+*.backup
+
+# Logs
+*.log
+logs/
+
+# Système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Uploads utilisateurs (données privées)
+uploads/
+recordings/
+
+# Temp
+tmp/
+.tmp/

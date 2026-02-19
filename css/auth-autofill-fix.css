@@ -1,0 +1,30 @@
+/* =============================================
+   AUTH AUTOFILL FIX — Navigateurs Chrome/Edge/Safari
+   Empêche le fond blanc du remplissage auto
+   ============================================= */
+
+/* Fix autofill Chrome/Edge — override fond blanc */
+.auth-inputs input:-webkit-autofill,
+.auth-inputs input:-webkit-autofill:hover,
+.auth-inputs input:-webkit-autofill:focus,
+.auth-inputs input:-webkit-autofill:active {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.55) inset !important;
+    box-shadow: 0 0 0px 1000px rgba(0, 0, 0, 0.55) inset !important;
+    transition: background-color 9999s ease-in-out 0s;
+    caret-color: #ffffff;
+}
+
+/* Fix Firefox autofill */
+.auth-inputs input:autofill {
+    background: rgba(0, 0, 0, 0.55) !important;
+    color: #ffffff !important;
+}
+
+/* Sécurité : texte toujours blanc dans les inputs auth */
+.auth-inputs input,
+.auth-inputs input:focus,
+.auth-inputs input:hover {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+}

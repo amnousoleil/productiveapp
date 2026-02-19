@@ -1,8 +1,0 @@
-/**
- * Pool PostgreSQL pour le module comptabilité
- * Compatible avec pg.Pool API
- */
-import { Pool } from 'pg';
-declare const pool: Pool;
-export default pool;
-//# sourceMappingURL=pool.d.ts.map
