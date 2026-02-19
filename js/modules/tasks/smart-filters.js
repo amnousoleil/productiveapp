@@ -61,6 +61,15 @@ const SmartFilters = (function() {
     function filterTasks(fn) {
         var tasks = typeof AppState !== 'undefined' ? (AppState.tasks || []) : [];
         var filtered = tasks.filter(fn);
+        // Tri par date de création décroissante
+        filtered.sort(function(a, b) {
+            var dateA = a.createdAt || a.created_at || a.updated_at || '';
+            var dateB = b.createdAt || b.created_at || b.updated_at || '';
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return new Date(dateB) - new Date(dateA);
+        });
         // Re-render tasks with filtered list
         renderFilteredTasks(filtered);
     }

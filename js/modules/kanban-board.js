@@ -329,12 +329,13 @@ var KanbanBoard = (function() {
     }
 
     function getTaskPriority(task) {
+        if (task.priority && typeof task.priority.level === 'number') return task.priority.level;
         if (typeof task.priority === 'number') return task.priority;
         if (typeof task.priority === 'string') {
-            var map = { urgent: 1, high: 1, normal: 2, medium: 2, low: 3, zen: 3 };
-            return map[task.priority.toLowerCase()] || 2;
+            var map = { urgent: 1, high: 2, normal: 3, medium: 3, low: 4, zen: 4 };
+            return map[task.priority.toLowerCase()] || 3;
         }
-        return 2;
+        return 3;
     }
 
     function getProjectForTask(task) {

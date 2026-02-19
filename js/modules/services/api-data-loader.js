@@ -190,8 +190,8 @@ const ApiDataLoader = (function() {
         const priorityMap = {
             'urgent': 1,
             'high': 2,
-            'medium': 2,
-            'low': 3
+            'medium': 3,
+            'low': 4
         };
         const labelMap = {
             'urgent': 'Urgent',
@@ -200,7 +200,7 @@ const ApiDataLoader = (function() {
             'low': 'Zen'
         };
         const raw = (typeof priority === 'string') ? priority.toLowerCase() : 'medium';
-        const level = priorityMap[raw] || 2;
+        const level = priorityMap[raw] || 3;
         return { level, label: labelMap[raw] || 'Normal', raw: raw };
     }
 

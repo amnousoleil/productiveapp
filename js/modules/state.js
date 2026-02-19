@@ -234,11 +234,30 @@ const AppState = {
             filtered = filtered.filter(t => t.userId === this.filters.user);
         }
 
-        // Filtre par priorité
+        // Filtre par priorité — use raw string as primary (level 2 is ambiguous: high & medium)
         if (this.filters.priority !== 'off') {
-            const targetPriority = { urgent: 1, important: 2, normal: 3, zen: 4 }[this.filters.priority];
-            if (targetPriority) filtered = filtered.filter(t => (t.priority?.level || 3) === targetPriority);
+            var pf = this.filters.priority; // urgent | important | normal | zen
+            filtered = filtered.filter(function(t) {
+                var raw = (t.priority?.raw || 'medium').toLowerCase();
+                switch (pf) {
+                    case 'urgent':    return raw === 'urgent';
+                    case 'important': return raw === 'high';
+                    case 'normal':    return raw === 'medium';
+                    case 'zen':       return raw === 'low';
+                    default:          return true;
+                }
+            });
         }
+
+        // Tri par date de création décroissante (plus récentes en premier)
+        filtered.sort(function(a, b) {
+            var dateA = a.createdAt || a.created_at || a.updated_at || '';
+            var dateB = b.createdAt || b.created_at || b.updated_at || '';
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return new Date(dateB) - new Date(dateA);
+        });
 
         return filtered;
     },

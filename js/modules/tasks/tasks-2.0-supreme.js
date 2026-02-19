@@ -831,6 +831,16 @@ const Tasks2Supreme = (function() {
                 break;
         }
 
+        // Tri par date de création décroissante (plus récentes en premier)
+        filtered.sort(function(a, b) {
+            var dateA = a.createdAt || a.created_at || a.updated_at || '';
+            var dateB = b.createdAt || b.created_at || b.updated_at || '';
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return new Date(dateB) - new Date(dateA);
+        });
+
         return filtered;
     }
 

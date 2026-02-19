@@ -92,7 +92,7 @@ const ApiService = {
                 text: parts.title,
                 description: parts.description,
                 status: t.status,
-                priority: { level: t.priority, label: Utils.getPriorityLabel(t.priority) },
+                priority: { level: t.priority, label: Utils.getPriorityLabel(t.priority), raw: { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' }[t.priority] || 'medium' },
                 project: t.project_id,
                 userId: t.user_id,
                 userName: Utils.getUserName(t.user_id),

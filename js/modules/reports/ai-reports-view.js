@@ -300,8 +300,9 @@ const AIReportsView = (function() {
         const activeTasks = tasks.filter(t => t.status !== 'done');
         const priorityCounts = {
             urgent: activeTasks.filter(t => (t.priority?.level || t.priority) === 1).length,
-            normal: activeTasks.filter(t => (t.priority?.level || t.priority) === 2).length,
-            low: activeTasks.filter(t => (t.priority?.level || t.priority) === 3).length
+            important: activeTasks.filter(t => (t.priority?.level || t.priority) === 2).length,
+            normal: activeTasks.filter(t => (t.priority?.level || t.priority) === 3).length,
+            low: activeTasks.filter(t => (t.priority?.level || t.priority) === 4).length
         };
 
         // Last 7 days productivity

@@ -96,11 +96,12 @@ const Tasks = {
 
             // Fallback to N8N
             if (!result) {
+                var _rawMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
                 const taskData = {
                     text: text,
                     description: options.description || '',
                     project: projectId,
-                    priority: { level: priorityLevel, label: Utils.getPriorityLabel(priorityLevel) },
+                    priority: { level: priorityLevel, label: Utils.getPriorityLabel(priorityLevel), raw: _rawMap[priorityLevel] || 'medium' },
                     userId: assignTo,
                     userName: Utils.getUserName(assignTo)
                 };
@@ -114,13 +115,26 @@ const Tasks = {
 
             if (result) {
                 // Normalize result from either API
+                // Helper: normalize priority the same way as api-data-loader
+                var _pLevelMap = { urgent: 1, high: 2, medium: 3, low: 4 };
+                var _pLabelMap = { urgent: 'Urgent', high: 'Important', medium: 'Normal', low: 'Zen' };
+                var _selectToRaw = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
+                function _normPri(raw, fallbackLevel) {
+                    if (typeof raw === 'string') {
+                        var r = raw.toLowerCase();
+                        return { level: _pLevelMap[r] || 2, label: _pLabelMap[r] || 'Normal', raw: r };
+                    }
+                    var fb = _selectToRaw[fallbackLevel] || 'medium';
+                    return { level: _pLevelMap[fb] || 2, label: _pLabelMap[fb] || 'Normal', raw: fb };
+                }
+
                 const newTask = result.task_id ? {
                     // N8N format
                     id: result.task_id,
                     text: Utils.parseTaskText(result.text).title,
                     description: Utils.parseTaskText(result.text).description,
                     status: result.status || 'todo',
-                    priority: { level: result.priority || priorityLevel, label: Utils.getPriorityLabel(result.priority || priorityLevel) },
+                    priority: _normPri(result.priority, priorityLevel),
                     project: result.project_id || projectId,
                     userId: result.user_id || assignTo,
                     userName: Utils.getUserName(result.user_id || assignTo),
@@ -131,15 +145,19 @@ const Tasks = {
                     // Express format
                     id: result.id,
                     text: result.title || text,
+                    title: result.title || text,
                     description: result.description || '',
                     status: result.status === 'in_progress' ? 'inprogress' : (result.status || 'todo'),
-                    priority: { level: { urgent: 1, high: 2, medium: 3, low: 4 }[result.priority] || priorityLevel, label: Utils.getPriorityLabel({ urgent: 1, high: 2, medium: 3, low: 4 }[result.priority] || priorityLevel) },
+                    priority: _normPri(result.priority, priorityLevel),
                     project: result.project_id || projectId,
+                    project_id: result.project_id || projectId,
                     userId: result.assigned_to || assignTo,
+                    assigned_to: result.assigned_to || assignTo,
                     userName: Utils.getUserName(result.assigned_to || assignTo),
                     position: result.position || 0,
+                    created_at: result.created_at,
                     createdAt: result.created_at,
-                    updatedAt: result.updated_at
+                    updated_at: result.updated_at
                 };
 
                 AppState.addTask(newTask);
@@ -296,8 +314,9 @@ const Tasks = {
             `<option value="${p.id}" ${task.project === p.id ? 'selected' : ''}>${p.icon} ${p.name}</option>`
         ).join('');
 
-        // Remplir le sélecteur de priorité
-        Utils.$('edit-task-priority').value = task.priority?.level || 2;
+        // Remplir le sélecteur de priorité (use raw string, not level — level is ambiguous)
+        var rawToSelect = { urgent: '1', high: '2', medium: '3', low: '4' };
+        Utils.$('edit-task-priority').value = rawToSelect[task.priority?.raw] || '3';
 
         // Remplir le sélecteur d'utilisateur
         const userSelect = Utils.$('edit-task-user');
@@ -417,14 +436,17 @@ const Tasks = {
         }
 
         try {
+            // Convert select value (1-4) to backend raw string
+            var selectToRaw = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
+            var newRaw = selectToRaw[newPriority] || 'medium';
+
             // Use Express API if authenticated
             if (typeof ApiTasks !== 'undefined' && ApiTokens.isAuthenticated()) {
-                const priorityMap = { 1: 'urgent', 2: 'high', 3: 'medium', 4: 'low' };
                 const updateData = {
                     title: newTitle,
                     description: newDescription,
                     project_id: newProjectId === 'general' ? null : newProjectId,
-                    priority: priorityMap[newPriority] || 'medium',
+                    priority: newRaw,
                     assigned_to: newUserId
                 };
                 await ApiTasks.update(taskId, updateData);
@@ -433,19 +455,26 @@ const Tasks = {
                     title: newTitle,
                     description: newDescription,
                     projectId: newProjectId,
-                    priority: newPriority,
+                    priority: newRaw,
                     userId: newUserId
                 });
             }
 
+            // Build normalized priority object (same as api-data-loader)
+            var priorityLevelMap = { urgent: 1, high: 2, medium: 3, low: 4 };
+            var priorityLabelMap = { urgent: 'Urgent', high: 'Important', medium: 'Normal', low: 'Zen' };
+
             // Mettre à jour localement
             task.text = newTitle;
+            task.title = newTitle;
             task.description = newDescription;
             task.project = newProjectId;
-            task.priority = { level: newPriority, label: Utils.getPriorityLabel(newPriority) };
+            task.project_id = newProjectId;
+            task.priority = { level: priorityLevelMap[newRaw] || 2, label: priorityLabelMap[newRaw] || 'Normal', raw: newRaw };
             task.userId = newUserId;
+            task.assigned_to = newUserId;
             task.userName = Utils.getUserName(newUserId);
-            task.updatedAt = new Date().toISOString();
+            task.updated_at = new Date().toISOString();
 
             window.tasks = AppState.tasks;
 
