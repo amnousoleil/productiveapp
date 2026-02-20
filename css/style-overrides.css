@@ -2208,14 +2208,16 @@ body.sidebar-collapsed #view-galaxy.active {
     background: #f5f0e8 !important;
 }
 
-/* Masquer le Pomodoro quand Galaxy View est active */
+/* Masquer le Pomodoro et le bouton bug-report quand Galaxy View est active */
 body.galaxy-active .pomodoro-widget,
-body.galaxy-active #pomodoro-widget {
+body.galaxy-active #pomodoro-widget,
+body.galaxy-active #bug-report-fab {
     display: none !important;
 }
 
-/* Galaxy toolbar: toujours visible, positionnée en bas du Galaxy View */
-#view-galaxy.active .cosmic-toolbar {
+/* Galaxy toolbar: toujours visible en 2D, positionnée en bas du Galaxy View */
+#view-galaxy.active:not(.mode-3d) .cosmic-toolbar {
+    display: flex !important;
     bottom: 40px !important;
     z-index: 200 !important;
     opacity: 1 !important;

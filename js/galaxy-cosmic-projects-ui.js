@@ -878,10 +878,6 @@ const CosmicProjectsUI = (function () {
         var viewGalaxy = document.getElementById('view-galaxy');
         if (viewGalaxy) viewGalaxy.classList.add('task-project-mode');
 
-        // Hide the drawing toolbar
-        var cosmicToolbar = document.querySelector('.cosmic-toolbar');
-        if (cosmicToolbar) cosmicToolbar.style.display = 'none';
-
         // Update toolbar project name indicator
         var nameEl = document.querySelector('.cosmic-project-name');
         if (nameEl) nameEl.textContent = (projectIcon || '') + ' ' + (projectName || '');
@@ -904,10 +900,6 @@ const CosmicProjectsUI = (function () {
 
         var viewGalaxy = document.getElementById('view-galaxy');
         if (viewGalaxy) viewGalaxy.classList.remove('task-project-mode');
-
-        // Show the drawing toolbar again
-        var cosmicToolbar = document.querySelector('.cosmic-toolbar');
-        if (cosmicToolbar) cosmicToolbar.style.display = '';
 
         // Remove task project banner
         _removeTaskProjectBanner();
@@ -933,10 +925,8 @@ const CosmicProjectsUI = (function () {
         banner.id = 'cpp-task-banner';
         banner.className = 'cpp-task-banner';
         banner.innerHTML =
-            '<div class="cpp-task-banner-icon">' + (icon || '\ud83d\udcc1') + '</div>' +
             '<div class="cpp-task-banner-text">' +
                 '<div class="cpp-task-banner-name">' + _escapeHtml(name || '') + '</div>' +
-                '<div class="cpp-task-banner-hint">Les t\u00e2ches de ce projet appara\u00eetront ici bient\u00f4t</div>' +
             '</div>';
 
         container.appendChild(banner);

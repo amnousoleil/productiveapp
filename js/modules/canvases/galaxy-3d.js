@@ -39,6 +39,29 @@ const Galaxy3D = (function() {
     var _orbitMode = 'galaxy';       // 'galaxy' (flat spiral disk) or 'satellite' (3D spherical)
     var _modeTransition = null;      // active transition object or null
     var _dustParticles = null;       // THREE.Points for galaxy dust
+    var _dustFade = null;            // { start, duration } fade-in + expansion state
+    var _skyboxMesh = null;          // current active skybox texture
+    var _skyboxFiles = [
+        'HDR_blue_nebulae-1.jpg',
+        'HDR_silver_and_gold_nebulae.jpg',
+        'HDR_artificial_planet.jpg',
+        'HDR_brown_dwarf.jpg',
+        'HDR_marslike_planet_close.jpg',
+        'kloppenheim_07_puresky_4k.jpg',
+        'qwantani_moon_noon_puresky_4k.jpg',
+        'abstract-luxury-plain-dark-brown-brown-wallpaper-background-used-vignette-frames-presentations-studio-backgrounds-boards-laminate-furniture-floor-tiles.jpg',
+        'building-dreamy-setting.jpg'
+    ];
+    var _skyboxCache = {};           // filename -> THREE.Texture (preloaded)
+    var _skyboxPreloaded = 0;        // count of loaded textures
+    var _skyboxIndex = 0;
+    try {
+        var _savedSkybox = localStorage.getItem('galaxy-3d-skybox-file');
+        if (_savedSkybox) {
+            var _idx = _skyboxFiles.indexOf(_savedSkybox);
+            if (_idx >= 0) _skyboxIndex = _idx;
+        }
+    } catch (_e2) {}
     // Restore user preference
     try {
         var _savedMode = localStorage.getItem('galaxy-3d-orbit-mode');
@@ -117,10 +140,10 @@ const Galaxy3D = (function() {
         scene.background = new THREE.Color(0x0a0a2e);
 
         // Camera — close enough to see the test cube clearly
-        camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 2000);
-        camera.position.set(0, 0, 80);
+        camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 10000);
+        camera.position.set(0, 48, 40);
         camera.lookAt(0, 0, 0);
-        console.log('[3D] Camera at (0,0,80), aspect:', (w/h).toFixed(2));
+        console.log('[3D] Camera at (0,48,40) panoramic, aspect:', (w/h).toFixed(2));
 
         // Renderer — create on the 3D canvas
         try {
@@ -1024,6 +1047,7 @@ const Galaxy3D = (function() {
         _orbitsInitialized = false;
         _modeTransition = null;
         _disposeDustParticles();
+        _disposeSkybox();
         _disposeProjectSun();
         disposeNodeLights();
         spheres.forEach(s => {
@@ -1099,7 +1123,8 @@ const Galaxy3D = (function() {
     // === KEPLERIAN ORBIT SYSTEM (task nodes only) ===
     var _orbitsInitialized = false;
     var _orbitCenter = { x: 0, y: 0, z: 0 }; // barycenter of urgent nodes
-    var ORBIT_K = 6.0; // global speed constant — contemplative pace (8 * 0.75)
+    var ORBIT_K = 6.0; // Keplerian speed constant (Satellite mode)
+    var ORBIT_DUST_SPEED = 0.02; // uniform angular speed matching dust rotation (Galaxy mode)
     var ORBIT_COLLISION_DIST = 3.0; // minimum distance before repulsion
     var ORBIT_COLLISION_FORCE = 0.5; // repulsion strength
 
@@ -1113,6 +1138,19 @@ const Galaxy3D = (function() {
     function _createProjectSun(projectName, projectIcon) {
         var THREE = window.THREE;
         if (!THREE || !scene) return;
+
+        // Safety: never create sun outside task project mode
+        if (!window.CosmicProjectsUI || !window.CosmicProjectsUI.isTaskProjectMode) return;
+
+        // Double safety: only create sun if there are actual task nodes in the scene
+        var hasTaskNodes = false;
+        for (var ti = 0; ti < spheres.length; ti++) {
+            if (spheres[ti].mesh && spheres[ti].mesh.userData && spheres[ti].mesh.userData.isTaskNode) {
+                hasTaskNodes = true;
+                break;
+            }
+        }
+        if (!hasTaskNodes) return;
 
         _disposeProjectSun(); // cleanup any previous sun
 
@@ -1331,10 +1369,10 @@ const Galaxy3D = (function() {
             // GALAXY MODE: wide distance zones per priority + uniform angular distribution
             var sr = _sunRadius || 3;
             var _galaxyZones = {
-                'urgent': { min: sr + 10,  max: sr + 30 },
-                'high':   { min: sr + 40,  max: sr + 80 },
-                'medium': { min: sr + 90,  max: sr + 150 },
-                'low':    { min: sr + 160, max: sr + 230 }
+                'urgent': { min: sr + 4,   max: sr + 12 },
+                'high':   { min: sr + 16,  max: sr + 32 },
+                'medium': { min: sr + 36,  max: sr + 60 },
+                'low':    { min: sr + 64,  max: sr + 92 }
             };
             // Group orbiters by priority for uniform angular distribution
             var _prioGroups = { 'urgent': [], 'high': [], 'medium': [], 'low': [] };
@@ -1384,10 +1422,10 @@ const Galaxy3D = (function() {
             // SATELLITE MODE: same priority zones + truly 3D inclined orbits
             var sr2 = _sunRadius || 3;
             var _satZones = {
-                'urgent': { min: sr2 + 10,  max: sr2 + 30 },
-                'high':   { min: sr2 + 40,  max: sr2 + 80 },
-                'medium': { min: sr2 + 90,  max: sr2 + 150 },
-                'low':    { min: sr2 + 160, max: sr2 + 230 }
+                'urgent': { min: sr2 + 4,   max: sr2 + 12 },
+                'high':   { min: sr2 + 16,  max: sr2 + 32 },
+                'medium': { min: sr2 + 36,  max: sr2 + 60 },
+                'low':    { min: sr2 + 64,  max: sr2 + 92 }
             };
             var _satGroups = { 'urgent': [], 'high': [], 'medium': [], 'low': [] };
             for (var k = 0; k < orbiters.length; k++) {
@@ -1454,8 +1492,8 @@ const Galaxy3D = (function() {
 
             if (_orbitMode === 'galaxy') {
                 // Galaxy: anchors at inner ring, flat
-                var anchorMinR = _sunRadius > 0 ? _sunRadius + (sa.size || 1) + 3 : 2;
-                var anchorR = anchorMinR + m * 3;
+                var anchorMinR = _sunRadius > 0 ? _sunRadius + (sa.size || 1) + 2.4 : 2;
+                var anchorR = anchorMinR + m * 2.4;
                 sa.mesh.userData.orbitRadius = ar < 1 ? 0 : anchorR;
                 sa.mesh.userData.orbitAngle = Math.atan2(adz, adx);
                 sa.mesh.userData.orbitBaseY = 0;
@@ -1463,8 +1501,8 @@ const Galaxy3D = (function() {
                 sa.mesh.userData.orbitAxisTilt = 0;
             } else {
                 // Satellite: anchors get mild 3D inclination
-                var anchorMinR2 = _sunRadius > 0 ? _sunRadius + (sa.size || 1) + 3 : 2;
-                var anchorR2 = anchorMinR2 + m * 5 + Math.random() * 10;
+                var anchorMinR2 = _sunRadius > 0 ? _sunRadius + (sa.size || 1) + 2.4 : 2;
+                var anchorR2 = anchorMinR2 + m * 4 + Math.random() * 8;
                 sa.mesh.userData.orbitRadius = ar < 1 ? 0 : anchorR2;
                 sa.mesh.userData.orbitAngle = Math.atan2(adz, adx);
                 sa.mesh.userData.orbitBaseY = 0;
@@ -1487,7 +1525,7 @@ const Galaxy3D = (function() {
         }
         if (taskSpheres.length < 2) return;
 
-        // Phase 1: advance orbital angles (Kepler: omega = k / (r * sqrt(r)))
+        // Phase 1: advance orbital angles
         for (var j = 0; j < taskSpheres.length; j++) {
             var s = taskSpheres[j];
             var ud = s.mesh.userData;
@@ -1495,11 +1533,15 @@ const Galaxy3D = (function() {
             if (r < 0.5) continue; // sphere at center, skip
 
             var omega;
-            if (ud.orbitIsAnchor) {
-                // Anchors (urgent): drift 10x slower than Kepler would give
+            if (_orbitMode === 'galaxy') {
+                // Galaxy mode: uniform angular speed matching dust rotation
+                // Negative because dust uses rotation.y (+Z→+X) while cos/sin goes +X→+Z
+                omega = -ORBIT_DUST_SPEED;
+            } else if (ud.orbitIsAnchor) {
+                // Satellite — Anchors (urgent): drift 10x slower than Kepler
                 omega = (ORBIT_K * 0.1) / (r * Math.sqrt(r));
             } else {
-                // Normal Kepler: T² ∝ r³ → omega = k / (r * sqrt(r))
+                // Satellite — Normal Kepler: T² ∝ r³ → omega = k / (r * sqrt(r))
                 omega = ORBIT_K / (r * Math.sqrt(r));
             }
 
@@ -1590,6 +1632,9 @@ const Galaxy3D = (function() {
         var THREE = window.THREE;
         if (!THREE || !camera || !controls) return;
 
+        // Cancel any ongoing _animateCamera (e.g. from fitToView)
+        _cameraAnimId++;
+
         var taskSpheres = [];
         for (var i = 0; i < spheres.length; i++) {
             if (spheres[i].mesh && spheres[i].mesh.userData && spheres[i].mesh.userData.isTaskNode) {
@@ -1650,35 +1695,11 @@ const Galaxy3D = (function() {
             snapshots[m].sphere.mesh.position.copy(snapshots[m].fromPos);
         }
 
-        // Camera targets
+        // Keep camera exactly where it is during mode switch
         var camFromPos = camera.position.clone();
         var camFromTarget = controls.target.clone();
-        var camToPos, camToTarget;
-
-        if (newMode === 'galaxy') {
-            var maxR = 0;
-            for (var ri = 0; ri < snapshots.length; ri++) {
-                if (snapshots[ri].toOrbitRadius > maxR) maxR = snapshots[ri].toOrbitRadius;
-            }
-            var gDist = Math.max(maxR * 1.1, 30);
-            camToPos = new THREE.Vector3(0, gDist * 0.6, gDist * 0.5);
-            camToTarget = new THREE.Vector3(0, 0, 0);
-        } else {
-            // Satellite: compute bounding box of target positions
-            var mn = new THREE.Vector3(Infinity, Infinity, Infinity);
-            var mx = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
-            for (var si = 0; si < snapshots.length; si++) {
-                mn.min(snapshots[si].toPos);
-                mx.max(snapshots[si].toPos);
-            }
-            var center = mn.clone().add(mx).multiplyScalar(0.5);
-            var boxSize = mx.clone().sub(mn);
-            var maxDim = Math.max(boxSize.x, boxSize.y, boxSize.z, 5);
-            var fov = camera.fov * (Math.PI / 180);
-            var d = (maxDim * 0.5) / Math.tan(fov * 0.5) * 1.1;
-            camToPos = new THREE.Vector3(center.x, center.y + d * 0.15, center.z + d);
-            camToTarget = center.clone();
-        }
+        var camToPos = camFromPos.clone();
+        var camToTarget = camFromTarget.clone();
 
         // Pause normal orbits during transition
         _orbitsInitialized = false;
@@ -1694,6 +1715,11 @@ const Galaxy3D = (function() {
             camToPos: camToPos,
             camToTarget: camToTarget
         };
+
+        // Galaxy → Satellite: start dust fade-out (runs concurrently with sphere transition)
+        if (oldMode === 'galaxy' && newMode === 'satellite' && _dustParticles) {
+            _dustFade = { start: performance.now(), duration: 2500, fadeOut: true };
+        }
 
         // Persist choice
         try { localStorage.setItem('galaxy-3d-orbit-mode', newMode); } catch (_e) {}
@@ -1733,12 +1759,16 @@ const Galaxy3D = (function() {
             }
             _orbitsInitialized = true;
 
-            // Manage dust particles based on new mode
+            // Manage dust particles based on new mode (skybox stays in both)
             if (_modeTransition.to === 'galaxy') {
-                if (!_dustParticles) _createDustParticles();
-            } else {
+                // Always recreate dust fresh (dispose first to cancel any ongoing fade-out)
+                _disposeDustParticles();
+                _createDustParticles();
+            } else if (!_dustFade || !_dustFade.fadeOut) {
+                // Only hard-dispose if no fade-out is running (fade-out auto-disposes when done)
                 _disposeDustParticles();
             }
+            if (!_skyboxMesh) _createSkybox();
 
             _modeTransition = null;
         }
@@ -1889,29 +1919,33 @@ const Galaxy3D = (function() {
 
         console.log('Galaxy3D: loaded', spheres.length, 'spheres,', connections.length, 'connections,', nodeLights.length, 'node lights');
 
-        // Auto-fit camera to show all nodes
-        fitToView();
+        // Check if this is truly a task project: both the flag AND actual task nodes must be present
+        var isTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
+        var hasTaskNodes = spheres.some(function(s) {
+            return s.mesh && s.mesh.userData && s.mesh.userData.isTaskNode;
+        });
 
-        // Task project mode: create project sun + initialize orbits
-        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+        if (isTaskMode && hasTaskNodes) {
             var pName = window.CosmicProjectsUI.taskProjectName || 'Projet';
             var pIcon = window.CosmicProjectsUI.taskProjectIcon || '';
             _createProjectSun(pName, pIcon);
             _initTaskOrbits();
 
-            // Galaxy mode: position camera at elevated angle + create dust
+            // Skybox: always visible in both modes
+            _createSkybox();
+
+            // Panoramic camera (35° plunge, dynamic distance)
+            var cam = _computePanoramicCamera();
+            _animateCamera(cam.target, cam.position);
             if (_orbitMode === 'galaxy') {
-                var THREE = window.THREE;
-                var maxR = 0;
-                for (var gi = 0; gi < spheres.length; gi++) {
-                    var gr = spheres[gi].mesh && spheres[gi].mesh.userData ? (spheres[gi].mesh.userData.orbitRadius || 0) : 0;
-                    if (gr > maxR) maxR = gr;
-                }
-                var gDist = Math.max(maxR * 1.1, 30);
-                camera.position.set(0, gDist * 0.6, gDist * 0.5);
-                controls.target.set(0, 0, 0);
                 _createDustParticles();
             }
+        } else {
+            // Free canvas mode: no sun, no orbits, no skybox — just fit camera
+            _disposeProjectSun();
+            _disposeSkybox();
+            _disposeDustParticles();
+            fitToView();
         }
     }
 
@@ -1939,16 +1973,20 @@ const Galaxy3D = (function() {
             });
 
             // Keplerian task orbits + project sun (only in task project mode)
-            if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+            var _isTaskProjNow = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
+            if (_isTaskProjNow) {
                 // Mode transition takes priority over normal orbit updates
                 if (!_updateModeTransition()) {
                     _updateTaskOrbits(dt);
                 }
                 _updateProjectSun(time);
-                // Galaxy dust particles
-                if (_orbitMode === 'galaxy' && !_modeTransition) {
+                // Galaxy dust particles (also during fade-out when switching to satellite)
+                if (_dustParticles) {
                     _updateDustParticles(time, dt);
                 }
+            } else if (_sunMesh) {
+                // Safety: dispose stale sun if we're no longer in task project mode
+                _disposeProjectSun();
             }
 
             // Connection glow animation
@@ -2285,10 +2323,9 @@ const Galaxy3D = (function() {
 
     function _showSunTooltip(ud, clientX, clientY) {
         var el = _getTaskTooltipEl();
-        var icon = ud.projectIcon || '';
         var name = ud.label || 'Projet';
         var count = ud.taskCount || 0;
-        var html = '<div class="ctt-title" style="color:#FFD700">' + _escHtml3D(icon + ' ' + name) + '</div>';
+        var html = '<div class="ctt-title" style="color:#FFD700">' + _escHtml3D(name) + '</div>';
         html += '<div class="ctt-row" style="opacity:0.8">' + count + ' tâche' + (count > 1 ? 's' : '') + '</div>';
         el.innerHTML = html;
         _positionTaskTooltip3D(clientX, clientY);
@@ -2381,46 +2418,60 @@ const Galaxy3D = (function() {
         fitToView();
     }
 
+    // Compute optimal panoramic camera position (~35° plunge) from orbit data or bounding box
+    // Returns { target: Vector3, position: Vector3 }
+    function _computePanoramicCamera() {
+        var THREE = window.THREE;
+        var isTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
+
+        if (spheres.length === 0) {
+            return {
+                target: new THREE.Vector3(0, 0, 0),
+                position: new THREE.Vector3(0, 30, 40)
+            };
+        }
+
+        // Find max orbit radius (task mode) or bounding sphere (free canvas)
+        var maxR = 0;
+        if (isTaskMode) {
+            for (var i = 0; i < spheres.length; i++) {
+                var r = spheres[i].mesh && spheres[i].mesh.userData ? (spheres[i].mesh.userData.orbitRadius || 0) : 0;
+                if (r > maxR) maxR = r;
+            }
+        } else {
+            var min = new THREE.Vector3(Infinity, Infinity, Infinity);
+            var max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
+            spheres.forEach(function(s) { min.min(s.mesh.position); max.max(s.mesh.position); });
+            maxR = new THREE.Vector3().subVectors(max, min).length() * 0.5;
+        }
+
+        // Distance: ensure all orbits fit within the FOV with 15% margin
+        var fovRad = camera.fov * (Math.PI / 180);
+        var halfFov = fovRad * 0.5;
+        // Account for the plunge angle: the visible "radius" on screen is maxR (horizontal spread)
+        // At 35° plunge, the horizontal FOV coverage needs maxR, compute distance from that
+        var plungeAngle = 35 * (Math.PI / 180); // ~0.61 rad
+        var dist = (maxR * 1.15) / Math.tan(halfFov);
+        dist = Math.max(dist, 25); // minimum distance
+
+        // Camera position: 35° above the orbital plane, looking at center
+        // y = dist * sin(35°), z = dist * cos(35°)
+        var camY = dist * Math.sin(plungeAngle);
+        var camZ = dist * Math.cos(plungeAngle);
+
+        return {
+            target: new THREE.Vector3(0, 0, 0),
+            position: new THREE.Vector3(0, camY, camZ)
+        };
+    }
+
     function fitToView() {
         if (!camera || !controls) return;
-        var THREE = window.THREE;
-
-        // Compute bounding box of all nodes
-        if (spheres.length === 0) {
-            // No nodes: default view
-            _animateCamera(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 80));
-            return;
-        }
-
-        var min = new THREE.Vector3(Infinity, Infinity, Infinity);
-        var max = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
-        spheres.forEach(function(s) {
-            var p = s.mesh.position;
-            min.min(p);
-            max.max(p);
-        });
-
-        var center = new THREE.Vector3().addVectors(min, max).multiplyScalar(0.5);
-        var boxSize = new THREE.Vector3().subVectors(max, min);
-        var maxDim = Math.max(boxSize.x, boxSize.y, boxSize.z, 5); // minimum 5 units
-
-        // Distance to fit: use FOV to compute how far camera must be
-        var fov = camera.fov * (Math.PI / 180);
-        var dist = (maxDim * 0.5) / Math.tan(fov * 0.5);
-        dist *= 1.1; // 10% padding
-
-        var endTarget = center.clone();
-        var endPos;
-
-        if (_orbitMode === 'galaxy' && window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
-            // Galaxy mode: elevated angle to see the flat disk
-            endPos = new THREE.Vector3(center.x, center.y + dist * 0.5, center.z + dist * 0.55);
-        } else {
-            endPos = new THREE.Vector3(center.x, center.y, center.z + dist);
-        }
-
-        _animateCamera(endTarget, endPos);
+        var cam = _computePanoramicCamera();
+        _animateCamera(cam.target, cam.position);
     }
+
+    var _cameraAnimId = 0; // cancellation token for _animateCamera
 
     function _animateCamera(endTarget, endPos) {
         if (!camera || !controls) return;
@@ -2430,10 +2481,12 @@ const Galaxy3D = (function() {
         // Skip if already there
         if (startPos.distanceTo(endPos) < 0.5 && startTarget.distanceTo(endTarget) < 0.5) return;
 
+        var myId = ++_cameraAnimId; // cancel any previous animation
         var duration = 900;
         var startTime = Date.now();
 
         function tick() {
+            if (_cameraAnimId !== myId) return; // cancelled by a newer call
             var t = Math.min((Date.now() - startTime) / duration, 1);
             var ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
             controls.target.lerpVectors(startTarget, endTarget, ease);
@@ -2989,6 +3042,8 @@ const Galaxy3D = (function() {
         voyageState = null;
         _modeTransition = null;
         _disposeDustParticles();
+        _disposeSkybox();
+        _disposeSkyboxCache();
         disposeNebulae();
         disposeComet();
         stopAnimation();
@@ -3043,11 +3098,13 @@ const Galaxy3D = (function() {
         if (voyageState) { stopVoyage(); return false; }
         var THREE = window.THREE;
 
-        // Build path: nearest-neighbor ordering for smooth route
+        // Build path: only visible spheres with a mesh in the scene
         var waypoints = spheres
             .slice()
+            .filter(function(s) { return s.mesh && s.mesh.visible && s.mesh.parent; })
             .sort(function(a, b) { return b.size - a.size; })
             .slice(0, 15); // max 15 nodes
+        if (waypoints.length === 0) return false;
 
         // Nearest-neighbor from first (biggest) node
         var ordered = [waypoints.shift()];
@@ -3072,7 +3129,7 @@ const Galaxy3D = (function() {
         spheres.forEach(function(s) { mn.min(s.mesh.position); mx.max(s.mesh.position); });
         bbox.subVectors(mx, mn);
         var overviewDist = (Math.max(bbox.x, bbox.y, bbox.z, 5) * 0.5) / Math.tan(fov * 0.5) * 1.5;
-        var overviewPos = new THREE.Vector3(center.x, center.y, center.z + overviewDist);
+        var overviewPos = new THREE.Vector3(center.x, center.y + overviewDist * 0.5, center.z + overviewDist * 0.55);
 
         // Build timeline segments
         var segments = [];
@@ -3100,16 +3157,20 @@ const Galaxy3D = (function() {
             );
             var camPos = nodePos.clone().add(offsetDir);
 
-            // Move to node
+            // Move to node — store node ref + offset for live tracking
             segments.push({
                 type: 'move',
+                node: node,
+                offset: offsetDir.clone(),
                 targetPos: camPos,
                 targetLookAt: nodePos.clone(),
                 duration: 4500
             });
-            // Pause at node
+            // Pause at node — also track live position
             segments.push({
                 type: 'pause',
+                node: node,
+                offset: offsetDir.clone(),
                 duration: 2500
             });
         }
@@ -3145,20 +3206,10 @@ const Galaxy3D = (function() {
         voyageState.startPos = camera.position.clone();
         voyageState.startLookAt = controls.target.clone();
 
-        // Compute panoramic position (same as fitToView)
-        var THREE = window.THREE;
-        var center = new THREE.Vector3();
-        spheres.forEach(function(s) { center.add(s.mesh.position); });
-        center.divideScalar(Math.max(spheres.length, 1));
-        var mn = new THREE.Vector3(Infinity, Infinity, Infinity);
-        var mx = new THREE.Vector3(-Infinity, -Infinity, -Infinity);
-        spheres.forEach(function(s) { mn.min(s.mesh.position); mx.max(s.mesh.position); });
-        var bbox = new THREE.Vector3().subVectors(mx, mn);
-        var fov = camera.fov * (Math.PI / 180);
-        var dist = (Math.max(bbox.x, bbox.y, bbox.z, 5) * 0.5) / Math.tan(fov * 0.5) * 1.3;
-
-        voyageState.returnPos = new THREE.Vector3(center.x, center.y, center.z + dist);
-        voyageState.returnLookAt = center.clone();
+        // Compute panoramic return position (unified)
+        var camReturn = _computePanoramicCamera();
+        voyageState.returnPos = camReturn.position;
+        voyageState.returnLookAt = camReturn.target;
         voyageState.stopStartTime = Date.now();
     }
 
@@ -3190,13 +3241,25 @@ const Galaxy3D = (function() {
         var elapsed = now - voyageState.segStartTime;
         var t = Math.min(elapsed / seg.duration, 1);
 
+        // Live-track orbiting node: update targets from current mesh position
+        if (seg.node && seg.node.mesh && seg.node.mesh.parent) {
+            var livePos = seg.node.mesh.position;
+            seg.targetLookAt = livePos.clone();
+            seg.targetPos = livePos.clone().add(seg.offset);
+        }
+
         if (seg.type === 'move') {
             // Smooth ease: ease-in-out cubic
             var ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
             camera.position.lerpVectors(voyageState.startPos, seg.targetPos, ease);
             controls.target.lerpVectors(voyageState.startLookAt, seg.targetLookAt, ease);
+        } else if (seg.type === 'pause') {
+            // During pause, keep following the orbiting node
+            if (seg.node && seg.node.mesh && seg.node.mesh.parent) {
+                camera.position.copy(seg.targetPos);
+                controls.target.copy(seg.targetLookAt);
+            }
         }
-        // 'pause': camera stays put, controls.target stays put
 
         if (t >= 1) {
             // Advance to next segment
@@ -3212,7 +3275,7 @@ const Galaxy3D = (function() {
     }
 
     // === GALAXY DUST PARTICLES ===
-    var _dustCount = 2000;
+    var _dustCount = 3200;
 
     function _createDustParticles() {
         var THREE = window.THREE;
@@ -3244,10 +3307,10 @@ const Galaxy3D = (function() {
             positions[j * 3 + 1] = (Math.random() - 0.5) * radius * 0.04;
             positions[j * 3 + 2] = Math.sin(angle) * radius;
 
-            var brightness = 0.3 + Math.random() * 0.4;
+            var brightness = 0.5 + Math.random() * 0.5;
             colors[j * 3]     = brightness * 1.0;
-            colors[j * 3 + 1] = brightness * 0.9;
-            colors[j * 3 + 2] = brightness * 0.7;
+            colors[j * 3 + 1] = brightness * 0.92;
+            colors[j * 3 + 2] = brightness * 0.75;
         }
 
         var geometry = new THREE.BufferGeometry();
@@ -3268,11 +3331,11 @@ const Galaxy3D = (function() {
         var _pTex = new THREE.CanvasTexture(_pCanvas);
 
         var material = new THREE.PointsMaterial({
-            size: 1.5,
+            size: 2.0,
             map: _pTex,
             vertexColors: true,
             transparent: true,
-            opacity: 0.35,
+            opacity: 0,           // start invisible for fade-in
             alphaTest: 0.01,
             depthWrite: false,
             blending: THREE.AdditiveBlending,
@@ -3281,14 +3344,43 @@ const Galaxy3D = (function() {
 
         _dustParticles = new THREE.Points(geometry, material);
         _dustParticles.renderOrder = -5;
+        _dustParticles.scale.setScalar(0.7); // start slightly contracted for expansion effect
         scene.add(_dustParticles);
+
+        // Trigger fade-in + expansion (4 seconds)
+        _dustFade = { start: performance.now(), duration: 4000 };
     }
 
     function _updateDustParticles(time, dt) {
         if (!_dustParticles) return;
-        _dustParticles.rotation.y += dt * 0.02;
+        _dustParticles.rotation.y += dt * ORBIT_DUST_SPEED;
+
+        var fadeMultiplier = 1; // 1 = fully visible
+        if (_dustFade) {
+            var elapsed = performance.now() - _dustFade.start;
+            var t = Math.min(elapsed / _dustFade.duration, 1);
+
+            if (_dustFade.fadeOut) {
+                // === FADE-OUT: opacity 1→0, scale 1→0.7, then dispose ===
+                var easeIn = t * t; // ease-in quad (slow start, fast end)
+                fadeMultiplier = 1 - easeIn;
+                _dustParticles.scale.setScalar(1 - 0.3 * easeIn); // 1.0 → 0.7
+                if (t >= 1) {
+                    _disposeDustParticles(); // removes particles + resets _dustFade
+                    return;
+                }
+            } else {
+                // === FADE-IN: opacity 0→1, scale 0.7→1 ===
+                var easeOut = 1 - Math.pow(1 - t, 3); // ease-out cubic
+                fadeMultiplier = easeOut;
+                _dustParticles.scale.setScalar(0.7 + 0.3 * easeOut);
+                if (t >= 1) _dustFade = null;
+            }
+        }
+
         if (_dustParticles.material) {
-            _dustParticles.material.opacity = 0.3 + 0.05 * Math.sin(time * 0.3);
+            var baseOpacity = 0.3 + 0.05 * Math.sin(time * 0.3);
+            _dustParticles.material.opacity = baseOpacity * fadeMultiplier;
         }
     }
 
@@ -3299,6 +3391,131 @@ const Galaxy3D = (function() {
             if (_dustParticles.material) _dustParticles.material.dispose();
             _dustParticles = null;
         }
+        _dustFade = null;
+    }
+
+    // === SKYBOX (galaxy background sphere) ===
+    function _configureSkyboxTex(tex) {
+        var THREE = window.THREE;
+        tex.mapping = THREE.EquirectangularReflectionMapping;
+        tex.generateMipmaps = false;
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        if (THREE.SRGBColorSpace) tex.colorSpace = THREE.SRGBColorSpace;
+    }
+
+    // Preload all skybox JPG textures in background
+    function _preloadSkyboxes() {
+        var THREE = window.THREE;
+        if (!THREE) return;
+        _skyboxPreloaded = 0;
+        var loader = new THREE.TextureLoader();
+        console.log('Galaxy3D Skybox: preloading', _skyboxFiles.length, 'textures...');
+        for (var i = 0; i < _skyboxFiles.length; i++) {
+            (function(idx) {
+                var fn = _skyboxFiles[idx];
+                if (_skyboxCache[fn]) { _skyboxPreloaded++; return; }
+                loader.load(
+                    '/assets/textures/' + fn,
+                    function(tex) {
+                        _configureSkyboxTex(tex);
+                        _skyboxCache[fn] = tex;
+                        _skyboxPreloaded++;
+                        console.log('Galaxy3D Skybox: cached', fn,
+                            '(' + _skyboxPreloaded + '/' + _skyboxFiles.length + ')');
+                    },
+                    undefined,
+                    function() { _skyboxPreloaded++; }
+                );
+            })(i);
+        }
+    }
+
+    function _applySkybox(index) {
+        var THREE = window.THREE;
+        if (!scene || !THREE) return;
+        var fn = _skyboxFiles[index] || _skyboxFiles[0];
+
+        // Already cached — instant switch
+        if (_skyboxCache[fn]) {
+            scene.background = _skyboxCache[fn];
+            _skyboxMesh = _skyboxCache[fn];
+            _hideSkyboxSpinner();
+            return;
+        }
+
+        // Not yet cached — show spinner and load
+        _showSkyboxSpinner();
+        new THREE.TextureLoader().load(
+            '/assets/textures/' + fn,
+            function(tex) {
+                _configureSkyboxTex(tex);
+                _skyboxCache[fn] = tex;
+                scene.background = tex;
+                _skyboxMesh = tex;
+                _hideSkyboxSpinner();
+            },
+            undefined,
+            function(err) {
+                console.error('Galaxy3D Skybox: FAILED', fn, err);
+                _hideSkyboxSpinner();
+            }
+        );
+    }
+
+    function _showSkyboxSpinner() {
+        var el = document.getElementById('galaxy-skybox-spinner');
+        if (el) { el.style.display = 'flex'; return; }
+        el = document.createElement('div');
+        el.id = 'galaxy-skybox-spinner';
+        el.style.cssText = 'position:absolute;top:16px;right:16px;z-index:300;' +
+            'display:flex;align-items:center;gap:8px;' +
+            'background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);' +
+            'padding:8px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);' +
+            'color:rgba(255,255,255,0.8);font-size:12px;font-family:inherit;';
+        el.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" style="animation:spin 1s linear infinite">' +
+            '<circle cx="12" cy="12" r="10" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>' +
+            '<path d="M12 2a10 10 0 0 1 10 10" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>' +
+            '<style>@keyframes spin{to{transform:rotate(360deg)}}</style>' +
+            'Chargement...';
+        var container = document.getElementById('galaxy-3d-container');
+        if (container) container.appendChild(el);
+    }
+
+    function _hideSkyboxSpinner() {
+        var el = document.getElementById('galaxy-skybox-spinner');
+        if (el) el.style.display = 'none';
+    }
+
+    function _createSkybox() {
+        if (_skyboxMesh) return;
+        _applySkybox(_skyboxIndex);
+        _preloadSkyboxes();
+    }
+
+    function cycleSkybox() {
+        _skyboxIndex = (_skyboxIndex + 1) % _skyboxFiles.length;
+        try { localStorage.setItem('galaxy-3d-skybox-file', _skyboxFiles[_skyboxIndex]); } catch (_e) {}
+        _applySkybox(_skyboxIndex);
+        return _skyboxFiles[_skyboxIndex];
+    }
+
+    function _disposeSkybox() {
+        // Detach from scene but keep cache alive
+        if (_skyboxMesh) {
+            if (scene && scene.background === _skyboxMesh) {
+                scene.background = null;
+            }
+            _skyboxMesh = null;
+        }
+    }
+
+    function _disposeSkyboxCache() {
+        for (var fn in _skyboxCache) {
+            if (_skyboxCache[fn] && _skyboxCache[fn].dispose) _skyboxCache[fn].dispose();
+        }
+        _skyboxCache = {};
+        _skyboxPreloaded = 0;
     }
 
     // === ORBIT MODE PUBLIC FUNCTIONS ===
@@ -3339,6 +3556,7 @@ const Galaxy3D = (function() {
         isVoyageActive,
         toggleOrbitMode,
         getOrbitMode,
+        cycleSkybox,
         get spheres() { return spheres; },
         get connections() { return connections; },
         get isInitialized() { return initialized; }

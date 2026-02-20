@@ -1584,6 +1584,17 @@ class CosmicColorPicker {
 function initCosmicUI() {
     console.log('🎨 Initialisation Cosmic UI...');
 
+    // Avoid creating duplicate toolbars if already initialised
+    if (window.CosmicToolbar && window.CosmicToolbar.element && window.CosmicToolbar.element.parentNode) {
+        // Clear any stale inline display:none left by 3D toggle / task-project mode
+        window.CosmicToolbar.element.style.display = '';
+        window.CosmicToolbar.show();
+        window.CosmicToolbar.selectTool('circle');
+        window.CosmicToolbar.scheduleHide();
+        console.log('✨ Cosmic UI réutilisée (toolbar existante)');
+        return;
+    }
+
     // Créer tous les composants UI
     window.CosmicToolbar = new CosmicToolbar();
     window.RadialMenu = new RadialMenu();
@@ -1979,64 +1990,68 @@ setTimeout(function() {
     function createBottomBar() {
         if (bottomBar) return bottomBar;
 
-        var btnStyle = 'width:42px;height:42px;padding:0;border:1px solid rgba(255,255,255,0.25);border-radius:12px;' +
-            'background:rgba(255,255,255,0.1);color:#fff;cursor:pointer;' +
-            'backdrop-filter:blur(8px);transition:all 0.2s;display:flex;align-items:center;justify-content:center;';
-        var hoverIn = 'this.style.background="rgba(255,255,255,0.22)"';
-        var hoverOut = 'this.style.background="rgba(255,255,255,0.1)"';
+        // --- Helper: create a labeled button ---
+        var btnStyle = 'width:48px;padding:6px 0 2px;border:1px solid rgba(255,255,255,0.2);border-radius:12px;' +
+            'background:transparent;color:#fff;cursor:pointer;' +
+            'transition:all 0.2s;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;';
+        function makeBtn(id, title, label, svgHtml) {
+            var btn = document.createElement('button');
+            btn.id = id;
+            btn.title = title;
+            btn.style.cssText = btnStyle;
+            btn.innerHTML = svgHtml + '<span style="font-size:8px;color:rgba(255,255,255,0.65);line-height:1;white-space:nowrap;pointer-events:none;">' + label + '</span>';
+            btn.addEventListener('mouseenter', function() { btn.style.background = 'rgba(255,255,255,0.15)'; });
+            btn.addEventListener('mouseleave', function() { btn.style.background = 'transparent'; });
+            return btn;
+        }
 
-        // Back button — curved arrow SVG
+        // --- Group container helper ---
+        var groupStyle = 'display:flex;gap:4px;padding:6px 10px;border-radius:16px;' +
+            'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);' +
+            'backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);';
+
+        // ===================== BUTTONS =====================
+
+        // Back button (separate, not in groups)
         backBtn = document.createElement('button');
         backBtn.id = 'galaxy-back-2d';
         backBtn.title = 'Retour 2D';
-        backBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H14"/></svg>';
+        backBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H14"/></svg>' +
+            '<span style="font-size:8px;color:rgba(255,255,255,0.65);line-height:1;white-space:nowrap;">Retour</span>';
         backBtn.style.cssText = btnStyle;
-        backBtn.setAttribute('onmouseenter', hoverIn);
-        backBtn.setAttribute('onmouseleave', hoverOut);
+        backBtn.addEventListener('mouseenter', function() { backBtn.style.background = 'rgba(255,255,255,0.15)'; });
+        backBtn.addEventListener('mouseleave', function() { backBtn.style.background = 'transparent'; });
         backBtn.addEventListener('click', function() { toggle3D(); });
 
-        // Fit view button — eye SVG
-        fitBtn = document.createElement('button');
-        fitBtn.id = 'galaxy-fit-view';
-        fitBtn.title = 'Vue panoramique';
-        fitBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3.5" fill="rgba(255,255,255,0.9)" stroke="none"/></svg>';
-        fitBtn.style.cssText = btnStyle;
-        fitBtn.setAttribute('onmouseenter', hoverIn);
-        fitBtn.setAttribute('onmouseleave', hoverOut);
+        // Panoramique (fitToView)
+        fitBtn = makeBtn('galaxy-fit-view', 'Centrer la vue', 'Centrer',
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>' +
+            '<circle cx="12" cy="12" r="3.5" fill="rgba(255,255,255,0.9)" stroke="none"/></svg>');
         fitBtn.addEventListener('click', function() {
-            if (typeof Galaxy3D !== 'undefined' && Galaxy3D.isInitialized) {
-                Galaxy3D.fitToView();
-            }
+            if (typeof Galaxy3D !== 'undefined' && Galaxy3D.isInitialized) Galaxy3D.fitToView();
         });
 
-        // Voyage button — atom icon
-        var voyageBtn = document.createElement('button');
-        voyageBtn.id = 'galaxy-voyage-btn';
-        voyageBtn.title = 'Mode Voyage';
-        voyageBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round">' +
-            '<circle cx="12" cy="12" r="2.5" fill="rgba(255,255,255,0.9)" stroke="none"/>' +
-            '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(0 12 12)"/>' +
-            '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>' +
-            '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/>' +
-            '</svg>';
-        voyageBtn.style.cssText = btnStyle;
-        voyageBtn.setAttribute('onmouseenter', hoverIn);
-        voyageBtn.setAttribute('onmouseleave', hoverOut);
+        // Voyage
+        var voyageBtn = makeBtn('galaxy-voyage-btn', 'Mode Voyage', 'Voyage',
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' +
+            '<path d="M12 2c-2.5 4-4 7.5-4 11 0 2 .7 3.8 1.8 5.2h4.4c1.1-1.4 1.8-3.2 1.8-5.2 0-3.5-1.5-7-4-11z"/>' +
+            '<path d="M8 15l-3 4.5"/><path d="M16 15l3 4.5"/>' +
+            '<circle cx="12" cy="10" r="1.5" fill="rgba(255,255,255,0.9)" stroke="none"/></svg>');
         voyageBtn.addEventListener('click', function() {
             if (typeof Galaxy3D === 'undefined' || !Galaxy3D.isInitialized) return;
             if (Galaxy3D.isVoyageActive()) {
                 Galaxy3D.stopVoyage();
-                voyageBtn.style.borderColor = 'rgba(255,255,255,0.25)';
+                voyageBtn.style.borderColor = 'rgba(255,255,255,0.2)';
                 voyageBtn.style.boxShadow = 'none';
             } else {
                 var started = Galaxy3D.startVoyage();
                 if (started) {
                     voyageBtn.style.borderColor = 'rgba(120,180,255,0.7)';
                     voyageBtn.style.boxShadow = '0 0 12px rgba(100,160,255,0.4)';
-                    // Poll to detect when voyage ends
                     var pollId = setInterval(function() {
                         if (!Galaxy3D.isVoyageActive()) {
-                            voyageBtn.style.borderColor = 'rgba(255,255,255,0.25)';
+                            voyageBtn.style.borderColor = 'rgba(255,255,255,0.2)';
                             voyageBtn.style.boxShadow = 'none';
                             clearInterval(pollId);
                         }
@@ -2045,20 +2060,69 @@ setTimeout(function() {
             }
         });
 
-        // Fullscreen button
-        var fsBtn = document.createElement('button');
-        fsBtn.id = 'galaxy-3d-fullscreen-btn';
-        fsBtn.title = 'Plein écran';
+        // Fond (background cycle)
+        var bgBtn = makeBtn('galaxy-bg-cycle-btn', 'Changer le fond', 'Fond',
+            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+            '<rect x="3" y="3" width="18" height="18" rx="2"/>' +
+            '<circle cx="8.5" cy="8.5" r="1.5" fill="rgba(255,255,255,0.9)" stroke="none"/>' +
+            '<path d="M21 15l-5-5L5 21"/></svg>');
+        bgBtn.addEventListener('click', function() {
+            if (typeof Galaxy3D === 'undefined' || !Galaxy3D.isInitialized) return;
+            var name = Galaxy3D.cycleSkybox();
+            if (name) {
+                bgBtn.style.borderColor = 'rgba(140,180,255,0.7)';
+                bgBtn.style.boxShadow = '0 0 10px rgba(100,160,255,0.3)';
+                setTimeout(function() {
+                    bgBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+                    bgBtn.style.boxShadow = 'none';
+                }, 800);
+            }
+        });
+
+        // Réglages (mode toggle Galaxy/Satellite — task project mode only)
+        var modeBtn = document.createElement('button');
+        modeBtn.id = 'galaxy-mode-toggle-btn';
+        modeBtn.style.cssText = btnStyle;
+        var galaxyIcon = '<svg width="20" height="20" viewBox="5 5 14 14" fill="none" stroke="rgba(255,255,255,0.9)" stroke-linecap="round">' +
+            '<path d="M12 12c.8 0 1.4-.6 1.4-1.4 0-.8-.8-1.6-1.8-1.5-1.3.1-2.3 1.1-2.2 2.5.1 1.7 1.5 3 3.2 2.9 2-.1 3.6-1.8 3.5-3.9-.1-2.5-2.1-4.4-4.6-4.3-2.9.2-5.2 2.6-5 5.5.2 3.4 2.9 6 6.3 5.8" stroke-width="1.6"/></svg>';
+        var satelliteIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5" stroke-linecap="round">' +
+            '<circle cx="12" cy="12" r="2.5" fill="rgba(255,255,255,0.9)" stroke="none"/>' +
+            '<ellipse cx="12" cy="12" rx="10" ry="4"/>' +
+            '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/>' +
+            '<ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg>';
+        var modeLabelSpan = '<span style="font-size:8px;color:rgba(255,255,255,0.65);line-height:1;white-space:nowrap;pointer-events:none;">MODE_LABEL</span>';
+
+        function updateModeIcon() {
+            var mode = (typeof Galaxy3D !== 'undefined' && Galaxy3D.getOrbitMode) ? Galaxy3D.getOrbitMode() : 'galaxy';
+            var icon = (mode === 'galaxy') ? satelliteIcon : galaxyIcon;
+            var label = (mode === 'galaxy') ? 'Satellite' : 'Galaxie';
+            modeBtn.innerHTML = icon + modeLabelSpan.replace('MODE_LABEL', label);
+            modeBtn.title = (mode === 'galaxy') ? 'Mode Satellite' : 'Mode Galaxie';
+            if (mode === 'galaxy') {
+                modeBtn.style.borderColor = 'rgba(255,200,100,0.5)';
+                modeBtn.style.boxShadow = '0 0 8px rgba(255,200,100,0.2)';
+            } else {
+                modeBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+                modeBtn.style.boxShadow = 'none';
+            }
+        }
+        modeBtn.addEventListener('mouseenter', function() { modeBtn.style.background = 'rgba(255,255,255,0.15)'; });
+        modeBtn.addEventListener('mouseleave', function() { modeBtn.style.background = 'transparent'; });
+        modeBtn.addEventListener('click', function() {
+            if (typeof Galaxy3D === 'undefined' || !Galaxy3D.isInitialized) return;
+            Galaxy3D.toggleOrbitMode();
+            setTimeout(updateModeIcon, 50);
+        });
+        updateModeIcon();
+
+        // Plein écran
         var fsSvgExpand = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
             '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/>' +
             '<path d="M16 21h3a2 2 0 0 0 2-2v-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
         var fsSvgCompress = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
             '<path d="M4 14h3a2 2 0 0 1 2 2v3"/><path d="M20 10h-3a2 2 0 0 1-2-2V5"/>' +
             '<path d="M14 20v-3a2 2 0 0 1 2-2h3"/><path d="M10 4v3a2 2 0 0 1-2 2H5"/></svg>';
-        fsBtn.innerHTML = fsSvgExpand;
-        fsBtn.style.cssText = btnStyle;
-        fsBtn.setAttribute('onmouseenter', hoverIn);
-        fsBtn.setAttribute('onmouseleave', hoverOut);
+        var fsBtn = makeBtn('galaxy-3d-fullscreen-btn', 'Plein écran', 'Plein écran', fsSvgExpand);
         fsBtn.addEventListener('click', function() {
             var container = document.getElementById('view-galaxy');
             if (!container) return;
@@ -2070,17 +2134,17 @@ setTimeout(function() {
                 document.exitFullscreen();
             }
         });
-        // Update icon on fullscreen change
         document.addEventListener('fullscreenchange', function() {
             var isFS = !!document.fullscreenElement;
-            fsBtn.innerHTML = isFS ? fsSvgCompress : fsSvgExpand;
-            // Floating project name overlay
+            var svgEl = fsBtn.querySelector('svg');
+            if (svgEl) {
+                var tmp = document.createElement('div');
+                tmp.innerHTML = isFS ? fsSvgCompress : fsSvgExpand;
+                fsBtn.replaceChild(tmp.firstChild, svgEl);
+            }
             CosmicToolbar._updateFullscreenLabel(isFS);
-            // Resize 3D renderer after transition
             setTimeout(function() {
-                if (typeof Galaxy3D !== 'undefined' && Galaxy3D.onResize) {
-                    Galaxy3D.onResize();
-                }
+                if (typeof Galaxy3D !== 'undefined' && Galaxy3D.onResize) Galaxy3D.onResize();
                 window.dispatchEvent(new Event('resize'));
                 if (isFS) {
                     var fsEl = document.fullscreenElement;
@@ -2089,57 +2153,31 @@ setTimeout(function() {
             }, 100);
         });
 
-        // Galaxy/Satellite mode toggle button (task project mode only)
-        var modeBtn = document.createElement('button');
-        modeBtn.id = 'galaxy-mode-toggle-btn';
-        // SVG icons: spiral (galaxy) and orbits (satellite)
-        var galaxyIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5">' +
-            '<ellipse cx="12" cy="12" rx="10" ry="3"/>' +
-            '<ellipse cx="12" cy="12" rx="7" ry="2" transform="rotate(30 12 12)"/>' +
-            '<circle cx="12" cy="12" r="2" fill="rgba(255,255,255,0.9)" stroke="none"/></svg>';
-        var satelliteIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5">' +
-            '<circle cx="12" cy="12" r="2.5" fill="rgba(255,255,255,0.7)" stroke="none"/>' +
-            '<ellipse cx="12" cy="12" rx="7" ry="10"/>' +
-            '<ellipse cx="12" cy="12" rx="7" ry="10" transform="rotate(60 12 12)"/>' +
-            '<ellipse cx="12" cy="12" rx="7" ry="10" transform="rotate(120 12 12)"/></svg>';
+        // ===================== LAYOUT =====================
 
-        function updateModeIcon() {
-            var mode = (typeof Galaxy3D !== 'undefined' && Galaxy3D.getOrbitMode) ? Galaxy3D.getOrbitMode() : 'galaxy';
-            // Show icon of the mode you're switching TO
-            modeBtn.innerHTML = (mode === 'galaxy') ? satelliteIcon : galaxyIcon;
-            modeBtn.title = (mode === 'galaxy') ? 'Mode Satellite' : 'Mode Galaxie';
-            if (mode === 'galaxy') {
-                modeBtn.style.borderColor = 'rgba(255,200,100,0.5)';
-                modeBtn.style.boxShadow = '0 0 8px rgba(255,200,100,0.2)';
-            } else {
-                modeBtn.style.borderColor = 'rgba(255,255,255,0.25)';
-                modeBtn.style.boxShadow = 'none';
-            }
+        // Group left: Vues (Panoramique, Voyage)
+        var groupLeft = document.createElement('div');
+        groupLeft.style.cssText = groupStyle;
+        groupLeft.appendChild(fitBtn);
+        groupLeft.appendChild(voyageBtn);
+
+        // Group right: Outils (Fond, Réglages/Mode, Plein écran)
+        var groupRight = document.createElement('div');
+        groupRight.style.cssText = groupStyle;
+        groupRight.appendChild(bgBtn);
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+            groupRight.appendChild(modeBtn);
         }
-
-        modeBtn.style.cssText = btnStyle;
-        modeBtn.setAttribute('onmouseenter', hoverIn);
-        modeBtn.setAttribute('onmouseleave', hoverOut);
-        modeBtn.addEventListener('click', function() {
-            if (typeof Galaxy3D === 'undefined' || !Galaxy3D.isInitialized) return;
-            Galaxy3D.toggleOrbitMode();
-            setTimeout(updateModeIcon, 50);
-        });
-        updateModeIcon();
+        groupRight.appendChild(fsBtn);
 
         // Container bar
         bottomBar = document.createElement('div');
         bottomBar.id = 'galaxy-3d-bottombar';
-        bottomBar.style.cssText = 'position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;' +
-            'display:flex;gap:8px;';
+        bottomBar.style.cssText = 'position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:200;' +
+            'display:flex;align-items:flex-end;gap:6px;';
         bottomBar.appendChild(backBtn);
-        bottomBar.appendChild(fitBtn);
-        // Only show mode toggle in task project mode
-        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
-            bottomBar.appendChild(modeBtn);
-        }
-        bottomBar.appendChild(voyageBtn);
-        bottomBar.appendChild(fsBtn);
+        bottomBar.appendChild(groupLeft);
+        bottomBar.appendChild(groupRight);
         return bottomBar;
     }
 
@@ -2234,8 +2272,7 @@ setTimeout(function() {
 
             canvas3D.style.display = 'none';
             canvas2D.style.display = 'block';
-            var inTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
-            if (toolbar) toolbar.style.display = inTaskMode ? 'none' : '';
+            if (toolbar) toolbar.style.display = '';
             // Restore header project buttons
             var projBtn = document.getElementById('filter-projects');
             var newProjBtn = document.getElementById('galaxy-new-project-btn');
@@ -2244,8 +2281,9 @@ setTimeout(function() {
             var viewGalaxy = document.getElementById('view-galaxy');
             if (viewGalaxy) viewGalaxy.classList.remove('mode-3d');
 
-            // Remove bottom bar
+            // Remove bottom bar (reset to null so it's recreated with fresh context next time)
             if (bottomBar && bottomBar.parentNode) bottomBar.parentNode.removeChild(bottomBar);
+            bottomBar = null;
 
             // Restore toggle button
             if (toggleBtn) {

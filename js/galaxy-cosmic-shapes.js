@@ -255,22 +255,21 @@ class ShapeInteraction {
         const tool = CosmicState.currentTool;
         const wX = CosmicState.mouse.worldX, wY = CosmicState.mouse.worldY;
 
-        // Task project mode: only allow panning, block all creation/editing
+        // Task project mode: protect task nodes but allow all tools on empty space
         const _isTaskMode = window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode;
         if (_isTaskMode) {
-            // Allow panning (hand tool or empty space)
-            if (tool === 'hand') {
-                // fall through to hand tool handler below
-            } else {
-                const node = getNodeAtWorld(wX, wY);
-                if (node) return true; // consume click on task nodes (no drag, no select)
-                // Empty space: start panning
-                CosmicState.interaction.isPanning = true;
-                CosmicState.interaction.dragStart = {
-                    x: CosmicState.mouse.x, y: CosmicState.mouse.y
-                };
+            const node = getNodeAtWorld(wX, wY);
+            if (node && node.isTaskNode) {
+                // Task node clicked — consume event (mouseup handles opening task detail)
+                if (tool === 'hand') {
+                    CosmicState.interaction.isPanning = true;
+                    CosmicState.interaction.dragStart = {
+                        x: CosmicState.mouse.x, y: CosmicState.mouse.y
+                    };
+                }
                 return true;
             }
+            // For empty space or user-created nodes, fall through to normal tool handling
         }
 
         // Pen tool: start freehand stroke
@@ -741,8 +740,11 @@ document.addEventListener('keydown', (e) => {
     if (!CosmicState || !CosmicState.canvas) return;
     const galaxy = document.getElementById('view-galaxy');
     if (!galaxy || !galaxy.classList.contains('active')) return;
-    // Block delete in task project mode
-    if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) return;
+    // In task project mode, protect task nodes from deletion but allow user-created shapes
+    if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+        const hasTaskNode = [...CosmicState.selectedNodes].some(n => n.isTaskNode);
+        if (hasTaskNode) return;
+    }
     // Don't intercept when typing in an input/textarea
     const tag = document.activeElement && document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;

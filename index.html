@@ -26,14 +26,14 @@
     <link rel="stylesheet" href="css/style-themes.css?v=1901">
     <link rel="stylesheet" href="css/style-dragdrop.css?v=1700">
     <link rel="stylesheet" href="css/sidebar.css?v=1700">
-    <link rel="stylesheet" href="css/style-sidebar.css?v=1800">
+    <link rel="stylesheet" href="css/style-sidebar.css?v=1900">
     <link rel="stylesheet" href="css/sidebar-nav.css?v=1700">
     <link rel="stylesheet" href="css/sidebar-themes.css?v=1700">
     <link rel="stylesheet" href="css/animations.css?v=1700">
     <link rel="stylesheet" href="css/animation-controls.css?v=2207">
     <link rel="stylesheet" href="css/animation-selector.css?v=100">
     <link rel="stylesheet" href="css/accounting.css?v=2000">
-    <link rel="stylesheet" href="css/dashboard.css?v=2300">
+    <link rel="stylesheet" href="css/dashboard.css?v=2400">
     <link rel="stylesheet" href="css/dash-ai-widget.css?v=2200">
     <link rel="stylesheet" href="css/notes-editor.css?v=9999">
     <link rel="stylesheet" href="css/notes-ai.css?v=9999">
@@ -56,13 +56,14 @@
     <!-- NEW: Auth Login Module CSS -->
     <link rel="stylesheet" href="js/modules/auth/login.css?v=1700">
     <link rel="stylesheet" href="css/auth-autofill-fix.css?v=100">
-    <link rel="stylesheet" href="css/style-views.css?v=2400">
+    <link rel="stylesheet" href="css/style-views.css?v=2500">
     <link rel="stylesheet" href="css/galaxy.css?v=1711">
     <link rel="stylesheet" href="css/galaxy-cosmic.css?v=3585">
     <link rel="stylesheet" href="css/galaxy-cosmic-projects.css?v=8">
-    <link rel="stylesheet" href="css/team-vision.css?v=1700">
+    <link rel="stylesheet" href="css/team-vision.css?v=1900">
     <link rel="stylesheet" href="css/projects.css?v=5600">
     <link rel="stylesheet" href="css/giri-vision.css?v=103">
+    <link rel="stylesheet" href="css/giri-academy.css?v=311">
     <link rel="stylesheet" href="css/billing.css?v=100">
     <link rel="stylesheet" href="css/pwa.css?v=1700">
     <link rel="stylesheet" href="css/calendar-v7.css?v=2700">
@@ -78,8 +79,11 @@
     <link rel="stylesheet" href="css/journal-premium.css?v=200">
     <link rel="stylesheet" href="css/journal.css?v=100">
 
+    <!-- Tunnel Club -->
+    <link rel="stylesheet" href="css/tunnel-club.css?v=300">
+
     <!-- OVERRIDES: TOUJOURS en dernier CSS -->
-    <link rel="stylesheet" href="css/style-overrides.css?v=2840">
+    <link rel="stylesheet" href="css/style-overrides.css?v=2843">
 
     <!-- PDF export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -100,9 +104,9 @@
     <!-- <script src="js/lib/three/CopyShader.js"></script> -->
     <!-- <script src="js/lib/three/ShaderPass.js"></script> -->
     <!-- <script src="js/lib/three/UnrealBloomPass.js"></script> -->
-    <link rel="stylesheet" href="css/admin.css?v=3000">
+    <link rel="stylesheet" href="css/admin.css?v=3100">
     <link rel="stylesheet" href="css/games/games-main.css?v=200">
-    <link rel="stylesheet" href="css/games/games-common.css?v=300">
+    <link rel="stylesheet" href="css/games/games-common.css?v=500">
 </head>
 <body>
 
@@ -287,6 +291,16 @@
         <!-- Giri Games View -->
         <div id="view-games" class="view-container">
             <!-- Rendered by GiriGames -->
+        </div>
+
+        <!-- Tunnel Club View -->
+        <div id="view-tunnel-club" class="view-container">
+            <!-- Rendered by TunnelClub -->
+        </div>
+
+        <!-- Giri Academy View -->
+        <div id="view-giri-academy" class="view-container">
+            <!-- Rendered by GiriAcademy -->
         </div>
 
         <!-- Tasks View (wraps existing app-container) -->
@@ -1153,6 +1167,7 @@
     <script src="js/modules/themes.js?v=2001"></script>
     <script src="js/modules/confirm-modal.js?v=1700"></script>
     <script src="js/modules/tasks/tasks.js?v=1707"></script>
+    <script src="js/modules/tasks/tasks-column-resize.js?v=100"></script>
     <script src="js/modules/tasks/tasks-ai.js?v=2200"></script>
     <script src="js/modules/projects/projects.js?v=5102"></script>
     <script src="js/modules/notes/journal.js?v=10000"></script>
@@ -1170,8 +1185,8 @@
     <script src="js/modules/effects.js?v=6302"></script>
     <script src="js/modules/reports/report.js?v=2200"></script>
     <script src="js/modules/services/backup.js?v=1700"></script>
-    <script src="js/modules/sidebar/sidebar-core.js?v=3800"></script>
-    <script src="js/modules/sidebar/sidebar-render.js?v=1904"></script>
+    <script src="js/modules/sidebar/sidebar-core.js?v=3900"></script>
+    <script src="js/modules/sidebar/sidebar-render.js?v=1905"></script>
     <script src="js/modules/sidebar/sidebar-events.js?v=1700"></script>
     <script src="js/modules/sidebar/sidebar-init.js?v=1700"></script>
     <!-- Cache Manager - Anti-cache system for critical views -->
@@ -1179,7 +1194,7 @@
     <script src="js/modules/router.js?v=2901"></script>
     <script src="js/modules/dashboard/dash-insights.js?v=1700"></script>
     <script src="js/modules/dashboard/dash-charts.js?v=1700"></script>
-    <script src="js/modules/dashboard/dash-ai-widget.js?v=2200"></script>
+    <script src="js/modules/dashboard/dash-ai-widget.js?v=2300"></script>
     <script src="js/modules/dashboard/dashboard.js?v=1800"></script>
     <!-- Notes Module - Complete Obsidian-style system -->
     <script src="js/modules/notes/notes-core.js?v=9999"></script>
@@ -1280,7 +1295,7 @@
     <script src="js/modules/games/tetris/tetris-game.js?v=200"></script>
     <script src="js/modules/games/chess/chess-game.js?v=200"></script>
     <script src="js/modules/games/gimots/gimots-game.js?v=200"></script>
-    <script src="js/modules/games/typerace/typerace-game.js?v=300"></script>
+    <script src="js/modules/games/typerace/typerace-game.js?v=600"></script>
     <script src="js/modules/games/games-main.js?v=200"></script>
     <!-- ===== /GIRI GAMES ===== -->
 
@@ -1310,7 +1325,7 @@
     <script src="js/dragdrop.js?v=1700"></script>
     <!-- Galaxy View 3D (Three.js engine + AI + orchestrator) -->
     <!-- Galaxy 3D Engine (toggle 2D↔3D) -->
-    <script src="js/modules/canvases/galaxy-3d.js?v=3663"></script>
+    <script src="js/modules/canvases/galaxy-3d.js?v=3696"></script>
     <!-- <script src="js/modules/canvases/galaxy-ai.js?v=1700"></script> -->
 
     <!-- NEW Galaxy Canvas v2 - Interactive Fix -->
@@ -1319,12 +1334,12 @@
     <script src="js/modules/canvases/galaxie-view.js?v=3502"></script>
 
     <!-- GALAXY COSMIC v3.1 PHASE 2 - L'Univers Vivant - TOUT FONCTIONNEL -->
-    <script src="js/galaxy-cosmic.js?v=3607"></script>
+    <script src="js/galaxy-cosmic.js?v=3608"></script>
     <script src="js/galaxy-cosmic-persistence.js?v=6"></script>
-    <script src="js/galaxy-cosmic-projects-ui.js?v=25"></script>
+    <script src="js/galaxy-cosmic-projects-ui.js?v=27"></script>
     <script src="js/galaxy-cosmic-history.js?v=3556"></script>
-    <script src="js/galaxy-cosmic-shapes.js?v=3589"></script>
-    <script src="js/galaxy-cosmic-ui.js?v=3624"></script>
+    <script src="js/galaxy-cosmic-shapes.js?v=3590"></script>
+    <script src="js/galaxy-cosmic-ui.js?v=3634"></script>
     <script>
     // Auto-init Cosmic Projects
     (function() {
@@ -1398,7 +1413,7 @@
     <script src="js/modules/signals/behavioral-view.js?v=1700"></script>
 
     <!-- Team Vision -->
-    <script src="js/modules/team-vision/team-vision-view.js?v=1700"></script>
+    <script src="js/modules/team-vision/team-vision-view.js?v=1900"></script>
 
     <!-- Report Creator - Psycho Audit Engine -->
     <script src="js/modules/reports/report-creator.js?v=1700"></script>
@@ -1415,7 +1430,7 @@
     <!-- Admin Module - Dashboard système (RÉSERVÉ: contact@mahagiri.fr) -->
     <script src="js/modules/admin/admin-api.js?v=2600"></script>
     <script src="js/modules/admin/admin-sentinel.js?v=100"></script>
-    <script src="js/modules/admin/admin-view.js?v=3000"></script>
+    <script src="js/modules/admin/admin-view.js?v=3200"></script>
 
     <!-- NEW: Auth Login Module -->
     <script src="js/modules/auth/login.js?v=1900"></script>
@@ -1430,11 +1445,30 @@
     <script src="js/modules/billing/billing-api.js?v=100"></script>
     <script src="js/modules/billing/feature-gate.js?v=100"></script>
     <script src="js/modules/billing/billing-plans.js?v=100"></script>
+    <!-- Tunnel Club -->
+    <script src="js/modules/tunnel-club/tunnel-api.js?v=100"></script>
+    <script src="js/modules/tunnel-club/onboarding.js?v=300"></script>
+    <script src="js/modules/tunnel-club/tunnel-list.js?v=200"></script>
+    <script src="js/modules/tunnel-club/tunnel-generator.js?v=100"></script>
+    <script src="js/modules/tunnel-club/tunnel-editor.js?v=200"></script>
+    <script src="js/modules/tunnel-club/tunnel-stats.js?v=100"></script>
+    <script src="js/modules/tunnel-club/analytics.js?v=100"></script>
+    <script src="js/modules/tunnel-club/notifications.js?v=100"></script>
+    <script src="js/modules/tunnel-club/certificate-settings.js?v=100"></script>
+    <script src="js/modules/tunnel-club/tunnel-club.js?v=101"></script>
+    <!-- Giri Academy -->
+    <script src="js/modules/giri-academy/giri-academy-api.js?v=210"></script>
+    <script src="js/modules/giri-academy/formation-list.js?v=301"></script>
+    <script src="js/modules/giri-academy/lesson-editor.js?v=100"></script>
+    <script src="js/modules/giri-academy/formation-editor.js?v=301"></script>
+    <script src="js/modules/giri-academy/student-manager.js?v=100"></script>
+    <script src="js/modules/giri-academy/formation-stats.js?v=100"></script>
+    <script src="js/modules/giri-academy/giri-academy.js?v=100"></script>
     <script src="js/modules/users/users.js?v=1700"></script>
     <script src="js/modules/workspaces/workspaces.js?v=1700"></script>
 
     <!-- Canvas animations (theme-based) -->
-    <script src="js/animations.js?v=6200"></script>
+    <script src="js/animations.js?v=6300"></script>
 
     <!-- Animation Force Init & Debug -->
     <script>
@@ -1597,7 +1631,7 @@
     <script src="js/modules/pomodoro-timer.js?v=2011"></script>
 
     <!-- 5. Application principale (orchestrateur) -->
-    <script src="js/app-modular.js?v=2600"></script>
+    <script src="js/app-modular.js?v=2700"></script>
 
     <script>
     // Service Worker: Kill ALL SWs directly from page (no SW file needed)
@@ -1682,5 +1716,6 @@
     });
     </script>
 
+    <script src="js/modules/bug-report/bug-report.js?v=101"></script>
 </body>
 </html>

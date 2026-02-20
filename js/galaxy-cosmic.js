@@ -1230,7 +1230,7 @@ function setupEventListeners() {
         CosmicState.mouse.worldX = (CosmicState.mouse.x - canvas.width / 2) / zoom + camX;
         CosmicState.mouse.worldY = (CosmicState.mouse.y - canvas.height / 2) / zoom + camY;
 
-        // Task node tooltip + cursor (only in task project mode)
+        // Task node tooltip (only in task project mode) — no early return, tools continue below
         if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
             const hoverNode = typeof getNodeAtWorld === 'function'
                 ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
@@ -1241,17 +1241,15 @@ function setupEventListeners() {
                     _taskTooltipNode = hoverNode;
                     _showTaskTooltip(hoverNode, e.clientX, e.clientY);
                 } else {
-                    // Update position while hovering same node
                     _showTaskTooltip(hoverNode, e.clientX, e.clientY);
                 }
+                // Hovering a task node — skip normal tool interaction
+                if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseMove(e)) return;
+                return;
             } else {
-                canvas.style.cursor = CosmicState.mouse.down ? 'grabbing' : 'grab';
                 if (_taskTooltipNode) _hideTaskTooltip();
+                // Fall through to normal tool handling below
             }
-
-            // In task mode, still allow panning via CosmicShapeInteraction
-            if (window.CosmicShapeInteraction && window.CosmicShapeInteraction.onMouseMove(e)) return;
-            return;
         }
 
         // Resize handle cursor (only when not dragging)
@@ -1275,8 +1273,11 @@ function setupEventListeners() {
 
     // Double-clic : Créer pensée
     canvas.addEventListener('dblclick', (e) => {
-        // Block creation in task project mode
-        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) return;
+        // In task project mode, block double-click on task nodes but allow elsewhere
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+            const node = typeof getNodeAtWorld === 'function' ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
+            if (node && node.isTaskNode) return;
+        }
 
         // Double-click on existing node → edit text
         const node = typeof getNodeAtWorld === 'function' ? getNodeAtWorld(CosmicState.mouse.worldX, CosmicState.mouse.worldY) : null;
