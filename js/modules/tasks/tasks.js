@@ -599,6 +599,11 @@ const Tasks = {
         if (typeof initTaskDragAndDrop === 'function') {
             initTaskDragAndDrop();
         }
+
+        // Redimensionnement des colonnes à la souris
+        if (typeof TasksColumnResize !== 'undefined') {
+            TasksColumnResize.refresh();
+        }
     },
 
     /**

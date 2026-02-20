@@ -32,7 +32,9 @@ const ViewRouter = (function() {
         calendar: 'Calendrier',
         mail: 'Mail',
         admin: 'Administration',
-        giriGames: 'Giri Games'
+        giriGames: 'Giri Games',
+        tunnelClub: 'Tunnel Club',
+        giriAcademy: 'Giri Academy'
     };
 
     // Available views
@@ -59,7 +61,9 @@ const ViewRouter = (function() {
         calendar: 'view-calendar',
         mail: 'view-mail',
         admin: 'view-admin',
-        giriGames: 'view-games'
+        giriGames: 'view-games',
+        tunnelClub: 'view-tunnel-club',
+        giriAcademy: 'view-giri-academy'
     };
 
     let currentView = 'dashboard';
@@ -317,6 +321,16 @@ const ViewRouter = (function() {
             case 'giriGames':
                 if (typeof GiriGames !== 'undefined') {
                     GiriGames.init();
+                }
+                break;
+            case 'tunnelClub':
+                if (typeof TunnelClub !== 'undefined') {
+                    TunnelClub.init();
+                }
+                break;
+            case 'giriAcademy':
+                if (typeof GiriAcademy !== 'undefined') {
+                    GiriAcademy.refresh();
                 }
                 break;
         }

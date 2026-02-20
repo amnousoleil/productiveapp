@@ -132,6 +132,38 @@ const TypeRaceGame = (function() {
     // ── MESSAGES COMBO (séries de bonnes frappes) ─────────────────────────────
     const COMBO_MSGS = ['🔥', '⚡', '💥', '🌟', '👑', '🚀'];
 
+    // ── PHRASES DU MAÎTRE MAHA GIRI ───────────────────────────────────────────
+    const MAHA_GIRI_MSGS = [
+        '🙏 Le Maître Maha Giri croit en toi. Alors ne doute jamais.',
+        '✨ Maha Giri te regarde, et il est fier de toi.',
+        '💫 Tu es plus fort que tu ne le crois. Le Maître le sait.',
+        '🌟 Chaque frappe est une victoire. Continue, dit le Maître.',
+        '🔮 Le Maître dit : la régularité bat toujours le talent.',
+        '🙏 Maha Giri murmure : tu n\'as pas besoin d\'être parfait, juste présent.',
+        '💎 Le Maître a vu des champions. Et tu en es un.',
+        '🌸 Maha Giri dit : la lenteur d\'aujourd\'hui est la vitesse de demain.',
+        '⚡ Le Maître croit en chaque doigt qui frappe avec intention.',
+        '🏆 Maha Giri : chaque seconde d\'entraînement te rapproche de la légende.',
+    ];
+    let mahaGiriIndex = Math.floor(Math.random() * MAHA_GIRI_MSGS.length);
+    let nextMahaGiriAt = 0; // en secondes
+
+    // ── TEXTES SOUPLE (phrases inspirantes courtes) ───────────────────────────
+    const TEXTS_SOUPLE = [
+        "Le Maître Maha Giri croit en toi. Alors ne doute jamais.",
+        "Chaque journée est une nouvelle chance de progresser.",
+        "La persévérance, c'est la clé du succès.",
+        "Avance doucement, mais avance toujours.",
+        "Tu es capable de bien plus que tu ne l'imagines.",
+        "Chaque effort compte, chaque frappe compte.",
+        "Le chemin est long, mais tu le mérites pleinement.",
+        "La régularité bat le talent tous les jours.",
+        "Tu grandis à chaque session. C'est magnifique.",
+        "Respire, concentre-toi, et tape. Tu peux le faire.",
+        "Maha Giri dit : tu n'as pas besoin d'être rapide, juste constant.",
+        "Chaque erreur est une leçon. Continue sans peur.",
+    ];
+
     // ── ÉTAT ──────────────────────────────────────────────────────────────────
     let container = null;
     let currentText = '';
@@ -176,9 +208,18 @@ const TypeRaceGame = (function() {
         listeners.push({ el, ev, fn });
     }
 
+    // ── HELPER MODE SOUPLE : fautes sur espace/virgule tolérées ─────────────
+    const SOUPLE_CHARS = new Set([' ', ',', '.', ';', ':', '!', '?', '-', '\'', ''', '…']);
+    function charMatch(typedChar, expectedChar) {
+        if (typedChar === expectedChar) return true;
+        if (level !== 'souple') return false;
+        // Tolérer les fautes sur ponctuation et espaces
+        return SOUPLE_CHARS.has(typedChar) && SOUPLE_CHARS.has(expectedChar);
+    }
+
     // ── NOUVELLE COURSE ───────────────────────────────────────────────────────
     function newRace() {
-        const texts = TEXTS[level] || TEXTS.normal;
+        const texts = level === 'souple' ? TEXTS_SOUPLE : (TEXTS[level] || TEXTS.normal);
         currentText = texts[Math.floor(Math.random() * texts.length)];
         typedIndex = 0;
         errorMap = {};
@@ -189,6 +230,8 @@ const TypeRaceGame = (function() {
         maxCombo = 0;
         milestoneFired = {};
         lastLiveBoostWpm = -1;
+        mahaGiriIndex = Math.floor(Math.random() * MAHA_GIRI_MSGS.length);
+        nextMahaGiriAt = 15 + Math.floor(Math.random() * 10); // première phrase entre 15-25s
         if (timer) clearInterval(timer);
         if (boostTimer) clearTimeout(boostTimer);
         render();
@@ -200,7 +243,7 @@ const TypeRaceGame = (function() {
     function render() {
         if (!container) return;
 
-        const levelLabels = { debutant: '🌱 Débutant', normal: '🔥 Normal', expert: '💎 Expert' };
+        const levelLabels = { debutant: '🌱 Débutant', normal: '🔥 Normal', expert: '💎 Expert', souple: '🕊️ Souple' };
         const progressMsg = lastWpm > 0 && sessionCount > 0
             ? `<div class="tr-progress-hint">Dernière session : <strong>${lastWpm} WPM</strong> — Peux-tu faire mieux ?</div>`
             : sessionCount === 0
@@ -222,6 +265,7 @@ const TypeRaceGame = (function() {
                         <button class="tr-level-btn ${level==='debutant'?'active':''}" onclick="TypeRaceGame.setLevel('debutant')">🌱 Débutant</button>
                         <button class="tr-level-btn ${level==='normal'?'active':''}" onclick="TypeRaceGame.setLevel('normal')">🔥 Normal</button>
                         <button class="tr-level-btn ${level==='expert'?'active':''}" onclick="TypeRaceGame.setLevel('expert')">💎 Expert</button>
+                        <button class="tr-level-btn tr-souple-btn ${level==='souple'?'active':''}" onclick="TypeRaceGame.setLevel('souple')">🕊️ Souple</button>
                     </div>
                     <button class="tr-new-btn" onclick="TypeRaceGame.newRace()">🔄 Nouveau</button>
                 </div>
@@ -301,13 +345,21 @@ const TypeRaceGame = (function() {
         let html = '';
         for (let i = 0; i < currentText.length; i++) {
             const raw = currentText[i];
-            const ch = raw === ' ' ? '&nbsp;' : raw;
+            // Garder l'espace réel pour que le navigateur puisse couper les lignes
+            const ch = raw === ' ' ? '<span class="tr-space"> </span>' : raw;
             if (i < typedIndex) {
-                html += `<span class="tr-ch ${errorMap[i] ? 'wrong' : 'correct'}">${ch}</span>`;
+                const cls = errorMap[i] ? 'wrong' : 'correct';
+                html += raw === ' '
+                    ? `<span class="tr-ch ${cls} tr-space-ch"> </span>`
+                    : `<span class="tr-ch ${cls}">${ch}</span>`;
             } else if (i === typedIndex) {
-                html += `<span class="tr-ch current">${ch}<span class="tr-caret"></span></span>`;
+                html += raw === ' '
+                    ? `<span class="tr-ch current tr-space-ch"> <span class="tr-caret"></span></span>`
+                    : `<span class="tr-ch current">${ch}<span class="tr-caret"></span></span>`;
             } else {
-                html += `<span class="tr-ch pending">${ch}</span>`;
+                html += raw === ' '
+                    ? `<span class="tr-ch pending tr-space-ch"> </span>`
+                    : `<span class="tr-ch pending">${ch}</span>`;
             }
         }
         el.innerHTML = html;
@@ -316,13 +368,15 @@ const TypeRaceGame = (function() {
     }
 
     // ── BOOST MESSAGE (encouragement live) ───────────────────────────────────
-    function showBoost(msg) {
+    function showBoost(msg, type) {
         const zone = document.getElementById('tr-boost');
         if (!zone) return;
-        zone.innerHTML = `<div class="tr-boost-msg">${msg}</div>`;
+        const cls = type === 'maha' ? 'tr-boost-msg tr-maha-msg' : 'tr-boost-msg';
+        zone.innerHTML = `<div class="${cls}">${msg}</div>`;
         zone.querySelector('.tr-boost-msg').classList.add('pop');
         if (boostTimer) clearTimeout(boostTimer);
-        boostTimer = setTimeout(() => { if (zone) zone.innerHTML = ''; }, 2200);
+        const duration = type === 'maha' ? 3800 : 2200;
+        boostTimer = setTimeout(() => { if (zone) zone.innerHTML = ''; }, duration);
     }
 
     // ── MILESTONE ─────────────────────────────────────────────────────────────
@@ -375,11 +429,11 @@ const TypeRaceGame = (function() {
 
             if (typed.length > currentText.length) { e.target.value = typed.slice(0, currentText.length); return; }
 
-            // Rebuild errorMap
+            // Rebuild errorMap (mode souple tolère espaces/ponctuations)
             const newErrors = {};
             let lastCorrect = true;
             for (let i = 0; i < typed.length; i++) {
-                if (typed[i] !== currentText[i]) { newErrors[i] = true; lastCorrect = false; }
+                if (!charMatch(typed[i], currentText[i])) { newErrors[i] = true; lastCorrect = false; }
             }
             errorMap = newErrors;
             typedIndex = typed.length;
@@ -402,7 +456,11 @@ const TypeRaceGame = (function() {
             renderText();
             updateStats();
 
-            if (typed === currentText) { finished = true; if (timer) clearInterval(timer); handleFinish(); }
+            // Fin : exact en mode normal/expert, longueur atteinte en mode souple
+            const isDone = level === 'souple'
+                ? typed.length >= currentText.length
+                : typed === currentText;
+            if (isDone) { finished = true; if (timer) clearInterval(timer); handleFinish(); }
         };
 
         addListener(inp, 'input', onInput);
@@ -441,6 +499,13 @@ const TypeRaceGame = (function() {
         if (accEl) { accEl.textContent = acc + '%'; accEl.style.color = acc >= 95 ? '#10b981' : acc >= 80 ? '#f59e0b' : '#f87171'; }
         if (timeEl) timeEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
 
+        // Phrase du Maître Maha Giri à intervalles réguliers
+        if (elapsed > 0 && elapsed >= nextMahaGiriAt) {
+            nextMahaGiriAt = elapsed + 20 + Math.floor(Math.random() * 15);
+            showBoost(MAHA_GIRI_MSGS[mahaGiriIndex % MAHA_GIRI_MSGS.length], 'maha');
+            mahaGiriIndex++;
+            return; // priorité absolue au Maître
+        }
         // Boost live toutes les 8 secondes selon WPM
         const tier = Math.floor(wpm / 15);
         if (tier !== lastLiveBoostWpm && elapsed > 0 && elapsed % 8 === 0) {

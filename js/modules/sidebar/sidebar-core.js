@@ -56,6 +56,9 @@ const Sidebar = (function() {
         { id: 'giriGames', icon: 'gamepad-2', label: 'Giri Games', tooltip: 'Jeux intégrés', tag: 'NEW' },
         { id: 'giriVision', icon: 'video', label: 'Giri Vision', tooltip: 'Consultations vidéo' },
         { id: 'divider4', type: 'divider' },
+        { id: 'tunnelClub', icon: 'zap', label: 'Tunnel Club', tooltip: 'Tunnels de vente IA', tag: 'NEW' },
+        { id: 'giriAcademy', icon: 'graduation-cap', label: 'Giri Academy', tooltip: 'Créer et gérer vos formations', tag: 'NEW' },
+        { id: 'divider5', type: 'divider' },
         { id: 'billing', icon: 'credit-card', label: 'Abonnement', tooltip: 'Plans & Facturation' }
     ];
 
@@ -207,7 +210,7 @@ const Sidebar = (function() {
         const routerId = routerIdMap[itemId] || itemId;
 
         // Vues gérées par le router (messaging retiré - toggle chatbot à la place)
-        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'promptForge', 'mail', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'billing', 'admin', 'journal', 'giriGames'];
+        const routedViews = ['dashboard', 'tasks', 'projects', 'notes', 'galaxy', 'calendar', 'settings', 'accounting', 'psychoAudit', 'teamMessaging', 'promptForge', 'mail', 'reports', 'analytics', 'gamification', 'behavioral', 'teamVision', 'giriVision', 'billing', 'admin', 'journal', 'giriGames', 'tunnelClub'];
 
         if (routedViews.includes(routerId) && typeof ViewRouter !== 'undefined') {
             ViewRouter.navigate(routerId);
