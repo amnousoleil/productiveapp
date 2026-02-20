@@ -1,7 +1,7 @@
 /**
  * ================================================
  * TUNNEL API v1.0
- * Couche de données pour Tunnel Club
+ * Couche de données pour Giri Tunnel Club
  * Utilise localStorage (prêt pour backend API)
  * ================================================
  */

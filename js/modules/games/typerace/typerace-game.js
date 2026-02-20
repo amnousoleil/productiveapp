@@ -124,27 +124,31 @@ const TypeRaceGame = (function() {
 
     // ── MILESTONES (messages aux étapes 25/50/75%) ────────────────────────────
     const MILESTONES = [
-        { pct: 25, icon: '🌟', msg: 'Premier quart bouclé !' },
-        { pct: 50, icon: '🔥', msg: 'À mi-chemin, tu gères !' },
-        { pct: 75, icon: '⚡', msg: 'Plus que le dernier sprint !' },
+        { pct: 25, icon: '🌟', msg: '25% — Continue !' },
+        { pct: 50, icon: '🔥', msg: '50% — À mi-chemin !' },
+        { pct: 75, icon: '⚡', msg: '75% — Dernier sprint !' },
     ];
 
     // ── MESSAGES COMBO (séries de bonnes frappes) ─────────────────────────────
     const COMBO_MSGS = ['🔥', '⚡', '💥', '🌟', '👑', '🚀'];
 
-    // ── PHRASES DU MAÎTRE MAHA GIRI ───────────────────────────────────────────
+    // ── PHRASES DU MAÎTRE MAHA GIRI (désactivé en live — uniquement start/finish) ──
     const MAHA_GIRI_MSGS = [
-        '🙏 Le Maître Maha Giri croit en toi. Alors ne doute jamais.',
-        '✨ Maha Giri te regarde, et il est fier de toi.',
-        '💫 Tu es plus fort que tu ne le crois. Le Maître le sait.',
-        '🌟 Chaque frappe est une victoire. Continue, dit le Maître.',
-        '🔮 Le Maître dit : la régularité bat toujours le talent.',
-        '🙏 Maha Giri murmure : tu n\'as pas besoin d\'être parfait, juste présent.',
-        '💎 Le Maître a vu des champions. Et tu en es un.',
-        '🌸 Maha Giri dit : la lenteur d\'aujourd\'hui est la vitesse de demain.',
-        '⚡ Le Maître croit en chaque doigt qui frappe avec intention.',
-        '🏆 Maha Giri : chaque seconde d\'entraînement te rapproche de la légende.',
+        '🎯 Vise la précision avant la vitesse.',
+        '🌱 La régularité bat le talent tous les jours.',
+        '💪 Chaque erreur est une leçon.',
+        '🏹 Concentre-toi sur le texte.',
+        '🧠 Tes doigts apprennent à chaque frappe.',
+        '⚡ La vitesse vient avec la pratique.',
     ];
+
+    // ── PHRASE DE FIN DE COURSE ───────────────────────────────────────────────
+    const MAHA_GIRI_FINISH = [
+        'Belle course ! Rejoue pour t\'améliorer.',
+        'Chaque session te rend plus rapide.',
+        'La pratique régulière fait la différence.',
+    ];
+
     let mahaGiriIndex = Math.floor(Math.random() * MAHA_GIRI_MSGS.length);
     let nextMahaGiriAt = 0; // en secondes
 
@@ -169,6 +173,7 @@ const TypeRaceGame = (function() {
     let currentText = '';
     let typedIndex = 0;
     let errorMap = {};
+    let erroredPositions = new Set(); // positions qui ont été tapées FAUX au moins une fois
     let started = false;
     let finished = false;
     let timer = null;
@@ -208,8 +213,28 @@ const TypeRaceGame = (function() {
         listeners.push({ el, ev, fn });
     }
 
+    // ── HELPER : Prénom du joueur (depuis AppState ou GamesState) ────────────
+    function getPlayerFirstName() {
+        try {
+            if (window.AppState && AppState.member && AppState.member.name)
+                return AppState.member.name.split(' ')[0];
+            if (window.GamesState && GamesState.getPlayer) {
+                const p = GamesState.getPlayer();
+                if (p && p.name) return p.name.split(' ')[0];
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    // Insère le prénom dans un message si disponible, sinon retourne le message tel quel
+    function maha(msg) {
+        const name = getPlayerFirstName();
+        if (!name) return msg.replace(/\{nom\},?\s*/g, '');
+        return msg.replace('{nom}', name);
+    }
+
     // ── HELPER MODE SOUPLE : fautes sur espace/virgule tolérées ─────────────
-    const SOUPLE_CHARS = new Set([' ', ',', '.', ';', ':', '!', '?', '-', '\'', ''', '…']);
+    const SOUPLE_CHARS = new Set([' ', ',', '.', ';', ':', '!', '?', '-', "\u2019", "\u2026"]);
     function charMatch(typedChar, expectedChar) {
         if (typedChar === expectedChar) return true;
         if (level !== 'souple') return false;
@@ -223,6 +248,7 @@ const TypeRaceGame = (function() {
         currentText = texts[Math.floor(Math.random() * texts.length)];
         typedIndex = 0;
         errorMap = {};
+        erroredPositions = new Set();
         started = false;
         finished = false;
         elapsed = 0;
@@ -231,7 +257,7 @@ const TypeRaceGame = (function() {
         milestoneFired = {};
         lastLiveBoostWpm = -1;
         mahaGiriIndex = Math.floor(Math.random() * MAHA_GIRI_MSGS.length);
-        nextMahaGiriAt = 15 + Math.floor(Math.random() * 10); // première phrase entre 15-25s
+        nextMahaGiriAt = 9999; // messages live désactivés
         if (timer) clearInterval(timer);
         if (boostTimer) clearTimeout(boostTimer);
         render();
@@ -424,16 +450,21 @@ const TypeRaceGame = (function() {
                 if (hint) { hint.style.opacity = '0'; hint.style.transform = 'translateY(-8px)'; }
                 timer = setInterval(() => { elapsed++; updateStats(); }, 1000);
                 // Message de démarrage
-                setTimeout(() => showBoost('🚀 C\'est parti ! Tu peux le faire !'), 300);
+                setTimeout(() => showBoost('🚀 C\'est parti !'), 300);
             }
 
             if (typed.length > currentText.length) { e.target.value = typed.slice(0, currentText.length); return; }
 
-            // Rebuild errorMap (mode souple tolère espaces/ponctuations)
+            // Rebuild errorMap (état courant pour coloration rouge/vert)
+            // + erroredPositions (cumul permanent pour accuracy réelle)
             const newErrors = {};
             let lastCorrect = true;
             for (let i = 0; i < typed.length; i++) {
-                if (!charMatch(typed[i], currentText[i])) { newErrors[i] = true; lastCorrect = false; }
+                if (!charMatch(typed[i], currentText[i])) {
+                    newErrors[i] = true;
+                    lastCorrect = false;
+                    erroredPositions.add(i); // jamais effacé, même si l'user corrige
+                }
             }
             errorMap = newErrors;
             typedIndex = typed.length;
@@ -456,11 +487,18 @@ const TypeRaceGame = (function() {
             renderText();
             updateStats();
 
-            // Fin : exact en mode normal/expert, longueur atteinte en mode souple
-            const isDone = level === 'souple'
-                ? typed.length >= currentText.length
-                : typed === currentText;
-            if (isDone) { finished = true; if (timer) clearInterval(timer); handleFinish(); }
+            // Fin : longueur atteinte — MAIS vérification d'accuracy minimale
+            const isDone = typed.length >= currentText.length;
+            if (isDone) {
+                finished = true;
+                if (timer) clearInterval(timer);
+                const finalAcc = Math.max(0, Math.round(((typed.length - erroredPositions.size) / typed.length) * 100));
+                if (finalAcc < 75) {
+                    handleFail(finalAcc);
+                } else {
+                    handleFinish();
+                }
+            }
         };
 
         addListener(inp, 'input', onInput);
@@ -477,8 +515,9 @@ const TypeRaceGame = (function() {
     function getWpm() { return elapsed > 0 ? Math.round((typedIndex / 5) / (elapsed / 60)) : 0; }
 
     function getAcc() {
-        const errs = Object.values(errorMap).filter(Boolean).length;
-        return typedIndex > 0 ? Math.round(((typedIndex - errs) / typedIndex) * 100) : 100;
+        // Compte les positions qui ont été tapées incorrectement AU MOINS UNE FOIS
+        // (n'est pas remis à zéro quand on corrige avec backspace)
+        return typedIndex > 0 ? Math.max(0, Math.round(((typedIndex - erroredPositions.size) / typedIndex) * 100)) : 100;
     }
 
     function getSpeedColor(wpm) {
@@ -502,7 +541,7 @@ const TypeRaceGame = (function() {
         // Phrase du Maître Maha Giri à intervalles réguliers
         if (elapsed > 0 && elapsed >= nextMahaGiriAt) {
             nextMahaGiriAt = elapsed + 20 + Math.floor(Math.random() * 15);
-            showBoost(MAHA_GIRI_MSGS[mahaGiriIndex % MAHA_GIRI_MSGS.length], 'maha');
+            showBoost(maha(MAHA_GIRI_MSGS[mahaGiriIndex % MAHA_GIRI_MSGS.length]), 'maha');
             mahaGiriIndex++;
             return; // priorité absolue au Maître
         }
@@ -515,11 +554,36 @@ const TypeRaceGame = (function() {
         }
     }
 
+    // ── ÉCHEC : trop d'erreurs ────────────────────────────────────────────────
+    function handleFail(acc) {
+        const overlay = document.createElement('div');
+        overlay.className = 'tr-finish-overlay';
+        overlay.innerHTML = `
+        <div class="tr-finish-box" style="border-color:#f87171;box-shadow:0 0 30px rgba(248,113,113,0.2)">
+            <div class="tr-finish-medal">❌ Trop d'erreurs</div>
+            <div class="tr-finish-motivate" style="color:#f87171;font-size:1.1rem;margin:8px 0 16px">
+                Précision : <strong>${acc}%</strong> — Il faut au moins <strong>75%</strong> pour valider.
+            </div>
+            <div style="font-size:0.9rem;color:var(--text-muted);margin-bottom:20px">
+                Tape les bons caractères, ne martèle pas au hasard !
+            </div>
+            <div class="tr-finish-actions">
+                <button class="tr-btn-primary" onclick="this.closest('.tr-finish-overlay').remove();TypeRaceGame.newRace()">
+                    🔄 Recommencer
+                </button>
+                <button class="tr-btn-outline" onclick="this.closest('.tr-finish-overlay').remove();GiriGames.showHome()">
+                    🏠 Accueil
+                </button>
+            </div>
+        </div>`;
+        if (container) container.appendChild(overlay);
+    }
+
     // ── FIN DE COURSE ─────────────────────────────────────────────────────────
     function handleFinish() {
         const wpm  = elapsed > 0 ? Math.round((currentText.length / 5) / (elapsed / 60)) : 999;
-        const errs = Object.values(errorMap).filter(Boolean).length;
-        const acc  = Math.round(((currentText.length - errs) / currentText.length) * 100);
+        // Accuracy basée sur les positions jamais tapées faux (cumul réel)
+        const acc  = Math.max(0, Math.round(((currentText.length - erroredPositions.size) / currentText.length) * 100));
         const tier = [...SPEED_TIERS].reverse().find(t => wpm >= t.wpm) || SPEED_TIERS[0];
         const isRecord  = wpm > bestWpm;
         const improved  = lastWpm > 0 && wpm > lastWpm;
@@ -536,14 +600,15 @@ const TypeRaceGame = (function() {
             const res = GamesState.addScore('typerace', wpm, true);
             girisEarned = res ? res.girisEarned : 0;
         }
-        if (typeof GamesApi !== 'undefined') GamesApi.saveScore('typerace', wpm, { won: true, duration: elapsed, metadata: { wpm, acc } });
+        if (typeof GamesApi !== 'undefined') GamesApi.saveScore('typerace', wpm, { won: acc >= 75, duration: elapsed, metadata: { wpm, acc } });
         if (wpm > 100 && typeof GamesAchievements !== 'undefined') GamesAchievements.unlock('speed_demon');
         if (wpm > 60  && typeof GamesAchievements !== 'undefined') GamesAchievements.unlock('typerace_60wpm');
         if (typeof XpFeedback !== 'undefined') XpFeedback.trigger('game_win', { el: container });
 
-        // Message de fin adapté au niveau
+        // Message de fin adapté au niveau + citation Maha Giri
         const finishBucket = FINISH_MSGS.find(b => wpm < b.max) || FINISH_MSGS[FINISH_MSGS.length - 1];
         const finishMsg = finishBucket.msgs[Math.floor(Math.random() * finishBucket.msgs.length)];
+        const mahaFinishMsg = maha(MAHA_GIRI_FINISH[Math.floor(Math.random() * MAHA_GIRI_FINISH.length)]);
 
         // Dots de vitesse
         const speedDotsHtml = SPEED_TIERS.map(t => {
@@ -565,6 +630,9 @@ const TypeRaceGame = (function() {
 
             <!-- MESSAGE MOTIVANT PERSONNALISÉ -->
             <div class="tr-finish-motivate">${finishMsg}</div>
+
+            <!-- PAROLE DU MAÎTRE MAHA GIRI -->
+            <div class="tr-finish-maha">${mahaFinishMsg}</div>
 
             <!-- STATS -->
             <div class="tr-finish-stats">

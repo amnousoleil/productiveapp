@@ -7,8 +7,10 @@ const PaStyles = (function() {
     'use strict';
 
     function inject() {
+        // Styles now live in css/psycho-audit.css — nothing to inject
+        return;
+        // Legacy block kept for reference only (unreachable)
         if (document.getElementById('psycho-audit-styles')) return;
-
         var style = document.createElement('style');
         style.id = 'psycho-audit-styles';
         style.textContent = [

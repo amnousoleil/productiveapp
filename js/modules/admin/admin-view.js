@@ -310,6 +310,10 @@ const AdminView = {
           <button class="admin-tab admin-tab-ai" onclick="AdminView.switchTab('ai-doctor', event)">
             🤖 IA Docteur
           </button>
+          <button class="admin-tab admin-tab-reports" onclick="AdminView.switchTab('user-reports', event)">
+            📋 Rapports
+            <span class="reports-badge" id="reports-badge" style="display:none"></span>
+          </button>
         </div>
 
         <!-- Tab Contents -->
@@ -342,6 +346,18 @@ const AdminView = {
         <div class="admin-tab-content" data-tab="ai-doctor">
           ${this.renderAIDoctor()}
         </div>
+
+        <div class="admin-tab-content" data-tab="user-reports">
+          <div class="user-reports-section">
+            <div class="ur-header">
+              <h3>📋 Rapports de bugs utilisateurs</h3>
+              <button class="btn-refresh-small" onclick="AdminView.loadUserReports()">🔄 Actualiser</button>
+            </div>
+            <div id="user-reports-container">
+              <div class="loading">Chargement des rapports…</div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   },
@@ -361,8 +377,153 @@ const AdminView = {
         const container = document.getElementById('admin-users-content');
         if (container) AdminUsers.render(container);
       }
+      // Lazy-load user reports tab
+      if (tabName === 'user-reports') {
+        this.loadUserReports();
+      }
       // Re-init charts for other tabs
-      if (tabName !== 'users') setTimeout(() => this.initCharts(), 100);
+      if (tabName !== 'users' && tabName !== 'user-reports') setTimeout(() => this.initCharts(), 100);
+    }
+  },
+
+  async loadUserReports() {
+    const container = document.getElementById('user-reports-container');
+    if (!container) return;
+    container.innerHTML = '<div class="loading">Chargement…</div>';
+
+    try {
+      const token = this._getToken();
+      const res = await fetch('/api/v1/bug-reports', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const reports = await res.json();
+
+      // Badge count
+      const open = reports.filter(r => !['applied','rejected'].includes(r.status)).length;
+      const badge = document.getElementById('reports-badge');
+      if (badge) {
+        badge.textContent = open;
+        badge.style.display = open > 0 ? 'inline-flex' : 'none';
+      }
+
+      if (reports.length === 0) {
+        container.innerHTML = '<div class="ur-empty">Aucun rapport de bug pour l\'instant.<br>Utilisez le bouton 🔴 en bas à droite de l\'app pour en créer un.</div>';
+        return;
+      }
+
+      container.innerHTML = reports.map(r => this._renderReport(r)).join('');
+    } catch (err) {
+      container.innerHTML = `<div class="ur-error">Erreur: ${err.message}</div>`;
+    }
+  },
+
+  _renderReport(r) {
+    const statusColors = {
+      open: '#6b7280', analyzing: '#f59e0b', fix_proposed: '#3b82f6',
+      validated: '#8b5cf6', applied: '#22c55e', rejected: '#ef4444'
+    };
+    const statusLabels = {
+      open: 'Ouvert', analyzing: 'Analyse IA…', fix_proposed: 'Fix proposé',
+      validated: 'Validé', applied: 'Appliqué ✅', rejected: 'Rejeté'
+    };
+    const sevColors = { low:'#6b7280', medium:'#f59e0b', high:'#ef4444', critical:'#dc2626' };
+    const color = statusColors[r.status] || '#6b7280';
+    const sev = sevColors[r.severity] || '#6b7280';
+    const date = new Date(r.created_at).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+
+    return `
+      <div class="ur-card" id="ur-${r.id}">
+        <div class="ur-card-header">
+          <div class="ur-card-meta">
+            <span class="ur-badge" style="background:${color}22;color:${color};border-color:${color}44">${statusLabels[r.status] || r.status}</span>
+            <span class="ur-badge" style="background:${sev}22;color:${sev};border-color:${sev}44">${r.severity}</span>
+            <span class="ur-date">${date}</span>
+            ${r.page_url ? `<span class="ur-page">${r.page_url}</span>` : ''}
+          </div>
+          <div class="ur-card-actions">
+            ${r.status === 'fix_proposed' ? `
+              <button class="ur-btn ur-btn-validate" onclick="AdminView.validateReport('${r.id}')">✅ Valider le fix</button>
+              <button class="ur-btn ur-btn-reject" onclick="AdminView.rejectReport('${r.id}')">✕ Rejeter</button>
+            ` : ''}
+            ${r.status === 'validated' && r.proposed_fix_type !== 'manual' ? `
+              <button class="ur-btn ur-btn-apply" onclick="AdminView.applyReport('${r.id}')">⚡ Appliquer</button>
+            ` : ''}
+          </div>
+        </div>
+
+        <h4 class="ur-title">${this._esc(r.title)}</h4>
+        <p class="ur-desc">${this._esc(r.description)}</p>
+
+        ${r.ai_analysis ? `
+          <div class="ur-ai-block">
+            <div class="ur-ai-label">🤖 Analyse IA</div>
+            <p class="ur-ai-text">${this._esc(r.ai_analysis)}</p>
+          </div>
+        ` : r.status === 'analyzing' ? `
+          <div class="ur-ai-block ur-analyzing">
+            <div class="ur-ai-label">🤖 Analyse IA en cours…</div>
+          </div>
+        ` : ''}
+
+        ${r.proposed_fix_description ? `
+          <div class="ur-fix-block">
+            <div class="ur-fix-label">🔧 Fix proposé <span class="ur-fix-type">${r.proposed_fix_type || ''}</span></div>
+            <p class="ur-fix-text">${this._esc(r.proposed_fix_description)}</p>
+            ${r.proposed_fix_file ? `<code class="ur-fix-file">${r.proposed_fix_file}</code>` : ''}
+          </div>
+        ` : ''}
+
+        ${r.js_errors ? `
+          <details class="ur-errors">
+            <summary>Erreurs JS capturées</summary>
+            <pre>${this._esc(r.js_errors)}</pre>
+          </details>
+        ` : ''}
+      </div>
+    `;
+  },
+
+  _esc(str) {
+    if (!str) return '';
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  },
+
+  _getToken() {
+    return localStorage.getItem('productiveapp_token') ||
+           sessionStorage.getItem('productiveapp_token') || '';
+  },
+
+  async validateReport(id) {
+    const token = this._getToken();
+    const res = await fetch(`/api/v1/bug-reports/${id}/validate`, {
+      method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) { this.loadUserReports(); } else { alert('Erreur lors de la validation'); }
+  },
+
+  async rejectReport(id) {
+    const token = this._getToken();
+    const res = await fetch(`/api/v1/bug-reports/${id}/reject`, {
+      method: 'PUT', headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (res.ok) { this.loadUserReports(); } else { alert('Erreur lors du rejet'); }
+  },
+
+  async applyReport(id) {
+    if (!confirm('Appliquer ce fix automatiquement au fichier frontend ? Un backup sera créé.')) return;
+    const token = this._getToken();
+    const res = await fetch(`/api/v1/bug-reports/${id}/apply`, {
+      method: 'POST', headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok) {
+      alert(`✅ ${data.message}\nBackup: ${data.backup}`);
+      this.loadUserReports();
+    } else {
+      alert('❌ Erreur: ' + (data.error || 'Impossible d\'appliquer le fix'));
     }
   },
 
@@ -573,7 +734,7 @@ const AdminView = {
                     ${this.highlightErrorMessage(error.message)}
                   </td>
                   <td class="error-url" title="${error.url || '-'}">
-                    ${error.url ? new URL(error.url).pathname : '-'}
+                    ${error.url ? (() => { try { return new URL(error.url).pathname; } catch(e) { return error.url; } })() : '-'}
                   </td>
                   <td class="user-cell">${error.user_name || error.user_email || '-'}</td>
                   <td class="actions-cell">
@@ -717,7 +878,7 @@ const AdminView = {
       return '<div class="loading">Chargement...</div>';
     }
 
-    const avgResponseTime = apiMetrics.averageResponseTime || 0;
+    const avgResponseTime = apiMetrics.avgLatency || apiMetrics.averageResponseTime || 0;
     const totalRequests = apiMetrics.totalRequests || 0;
 
     return `
@@ -741,7 +902,7 @@ const AdminView = {
           <div class="perf-card">
             <span class="perf-icon">✅</span>
             <div>
-              <p class="perf-value">${apiMetrics.successRate || 0}%</p>
+              <p class="perf-value">${apiMetrics.successRate ?? (100 - (apiMetrics.errorRate || 0))}%</p>
               <p class="perf-label">Taux de succès</p>
             </div>
           </div>
@@ -762,8 +923,8 @@ const AdminView = {
               <div class="endpoint-item">
                 <span class="endpoint-rank">#${idx + 1}</span>
                 <div class="endpoint-info">
-                  <span class="endpoint-path">${endpoint.path}</span>
-                  <span class="endpoint-stats">${endpoint.count} requêtes • ${endpoint.avgResponseTime}ms moy</span>
+                  <span class="endpoint-path">${endpoint.path || endpoint.endpoint || '?'}</span>
+                  <span class="endpoint-stats">${endpoint.count} requêtes • ${endpoint.avgResponseTime || endpoint.avgLatency || 0}ms moy</span>
                 </div>
               </div>
             `).join('')}

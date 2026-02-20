@@ -593,3 +593,47 @@
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* ================================================
+   PREMIUM UPGRADE — 2026-02-19
+   Glassmorphism stat cards + gradient values
+   ================================================ */
+
+/* Stat card: deeper glassmorphism */
+.stat-card {
+    background: rgba(255, 255, 255, 0.025) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.07) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(139, 92, 246, 0.3) !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35), 0 0 24px rgba(139, 92, 246, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Gradient stat value — works for both .stat-value and .stat-content h3 */
+.stat-value,
+.stat-content h3 {
+    font-size: 2.5rem !important;
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    letter-spacing: -1px !important;
+}
+
+/* Section cards glassmorphism */
+.dashboard-section {
+    background: rgba(255, 255, 255, 0.02) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-left: 3px solid var(--accent) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}

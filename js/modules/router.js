@@ -33,7 +33,7 @@ const ViewRouter = (function() {
         mail: 'Mail',
         admin: 'Administration',
         giriGames: 'Giri Games',
-        tunnelClub: 'Tunnel Club',
+        tunnelClub: 'Giri Tunnel Club',
         giriAcademy: 'Giri Academy'
     };
 

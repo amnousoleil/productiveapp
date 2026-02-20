@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paiement annulé — Giri Académie</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f0e17;
+    color: #fffffe;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.cancel-card {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 48px 40px;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+}
+
+.cancel-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(251,191,36,0.1);
+    border: 2px solid rgba(251,191,36,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 24px;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fffffe;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+
+.info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    text-align: left;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.5;
+}
+.info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.btn-retry {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 13px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s;
+    box-shadow: 0 8px 24px -8px rgba(139,92,246,0.6);
+    font-family: inherit;
+    width: 100%;
+}
+.btn-retry:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -8px rgba(139,92,246,0.7);
+}
+
+.btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    color: rgba(255,255,255,0.55);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 12px 28px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: inherit;
+    width: 100%;
+}
+.btn-ghost:hover {
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.85);
+    border-color: rgba(255,255,255,0.2);
+}
+</style>
+</head>
+<body>
+
+<div class="cancel-card">
+    <div class="cancel-icon">⚠️</div>
+
+    <h1>Paiement annulé</h1>
+    <p class="subtitle">Votre paiement n'a pas été finalisé.<br>Aucun montant n'a été débité.</p>
+
+    <div class="info-row">
+        <span class="info-icon">💳</span>
+        <span>Aucune somme n'a été prélevée sur votre carte. Vous pouvez réessayer à tout moment.</span>
+    </div>
+    <div class="info-row">
+        <span class="info-icon">🔒</span>
+        <span>Vos informations de paiement sont sécurisées par Stripe et ne sont pas stockées par Giri Académie.</span>
+    </div>
+
+    <div class="actions">
+        <button class="btn-retry" id="btnRetry" type="button">
+            🔄 Réessayer le paiement
+        </button>
+        <a href="https://giri-app.com" class="btn-ghost">
+            ← Retour à l'accueil
+        </a>
+    </div>
+</div>
+
+<script>
+(function() {
+    var params = new URLSearchParams(location.search);
+    var checkoutUrl = params.get('checkout') || '';
+
+    document.getElementById('btnRetry').addEventListener('click', function() {
+        if (checkoutUrl) {
+            window.location.href = decodeURIComponent(checkoutUrl);
+        } else {
+            window.history.back();
+        }
+    });
+})();
+</script>
+</body>
+</html>

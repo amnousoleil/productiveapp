@@ -123,10 +123,16 @@ const Perf = {
         }
     },
     downgrade() {
-        if (this.tierIdx > 0) { this.tierIdx--; quality = this.tiers[this.tierIdx]; applyResolution(); initTheme(); }
+        if (this.tierIdx > 0) {
+            this.tierIdx--; quality = this.tiers[this.tierIdx];
+            var savedFade = fadeIn; applyResolution(); initTheme(); fadeIn = savedFade;
+        }
     },
     upgrade() {
-        if (this.tierIdx < this.maxTier) { this.tierIdx++; quality = this.tiers[this.tierIdx]; applyResolution(); initTheme(); }
+        if (this.tierIdx < this.maxTier) {
+            this.tierIdx++; quality = this.tiers[this.tierIdx];
+            var savedFade = fadeIn; applyResolution(); initTheme(); fadeIn = savedFade;
+        }
     },
     detectDevice() {
         let score = 50;
@@ -188,7 +194,7 @@ const Perf = {
 let canvas, ctx, W, H;
 let running = false, time = 0, lastTime = 0, lastLoopTs = 0;
 let quality = 'high';
-let state = {}, fadeIn = 0;
+let state = {}, fadeIn = 0, _prevThemeType = '';
 let canvasScale = 1;
 let frameSkipCounter = 0;
 // Intensity system (controlled by AnimationControls)
@@ -582,131 +588,88 @@ AT.sterling = {
 // Symboles monétaires qui tombent + mots d'amour qui montent subtilement
 AT.diplomat = {
     init(cfg) {
-        const DIP_LOVE = [
-            'amour', 'paix', 'lumière', 'joie', 'gratitude', 'sérénité',
-            'tendresse', 'confiance', 'humilité', 'douceur', 'compassion',
-            'présence', 'grâce', 'bienveillance', 'éveil', 'harmonie',
-            'beauté', 'coeur', 'âme', 'essence', 'plénitude', 'divin',
-            'soi divin', 'affection', 'clarté', 'infini', 'silence',
-            'abondance', 'espoir', 'sagesse', 'unité', 'foi', 'légèreté',
-            'vérité', 'liberté', 'conscience', 'rayonnement', 'bénédiction'
+        const DIP_WORDS = [
+            'AMOUR', 'PAIX', 'LUMIÈRE', 'JOIE', 'GRATITUDE', 'SÉRÉNITÉ',
+            'TENDRESSE', 'CONFIANCE', 'HUMILITÉ', 'DOUCEUR', 'COMPASSION',
+            'PRÉSENCE', 'GRÂCE', 'ÉVEIL', 'HARMONIE', 'BEAUTÉ', 'ÂME',
+            'ESSENCE', 'PLÉNITUDE', 'INFINI', 'SILENCE', 'ABONDANCE',
+            'ESPOIR', 'SAGESSE', 'UNITÉ', 'FOI', 'VÉRITÉ', 'LIBERTÉ',
+            'CONSCIENCE', 'RAYONNEMENT', 'BÉNÉDICTION', 'LÉGÈRETÉ'
         ];
-        const COLS = quality === 'low' ? 14 : 22;
-        const SLOTS = quality === 'low' ? 8 : 16;
-        const colW = W / COLS;
-        const CURRENCY_CHARS = ['$', '€', '£', '¥', '₿', '₣', '₹', '฿', '₩', '₫', '₲', '₴'];
+        const fSize = quality === 'low' ? 15 : 17;
+        const spacing = fSize + 4;
+        const colW = quality === 'low' ? 55 : 44;
+        const numCols = Math.ceil(W / colW) + 2;
+
         state.dipCols = [];
-        state.dipLove = [];
-        state.dipLovePool = DIP_LOVE;
+        state.dipPool = DIP_WORDS;
 
-        for (let i = 0; i < COLS; i++) {
-            const col = { x: i * colW + colW / 2, chars: [], speed: rand(28, 70) };
-            const maxChars = Math.ceil(H / 26) + 4;
-            for (let j = 0; j < maxChars; j++) {
-                col.chars.push({
-                    y: rand(-H, H),
-                    char: CURRENCY_CHARS[Math.floor(rand(0, CURRENCY_CHARS.length))],
-                    alpha: rand(0.15, 0.70),
-                    gldPct: Math.random()
-                });
-            }
-            state.dipCols.push(col);
-        }
-
-        // Mots d'amour flottants — staggered pour remplir progressivement l'écran
-        for (let i = 0; i < SLOTS; i++) {
-            state.dipLove.push({
-                word: DIP_LOVE[Math.floor(Math.random() * DIP_LOVE.length)],
-                x: rand(W * 0.05, W * 0.95),
-                y: rand(H * 0.5, H * 0.95),
-                alpha: 0,
-                targetAlpha: rand(0.28, 0.55),
-                vy: rand(-6, -14),
-                vx: rand(-2.5, 2.5),
-                timer: i * rand(1.5, 3.5),  // staggered start
-                life: 0,
-                maxLife: rand(14, 28),
-                size: rand(14, 21),
-                phase: 'wait'
+        for (let i = 0; i < numCols; i++) {
+            const word = DIP_WORDS[Math.floor(Math.random() * DIP_WORDS.length)];
+            const letters = word.split('');
+            state.dipCols.push({
+                x: i * colW + colW * 0.5,
+                y: rand(-H * 0.8, 0),      // stagger vertical start
+                speed: rand(38, 85),
+                letters: letters,
+                spacing: spacing,
+                alpha: rand(0.35, 0.75),
+                bright: Math.random()       // mix color variety
             });
         }
     },
     render(dt, cfg) {
         ctx.clearRect(0, 0, W, H);
         ctx.globalCompositeOperation = 'lighter';
-
-        const CURRENCY_CHARS = ['$', '€', '£', '¥', '₿', '₣', '₹', '฿', '₩', '₫'];
-        const fSize = 17;
-        ctx.font = `${fSize}px 'Courier New', monospace`;
         ctx.textAlign = 'center';
 
-        // Colonnes de devises qui tombent
+        const fSize = quality === 'low' ? 15 : 17;
+
         if (state.dipCols) for (const col of state.dipCols) {
-            for (const c of col.chars) {
-                c.y -= col.speed * dt;
-                if (c.y < -fSize - 5) {
-                    c.y = H + rand(0, 80);
-                    c.char = CURRENCY_CHARS[Math.floor(rand(0, CURRENCY_CHARS.length))];
-                    c.alpha = rand(0.15, 0.70);
-                    c.gldPct = Math.random();
-                }
-                if (c.y >= 0 && c.y <= H + fSize) {
-                    ctx.globalAlpha = fadeIn * c.alpha * intensityFactor;
-                    ctx.fillStyle = c.gldPct > 0.75 ? '#ffd700' : cfg.c[0];
-                    ctx.fillText(c.char, col.x, c.y);
-                }
+            col.y += col.speed * dt;
+
+            const trail = col.letters.length;
+            const totalH = trail * col.spacing;
+
+            // Reset lorsque la queue passe sous l'écran
+            if (col.y - totalH > H + 40) {
+                col.y = -totalH - rand(0, 150);
+                const word = state.dipPool[Math.floor(Math.random() * state.dipPool.length)];
+                col.letters = word.split('');
+                col.alpha = rand(0.35, 0.75);
+                col.speed = rand(38, 85);
+                col.bright = Math.random();
             }
-        }
 
-        // Mots d'amour positifs — flottent subtilement vers le haut
-        if (state.dipLove) {
-            const pool = state.dipLovePool;
-            for (const w of state.dipLove) {
-                if (w.phase === 'wait') {
-                    w.timer -= dt;
-                    if (w.timer <= 0) { w.phase = 'fadein'; w.life = 0; }
-                    continue;
-                }
-                w.life += dt;
-                w.x += w.vx * dt;
-                w.y += w.vy * dt;
+            // Chaque lettre du mot tombe verticalement
+            for (let j = 0; j < trail; j++) {
+                const cy = col.y - j * col.spacing;
+                if (cy < -20 || cy > H + 20) continue;
 
-                if (w.phase === 'fadein') {
-                    w.alpha = Math.min(w.targetAlpha, w.alpha + dt * 0.35);
-                    if (w.alpha >= w.targetAlpha * 0.95) w.phase = 'live';
-                } else if (w.phase === 'live') {
-                    if (w.life >= w.maxLife) w.phase = 'fadeout';
-                } else if (w.phase === 'fadeout') {
-                    w.alpha = Math.max(0, w.alpha - dt * 0.22);
-                    if (w.alpha <= 0.005) {
-                        // Réinitialiser le slot avec un nouveau mot
-                        w.word = pool[Math.floor(Math.random() * pool.length)];
-                        w.x = rand(W * 0.05, W * 0.95);
-                        w.y = rand(H * 0.55, H * 0.95);
-                        w.alpha = 0;
-                        w.targetAlpha = rand(0.28, 0.55);
-                        w.vy = rand(-6, -14);
-                        w.vx = rand(-2.5, 2.5);
-                        w.timer = rand(3, 16);
-                        w.life = 0;
-                        w.maxLife = rand(14, 28);
-                        w.size = rand(14, 21);
-                        w.phase = 'wait';
-                    }
-                }
+                // Tête = lettre j=0 (la plus basse), queue = dernière lettre
+                const fade = j === 0 ? 1.0 : Math.max(0, 1 - j / trail);
+                const alpha = fadeIn * col.alpha * fade * intensityFactor;
+                if (alpha < 0.01) continue;
 
-                if (w.alpha > 0.01) {
-                    ctx.font = `italic ${w.size}px Georgia, 'Times New Roman', serif`;
-                    glow(10, '#ffd700');
-                    ctx.globalAlpha = fadeIn * w.alpha * intensityFactor;
-                    ctx.fillStyle = '#ffd700';
-                    ctx.fillText(w.word, w.x, w.y);
+                ctx.globalAlpha = alpha;
+                ctx.font = `${j === 0 ? 'bold ' : ''}${fSize}px 'Georgia', serif`;
+
+                if (j === 0) {
+                    // Tête: couleur brillante
+                    glow(10, cfg.c[0]);
+                    ctx.fillStyle = col.bright > 0.6 ? '#ffaaaa' : cfg.c[1];
+                } else if (j <= 2) {
                     noGlow();
-                    ctx.font = `${fSize}px 'Courier New', monospace`;
+                    ctx.fillStyle = cfg.c[0];
+                } else {
+                    noGlow();
+                    ctx.fillStyle = cfg.c[2];
                 }
+                ctx.fillText(col.letters[j], col.x, cy);
             }
         }
 
+        noGlow();
         ctx.globalCompositeOperation = 'source-over';
         ctx.textAlign = 'left';
         ctx.globalAlpha = fadeIn;
@@ -4086,13 +4049,15 @@ function initTheme() {
         state = {}; fadeIn = 0;
         const theme = getCurrentTheme();
         const cfg = TC[theme];
+        const newType = cfg ? cfg.type : '';
 
         // Set canvas opacity per theme, scaled by intensity
         if (canvas) {
             var baseOpacity = cfg ? cfg.a : 0.7;
             var targetOpacity = String(baseOpacity * Math.max(0.05, intensityFactor));
-            // Matrix: start invisible, fade in over 2s to hide init artefacts
-            if (cfg && cfg.type === 'matrix') {
+            // Matrix: only hide canvas on FIRST entry (not on quality-change reinit)
+            // If matrix was already active, keep current opacity to avoid green flash
+            if (cfg && cfg.type === 'matrix' && _prevThemeType !== 'matrix') {
                 canvas.style.transition = 'none';
                 canvas.style.opacity = '0';
             } else {
@@ -4106,14 +4071,16 @@ function initTheme() {
         if (cfg) {
             const anim = AT[cfg.type];
             if (anim && anim.init) anim.init(cfg);
-            // Matrix fade-in: trigger after init so first paint is done
-            if (cfg.type === 'matrix' && canvas) {
+            // Matrix fade-in: only on first entry, not on quality-change reinit
+            if (cfg.type === 'matrix' && canvas && _prevThemeType !== 'matrix') {
                 setTimeout(function() {
                     canvas.style.transition = 'opacity 2s ease-in';
                     canvas.style.opacity = state._targetOpacity;
                 }, 50);
             }
         }
+
+        _prevThemeType = newType;
     } catch(e) {
         console.error('Animation initTheme error (non-fatal):', e);
         state = {}; // Reset state on error

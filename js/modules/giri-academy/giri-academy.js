@@ -32,7 +32,8 @@ const GiriAcademy = (function () {
 
         if (typeof FormationEditor !== 'undefined') {
             FormationEditor.setHandlers({
-                onBack: () => _navigate('list')
+                onBack: () => _navigate('list'),
+                onStudents: (formation) => _navigate('students', formation),
             });
         }
 

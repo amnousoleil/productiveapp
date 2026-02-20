@@ -6,13 +6,8 @@
 const AcademyApi = (function () {
     'use strict';
 
-    function getWorkspaceId() {
-        if (typeof ApiTokens !== 'undefined') return ApiTokens.getWorkspaceId();
-        return localStorage.getItem('workspace_id') || '';
-    }
-
     function base() {
-        return `/formations/workspace/${getWorkspaceId()}`;
+        return `/formations`;
     }
 
     // ── Formations ─────────────────────────────────────────────
@@ -157,40 +152,44 @@ const AcademyApi = (function () {
         return quizId;
     }
 
-    // ── Storage (Upload) ───────────────────────────────────────
+    // ── Storage (Upload via multer local — 200MB PDF/vidéo) ────
 
-    async function getPresignedUrl(filename, contentType, context) {
-        const r = await Api.post('/storage/presign', { filename, contentType, context });
-        return r.data || r;
-    }
-
-    async function confirmUpload(fileId, url) {
-        return Api.post('/storage/confirm', { fileId, url });
-    }
-
-    async function uploadFile(file, context, onProgress) {
-        const presign = await getPresignedUrl(file.name, file.type, context || 'formation');
-        if (!presign.uploadUrl) throw new Error('Pas d\'URL presignée');
+    async function uploadFile(file, _context, onProgress) {
+        const formData = new FormData();
+        formData.append('file', file);
 
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
+
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable && onProgress) {
                     onProgress(Math.round((e.loaded / e.total) * 100));
                 }
             };
-            xhr.onload = async () => {
+
+            xhr.onload = () => {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    await confirmUpload(presign.fileId, presign.publicUrl);
-                    resolve(presign.publicUrl);
+                    try {
+                        const result = JSON.parse(xhr.responseText);
+                        if (result.success && result.url) {
+                            resolve(result.url);
+                        } else {
+                            reject(new Error(result.error || 'Upload échoué'));
+                        }
+                    } catch (e) {
+                        reject(new Error('Réponse invalide du serveur'));
+                    }
                 } else {
-                    reject(new Error('Erreur upload: ' + xhr.status));
+                    reject(new Error('Erreur upload HTTP ' + xhr.status));
                 }
             };
+
             xhr.onerror = () => reject(new Error('Erreur réseau upload'));
-            xhr.open('PUT', presign.uploadUrl);
-            xhr.setRequestHeader('Content-Type', file.type);
-            xhr.send(file);
+
+            const token = (typeof ApiTokens !== 'undefined') ? ApiTokens.getAccessToken() : '';
+            xhr.open('POST', '/api/v1/uploads/local');
+            if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+            xhr.send(formData);
         });
     }
 

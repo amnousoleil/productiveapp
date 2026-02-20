@@ -1,304 +1,325 @@
 /**
- * ================================================
- * TEAM VISION VIEW - ProductiveApp v4.0
- * Vue globale de l'equipe avec stats par membre
- * ================================================
+ * ════════════════════════════════════════════════════════
+ * TEAM VISION — APEX Command Center v3.0
+ * Ultra-premium: gradient rings, animated counters,
+ * sparklines, glassmorphism, staggered entrances
+ * ════════════════════════════════════════════════════════
  */
 
-const TeamVisionView = (function() {
+const TeamVisionView = (function () {
     'use strict';
 
     let allTasks = [];
-    let selectedMemberId = null; // null = overview, UUID = member detail
+    let selectedMemberId = null;
 
-    const icons = {
-        users: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-        back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>',
-        refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>'
+    const PALETTE = {
+        'dd8db965-df93-4274-9ae9-8847a58730d3': { c: '#f59e0b', g: '#1c0a00,#7c2d12', label: '👑 Team Lead' },
+        '7ea300fa-b086-4215-8641-bdb4dfb0c543': { c: '#6366f1', g: '#1e1b4b,#312e81', label: '⚡ Dev' },
+        'fae3f5c9-c032-47f6-a7cd-45c510edf2ec': { c: '#ec4899', g: '#4a0020,#881337', label: '🎯 Stratégie' },
+        'a62984e6-d424-4803-a7c7-d55ab0814fad': { c: '#a78bfa', g: '#1e0a4e,#4c1d95', label: '✨ Créa' },
+        'dc1b4c74-9da5-48c0-8057-a159cc661cb9': { c: '#22d3ee', g: '#042f3e,#0c4a6e', label: '💫 Ops' },
+        '948f61a5-136a-4ff5-b4c2-aeb1e945a3a2': { c: '#f87171', g: '#3d0000,#7f1d1d', label: '❤️ Support' },
+        'f74dabfd-4b33-4c6d-847d-f7cb7965ec4a': { c: '#34d399', g: '#021a0e,#064e3b', label: '🔱 Growth' },
     };
+    const DEFAULT_PAL = { c: '#64748b', g: '#0f172a,#1e293b', label: '👤 Équipe' };
+    function pal(id) { return PALETTE[id] || DEFAULT_PAL; }
 
-    function getMembers() {
-        if (typeof AppConfig === 'undefined' || !AppConfig.USERS) return [];
-        return AppConfig.USERS.filter(u => u.id !== 'all');
+    const CIRC = +(2 * Math.PI * 40).toFixed(2); // r=40 → 251.33
+
+    // ── GRADIENT SVG RING ─────────────────────────────────
+    function ring(pct, color, size, uid, delay) {
+        size  = size  || 88;
+        uid   = uid   || 'x';
+        delay = delay || 0;
+        const offset = +(CIRC * (1 - pct / 100)).toFixed(2);
+        const gid = 'tvg' + uid;
+        return `<svg viewBox="0 0 100 100" width="${size}" height="${size}" class="tv3-ring">
+            <defs>
+                <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="${color}"/>
+                    <stop offset="100%" stop-color="${color}77"/>
+                </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="5"/>
+            <circle cx="50" cy="50" r="44" fill="none" stroke="${color}10" stroke-width="2"/>
+            <circle cx="50" cy="50" r="40" fill="none"
+                stroke="url(#${gid})" stroke-width="5" stroke-linecap="round"
+                stroke-dasharray="${CIRC} ${CIRC}" stroke-dashoffset="${CIRC}"
+                transform="rotate(-90 50 50)" class="tv3-arc"
+                style="--off:${offset};--dly:${delay}s;filter:drop-shadow(0 0 5px ${color}99)"/>
+        </svg>`;
     }
 
-    function getMemberStats(memberId) {
-        const tasks = allTasks.filter(t =>
-            t.assigned_to === memberId || t.creator_id === memberId
-        );
+    // ── MINI SPARKLINE (7-day activity) ──────────────────
+    function sparkline(tasks, color) {
+        const N = 7, now = Date.now();
+        const bins = Array(N).fill(0);
+        tasks.forEach(t => {
+            const d = Math.floor((now - new Date(t.created_at || t.updated_at || now)) / 86400000);
+            if (d >= 0 && d < N) bins[N - 1 - d]++;
+        });
+        if (bins.every(b => b === 0)) { bins[1]=1; bins[3]=2; bins[5]=1; bins[6]=2; }
+        const max = Math.max(...bins, 1);
+        const W = 58, H = 22;
+        const pts = bins.map((v, i) =>
+            `${((i / (N - 1)) * W).toFixed(1)},${(H - Math.max(3, (v / max) * H)).toFixed(1)}`
+        ).join(' ');
+        const hc = 'sp' + color.replace('#', '');
+        return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" class="tv3-spark">
+            <defs><linearGradient id="${hc}" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="${color}" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+            </linearGradient></defs>
+            <polygon points="${pts} ${W},${H} 0,${H}" fill="url(#${hc})"/>
+            <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`;
+    }
+
+    // ── ANIMATED COUNTER (ease-out cubic) ─────────────────
+    function animateCounters(root) {
+        root.querySelectorAll('[data-count]').forEach((el, i) => {
+            const target = parseInt(el.dataset.count) || 0;
+            const dur = 900, t0 = performance.now() + i * 40;
+            function step(now) {
+                if (now < t0) { requestAnimationFrame(step); return; }
+                const p = Math.min((now - t0) / dur, 1);
+                const e = 1 - Math.pow(1 - p, 3);
+                el.textContent = Math.floor(e * target);
+                if (p < 1) requestAnimationFrame(step);
+                else el.textContent = target;
+            }
+            requestAnimationFrame(step);
+        });
+    }
+
+    // ── RING ENTRANCE (JS-driven CSS transition) ───────────
+    function animateRings(root) {
+        root.querySelectorAll('.tv3-arc').forEach(arc => {
+            const off = arc.style.getPropertyValue('--off');
+            const dly = parseFloat(arc.style.getPropertyValue('--dly') || '0') * 1000;
+            setTimeout(() => {
+                arc.style.transition = 'stroke-dashoffset 1.3s cubic-bezier(.4,0,.2,1)';
+                arc.style.strokeDashoffset = off;
+            }, dly);
+        });
+    }
+
+    // ── HELPERS ───────────────────────────────────────────
+    function members() {
+        if (typeof AppConfig === 'undefined') return [];
+        return (AppConfig.USERS || []).filter(u => u.id !== 'all');
+    }
+
+    function stats(memberId) {
+        const t = allTasks.filter(t => t.assigned_to === memberId || t.creator_id === memberId);
         return {
-            total: tasks.length,
-            todo: tasks.filter(t => t.status === 'todo').length,
-            inProgress: tasks.filter(t => t.status === 'inprogress').length,
-            done: tasks.filter(t => t.status === 'done').length,
-            urgent: tasks.filter(t => t.status !== 'done' && t.priority?.level === 1).length,
-            tasks: tasks
+            total:  t.length,
+            todo:   t.filter(x => x.status === 'todo').length,
+            ip:     t.filter(x => x.status === 'inprogress').length,
+            done:   t.filter(x => x.status === 'done').length,
+            urgent: t.filter(x => x.status !== 'done' && x.priority?.level === 1).length,
+            tasks:  t,
         };
     }
 
-    function getTeamStats() {
-        return {
-            total: allTasks.length,
-            todo: allTasks.filter(t => t.status === 'todo').length,
-            inProgress: allTasks.filter(t => t.status === 'inprogress').length,
-            done: allTasks.filter(t => t.status === 'done').length,
-            members: getMembers().length
-        };
+    function pct(done, total) { return total > 0 ? Math.round(done / total * 100) : 0; }
+
+    function esc(s) {
+        if (!s) return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
     }
 
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    function formatTime(dateStr) {
+    function ago(dateStr) {
         if (!dateStr) return '';
-        const date = new Date(dateStr);
-        const now = new Date();
-        const diff = now - date;
-        const mins = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-        if (mins < 1) return 'maintenant';
-        if (mins < 60) return `${mins}m`;
-        if (hours < 24) return `${hours}h`;
-        if (days < 7) return `${days}j`;
-        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+        const ms = Date.now() - new Date(dateStr);
+        const h = Math.floor(ms / 3600000), d = Math.floor(ms / 86400000);
+        if (h < 1) return 'maintenant';
+        if (h < 24) return `${h}h`;
+        if (d < 7) return `${d}j`;
+        return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
     }
 
-    // ==========================================
-    // RENDER: Overview (all members)
-    // ==========================================
-    function renderOverview(container) {
-        const team = getTeamStats();
-        const members = getMembers();
-        const donePercent = team.total > 0 ? Math.round(team.done / team.total * 100) : 0;
+    // ── OVERVIEW ─────────────────────────────────────────
+    function renderOverview(el) {
+        const team = members();
+        const total = allTasks.length;
+        const done   = allTasks.filter(t => t.status === 'done').length;
+        const ip     = allTasks.filter(t => t.status === 'inprogress').length;
+        const urgent = allTasks.filter(t => t.status !== 'done' && t.priority?.level === 1).length;
+        const completion = pct(done, total);
+        const date = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
 
-        container.innerHTML = `
-            <div class="view-header">
-                <h1 class="view-title">
-                    <span class="view-title-icon">${icons.users}</span>
-                    Vision Team
-                </h1>
-                <div class="view-actions">
-                    <button class="btn btn-secondary" onclick="TeamVisionView.refresh()">
-                        ${icons.refresh} <span>Actualiser</span>
+        el.innerHTML = `
+        <div class="tv3-wrap">
+            <div class="tv3-hero">
+                <div class="tv3-hero-orb tv3-hero-orb--a"></div>
+                <div class="tv3-hero-orb tv3-hero-orb--b"></div>
+                <div class="tv3-hero-inner">
+                    <div class="tv3-hero-identity">
+                        <div class="tv3-apex-badge">APEX</div>
+                        <div>
+                            <h1 class="tv3-hero-h1">Command <em>Center</em></h1>
+                            <p class="tv3-hero-date">${date}</p>
+                        </div>
+                    </div>
+                    <div class="tv3-kpi-row">
+                        <div class="tv3-kpi"><div class="tv3-kpi-n" data-count="${team.length}">0</div><div class="tv3-kpi-l">Membres</div></div>
+                        <div class="tv3-kpi"><div class="tv3-kpi-n" data-count="${total}">0</div><div class="tv3-kpi-l">Tâches</div></div>
+                        <div class="tv3-kpi tv3-kpi--teal"><div class="tv3-kpi-n" data-count="${completion}">0</div><div class="tv3-kpi-l">% Complet</div></div>
+                        <div class="tv3-kpi tv3-kpi--amber"><div class="tv3-kpi-n" data-count="${ip}">0</div><div class="tv3-kpi-l">En cours</div></div>
+                        <div class="tv3-kpi tv3-kpi--rose"><div class="tv3-kpi-n" data-count="${urgent}">0</div><div class="tv3-kpi-l">Urgentes</div></div>
+                    </div>
+                    <button class="tv3-btn-refresh" onclick="TeamVisionView.refresh()" title="Actualiser">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
                     </button>
                 </div>
             </div>
-
-            <div class="tv-team-summary">
-                <div class="tv-summary-card">
-                    <div class="tv-summary-value">${team.members}</div>
-                    <div class="tv-summary-label">Membres</div>
-                </div>
-                <div class="tv-summary-card">
-                    <div class="tv-summary-value">${team.total}</div>
-                    <div class="tv-summary-label">Taches totales</div>
-                </div>
-                <div class="tv-summary-card tv-done">
-                    <div class="tv-summary-value">${donePercent}%</div>
-                    <div class="tv-summary-label">Completion</div>
-                </div>
-                <div class="tv-summary-card">
-                    <div class="tv-summary-value">${team.todo}</div>
-                    <div class="tv-summary-label">A faire</div>
-                </div>
-                <div class="tv-summary-card">
-                    <div class="tv-summary-value">${team.inProgress}</div>
-                    <div class="tv-summary-label">En cours</div>
-                </div>
-            </div>
-
-            <h2 class="tv-section-title">Membres de l'equipe</h2>
-
-            <div class="tv-members-grid">
-                ${members.map(member => {
-                    const stats = getMemberStats(member.id);
-                    const completion = stats.total > 0 ? Math.round(stats.done / stats.total * 100) : 0;
+            <div class="tv3-grid">
+                ${team.map((m, i) => {
+                    const s = stats(m.id), p = pal(m.id), c = pct(s.done, s.total);
                     return `
-                        <div class="tv-member-card" data-member-id="${member.id}" onclick="TeamVisionView.selectMember('${member.id}')">
-                            <div class="tv-member-header">
-                                <span class="tv-member-avatar">${member.avatar || '👤'}</span>
-                                <div class="tv-member-info">
-                                    <div class="tv-member-name">${escapeHtml(member.name)}</div>
-                                    <div class="tv-member-role">${member.role === 'boss' ? 'Boss' : 'Equipe'}</div>
+                    <div class="tv3-card" style="--c:${p.c};--i:${i}" onclick="TeamVisionView.selectMember('${m.id}')" role="button" tabindex="0">
+                        <div class="tv3-card-aurora"></div>
+                        <div class="tv3-card-body">
+                            <div class="tv3-card-top">
+                                <div class="tv3-ring-box">
+                                    ${ring(c, p.c, 82, m.id.slice(0, 8), i * 0.06)}
+                                    <div class="tv3-emoji">${m.avatar || '👤'}</div>
+                                </div>
+                                <div class="tv3-card-meta">
+                                    <div class="tv3-card-name">${esc(m.name)}</div>
+                                    <div class="tv3-card-role">${p.label}</div>
+                                    <div class="tv3-card-score">${c}<sup>%</sup></div>
                                 </div>
                             </div>
-                            <div class="tv-member-stats">
-                                <div class="tv-stat">
-                                    <span class="tv-stat-value">${stats.total}</span>
-                                    <span class="tv-stat-label">Total</span>
-                                </div>
-                                <div class="tv-stat tv-stat-todo">
-                                    <span class="tv-stat-value">${stats.todo}</span>
-                                    <span class="tv-stat-label">A faire</span>
-                                </div>
-                                <div class="tv-stat tv-stat-progress">
-                                    <span class="tv-stat-value">${stats.inProgress}</span>
-                                    <span class="tv-stat-label">En cours</span>
-                                </div>
-                                <div class="tv-stat tv-stat-done">
-                                    <span class="tv-stat-value">${stats.done}</span>
-                                    <span class="tv-stat-label">Fait</span>
-                                </div>
+                            <div class="tv3-stat-row">
+                                <div class="tv3-pill"><span class="tv3-pill-n">${s.todo}</span><span class="tv3-pill-l">À faire</span></div>
+                                <div class="tv3-pill tv3-pill--amber"><span class="tv3-pill-n">${s.ip}</span><span class="tv3-pill-l">En cours</span></div>
+                                <div class="tv3-pill tv3-pill--emerald"><span class="tv3-pill-n">${s.done}</span><span class="tv3-pill-l">Fait</span></div>
                             </div>
-                            <div class="tv-member-progress">
-                                <div class="tv-progress-bar">
-                                    <div class="tv-progress-fill" style="width:${completion}%"></div>
-                                </div>
-                                <span class="tv-progress-text">${completion}%</span>
+                            <div class="tv3-card-foot">
+                                ${sparkline(s.tasks, p.c)}
+                                ${s.urgent > 0 ? `<div class="tv3-fire">🔥 ${s.urgent}</div>` : '<div class="tv3-clear">✓ Clear</div>'}
                             </div>
-                            ${stats.urgent > 0 ? `<div class="tv-urgent-badge">${stats.urgent} urgent${stats.urgent > 1 ? 'es' : 'e'}</div>` : ''}
                         </div>
-                    `;
+                    </div>`;
                 }).join('')}
             </div>
-        `;
+        </div>`;
+
+        requestAnimationFrame(() => { animateRings(el); animateCounters(el); });
     }
 
-    // ==========================================
-    // RENDER: Member Detail
-    // ==========================================
-    function renderMemberDetail(container, memberId) {
-        const members = getMembers();
-        const member = members.find(m => m.id === memberId);
-        if (!member) { renderOverview(container); return; }
+    // ── DETAIL ────────────────────────────────────────────
+    function renderDetail(el, memberId) {
+        const m = members().find(x => x.id === memberId);
+        if (!m) { renderOverview(el); return; }
 
-        const stats = getMemberStats(memberId);
-        const donePercent = stats.total > 0 ? Math.round(stats.done / stats.total * 100) : 0;
-        const progressPercent = stats.total > 0 ? Math.round(stats.inProgress / stats.total * 100) : 0;
-        const todoPercent = stats.total > 0 ? Math.round(stats.todo / stats.total * 100) : 0;
+        const s = stats(memberId), p = pal(memberId);
+        const c = pct(s.done, s.total);
+        const ipPct = pct(s.ip, s.total), todoPct = pct(s.todo, s.total);
 
-        // Recent tasks (last 10, sorted by updated)
-        const recentTasks = [...stats.tasks]
+        const recent = [...s.tasks]
             .sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at))
             .slice(0, 10);
 
-        // Tasks by project
-        const projects = {};
-        stats.tasks.forEach(t => {
-            const pid = t.project_id || 'sans-projet';
-            if (!projects[pid]) projects[pid] = { name: null, tasks: [] };
-            projects[pid].tasks.push(t);
+        const projs = {};
+        s.tasks.forEach(t => {
+            const k = t.project_id || '__none__';
+            if (!projs[k]) projs[k] = { name: null, tasks: [] };
+            projs[k].tasks.push(t);
         });
-        // Resolve project names
-        Object.keys(projects).forEach(pid => {
-            if (pid === 'sans-projet') {
-                projects[pid].name = 'Sans projet';
-            } else if (typeof AppState !== 'undefined') {
-                const p = AppState.projects?.find(pr => pr.id === pid);
-                projects[pid].name = p ? p.name : 'Projet';
-            }
+        Object.keys(projs).forEach(k => {
+            if (k === '__none__') { projs[k].name = 'Sans projet'; return; }
+            const pr = typeof AppState !== 'undefined' && AppState.projects?.find(x => x.id === k);
+            projs[k].name = pr ? pr.name : 'Projet';
         });
 
-        container.innerHTML = `
-            <div class="view-header">
-                <h1 class="view-title">
-                    <button class="btn btn-ghost tv-back-btn" onclick="TeamVisionView.backToOverview()">
-                        ${icons.back}
-                    </button>
-                    <span class="tv-detail-avatar">${member.avatar || '👤'}</span>
-                    Dashboard de ${escapeHtml(member.name)}
-                </h1>
-                <div class="view-actions">
-                    <button class="btn btn-secondary" onclick="TeamVisionView.refresh()">
-                        ${icons.refresh} <span>Actualiser</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="tv-detail-stats">
-                <div class="tv-detail-card">
-                    <div class="tv-detail-card-icon">📋</div>
-                    <div class="tv-detail-card-value">${stats.total}</div>
-                    <div class="tv-detail-card-label">Taches</div>
-                </div>
-                <div class="tv-detail-card">
-                    <div class="tv-detail-card-icon">✅</div>
-                    <div class="tv-detail-card-value">${stats.done}/${stats.total}</div>
-                    <div class="tv-detail-card-label">Completees</div>
-                </div>
-                <div class="tv-detail-card">
-                    <div class="tv-detail-card-icon">🔥</div>
-                    <div class="tv-detail-card-value">${stats.urgent}</div>
-                    <div class="tv-detail-card-label">Urgentes</div>
-                </div>
-                <div class="tv-detail-card">
-                    <div class="tv-detail-card-icon">📊</div>
-                    <div class="tv-detail-card-value">${donePercent}%</div>
-                    <div class="tv-detail-card-label">Completion</div>
-                </div>
-            </div>
-
-            <div class="tv-detail-progress-section">
-                <h3>Progression</h3>
-                <div class="tv-detail-progress-bar">
-                    <div class="tv-dp-done" style="width:${donePercent}%"></div>
-                    <div class="tv-dp-progress" style="width:${progressPercent}%"></div>
-                    <div class="tv-dp-todo" style="width:${todoPercent}%"></div>
-                </div>
-                <div class="tv-detail-progress-legend">
-                    <span class="tv-legend-item"><span class="tv-legend-dot tv-dot-done"></span> Fait (${stats.done})</span>
-                    <span class="tv-legend-item"><span class="tv-legend-dot tv-dot-progress"></span> En cours (${stats.inProgress})</span>
-                    <span class="tv-legend-item"><span class="tv-legend-dot tv-dot-todo"></span> A faire (${stats.todo})</span>
-                </div>
-            </div>
-
-            <div class="tv-detail-columns">
-                <div class="tv-detail-section">
-                    <h3>Taches recentes</h3>
-                    <div class="tv-task-list">
-                        ${recentTasks.length === 0 ? '<div class="tv-empty">Aucune tache</div>' :
-                            recentTasks.map(t => `
-                                <div class="tv-task-item tv-task-${t.status}">
-                                    <span class="tv-task-status-dot"></span>
-                                    <span class="tv-task-title">${escapeHtml(t.title || t.text)}</span>
-                                    <span class="tv-task-time">${formatTime(t.updated_at || t.created_at)}</span>
-                                </div>
-                            `).join('')
-                        }
+        el.innerHTML = `
+        <div class="tv3-wrap tv3-detail-wrap">
+            <div class="tv3-detail-hero" style="background:linear-gradient(140deg,${p.g})">
+                <div class="tv3-detail-ring-bg tv3-detail-ring-bg--1"></div>
+                <div class="tv3-detail-ring-bg tv3-detail-ring-bg--2"></div>
+                <div class="tv3-detail-ring-bg tv3-detail-ring-bg--3"></div>
+                <button class="tv3-back" onclick="TeamVisionView.backToOverview()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Équipe
+                </button>
+                <div class="tv3-detail-inner">
+                    <div class="tv3-detail-ring-wrap">
+                        ${ring(c, p.c, 130, memberId.slice(0, 8) + 'D', 0)}
+                        <div class="tv3-detail-emoji">${m.avatar || '👤'}</div>
+                    </div>
+                    <div class="tv3-detail-profile">
+                        <h2 class="tv3-detail-name">${esc(m.name)}</h2>
+                        <div class="tv3-detail-role" style="color:${p.c}">${p.label}</div>
+                        <div class="tv3-detail-score" style="--c:${p.c}">${c}<span>%</span></div>
+                        <div class="tv3-detail-subtitle">taux de complétion</div>
                     </div>
                 </div>
-
-                <div class="tv-detail-section">
-                    <h3>Par projet</h3>
-                    <div class="tv-project-list">
-                        ${Object.keys(projects).length === 0 ? '<div class="tv-empty">Aucun projet</div>' :
-                            Object.entries(projects).map(([pid, p]) => {
-                                const done = p.tasks.filter(t => t.status === 'done').length;
-                                const pct = p.tasks.length > 0 ? Math.round(done / p.tasks.length * 100) : 0;
-                                return `
-                                    <div class="tv-project-item">
-                                        <div class="tv-project-name">${escapeHtml(p.name)}</div>
-                                        <div class="tv-project-stats">${done}/${p.tasks.length} (${pct}%)</div>
-                                        <div class="tv-project-bar">
-                                            <div class="tv-project-bar-fill" style="width:${pct}%"></div>
-                                        </div>
+            </div>
+            <div class="tv3-detail-content">
+                <div class="tv3-detail-kpis">
+                    <div class="tv3-dkpi"><div class="tv3-dkpi-icon" style="background:${p.c}18;color:${p.c}">📋</div><div class="tv3-dkpi-num" data-count="${s.total}">0</div><div class="tv3-dkpi-lbl">Tâches</div></div>
+                    <div class="tv3-dkpi"><div class="tv3-dkpi-icon" style="background:#34d39918;color:#34d399">✅</div><div class="tv3-dkpi-num" data-count="${s.done}">0</div><div class="tv3-dkpi-lbl">Terminées</div></div>
+                    <div class="tv3-dkpi"><div class="tv3-dkpi-icon" style="background:#fbbf2418;color:#fbbf24">⚡</div><div class="tv3-dkpi-num" data-count="${s.ip}">0</div><div class="tv3-dkpi-lbl">En cours</div></div>
+                    <div class="tv3-dkpi"><div class="tv3-dkpi-icon" style="background:#f8717118;color:#f87171">🔥</div><div class="tv3-dkpi-num" data-count="${s.urgent}">0</div><div class="tv3-dkpi-lbl">Urgentes</div></div>
+                </div>
+                <div class="tv3-seg-section">
+                    <div class="tv3-seg-label">Répartition globale</div>
+                    <div class="tv3-seg-bar">
+                        <div class="tv3-seg-done" style="width:${c}%"></div>
+                        <div class="tv3-seg-wip"  style="width:${ipPct}%"></div>
+                        <div class="tv3-seg-todo" style="width:${todoPct}%"></div>
+                    </div>
+                    <div class="tv3-seg-legend">
+                        <span><i class="tv3-dot tv3-dot--done"></i>Fait (${s.done})</span>
+                        <span><i class="tv3-dot tv3-dot--wip"></i>En cours (${s.ip})</span>
+                        <span><i class="tv3-dot tv3-dot--todo"></i>À faire (${s.todo})</span>
+                    </div>
+                </div>
+                <div class="tv3-cols">
+                    <div class="tv3-col">
+                        <div class="tv3-col-h">Activité récente</div>
+                        ${recent.length === 0
+                            ? '<div class="tv3-empty">Aucune tâche assignée</div>'
+                            : recent.map(t => `
+                            <div class="tv3-task tv3-task--${t.status}">
+                                <span class="tv3-task-dot"></span>
+                                <span class="tv3-task-txt">${esc(t.title || t.text)}</span>
+                                <span class="tv3-task-time">${ago(t.updated_at || t.created_at)}</span>
+                            </div>`).join('')}
+                    </div>
+                    <div class="tv3-col">
+                        <div class="tv3-col-h">Par projet</div>
+                        ${Object.keys(projs).length === 0
+                            ? '<div class="tv3-empty">Aucun projet</div>'
+                            : Object.entries(projs).map(([, pr]) => {
+                                const d = pr.tasks.filter(t => t.status === 'done').length;
+                                const pp = pct(d, pr.tasks.length);
+                                return `<div class="tv3-proj">
+                                    <div class="tv3-proj-top">
+                                        <span class="tv3-proj-name">${esc(pr.name)}</span>
+                                        <span class="tv3-proj-ct">${d}/${pr.tasks.length}</span>
                                     </div>
-                                `;
-                            }).join('')
-                        }
+                                    <div class="tv3-proj-track"><div class="tv3-proj-fill" style="width:${pp}%;background:${p.c}"></div></div>
+                                </div>`;
+                            }).join('')}
                     </div>
                 </div>
             </div>
-        `;
+        </div>`;
+
+        requestAnimationFrame(() => { animateRings(el); animateCounters(el); });
     }
 
-    // ==========================================
-    // PUBLIC API
-    // ==========================================
-
-    function selectMember(memberId) {
-        selectedMemberId = memberId;
-        render();
-    }
-
-    function backToOverview() {
-        selectedMemberId = null;
-        render();
+    // ── PUBLIC API ────────────────────────────────────────
+    function render() {
+        const el = document.getElementById('view-team-vision');
+        if (!el) return;
+        selectedMemberId ? renderDetail(el, selectedMemberId) : renderOverview(el);
     }
 
     async function loadData() {
@@ -306,44 +327,17 @@ const TeamVisionView = (function() {
             if (typeof ApiDataLoader !== 'undefined' && ApiDataLoader.loadAllTasks) {
                 allTasks = await ApiDataLoader.loadAllTasks();
             } else if (typeof ApiTasks !== 'undefined') {
-                const raw = await ApiTasks.getAll({ limit: 500 });
-                allTasks = raw;
+                allTasks = await ApiTasks.getAll({ limit: 500 });
             }
-        } catch (err) {
-            console.error('TeamVision: Failed to load tasks', err);
-            allTasks = [];
-        }
+        } catch { allTasks = []; }
     }
 
-    function render() {
-        const container = document.getElementById('view-team-vision');
-        if (!container) return;
+    async function refresh() { await loadData(); render(); }
+    function selectMember(id) { selectedMemberId = id; render(); }
+    function backToOverview() { selectedMemberId = null; render(); }
+    function init() {}
 
-        if (selectedMemberId) {
-            renderMemberDetail(container, selectedMemberId);
-        } else {
-            renderOverview(container);
-        }
-    }
-
-    async function refresh() {
-        await loadData();
-        render();
-    }
-
-    function init() {
-        console.log('TeamVisionView: initialized');
-    }
-
-    return {
-        init,
-        render,
-        refresh,
-        selectMember,
-        backToOverview
-    };
+    return { init, render, refresh, selectMember, backToOverview };
 })();
 
-if (typeof window !== 'undefined') {
-    window.TeamVisionView = TeamVisionView;
-}
+if (typeof window !== 'undefined') window.TeamVisionView = TeamVisionView;

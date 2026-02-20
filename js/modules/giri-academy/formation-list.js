@@ -64,7 +64,7 @@ const FormationList = (function () {
         const emoji = f.emoji || '📚';
         const studentsCount = f.students_count || 0;
         const modulesCount = f.modules_count || 0;
-        const revenue = f.revenue_cents ? `${(f.revenue_cents / 100).toFixed(0)} €` : '0 €';
+
 
         return `
         <div class="formation-card" data-id="${f.id}">
@@ -164,7 +164,7 @@ const FormationList = (function () {
                     }
                     render(container);
                 } catch (err) {
-                    alert('Erreur lors de la publication: ' + (err.message || ''));
+                    if (typeof Toast !== 'undefined') Toast.error('Erreur lors de la publication: ' + (err.message || ''));
                 }
             });
         });
@@ -175,6 +175,58 @@ const FormationList = (function () {
                 const f = formations.find(x => x.id === id);
                 if (f && _onEdit) _onEdit(f);
             });
+        });
+    }
+
+    // ── Emoji Picker ─────────────────────────────────────────
+    const FORMATION_EMOJIS = ['📚','🧘','💪','🎯','🚀','💡','🎓','✨','🔥','💎','🌟','🎨','💼','🏆','❤️','🧠','🌿','⚡','🎵','🏅'];
+
+    function _attachEmojiPicker(trigger, display, hiddenInput) {
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Fermer tout picker existant
+            document.querySelectorAll('.emoji-picker-dropdown').forEach(p => p.remove());
+
+            const picker = document.createElement('div');
+            picker.className = 'emoji-picker-dropdown';
+            const current = hiddenInput.value || '📚';
+            picker.innerHTML = FORMATION_EMOJIS.map(em =>
+                `<button class="emoji-option${em === current ? ' selected' : ''}" data-emoji="${em}" type="button">${em}</button>`
+            ).join('');
+
+            // FIX: Appendre au body avec position:fixed pour éviter le clipping par overflow des parents (modals)
+            const rect = trigger.getBoundingClientRect();
+            picker.style.position = 'fixed';
+            picker.style.top = (rect.bottom + 8) + 'px';
+            picker.style.left = rect.left + 'px';
+            picker.style.zIndex = '99999';
+            document.body.appendChild(picker);
+
+            // Ajuster si déborde en bas de l'écran
+            requestAnimationFrame(() => {
+                const ph = picker.offsetHeight;
+                if (rect.bottom + 8 + ph > window.innerHeight) {
+                    picker.style.top = (rect.top - ph - 8) + 'px';
+                }
+            });
+
+            picker.addEventListener('click', (ev) => {
+                const btn = ev.target.closest('[data-emoji]');
+                if (!btn) return;
+                const chosen = btn.dataset.emoji;
+                hiddenInput.value = chosen;
+                display.textContent = chosen;
+                picker.remove();
+                ev.stopPropagation();
+            });
+
+            // Fermer si clic ailleurs
+            setTimeout(() => {
+                document.addEventListener('click', function closePicker() {
+                    picker.remove();
+                    document.removeEventListener('click', closePicker);
+                }, { once: true });
+            }, 0);
         });
     }
 
@@ -203,7 +255,13 @@ const FormationList = (function () {
                 </div>
                 <div class="form-group">
                     <label class="form-label">Emoji 🎨</label>
-                    <input type="text" class="form-control" id="formation-emoji" placeholder="📚" maxlength="2" value="📚">
+                    <div style="position:relative;display:inline-block">
+                        <div class="emoji-trigger" id="formation-emoji-trigger">
+                            <span id="formation-emoji-display">📚</span>
+                            <span class="emoji-trigger-hint">Cliquer pour choisir</span>
+                        </div>
+                        <input type="hidden" id="formation-emoji" value="📚">
+                    </div>
                 </div>
             </div>
             <div class="academy-modal-footer">
@@ -218,6 +276,13 @@ const FormationList = (function () {
         overlay.querySelector('#modal-cancel').onclick = () => overlay.remove();
         overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
+        // Emoji picker setup
+        _attachEmojiPicker(
+            overlay.querySelector('#formation-emoji-trigger'),
+            overlay.querySelector('#formation-emoji-display'),
+            overlay.querySelector('#formation-emoji')
+        );
+
         overlay.querySelector('#modal-create').onclick = async () => {
             const title = overlay.querySelector('#formation-title').value.trim();
             if (!title) { overlay.querySelector('#formation-title').focus(); return; }
@@ -226,7 +291,7 @@ const FormationList = (function () {
                 title,
                 description: overlay.querySelector('#formation-desc').value.trim(),
                 price_cents: Math.round(price * 100),
-                emoji: overlay.querySelector('#formation-emoji').value.trim() || '📚'
+                emoji: overlay.querySelector('#formation-emoji').value || '📚'
             };
             try {
                 const btn = overlay.querySelector('#modal-create');

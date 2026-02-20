@@ -98,6 +98,24 @@ body {
     }
 }
 
+/* fadeIn premium — 10px slide-up */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation sur vues actives */
+.view.active,
+.view-container.active {
+    animation: fadeIn 0.3s ease-out;
+}
+
 /* === VIEW HEADER === */
 .view-header {
     display: flex;

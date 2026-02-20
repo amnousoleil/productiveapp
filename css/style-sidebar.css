@@ -613,3 +613,83 @@ body.logged-in .sidebar {
 .sidebar-pin {
     display: none !important;
 }
+
+/* ==========================================
+   PREMIUM UPGRADE — 2026-02-19
+   ========================================== */
+
+/* Gradient background premium */
+.sidebar {
+    background: linear-gradient(180deg, #0f0f15 0%, #1a1a24 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: 2px 0 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Items premium */
+.sidebar-item {
+    padding: 0 16px;
+    height: 44px;
+    border-radius: 12px;
+    margin: 2px 8px;
+    color: rgba(255, 255, 255, 0.55);
+    transition: all 0.2s ease;
+}
+
+.sidebar-item:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    transform: translateX(2px);
+}
+
+.sidebar-item.active {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%) !important;
+    color: #a78bfa !important;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+/* Barre active en violet */
+.sidebar-item.active::before {
+    background: #8b5cf6;
+    width: 3px;
+    height: 22px;
+}
+
+/* Icon couleur cohérente */
+.sidebar-item.active .sidebar-item-icon svg {
+    stroke: #a78bfa;
+}
+
+/* Header premium */
+.sidebar-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Footer premium */
+.sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* Divider premium */
+.sidebar-divider {
+    background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Preserve light theme sidebar */
+[data-theme="minimal"] .sidebar,
+[data-theme="academie"] .sidebar {
+    background: linear-gradient(180deg, #f8f8fc 0%, #f1f1f8 100%) !important;
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="minimal"] .sidebar-item,
+[data-theme="academie"] .sidebar-item {
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="minimal"] .sidebar-item:hover,
+[data-theme="academie"] .sidebar-item:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: rgba(0, 0, 0, 0.85) !important;
+}

@@ -117,6 +117,11 @@ const App = {
             if (typeof KanbanBoard !== 'undefined' && KanbanBoard.init) KanbanBoard.init();
             if (typeof NotificationCenter !== 'undefined' && NotificationCenter.init) NotificationCenter.init();
             if (typeof CalendarView !== 'undefined' && CalendarView.init) CalendarView.init();
+
+            // Recharger les notifications avec le token auth (l'auto-init avant login utilisait mock data)
+            if (typeof NotificationsPremiumUI !== 'undefined' && NotificationsPremiumUI.loadNotifications) {
+                NotificationsPremiumUI.loadNotifications();
+            }
             if (typeof MobileNav !== 'undefined' && MobileNav.init) MobileNav.init();
             if (typeof UIPolish !== 'undefined' && UIPolish.init) UIPolish.init();
 

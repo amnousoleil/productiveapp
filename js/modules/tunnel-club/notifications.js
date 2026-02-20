@@ -1,5 +1,5 @@
 /**
- * Tunnel Club — Notifications temps réel
+ * Giri Tunnel Club — Notifications temps réel
  * Écoute les événements WebSocket tenant et affiche des toasts
  * Cache buster: v=100
  */
@@ -94,7 +94,7 @@ const TunnelNotifications = (function() {
                 0%  { background: rgba(34,197,94,0.25); }
                 100%{ background: transparent; }
             }
-            /* Badge pulsant sur l'onglet Tunnel Club */
+            /* Badge pulsant sur l'onglet Giri Tunnel Club */
             .tn-badge {
                 display: inline-flex;
                 align-items: center;
@@ -191,7 +191,7 @@ const TunnelNotifications = (function() {
         flashKpiElement(selector);
     }
 
-    // ─── Badge sur l'onglet Tunnel Club ───────────────────
+    // ─── Badge sur l'onglet Giri Tunnel Club ───────────────────
 
     let unreadCount = 0;
 
@@ -296,7 +296,7 @@ const TunnelNotifications = (function() {
         WebSocketService.on('formation:new_student',    (p) => handleNewStudent(p));
         WebSocketService.on('storage:quota_warning',    (p) => handleStorageWarning(p));
 
-        // Effacer le badge quand l'utilisateur arrive sur Tunnel Club
+        // Effacer le badge quand l'utilisateur arrive sur Giri Tunnel Club
         document.addEventListener('viewChanged', (e) => {
             if (e.detail?.view === 'tunnelClub') clearBadge();
         });

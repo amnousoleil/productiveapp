@@ -10,9 +10,11 @@ const FormationEditor = (function () {
     let _modules = [];
     let _dragSrc = null;
     let _onBack = null;
+    let _onStudents = null;
 
     function setHandlers(handlers) {
         _onBack = handlers.onBack;
+        _onStudents = handlers.onStudents || null;
     }
 
     async function render(container, formation) {
@@ -99,7 +101,13 @@ const FormationEditor = (function () {
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Emoji 🎨</label>
-                                <input type="text" class="form-control" id="f-emoji" value="${f.emoji || '📚'}" maxlength="2">
+                                <div style="position:relative;display:inline-block">
+                                    <div class="emoji-trigger" id="f-emoji-trigger">
+                                        <span id="f-emoji-display">${f.emoji || '📚'}</span>
+                                        <span class="emoji-trigger-hint">Cliquer pour choisir</span>
+                                    </div>
+                                    <input type="hidden" id="f-emoji" value="${f.emoji || '📚'}">
+                                </div>
                             </div>
                             <button class="btn-academy btn-primary" style="width:100%;justify-content:center" id="btn-save-settings">
                                 💾 Enregistrer
@@ -123,7 +131,7 @@ const FormationEditor = (function () {
                                 </div>
                                 <div style="display:flex;justify-content:space-between;font-size:14px">
                                     <span style="color:var(--text-muted)">Étudiants</span>
-                                    <strong>${_formation.students_count || 0}</strong>
+                                    <strong id="stat-students-link" style="cursor:pointer;color:#a78bfa;text-decoration:underline dotted" title="Voir la liste des étudiants">${_formation.students_count || _formation.students_count_live || 0}</strong>
                                 </div>
                                 <div style="display:flex;justify-content:space-between;font-size:14px">
                                     <span style="color:var(--text-muted)">Revenus</span>
@@ -233,42 +241,158 @@ const FormationEditor = (function () {
         </div>`;
     }
 
+    function _showAddModuleModal(container) {
+        // Supprimer une éventuelle modal précédente
+        document.querySelector('#academy-add-module-overlay')?.remove();
+
+        const overlay = document.createElement('div');
+        overlay.id = 'academy-add-module-overlay';
+        overlay.innerHTML = `
+            <div class="aam-modal">
+                <div class="aam-modal-header">
+                    <span class="aam-modal-icon">📦</span>
+                    <h3 class="aam-modal-title">Nouveau module</h3>
+                </div>
+                <div class="aam-modal-body">
+                    <label class="aam-label">Titre du module</label>
+                    <input id="aam-input" class="aam-input" type="text"
+                        placeholder="Ex: Introduction, Module 1…" maxlength="120" autocomplete="off">
+                </div>
+                <div class="aam-modal-footer">
+                    <button class="aam-btn-cancel" id="aam-cancel">Annuler</button>
+                    <button class="aam-btn-create" id="aam-create">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Créer
+                    </button>
+                </div>
+            </div>`;
+
+        document.body.appendChild(overlay);
+
+        const input = overlay.querySelector('#aam-input');
+        setTimeout(() => input?.focus(), 60);
+
+        const close = () => overlay.remove();
+
+        overlay.querySelector('#aam-cancel').addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+
+        const doCreate = async () => {
+            const title = input.value.trim();
+            if (!title) { input.classList.add('aam-shake'); setTimeout(() => input.classList.remove('aam-shake'), 400); return; }
+            const btn = overlay.querySelector('#aam-create');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="aam-spinner"></span> Création…';
+            try {
+                const mod = await AcademyApi.createModule(_formation.id, { title });
+                _modules.push({ ...mod, lessons: [] });
+            } catch (e) {
+                _modules.push({ id: 'mod-' + Date.now(), title, lessons: [] });
+            }
+            close();
+            _refreshModulesList(container);
+        };
+
+        overlay.querySelector('#aam-create').addEventListener('click', doCreate);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') doCreate(); if (e.key === 'Escape') close(); });
+    }
+
+    // ── Emoji Picker ─────────────────────────────────────────
+    const FORMATION_EMOJIS = ['📚','🧘','💪','🎯','🚀','💡','🎓','✨','🔥','💎','🌟','🎨','💼','🏆','❤️','🧠','🌿','⚡','🎵','🏅'];
+
+    function _attachEmojiPicker(trigger, display, hiddenInput) {
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            document.querySelectorAll('.emoji-picker-dropdown').forEach(p => p.remove());
+
+            const picker = document.createElement('div');
+            picker.className = 'emoji-picker-dropdown';
+            const current = hiddenInput.value || '📚';
+            picker.innerHTML = FORMATION_EMOJIS.map(em =>
+                `<button class="emoji-option${em === current ? ' selected' : ''}" data-emoji="${em}" type="button">${em}</button>`
+            ).join('');
+
+            // FIX: Appendre au body avec position:fixed pour éviter le clipping par overflow des parents
+            const rect = trigger.getBoundingClientRect();
+            picker.style.position = 'fixed';
+            picker.style.top = (rect.bottom + 8) + 'px';
+            picker.style.left = rect.left + 'px';
+            picker.style.zIndex = '99999';
+            document.body.appendChild(picker);
+
+            // Ajuster si déborde en bas de l'écran
+            requestAnimationFrame(() => {
+                const ph = picker.offsetHeight;
+                if (rect.bottom + 8 + ph > window.innerHeight) {
+                    picker.style.top = (rect.top - ph - 8) + 'px';
+                }
+            });
+
+            picker.addEventListener('click', (ev) => {
+                const btn = ev.target.closest('[data-emoji]');
+                if (!btn) return;
+                const chosen = btn.dataset.emoji;
+                hiddenInput.value = chosen;
+                display.textContent = chosen;
+                picker.remove();
+                ev.stopPropagation();
+            });
+
+            setTimeout(() => {
+                document.addEventListener('click', function closePicker() {
+                    picker.remove();
+                    document.removeEventListener('click', closePicker);
+                }, { once: true });
+            }, 0);
+        });
+    }
+
     function _attachEvents(container) {
+        // Emoji picker pour l'éditeur de formation
+        const emojiTrigger = container.querySelector('#f-emoji-trigger');
+        const emojiDisplay = container.querySelector('#f-emoji-display');
+        const emojiInput   = container.querySelector('#f-emoji');
+        if (emojiTrigger && emojiDisplay && emojiInput) {
+            _attachEmojiPicker(emojiTrigger, emojiDisplay, emojiInput);
+        }
+
         // Back
         container.querySelector('#btn-back-list')?.addEventListener('click', () => _onBack && _onBack());
         container.querySelector('#link-back')?.addEventListener('click', () => _onBack && _onBack());
 
-        // Add module
-        container.querySelector('#btn-add-module')?.addEventListener('click', async () => {
-            const title = prompt('Titre du module :');
-            if (!title?.trim()) return;
-            try {
-                const mod = await AcademyApi.createModule(_formation.id, { title: title.trim() });
-                _modules.push({ ...mod, lessons: [] });
-                _refreshModulesList(container);
-            } catch (e) {
-                // Fallback mock for dev
-                _modules.push({ id: 'mod-' + Date.now(), title: title.trim(), lessons: [] });
-                _refreshModulesList(container);
-            }
+        // Students stat → navigate to students view
+        container.querySelector('#stat-students-link')?.addEventListener('click', () => _onStudents && _onStudents(_formation));
+
+        // Add module — modal premium (no ugly system prompt)
+        container.querySelector('#btn-add-module')?.addEventListener('click', () => {
+            _showAddModuleModal(container);
         });
 
         // Save settings
         container.querySelector('#btn-save-settings')?.addEventListener('click', async () => {
+            const btn = container.querySelector('#btn-save-settings');
             const data = {
                 title: container.querySelector('#f-title')?.value.trim(),
                 description: container.querySelector('#f-desc')?.value.trim(),
                 price_cents: Math.round(parseFloat(container.querySelector('#f-price')?.value || 0) * 100),
                 emoji: container.querySelector('#f-emoji')?.value.trim() || '📚'
             };
+            if (!data.title) {
+                if (typeof Toast !== 'undefined') Toast.error('Le titre est requis.');
+                return;
+            }
+            btn.disabled = true;
+            btn.textContent = '⏳ Enregistrement...';
             try {
                 await AcademyApi.updateFormation(_formation.id, data);
                 _formation = { ..._formation, ...data };
-                const btn = container.querySelector('#btn-save-settings');
                 btn.textContent = '✅ Enregistré';
-                setTimeout(() => { btn.textContent = '💾 Enregistrer'; }, 2000);
+                if (typeof Toast !== 'undefined') Toast.success('Formation mise à jour.');
+                setTimeout(() => { btn.textContent = '💾 Enregistrer'; btn.disabled = false; }, 2000);
             } catch (e) {
-                alert('Erreur: ' + (e.message || ''));
+                btn.textContent = '✗ Erreur';
+                if (typeof Toast !== 'undefined') Toast.error('Erreur: ' + (e.message || 'Impossible de sauvegarder'));
+                setTimeout(() => { btn.textContent = '💾 Enregistrer'; btn.disabled = false; }, 2000);
             }
         });
 
@@ -288,7 +412,7 @@ const FormationEditor = (function () {
                 btn.className = `btn-academy ${newStatus === 'published' ? 'btn-danger' : 'btn-success'} btn-sm`;
                 btn.textContent = newStatus === 'published' ? '⏸ Dépublier' : '🚀 Publier';
             } catch (e) {
-                alert('Erreur: ' + (e.message || ''));
+                if (typeof Toast !== 'undefined') Toast.error('Erreur: ' + (e.message || ''));
             }
         });
 

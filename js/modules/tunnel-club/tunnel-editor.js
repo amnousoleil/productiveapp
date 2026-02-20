@@ -603,6 +603,12 @@ const TunnelEditor = (function() {
 
         // Regénérer IA
         document.getElementById('tc-btn-ai-regen')?.addEventListener('click', _regenWithAI);
+
+        // Ouvrir la page publique dans un nouvel onglet
+        document.getElementById('tc-btn-open-preview')?.addEventListener('click', () => {
+            const slug = currentTunnel.url || currentTunnel.id;
+            window.open(`/t/${encodeURIComponent(slug)}/${currentPage}`, '_blank');
+        });
     }
 
     function _attachPropsEvents() {
@@ -610,6 +616,15 @@ const TunnelEditor = (function() {
         document.getElementById('tc-add-benefit')?.addEventListener('click', _addBenefit);
         document.getElementById('tc-add-faq')?.addEventListener('click', _addFaqItem);
         document.getElementById('tc-regen-section')?.addEventListener('click', _regenSection);
+
+        // Live preview: écouter tous les inputs/textareas/selects du panneau
+        const propsPanel = document.getElementById('tc-props-panel');
+        if (propsPanel) {
+            propsPanel.querySelectorAll('input, textarea, select').forEach(el => {
+                el.addEventListener('input', _debouncedPreview);
+                el.addEventListener('change', _debouncedPreview);
+            });
+        }
     }
 
     async function _saveSectionProps() {
@@ -662,7 +677,9 @@ const TunnelEditor = (function() {
             <input type="text" class="tc-input tc-benefit-input" placeholder="Nouvel avantage..." data-idx="${idx}">
         `;
         list.appendChild(div);
-        div.querySelector('input')?.focus();
+        const inp = div.querySelector('input');
+        inp?.addEventListener('input', _debouncedPreview);
+        inp?.focus();
     }
 
     function _addFaqItem() {
@@ -679,6 +696,7 @@ const TunnelEditor = (function() {
             <textarea class="tc-textarea tc-faq-a" data-idx="${idx}" style="min-height:60px;" placeholder="La réponse..."></textarea>
         `;
         list.appendChild(div);
+        div.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', _debouncedPreview));
         div.querySelector('input')?.focus();
     }
 
@@ -787,6 +805,57 @@ const TunnelEditor = (function() {
             </div>
             <button class="tc-btn tc-btn-primary" style="width:100%;justify-content:center;">💾 Sauvegarder SEO</button>
         `;
+    }
+
+    // ──────────────────────────────────────────
+    // LIVE PREVIEW
+    // ──────────────────────────────────────────
+
+    let _previewTimer = null;
+
+    function _debouncedPreview() {
+        clearTimeout(_previewTimer);
+        _previewTimer = setTimeout(() => {
+            _liveUpdateFromForm();
+            _updatePreview();
+        }, 300);
+    }
+
+    // Lit les valeurs actuelles du formulaire → met à jour currentTunnel en mémoire
+    // (sans appel API — la sauvegarde reste sur "Appliquer")
+    function _liveUpdateFromForm() {
+        if (!currentTunnel.aiContent) currentTunnel.aiContent = {};
+        const c = currentTunnel.aiContent;
+
+        const headline    = document.getElementById('tc-prop-headline');
+        const subheadline = document.getElementById('tc-prop-subheadline');
+        const cta         = document.getElementById('tc-prop-cta');
+        const buyCta      = document.getElementById('tc-prop-buy-cta');
+        const guarantee   = document.getElementById('tc-prop-guarantee');
+        const price       = document.getElementById('tc-prop-price');
+        const currency    = document.getElementById('tc-prop-currency');
+
+        if (headline)    c.headline    = headline.value;
+        if (subheadline) c.subheadline = subheadline.value;
+        if (cta)         c.cta         = cta.value;
+        if (buyCta)      c.cta         = buyCta.value;
+        if (guarantee)   c.guarantee   = guarantee.value;
+        if (price)       currentTunnel.price    = parseFloat(price.value) || 0;
+        if (currency)    currentTunnel.currency = currency.value;
+
+        const benefitInputs = document.querySelectorAll('.tc-benefit-input');
+        if (benefitInputs.length > 0) {
+            c.benefits = Array.from(benefitInputs).map(i => i.value).filter(Boolean);
+        }
+
+        const faqQs = document.querySelectorAll('.tc-faq-q');
+        const faqAs = document.querySelectorAll('.tc-faq-a');
+        if (faqQs.length > 0) {
+            c.faq = Array.from(faqQs).map((q, i) => ({
+                q: q.value,
+                a: faqAs[i]?.value || ''
+            })).filter(item => item.q);
+        }
     }
 
     // ──────────────────────────────────────────

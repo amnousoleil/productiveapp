@@ -15,7 +15,8 @@ const TunnelClubOnboarding = (function() {
     // ──────────────────────────────────────────
 
     function _getToken() {
-        return localStorage.getItem('productive_token') || sessionStorage.getItem('productive_token') || '';
+        if (typeof ApiTokens !== 'undefined' && ApiTokens.getAccessToken) return ApiTokens.getAccessToken() || '';
+        return localStorage.getItem('accessToken') || '';
     }
 
     function _headers() {
@@ -71,7 +72,7 @@ const TunnelClubOnboarding = (function() {
             const data = await _request('GET', '/my-tenant');
 
             if (data.hasTenant) {
-                // Déjà inscrit → rendre le dashboard Tunnel Club normal
+                // Déjà inscrit → rendre le dashboard Giri Tunnel Club normal
                 if (typeof TunnelClub !== 'undefined' && typeof TunnelClub.renderDashboard === 'function') {
                     TunnelClub.renderDashboard(container, data);
                 } else if (typeof TunnelList !== 'undefined') {
@@ -116,7 +117,7 @@ const TunnelClubOnboarding = (function() {
             <div class="tc-onboarding-inner">
                 <div class="tc-onboarding-header">
                     <div class="tc-onboarding-logo">⚡</div>
-                    <h1>Bienvenue sur Tunnel Club</h1>
+                    <h1>Bienvenue sur Giri Tunnel Club</h1>
                     <p>Créez votre espace en quelques secondes</p>
                     <div class="tc-onboarding-steps">
                         <div class="tc-step active">1</div>

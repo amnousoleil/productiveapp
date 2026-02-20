@@ -73,6 +73,7 @@ const PsychoAuditView = (function() {
 
     function reset() {
         PaState.reset();
+        if (typeof PaRender !== 'undefined' && PaRender.resetStep) PaRender.resetStep();
         render();
     }
 

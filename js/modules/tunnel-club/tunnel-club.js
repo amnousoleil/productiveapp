@@ -1,7 +1,7 @@
 /**
  * ================================================
  * TUNNEL CLUB v1.0 — Module Principal
- * Orchestrateur de l'interface Tunnel Club
+ * Orchestrateur de l'interface Giri Tunnel Club
  * ================================================
  */
 
@@ -55,7 +55,7 @@ const TunnelClub = (function() {
                 <div class="tc-wrapper">
                     <div class="tc-empty-state">
                         <div class="tc-empty-state-icon">⚠️</div>
-                        <h3>Modules Tunnel Club non chargés</h3>
+                        <h3>Modules Giri Tunnel Club non chargés</h3>
                         <p>Vérifiez que tous les fichiers JS sont bien inclus dans index.html</p>
                     </div>
                 </div>

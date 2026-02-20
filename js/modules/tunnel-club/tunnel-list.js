@@ -45,13 +45,16 @@ const TunnelList = (function() {
                 <div class="tc-header-left">
                     <h1>
                         <span class="tc-logo">⚡</span>
-                        Tunnel Club
+                        Giri Tunnel Club
                     </h1>
                     <p>Créez des tunnels de vente haute conversion avec l'IA</p>
                 </div>
                 <div class="tc-header-actions">
                     <button class="tc-btn tc-btn-secondary tc-btn-sm" id="tc-btn-stats">
                         📊 Statistiques
+                    </button>
+                    <button class="tc-btn tc-btn-ghost tc-btn-sm" id="tc-btn-cert-settings" title="Personnaliser les certificats de formation">
+                        🎓 Certificats
                     </button>
                     <button class="tc-btn tc-btn-primary" id="tc-btn-create-main">
                         ✨ Créer un tunnel
@@ -189,6 +192,13 @@ const TunnelList = (function() {
         // Carte créer
         document.getElementById('tc-create-card')?.addEventListener('click', () => {
             if (typeof TunnelClub !== 'undefined') TunnelClub.openGenerator();
+        });
+
+        // Bouton personnalisation certificats
+        document.getElementById('tc-btn-cert-settings')?.addEventListener('click', () => {
+            if (typeof CertificateSettings !== 'undefined') {
+                CertificateSettings.open();
+            }
         });
 
         // Bouton stats global → Dashboard analytics

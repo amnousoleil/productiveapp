@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paiement sécurisé — Giri Académie</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f0e17;
+    color: #fffffe;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.checkout-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.checkout-header .logo {
+    font-size: 36px;
+    display: block;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 0 16px rgba(251,191,36,0.6));
+}
+.checkout-header h1 {
+    font-size: 14px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.checkout-card {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+}
+
+.formation-banner {
+    background: linear-gradient(135deg, #1a0533 0%, #0d0d1a 100%);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+.formation-icon {
+    font-size: 40px;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 12px rgba(139,92,246,0.5));
+}
+.formation-info h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fffffe;
+    margin-bottom: 4px;
+    line-height: 1.35;
+}
+.formation-info .by-trainer {
+    font-size: 12px;
+    color: rgba(255,255,255,0.45);
+}
+
+.checkout-body {
+    padding: 28px;
+}
+
+.price-block {
+    background: rgba(139,92,246,0.08);
+    border: 1px solid rgba(139,92,246,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.price-label { font-size: 13px; color: rgba(255,255,255,0.55); }
+.price-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fffffe;
+}
+.price-amount .currency { font-size: 16px; color: rgba(255,255,255,0.6); margin-left: 4px; }
+.price-original {
+    text-decoration: line-through;
+    color: rgba(255,255,255,0.35);
+    font-size: 14px;
+    margin-right: 8px;
+}
+.price-discount-badge {
+    background: rgba(34,197,94,0.15);
+    color: #4ade80;
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+.form-group label {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 500;
+}
+.form-group input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #fffffe;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+}
+.form-group input:focus {
+    border-color: rgba(139,92,246,0.6);
+    background: rgba(139,92,246,0.06);
+}
+.form-group input::placeholder { color: rgba(255,255,255,0.25); }
+
+.coupon-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.coupon-row input {
+    flex: 1;
+    background: rgba(255,255,255,0.06);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #fffffe;
+    font-size: 13px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.coupon-row input:focus { border-color: rgba(139,92,246,0.5); }
+.coupon-row input::placeholder { text-transform: none; letter-spacing: 0; }
+.btn-coupon {
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: rgba(255,255,255,0.75);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 16px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+.btn-coupon:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.coupon-feedback {
+    font-size: 12px;
+    margin-bottom: 16px;
+    min-height: 18px;
+    padding: 0 2px;
+}
+.coupon-feedback.ok { color: #4ade80; }
+.coupon-feedback.err { color: #f87171; }
+
+.btn-pay {
+    width: 100%;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+    box-shadow: 0 8px 24px -8px rgba(139,92,246,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn-pay:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -8px rgba(139,92,246,0.7);
+}
+.btn-pay:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+.security-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 14px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+}
+.security-note svg { flex-shrink: 0; }
+
+.error-box {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    border-radius: 10px;
+    color: #fca5a5;
+    font-size: 13px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: none;
+    line-height: 1.5;
+}
+.error-box.visible { display: block; }
+
+.free-notice {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    display: none;
+}
+
+.spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+}
+.btn-pay.loading .spinner { display: inline-block; }
+.btn-pay.loading .btn-text { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.checkout-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.2);
+}
+</style>
+</head>
+<body>
+
+<div class="checkout-header">
+    <span class="logo">🎓</span>
+    <h1>Paiement sécurisé</h1>
+</div>
+
+<div class="checkout-card">
+    <div class="formation-banner">
+        <span class="formation-icon" id="formationIcon">📚</span>
+        <div class="formation-info">
+            <h2 id="formationTitle">Chargement…</h2>
+            <div class="by-trainer" id="trainerName">Giri Académie</div>
+        </div>
+    </div>
+
+    <div class="checkout-body">
+        <div class="price-block">
+            <div>
+                <div class="price-label">Total à régler</div>
+                <div id="discountBadge" class="price-discount-badge" style="display:none"></div>
+            </div>
+            <div style="text-align:right">
+                <span id="priceOriginal" class="price-original" style="display:none"></span>
+                <span class="price-amount">
+                    <span id="priceDisplay">—</span>
+                    <span class="currency" id="currencyDisplay">EUR</span>
+                </span>
+            </div>
+        </div>
+
+        <div class="error-box" id="errorBox"></div>
+
+        <div class="form-group">
+            <label for="emailInput">Votre adresse email</label>
+            <input type="email" id="emailInput" placeholder="vous@example.com" autocomplete="email" />
+        </div>
+        <div class="form-group">
+            <label for="nameInput">Votre prénom (optionnel)</label>
+            <input type="text" id="nameInput" placeholder="Prénom" autocomplete="given-name" />
+        </div>
+
+        <div style="margin-bottom:6px; font-size:12px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.8px; font-weight:500;">Code promo</div>
+        <div class="coupon-row">
+            <input type="text" id="couponInput" placeholder="BIENVENUE" maxlength="32" />
+            <button class="btn-coupon" id="couponBtn" type="button">Appliquer</button>
+        </div>
+        <div class="coupon-feedback" id="couponFeedback"></div>
+
+        <button class="btn-pay" id="payBtn" type="button">
+            <div class="spinner"></div>
+            <span class="btn-text">
+                <span>🔒</span> Payer avec Stripe
+            </span>
+        </button>
+
+        <div class="security-note">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Paiement chiffré SSL · Géré par Stripe
+        </div>
+    </div>
+</div>
+
+<div class="checkout-footer">© 2026 Giri Académie</div>
+
+<script>
+(function() {
+    var API = 'https://giri-app.com/api/v1';
+
+    // Lire les params URL
+    var params = new URLSearchParams(location.search);
+    var formationId = params.get('id') || '';
+    var title      = params.get('title') || 'Formation';
+    var priceCents = parseInt(params.get('price') || '0', 10);
+    var currency   = (params.get('currency') || 'EUR').toUpperCase();
+    var trainer    = params.get('trainer') || 'Giri Académie';
+    var slug       = params.get('slug') || '';
+
+    // Afficher les infos de base
+    document.getElementById('formationTitle').textContent = decodeURIComponent(title);
+    document.getElementById('trainerName').textContent = 'par ' + decodeURIComponent(trainer);
+    document.getElementById('currencyDisplay').textContent = currency;
+    showPrice(priceCents);
+
+    var appliedCoupon = null; // { code, discount_amount_cents, final_amount_cents, label }
+    var originalCents = priceCents;
+
+    function showPrice(cents) {
+        if (cents === 0) {
+            document.getElementById('priceDisplay').textContent = 'Gratuit';
+            document.getElementById('currencyDisplay').style.display = 'none';
+        } else {
+            document.getElementById('priceDisplay').textContent = (cents / 100).toFixed(2);
+            document.getElementById('currencyDisplay').style.display = '';
+        }
+    }
+
+    function showError(msg) {
+        var box = document.getElementById('errorBox');
+        box.textContent = msg;
+        box.classList.add('visible');
+    }
+    function hideError() {
+        document.getElementById('errorBox').classList.remove('visible');
+    }
+
+    // Coupon
+    document.getElementById('couponBtn').addEventListener('click', function() {
+        var code = document.getElementById('couponInput').value.trim().toUpperCase();
+        var fb = document.getElementById('couponFeedback');
+        if (!code) { fb.className = 'coupon-feedback err'; fb.textContent = 'Entrez un code promo.'; return; }
+
+        this.disabled = true;
+        this.textContent = '…';
+        fb.className = 'coupon-feedback';
+        fb.textContent = '';
+
+        fetch(API + '/coupons/validate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code: code, amount: originalCents, formationId: formationId || undefined })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.valid) {
+                appliedCoupon = {
+                    code: code,
+                    final_amount_cents: data.discount.final_amount_cents,
+                    label: '-' + (data.discount.type === 'percent'
+                        ? data.discount.value + '%'
+                        : (data.discount.amount_cents / 100).toFixed(2) + ' ' + currency)
+                };
+                fb.className = 'coupon-feedback ok';
+                fb.textContent = '✓ Code appliqué — ' + appliedCoupon.label + ' !';
+                // Afficher prix barré + nouveau prix
+                document.getElementById('priceOriginal').textContent = (originalCents / 100).toFixed(2) + ' ' + currency;
+                document.getElementById('priceOriginal').style.display = '';
+                document.getElementById('discountBadge').textContent = appliedCoupon.label;
+                document.getElementById('discountBadge').style.display = '';
+                showPrice(appliedCoupon.final_amount_cents);
+            } else {
+                appliedCoupon = null;
+                fb.className = 'coupon-feedback err';
+                fb.textContent = data.reason || 'Code invalide ou expiré.';
+                // Remettre prix d'origine
+                document.getElementById('priceOriginal').style.display = 'none';
+                document.getElementById('discountBadge').style.display = 'none';
+                showPrice(originalCents);
+            }
+        })
+        .catch(function() {
+            fb.className = 'coupon-feedback err';
+            fb.textContent = 'Erreur de vérification du code.';
+        })
+        .finally(function() {
+            document.getElementById('couponBtn').disabled = false;
+            document.getElementById('couponBtn').textContent = 'Appliquer';
+        });
+    });
+
+    // Payer
+    document.getElementById('payBtn').addEventListener('click', function() {
+        hideError();
+        var email = document.getElementById('emailInput').value.trim();
+        var name  = document.getElementById('nameInput').value.trim();
+
+        if (!formationId) { showError('Formation introuvable. Veuillez retourner à la page de la formation.'); return; }
+        if (!email || !email.includes('@')) { showError('Veuillez entrer une adresse email valide.'); return; }
+
+        var btn = this;
+        btn.classList.add('loading');
+        btn.disabled = true;
+
+        var body = {
+            formationId: formationId,
+            customerEmail: email,
+        };
+        if (name) body.customerName = name;
+        if (appliedCoupon) body.couponCode = appliedCoupon.code;
+
+        // Récupérer code affilié depuis URL si présent
+        var affCode = params.get('aff') || params.get('ref');
+        if (affCode) body.affiliateCode = affCode;
+
+        fetch(API + '/payments/checkout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.checkoutUrl) {
+                // Rediriger vers Stripe
+                window.location.href = data.checkoutUrl;
+            } else {
+                var msg = data.error || 'Une erreur est survenue lors de la création du paiement.';
+                // Message plus convivial pour erreur Stripe Connect
+                if (msg.includes('paiements Stripe')) {
+                    msg = 'Le paiement n\'est pas encore disponible pour cette formation. Contactez le formateur.';
+                }
+                showError(msg);
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        })
+        .catch(function() {
+            showError('Erreur réseau. Vérifiez votre connexion et réessayez.');
+            btn.classList.remove('loading');
+            btn.disabled = false;
+        });
+    });
+
+    // Coupon Input — Enter key
+    document.getElementById('couponInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('couponBtn').click();
+    });
+
+    // Email Input — Enter key
+    document.getElementById('emailInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('payBtn').click();
+    });
+
+    // Si formation gratuite, afficher message
+    if (priceCents === 0) {
+        document.getElementById('payBtn').textContent = 'Accéder gratuitement';
+    }
+})();
+</script>
+</body>
+</html>
