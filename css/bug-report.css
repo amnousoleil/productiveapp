@@ -5,11 +5,11 @@
 /* ── Bouton flottant ─────────────────────────────────── */
 .bug-report-fab {
   position: fixed;
-  bottom: 88px;
-  right: 20px;
+  bottom: 131px;
+  right: 42px;
   z-index: 9000;
-  width: 42px;
-  height: 42px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: rgba(255, 80, 80, 0.15);
   border: 1.5px solid rgba(255, 80, 80, 0.4);
@@ -197,5 +197,5 @@
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 540px) {
-  .bug-report-fab { bottom: 70px; right: 14px; }
+  .bug-report-fab { bottom: 120px; right: 30px; }
 }

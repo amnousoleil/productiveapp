@@ -27,7 +27,7 @@ const BugReport = (function () {
     const s = document.createElement('link');
     s.id = 'bug-report-css';
     s.rel = 'stylesheet';
-    s.href = '/css/bug-report.css?v=100';
+    s.href = '/css/bug-report.css?v=101';
     document.head.appendChild(s);
   }
 
@@ -38,7 +38,7 @@ const BugReport = (function () {
     fab.id = 'bug-report-fab';
     fab.className = 'bug-report-fab';
     fab.title = 'Signaler un bug';
-    fab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20">
+    fab.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>`;
     fab.addEventListener('click', open);

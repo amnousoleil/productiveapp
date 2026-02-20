@@ -2089,6 +2089,44 @@ setTimeout(function() {
             }, 100);
         });
 
+        // Galaxy/Satellite mode toggle button (task project mode only)
+        var modeBtn = document.createElement('button');
+        modeBtn.id = 'galaxy-mode-toggle-btn';
+        // SVG icons: spiral (galaxy) and orbits (satellite)
+        var galaxyIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5">' +
+            '<ellipse cx="12" cy="12" rx="10" ry="3"/>' +
+            '<ellipse cx="12" cy="12" rx="7" ry="2" transform="rotate(30 12 12)"/>' +
+            '<circle cx="12" cy="12" r="2" fill="rgba(255,255,255,0.9)" stroke="none"/></svg>';
+        var satelliteIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="1.5">' +
+            '<circle cx="12" cy="12" r="2.5" fill="rgba(255,255,255,0.7)" stroke="none"/>' +
+            '<ellipse cx="12" cy="12" rx="7" ry="10"/>' +
+            '<ellipse cx="12" cy="12" rx="7" ry="10" transform="rotate(60 12 12)"/>' +
+            '<ellipse cx="12" cy="12" rx="7" ry="10" transform="rotate(120 12 12)"/></svg>';
+
+        function updateModeIcon() {
+            var mode = (typeof Galaxy3D !== 'undefined' && Galaxy3D.getOrbitMode) ? Galaxy3D.getOrbitMode() : 'galaxy';
+            // Show icon of the mode you're switching TO
+            modeBtn.innerHTML = (mode === 'galaxy') ? satelliteIcon : galaxyIcon;
+            modeBtn.title = (mode === 'galaxy') ? 'Mode Satellite' : 'Mode Galaxie';
+            if (mode === 'galaxy') {
+                modeBtn.style.borderColor = 'rgba(255,200,100,0.5)';
+                modeBtn.style.boxShadow = '0 0 8px rgba(255,200,100,0.2)';
+            } else {
+                modeBtn.style.borderColor = 'rgba(255,255,255,0.25)';
+                modeBtn.style.boxShadow = 'none';
+            }
+        }
+
+        modeBtn.style.cssText = btnStyle;
+        modeBtn.setAttribute('onmouseenter', hoverIn);
+        modeBtn.setAttribute('onmouseleave', hoverOut);
+        modeBtn.addEventListener('click', function() {
+            if (typeof Galaxy3D === 'undefined' || !Galaxy3D.isInitialized) return;
+            Galaxy3D.toggleOrbitMode();
+            setTimeout(updateModeIcon, 50);
+        });
+        updateModeIcon();
+
         // Container bar
         bottomBar = document.createElement('div');
         bottomBar.id = 'galaxy-3d-bottombar';
@@ -2096,6 +2134,10 @@ setTimeout(function() {
             'display:flex;gap:8px;';
         bottomBar.appendChild(backBtn);
         bottomBar.appendChild(fitBtn);
+        // Only show mode toggle in task project mode
+        if (window.CosmicProjectsUI && window.CosmicProjectsUI.isTaskProjectMode) {
+            bottomBar.appendChild(modeBtn);
+        }
         bottomBar.appendChild(voyageBtn);
         bottomBar.appendChild(fsBtn);
         return bottomBar;
